@@ -9,6 +9,7 @@ import { DirectorxSettings, SETTINGS_NS, type DirectorxSettings as DirectorxSett
 import { corpus } from './corpus.ts'
 import { registerCanvasRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute } from './media-server.ts'
 import { registerBundledSkills } from './skills.ts'
+import { registerSettingsTestRoute } from './settings-test.ts'
 import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
 
@@ -73,6 +74,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerMediaTasksRoute(ctx, () => scope.get().outputDir), 'directorx media tasks route')
   ctx.effect(() => registerMediaListRoute(ctx, () => scope.get().outputDir), 'directorx media list route')
   ctx.effect(() => registerCanvasRoute(ctx, () => scope.get().outputDir), 'directorx canvas route')
+  ctx.effect(() => registerSettingsTestRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx settings test route')
   ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
 
   void registerBundledSkills(ctx).catch(error => {

@@ -111,11 +111,31 @@ const hint: CSSProperties = { fontSize: 12, opacity: .62, lineHeight: 1.5 }
 
 function CapabilityCard(props: {
   title: string
+  capability: 'vision' | 'image' | 'video' | 'audio'
   draft: CapabilityDraft
   modes: string[]
   onChange: (next: CapabilityDraft) => void
 }): ReactNode {
   const { draft } = props
+  const [testState, setTestState] = useState<'idle' | 'testing' | 'ok' | 'fail'>('idle')
+  const [testMessage, setTestMessage] = useState<string | undefined>(undefined)
+  async function testConnection(): Promise<void> {
+    setTestState('testing')
+    setTestMessage(undefined)
+    try {
+      const response = await fetch('/directorx/settings/test', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ capability: props.capability }),
+      })
+      const data = await response.json() as { ok: boolean; message: string }
+      setTestState(data.ok ? 'ok' : 'fail')
+      setTestMessage(data.message)
+    } catch (cause) {
+      setTestState('fail')
+      setTestMessage(cause instanceof Error ? cause.message : String(cause))
+    }
+  }
   return (
     <div style={card}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -144,6 +164,15 @@ function CapabilityCard(props: {
           <div style={row}>
             <span style={label}>Model</span>
             <input style={input} value={draft.model} placeholder="model id" onChange={event => props.onChange({ ...draft, model: event.target.value })} />
+          </div>
+          <div style={{ ...row, marginTop: 8 }}>
+            <span style={label}>连接测试</span>
+            <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => void testConnection()} disabled={testState === 'testing'}>
+                {testState === 'testing' ? '测试中…' : '测试连接'}
+              </button>
+              {testMessage !== undefined ? <span style={{ fontSize: 12, color: testState === 'ok' ? '#8fdc9f' : '#e88f8f' }}>{testMessage}</span> : null}
+            </span>
           </div>
           {props.title === CAPABILITY_LABEL.video ? (
             <>
@@ -283,6 +312,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           <CapabilityCard
             key={capabilityKey}
             title={CAPABILITY_LABEL[capabilityKey]}
+            capability={capabilityKey}
             draft={draft[capabilityKey]}
             modes={MODES[capabilityKey]}
             onChange={(next) => { setDraft(current => ({ ...current, [capabilityKey]: next })) }}

@@ -359,6 +359,7 @@ function CanvasTabInner(): ReactNode {
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
+  const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
   const cascadeRef = useRef(0)
 
   const renameNode = useCallback((id: string, label: string) => {
@@ -520,7 +521,67 @@ function CanvasTabInner(): ReactNode {
     setEdges(current => applyEdgeChanges(changes, current))
   }, [])
 
+  const onNodeDrag = useCallback((_event: unknown, node: CanvasFlowNode) => {
+    // LibTV-style alignment snapping (<=6px): pull the dragged node to the
+    // nearest edge/center alignment and show guide lines.
+    const snap = 6
+    const width = nodeMetrics(node).width
+    const height = nodeMetrics(node).height
+    const others = nodesRef.current.filter(candidate => candidate.id !== node.id)
+    const centers = others.flatMap(candidate => {
+      const m = nodeMetrics(candidate)
+      const cx = candidate.position.x + m.width / 2
+      const cy = candidate.position.y + m.height / 2
+      const cxr = candidate.position.x + m.width
+      const cyb = candidate.position.y + m.height
+      return [
+        { axis: 'vertical' as const, value: candidate.position.x },
+        { axis: 'vertical' as const, value: cx },
+        { axis: 'vertical' as const, value: cxr },
+        { axis: 'horizontal' as const, value: candidate.position.y },
+        { axis: 'horizontal' as const, value: cy },
+        { axis: 'horizontal' as const, value: cyb },
+      ]
+    })
+    const candidates = [
+      { axis: 'vertical' as const, value: node.position.x, offset: 0 },
+      { axis: 'vertical' as const, value: node.position.x + width / 2, offset: width / 2 },
+      { axis: 'vertical' as const, value: node.position.x + width, offset: width },
+      { axis: 'horizontal' as const, value: node.position.y, offset: 0 },
+      { axis: 'horizontal' as const, value: node.position.y + height / 2, offset: height / 2 },
+      { axis: 'horizontal' as const, value: node.position.y + height, offset: height },
+    ]
+    const vertical: number[] = []
+    const horizontal: number[] = []
+    let vAdjust = 0
+    let hAdjust = 0
+    for (const candidate of candidates) {
+      const nearest = centers
+        .filter(target => target.axis === candidate.axis)
+        .map(target => ({ target, delta: target.value - candidate.value }))
+        .sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta))[0]
+      if (nearest === undefined || Math.abs(nearest.delta) > snap) continue
+      if (candidate.axis === 'vertical') {
+        vertical.push(nearest.target.value)
+        // Recompute the source edge from the dragged node's CURRENT position:
+        // the value derived above already reflects it, so the offset maps
+        // the matched edge back to the adjustment on x/y.
+        vAdjust = nearest.delta
+      } else {
+        horizontal.push(nearest.target.value)
+        hAdjust = nearest.delta
+      }
+    }
+    setGuides({ vertical, horizontal })
+    if (vAdjust !== 0 || hAdjust !== 0) {
+      setNodes(current => current.map(candidate => candidate.id === node.id
+        ? { ...candidate, position: { x: candidate.position.x + vAdjust, y: candidate.position.y + hAdjust } }
+        : candidate))
+    }
+  }, [setNodes])
+
   const onNodeDragStop = useCallback((_event: unknown, node: CanvasFlowNode) => {
+    setGuides({ vertical: [], horizontal: [] })
     // Drop-into-group: when a top-level node lands inside a group frame,
     // adopt it into the group (position becomes parent-relative).
     if (node.parentId === undefined || node.parentId === '') {
@@ -794,6 +855,7 @@ function CanvasTabInner(): ReactNode {
         onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
+        onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
@@ -815,6 +877,12 @@ function CanvasTabInner(): ReactNode {
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
         <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} />
+        {(guides.vertical.length > 0 || guides.horizontal.length > 0) ? (
+          <svg className="directorx-guides" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
+            {guides.vertical.map(x => <line key={`v${x}`} x1={x} y1={-5000} x2={x} y2={5000} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
+            {guides.horizontal.map(y => <line key={`h${y}`} x1={-5000} y1={y} x2={5000} y2={y} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
+          </svg>
+        ) : null}
         <Controls position="bottom-left" showInteractive={false} />
         <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }} maskColor="rgba(0,0,0,.75)" nodeColor="#3f3f3f" nodeStrokeColor="#5c5c5c" />
       </ReactFlow>

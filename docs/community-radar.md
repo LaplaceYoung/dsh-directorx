@@ -26,6 +26,7 @@
 | konva / react-konva | 14,683 / 6,398 | MIT | Canvas 2D 底座 | 画布性能优化备选 |
 | excalidraw | 129,660 | MIT | 手绘风白板引擎（@excalidraw/excalidraw 可嵌入） | 画布引擎备选（性能/手绘风格场景）；体积大，需按需加载 |
 | blocksuite | 5,976 | MPL-2.0 | Affine 的块编辑器框架（文档+画布） | 若画布要文档化协同（富文本节点）时评估 |
+| fabric.js | 31,141 | MIT | 老牌 Canvas 2D 图形库（拖拽/变换/组） | 若自绘节点卡（非 DOM）或做像素级图形编辑时评估 |
 
 ## 已调研 · 弃用（附原因）
 
