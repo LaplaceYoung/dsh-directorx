@@ -57,6 +57,7 @@ const script = await agent(
     '- 用 directorx_knowledge_search 查证镜头语言与模型规格，不要臆测；',
     '- 每个镜头写清：画面动作、机位/运镜、时长（秒）、与前后镜的连续性衔接；',
     '- 输出一组贯穿全片的锚点（anchors）：主体、风格、光线、镜头焦段。',
+    '- 画布镜像（必须）：用 directorx_canvas_get 读现状，然后 directorx_canvas_add 为每个镜头建 text 节点（label=镜头 id+一句话），directorx_canvas_connect 按镜头顺序连线，并把它们放进一个新 group 节点（parent=组 id，组名含项目简报关键词）；完成后用 directorx_canvas_arrange 整理。不要覆盖已有节点。',
   ].join('\n'),
   { label: '分镜导演', phase: '剧本与分镜', schema: SHOT_SCHEMA },
 )
@@ -142,7 +143,7 @@ const qa = await agent(
 phase('组装方案')
 const assembly = await agent(
   [
-    '你是后期组装师。基于分镜顺序与质检结论给出组装方案：',
+    '你是后期组装师。基于分镜顺序与质检结论给出组装方案。先用 directorx_canvas_get 读画布确认镜头清单，并用 directorx_canvas_update 把质检结论（label 或注释）反映到对应节点。组装方案要求：',
     JSON.stringify({ shots, outputs, qa }),
     '输出：镜头顺序、转场/节奏建议、需要的音频（旁白/音效，用 directorx_generate_audio）、',
     '以及在 WebUI 右侧编辑面板中二次剪辑的步骤（分割、重排、导出），最终交付文件清单。',
