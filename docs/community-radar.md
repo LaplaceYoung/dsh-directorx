@@ -39,6 +39,7 @@
 | react-rnd | 4,321 | MIT | React 可拖拽/缩放容器组件 | 编辑器浮动窗口等场景备选（画布节点已用 xyflow 原生） |
 | lucide（lucide-react） | 23,966 | ISC（API 显示 NOASSERTION，仓库实际 ISC） | 图标库（原 directorx 设计保留项） | 工具栏目前用内联 SVG（零依赖）；图标需求增长后评估接入 |
 | media-chrome（Mux） | 2,725 | MIT | Web Components 播放器控制条 | 媒体节点/预览播放器 UI 升级候选 |
+| zundo（charkour） | 2,278 | MIT | zustand 撤销/重做中间件 | 已自研轻量历史栈（画布 50 步上限）；多 store 协同再评估 |
 
 ## 已调研 · 弃用（附原因）
 

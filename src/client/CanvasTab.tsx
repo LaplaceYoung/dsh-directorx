@@ -385,8 +385,41 @@ function CanvasTabInner(): ReactNode {
   const [title, setTitle] = useState('未命名画布')
   const titleRef = useRef('未命名画布')
   const cascadeRef = useRef(0)
+  const undoStackRef = useRef<Array<{ nodes: CanvasFlowNode[]; edges: Edge[] }>>([])
+  const redoStackRef = useRef<Array<{ nodes: CanvasFlowNode[]; edges: Edge[] }>>([])
+  const resizingRef = useRef(false)
+
+  /** Snapshot the current graph into the undo stack (called before discrete mutations). */
+  const pushHistory = useCallback(() => {
+    undoStackRef.current.push({ nodes: nodesRef.current, edges: edgesRef.current })
+    if (undoStackRef.current.length > 50) undoStackRef.current.shift()
+    redoStackRef.current = []
+  }, [])
+
+  const undo = useCallback(() => {
+    const previous = undoStackRef.current.pop()
+    if (previous === undefined) return
+    redoStackRef.current.push({ nodes: nodesRef.current, edges: edgesRef.current })
+    nodesRef.current = previous.nodes
+    edgesRef.current = previous.edges
+    setNodes(previous.nodes)
+    setEdges(previous.edges)
+    saveRef.current()
+  }, [setNodes, setEdges])
+
+  const redo = useCallback(() => {
+    const next = redoStackRef.current.pop()
+    if (next === undefined) return
+    undoStackRef.current.push({ nodes: nodesRef.current, edges: edgesRef.current })
+    nodesRef.current = next.nodes
+    edgesRef.current = next.edges
+    setNodes(next.nodes)
+    setEdges(next.edges)
+    saveRef.current()
+  }, [setNodes, setEdges])
 
   const renameNode = useCallback((id: string, label: string) => {
+    pushHistory()
     setNodes(current => current.map(node => node.id === id
       ? { ...node, data: { ...node.data, label } }
       : node))
@@ -394,6 +427,7 @@ function CanvasTabInner(): ReactNode {
   }, [setNodes])
 
   const duplicateNode = useCallback((id: string) => {
+    pushHistory()
     setNodes(current => {
       const source = current.find(node => node.id === id)
       if (source === undefined) return current
@@ -409,6 +443,7 @@ function CanvasTabInner(): ReactNode {
   }, [setNodes])
 
   const deleteNode = useCallback((id: string) => {
+    pushHistory()
     setNodes(current => current.filter(node => node.id !== id))
     setEdges(current => current.filter(edge => edge.source !== id && edge.target !== id))
     saveRef.current()
@@ -569,6 +604,17 @@ function CanvasTabInner(): ReactNode {
         }
         return
       }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
+        event.preventDefault()
+        if (event.shiftKey) redo()
+        else undo()
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'y') {
+        event.preventDefault()
+        redo()
+        return
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd') {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
@@ -588,7 +634,7 @@ function CanvasTabInner(): ReactNode {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedEdge, setEdges, scheduleSave])
+  }, [selectedEdge, setEdges, scheduleSave, undo, redo])
 
   // Flush a pending debounced save when the tab unmounts, so closing the dock
   // never loses the last drag/edit.
@@ -599,6 +645,14 @@ function CanvasTabInner(): ReactNode {
 
   const onNodesChange = useCallback((changes: NodeChange<CanvasFlowNode>[]) => {
     const removedIds = changes.filter(change => change.type === 'remove').map(change => change.id)
+    const dimChange = changes.find(change => change.type === 'dimensions') as { resizing?: boolean } | undefined
+    if (dimChange !== undefined) {
+      if (dimChange.resizing === true && !resizingRef.current) {
+        resizingRef.current = true
+        pushHistory()
+      }
+      if (dimChange.resizing === false) resizingRef.current = false
+    }
     setNodes(current => applyNodeChanges(changes, current))
     if (changes.some(change => change.type === 'dimensions')) scheduleSave()
     if (removedIds.length > 0) {
@@ -613,6 +667,10 @@ function CanvasTabInner(): ReactNode {
   const onEdgesChange = useCallback((changes: EdgeChange<Edge>[]) => {
     setEdges(current => applyEdgeChanges(changes, current))
   }, [])
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory()
+  }, [pushHistory])
 
   const onNodeDrag = useCallback((_event: unknown, node: CanvasFlowNode) => {
     // LibTV-style alignment snapping (<=6px): pull the dragged node to the
@@ -706,11 +764,13 @@ function CanvasTabInner(): ReactNode {
   const onEdgesDelete = useCallback(() => scheduleSave(), [scheduleSave])
 
   const onConnect = useCallback((connection: Connection) => {
+    pushHistory()
     setEdges(current => addEdge({ ...connection, id: newLocalId('edge') }, current))
     scheduleSave()
   }, [setEdges, scheduleSave])
 
   const addNodeAt = useCallback((node: CanvasFlowNode) => {
+    pushHistory()
     cascadeRef.current += 1
     const offset = (cascadeRef.current % 5) * 32
     setNodes(current => [...current, { ...node, data: { ...node.data, ...nodeCallbacks }, position: { x: node.position.x + offset, y: node.position.y + offset } }])
@@ -874,12 +934,14 @@ function CanvasTabInner(): ReactNode {
   }, [closeContextMenu])
 
   const batchDelete = useCallback(() => {
+    pushHistory()
     setNodes(current => current.filter(node => node.selected !== true))
     setSelectedCount(0)
     scheduleSave()
   }, [setNodes, scheduleSave])
 
   const batchGroup = useCallback(() => {
+    pushHistory()
     const groupId = newLocalId('group')
     setNodes(current => {
       const selected = current.filter(node => node.selected === true && node.type !== 'group')
@@ -1010,12 +1072,14 @@ function CanvasTabInner(): ReactNode {
 
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
+    pushHistory()
     setEdges(current => current.filter(edge => edge.id !== selectedEdge))
     setSelectedEdge(undefined)
     scheduleSave()
-  }, [selectedEdge, setEdges, scheduleSave])
+  }, [selectedEdge, setEdges, scheduleSave, undo, redo])
 
   const arrangeGrid = useCallback(() => {
+    pushHistory()
     setNodes(current => {
       const topLevel = current.filter(node => node.parentId === undefined || node.parentId === '')
       const columns = Math.max(1, Math.ceil(Math.sqrt(topLevel.length)))
@@ -1086,6 +1150,7 @@ function CanvasTabInner(): ReactNode {
         onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
+        onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
@@ -1136,6 +1201,8 @@ function CanvasTabInner(): ReactNode {
         <button style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
         <button style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
         <button style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
+        <button style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
+        <button style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
         <button style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
