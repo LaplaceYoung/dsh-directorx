@@ -27,6 +27,9 @@
 | excalidraw | 129,660 | MIT | 手绘风白板引擎（@excalidraw/excalidraw 可嵌入） | 画布引擎备选（性能/手绘风格场景）；体积大，需按需加载 |
 | blocksuite | 5,976 | MPL-2.0 | Affine 的块编辑器框架（文档+画布） | 若画布要文档化协同（富文本节点）时评估 |
 | fabric.js | 31,141 | MIT | 老牌 Canvas 2D 图形库（拖拽/变换/组） | 若自绘节点卡（非 DOM）或做像素级图形编辑时评估 |
+| waveform-playlist | 1,668 | MIT | 多轨 Web Audio 编辑器（canvas 波形） | 视频编辑器音频轨升级候选（多轨替代 wavesurfer 单轨） |
+| cate（0-AI-UG/cate） | 2,083 | MIT | 无限缩放编码画布（编辑器+终端） | 无限画布 UX 范式参考（缩放/面板布局） |
+| canvas-editor（Hufe921） | 5,110 | MIT | Canvas/SVG 富文本编辑器 | 若画布要富文本节点时评估 |
 
 ## 已调研 · 弃用（附原因）
 

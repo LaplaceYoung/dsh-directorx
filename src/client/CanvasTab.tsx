@@ -497,6 +497,51 @@ function CanvasTabInner(): ReactNode {
     }
   }, [applyDoc])
 
+  // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
+  // deletes selected nodes (via onNodesChange) or the selected edge, Escape
+  // closes the floating menus.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const typing = target !== null && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      if (typing) return
+      if (event.key === 'Escape') {
+        setContextMenu(undefined)
+        setConnectMenu(undefined)
+        setPickerOpen(false)
+        setSelectedEdge(undefined)
+        return
+      }
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (selectedEdge !== undefined) {
+          event.preventDefault()
+          setEdges(current => current.filter(edge => edge.id !== selectedEdge))
+          setSelectedEdge(undefined)
+          scheduleSave()
+        }
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd') {
+        event.preventDefault()
+        const selected = nodesRef.current.filter(node => node.selected === true)
+        if (selected.length === 0) return
+        setNodes(current => {
+          const copies = selected.map(node => ({
+            ...node,
+            id: newLocalId(node.type ?? 'text'),
+            position: { x: node.position.x + 40, y: node.position.y + 40 },
+            selected: false,
+          }))
+          return [...current.map(node => node.selected === true ? { ...node, selected: false } : node), ...copies]
+        })
+        setSelectedCount(0)
+        scheduleSave()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedEdge, setEdges, scheduleSave])
+
   // Flush a pending debounced save when the tab unmounts, so closing the dock
   // never loses the last drag/edit.
   useEffect(() => () => {
@@ -863,6 +908,7 @@ function CanvasTabInner(): ReactNode {
         onDoubleClick={onPaneDoubleClick}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
+        onlyRenderVisibleElements
         panOnDrag={false}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
@@ -895,6 +941,7 @@ function CanvasTabInner(): ReactNode {
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <button style={toolBtn} onClick={() => void load()}>重载</button>
+        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>⌘D 复制 · ⌫ 删除 · Esc 清除</span>
         <span style={saveChip}>{saveState}</span>
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
