@@ -161,9 +161,15 @@ function nodeMetrics(node: CanvasFlowNode): { width: number; height: number } {
  * Self-owned edge layer: bezier connectors drawn inside the viewport pane, so
  * pan/zoom transform applies automatically. Deliberately independent of the
  * framework's edge pipeline (which proved unreliable for restored edges in
- * this environment); positions derive from the live nodes state.
+ * this environment); positions derive from the live nodes state. Paths are
+ * clickable to select (stroke hit area), enabling UI deletion.
  */
-function DirectorxEdges({ nodes, edges }: { nodes: CanvasFlowNode[]; edges: Edge[] }): ReactNode {
+function DirectorxEdges({ nodes, edges, selectedId, onSelect }: {
+  nodes: CanvasFlowNode[]
+  edges: Edge[]
+  selectedId: string | undefined
+  onSelect: (id: string | undefined) => void
+}): ReactNode {
   const lookup = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes])
   const paths = edges.map(edge => {
     const source = lookup.get(edge.source)
@@ -180,11 +186,20 @@ function DirectorxEdges({ nodes, edges }: { nodes: CanvasFlowNode[]; edges: Edge
       targetPosition: Position.Left,
       curvature: 0.32,
     })
+    const selected = edge.id === selectedId
     return (
       <g key={edge.id}>
-        <path d={path} fill="none" stroke="rgba(255,255,255,.3)" strokeWidth={1.4} markerEnd="url(#dx-arrow)" />
+        <path
+          d={path} fill="none"
+          stroke={selected ? 'rgba(255,255,255,.85)' : 'rgba(255,255,255,.3)'}
+          strokeWidth={selected ? 2.2 : 1.4}
+          markerEnd="url(#dx-arrow)"
+          pointerEvents="stroke"
+          style={{ cursor: 'pointer' }}
+          onClick={event => { event.stopPropagation(); onSelect(selected ? undefined : edge.id) }}
+        />
         {typeof edge.label === 'string' && edge.label !== '' ? (
-          <text fontSize={10} fill="rgba(247,247,247,.65)" dy={-4}>
+          <text fontSize={10} fill="rgba(247,247,247,.65)" dy={-4} pointerEvents="none">
             <textPath href={`#dx-edge-${edge.id}`} startOffset="50%" textAnchor="middle">{edge.label}</textPath>
           </text>
         ) : null}
@@ -224,6 +239,7 @@ export function CanvasTab(): ReactNode {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [mediaFiles, setMediaFiles] = useState<MediaListFile[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
+  const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
   const cascadeRef = useRef(0)
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
@@ -304,8 +320,9 @@ export function CanvasTab(): ReactNode {
   }, [saveNow])
 
   // Light poll: reflect agent-side canvas edits while nothing local is pending.
+  // Background tabs throttle timers, so re-poll on focus and visibility too.
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const refresh = () => {
       if (dirtyRef.current) return
       void fetch('/directorx/canvas').then(r => r.json()).then((doc: CanvasDocument) => {
         if (doc.updatedAt !== updatedAtRef.current) {
@@ -313,9 +330,23 @@ export function CanvasTab(): ReactNode {
           setSaveState('已同步')
         }
       }).catch(() => {})
-    }, 4000)
-    return () => window.clearInterval(timer)
+    }
+    const timer = window.setInterval(refresh, 4000)
+    window.addEventListener('focus', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener('focus', refresh)
+      document.removeEventListener('visibilitychange', refresh)
+    }
   }, [applyDoc])
+
+  // Flush a pending debounced save when the tab unmounts, so closing the dock
+  // never loses the last drag/edit.
+  useEffect(() => () => {
+    if (saveTimerRef.current !== undefined) window.clearTimeout(saveTimerRef.current)
+    if (dirtyRef.current) void saveNow()
+  }, [saveNow])
 
   const onNodesChange = useCallback((changes: NodeChange<CanvasFlowNode>[]) => {
     const removedIds = changes.filter(change => change.type === 'remove').map(change => change.id)
@@ -412,6 +443,13 @@ export function CanvasTab(): ReactNode {
     })
   }, [addNodeAt])
 
+  const deleteSelectedEdge = useCallback(() => {
+    if (selectedEdge === undefined) return
+    setEdges(current => current.filter(edge => edge.id !== selectedEdge))
+    setSelectedEdge(undefined)
+    scheduleSave()
+  }, [selectedEdge, setEdges, scheduleSave])
+
   const arrangeGrid = useCallback(() => {
     setNodes(current => {
       const topLevel = current.filter(node => node.parentId === undefined || node.parentId === '')
@@ -486,7 +524,7 @@ export function CanvasTab(): ReactNode {
         deleteKeyCode={['Backspace', 'Delete']}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.12)" />
-        <DirectorxEdges nodes={nodes} edges={edges} />
+        <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} />
         <Controls position="bottom-left" showInteractive={false} />
         <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#1a1a1a' }} maskColor="rgba(0,0,0,.7)" nodeColor="#4a4a4a" nodeStrokeColor="#6a6a6a" />
       </ReactFlow>
@@ -495,6 +533,7 @@ export function CanvasTab(): ReactNode {
         <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>
         <button style={toolBtn} onClick={addGroup}>＋ 分组</button>
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
+        {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={saveChip}>{saveState}</span>
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
