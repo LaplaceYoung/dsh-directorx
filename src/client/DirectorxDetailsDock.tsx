@@ -28,6 +28,28 @@ async function loadBlobUrl(path: string): Promise<string> {
   return URL.createObjectURL(await response.blob())
 }
 
+async function addToCanvas(path: string, name: string, mediaType: string): Promise<void> {
+  const kind = mediaType.startsWith('video/') ? 'video' : 'image'
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const current = await fetch('/directorx/canvas').then(r => r.json()) as { updatedAt: number; nodes: Array<{ id: string }> }
+    const node = {
+      id: `edit-${Date.now().toString(36)}-${attempt}`,
+      kind,
+      label: name,
+      path,
+      x: 240 + (current.nodes.length % 5) * 40,
+      y: 240 + (current.nodes.length % 5) * 40,
+    }
+    const response = await fetch(`/directorx/canvas?expectedUpdatedAt=${current.updatedAt}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ version: 1, updatedAt: 0, nodes: [...current.nodes, node], edges: [] }),
+    })
+    if (response.status === 409) continue
+    return
+  }
+}
+
 async function saveEdit(blob: Blob, name: string, mediaType: string): Promise<EditRecord> {
   const response = await fetch('/directorx/media', {
     method: 'POST',
@@ -72,6 +94,7 @@ class EditorBoundary extends Component<{ children: ReactNode }, { error: string 
 function RecentEdits(): ReactNode {
   const [edits, setEdits] = useState<EditRecord[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
+  const [canvasFeed, setCanvasFeed] = useState<Record<string, string>>({})
   useEffect(() => {
     let live = true
     fetch('/directorx/media/edits')
@@ -86,8 +109,21 @@ function RecentEdits(): ReactNode {
     <div style={{ padding: 12 }}>
       <div style={{ fontSize: 12, opacity: .65, marginBottom: 8 }}>最近保存的编辑产物（可用 directorx_edits 让 DSH 引用）</div>
       {edits.map(edit => (
-        <div key={edit.path} style={{ fontSize: 12, marginBottom: 6, wordBreak: 'break-all', opacity: .85 }}>
-          {edit.name}
+        <div key={edit.path} style={{ fontSize: 12, marginBottom: 8, wordBreak: 'break-all', opacity: .85 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <span>{edit.name}</span>
+            <button
+              style={{ padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 11, cursor: 'pointer', flexShrink: 0 }}
+              onClick={() => {
+                setCanvasFeed(current => ({ ...current, [edit.path]: '加入中…' }))
+                void addToCanvas(edit.path, edit.name, edit.mediaType)
+                  .then(() => setCanvasFeed(current => ({ ...current, [edit.path]: '已加入画布 ✓' })))
+                  .catch(cause => setCanvasFeed(current => ({ ...current, [edit.path]: cause instanceof Error ? cause.message : String(cause) })))
+              }}
+            >
+              {canvasFeed[edit.path] ?? '加入画布'}
+            </button>
+          </div>
           <div style={{ opacity: .55 }}>{edit.path}</div>
         </div>
       ))}
@@ -118,7 +154,11 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
   const onExport = useCallback((blob: Blob, mediaType: string) => {
     const name = snapshot.path?.split('/').pop() ?? 'edit'
     void saveEdit(blob, `edit-${name}`, mediaType)
-      .then(record => setSaved(record))
+      .then(record => {
+        setSaved(record)
+        // Reverse link: editor exports land on the canvas as media nodes.
+        void addToCanvas(record.path, record.name, record.mediaType).catch(() => {})
+      })
       .catch(cause => setLoadError(cause instanceof Error ? cause.message : String(cause)))
   }, [snapshot.path])
 
