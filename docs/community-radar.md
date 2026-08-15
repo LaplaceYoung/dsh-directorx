@@ -54,3 +54,11 @@
 
 - 每轮扫描 ≥1 个新社区项目并更新本表；集成前必须过：许可证可商用、GitHub API 核实活跃度、npm 周下载、React 18.3 兼容性。
 - 弃用记录保留原因，避免团队重复踩坑。
+
+## 生态参与（2026-08-16 补充）
+
+- **awesome-DSH-plugin 目录收录**：dsh-directorx 已加入用户 fork
+  （LaplaceYoung/awesome-DSH-plugin）的 `ai-design-media` 分类并推送
+  （commit 9987be4，目录校验通过）——可向上游（Alex-Yanggg）提 PR。
+- 目录中可借鉴的插件模式：dsh-at-file 的 @file 提及（可迁移为画布/媒体
+  引用）、dsh-custom-tool 的沙箱工具管理（可作为 DirectorX 设置页增强参考）。

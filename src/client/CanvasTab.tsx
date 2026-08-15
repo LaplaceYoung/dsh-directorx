@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -294,6 +294,7 @@ export function CanvasTab(): ReactNode {
   const [saveState, setSaveState] = useState<'已保存' | '保存中…' | '已同步' | '冲突已同步'>('已保存')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [mediaFiles, setMediaFiles] = useState<MediaListFile[]>([])
+  const [mediaQuery, setMediaQuery] = useState('')
   const [error, setError] = useState<string | undefined>(undefined)
   const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
@@ -489,6 +490,29 @@ export function CanvasTab(): ReactNode {
     }
   }, [pickerOpen])
 
+  // Group the flat media list into library sections by output subdirectory.
+  const mediaSections = useMemo(() => {
+    const sectionName = (file: MediaListFile): string => {
+      const parts = file.path.split('/')
+      const dir = parts.length >= 2 ? parts[parts.length - 2] ?? '' : ''
+      if (dir === 'edited') return '编辑产物'
+      if (dir === 'frames') return '抽帧'
+      if (dir === 'transcripts') return '转录'
+      return '生成'
+    }
+    const query = mediaQuery.trim().toLowerCase()
+    const filtered = mediaFiles.filter(file => query === '' || file.name.toLowerCase().includes(query))
+    const order = ['生成', '编辑产物', '抽帧', '转录']
+    const groups = new Map<string, MediaListFile[]>()
+    for (const file of filtered) {
+      const name = sectionName(file)
+      const list = groups.get(name) ?? []
+      list.push(file)
+      groups.set(name, list)
+    }
+    return order.map(name => ({ name, files: groups.get(name) ?? [] })).filter(section => section.files.length > 0)
+  }, [mediaFiles, mediaQuery])
+
   const addMedia = useCallback((file: MediaListFile) => {
     const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
     addNodeAt({
@@ -516,6 +540,16 @@ export function CanvasTab(): ReactNode {
   const onSelectionChange = useCallback((params: { nodes: CanvasFlowNode[] }) => {
     setSelectedCount(params.nodes.length)
   }, [])
+
+  const { screenToFlowPosition } = useReactFlow()
+
+  const onPaneDoubleClick = useCallback((event: React.MouseEvent) => {
+    const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    addNodeAt({
+      id: newLocalId('text'), type: 'text', position: flowPos,
+      data: { label: '文本节点' },
+    })
+  }, [screenToFlowPosition, addNodeAt])
 
   const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     event.preventDefault()
@@ -620,6 +654,7 @@ export function CanvasTab(): ReactNode {
   }, [edges, nodes])
 
   return (
+    <ReactFlowProvider>
     <div style={{ position: 'relative', height: '100%', minHeight: 480 }}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
       <ReactFlow
@@ -633,6 +668,7 @@ export function CanvasTab(): ReactNode {
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
         onPaneClick={closeContextMenu}
+        onDoubleClick={onPaneDoubleClick}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
         panOnDrag={false}
@@ -685,22 +721,32 @@ export function CanvasTab(): ReactNode {
         </div>
       ) : null}
       {pickerOpen ? (
-        <div style={picker}>
-          <div style={{ fontSize: 12, color: '#919191', marginBottom: 8 }}>
-            从输出目录选择媒体（{mediaFiles.length} 项，点击添加到画布）
-          </div>
-          <div style={pickerGrid}>
-            {mediaFiles.slice(0, 60).map(file => (
-              <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => addMedia(file)} title={file.path}>
-                {file.mediaType.startsWith('image/')
-                  ? <img src={mediaUrl(file.path)} alt={file.name} style={pickerThumb} />
-                  : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#141414', color: '#919191', fontSize: 11 }}>视频</div>}
-              </button>
-            ))}
-          </div>
-          {mediaFiles.length === 0 ? <div style={{ fontSize: 12, color: '#919191' }}>输出目录还没有媒体文件。</div> : null}
+        <div style={{ ...picker, width: 340 }}>
+          <input
+            autoFocus
+            value={mediaQuery}
+            placeholder="搜索媒体…"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.05)', color: '#f5f5f5', fontSize: 12.5, marginBottom: 10 }}
+            onChange={event => setMediaQuery(event.target.value)}
+          />
+          {mediaSections.map(section => (
+            <div key={section.name} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11.5, color: '#919191', marginBottom: 6 }}>{section.name} · {section.files.length}</div>
+              <div style={pickerGrid}>
+                {section.files.slice(0, 60).map(file => (
+                  <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => addMedia(file)} title={file.path}>
+                    {file.mediaType.startsWith('image/')
+                      ? <img src={mediaUrl(file.path)} alt={file.name} style={pickerThumb} />
+                      : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#141414', color: '#919191', fontSize: 11 }}>{file.mediaType.startsWith('video/') ? '视频' : '音频'}</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          {mediaSections.length === 0 ? <div style={{ fontSize: 12, color: '#919191' }}>{mediaQuery !== '' ? '没有匹配的媒体。' : '输出目录还没有媒体文件。'}</div> : null}
         </div>
       ) : null}
     </div>
+    </ReactFlowProvider>
   )
 }
