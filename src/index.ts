@@ -7,7 +7,9 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import { DirectorxSettings, SETTINGS_NS, type DirectorxSettings as DirectorxSettingsType } from './config.ts'
 import { corpus } from './corpus.ts'
+import { registerMediaEditsRoute, registerMediaRoute, registerMediaTasksRoute } from './media-server.ts'
 import { registerBundledSkills } from './skills.ts'
+import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
 
 export { corpus } from './corpus.ts'
@@ -66,6 +68,10 @@ export function apply(ctx: Context): void {
 
   sync(scope.get())
   ctx.effect(() => scope.watch(sync), 'directorx settings watch')
+  ctx.effect(() => registerMediaRoute(ctx, () => scope.get().outputDir), 'directorx media route')
+  ctx.effect(() => registerMediaEditsRoute(ctx, () => scope.get().outputDir), 'directorx media edits route')
+  ctx.effect(() => registerMediaTasksRoute(ctx, () => scope.get().outputDir), 'directorx media tasks route')
+  ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
 
   void registerBundledSkills(ctx).catch(error => {
     ctx.logger?.error('directorx: failed to register bundled skills: %s', error instanceof Error ? error.message : String(error))

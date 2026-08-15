@@ -1,9 +1,12 @@
 import type { CapabilitySettings, DirectorxSettings } from '../config.ts'
+import type { DirectorxTaskLedger } from '../tasks.ts'
 
 export interface ProviderContext {
   settings: DirectorxSettings
   capability: CapabilitySettings
   signal: AbortSignal
+  /** Optional append-only task ledger; async modes record their transitions here. */
+  ledger?: DirectorxTaskLedger
 }
 
 export interface MediaFile {

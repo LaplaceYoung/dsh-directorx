@@ -189,4 +189,33 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
     provider: 'directorx',
     invocation: { modelInvocable: true, userInvocable: true },
   })
+
+  ctx.skills.register({
+    name: 'directorx-workflow',
+    description: 'Orchestrate multi-shot DirectorX production with the workflow tool: script/storyboard → parallel prompt crafting → parallel generation → QA → assembly plan, run by fan-out subagents. Load when a project has more than one shot and should be produced as a pipeline instead of serial generation.',
+    content: [
+      '# DirectorX Workflow 编排',
+      '',
+      '多镜头项目不要串行生成：用 workflow 工具把「剧本分镜 → 提示词工坊 → 并行生成 → 质检 → 组装方案」变成一条子代理流水线。',
+      '',
+      '## 使用方法',
+      '',
+      '1. 读取插件内置模板 `workflows/directorx-pipeline.js`（随插件发布，在工作区插件目录下）。',
+      '2. 调用 workflow 工具：',
+      '   - meta.name = `directorx-pipeline`；meta.phases 按模板注释声明（剧本与分镜/提示词工坊/并行生成/成片质检/组装方案）。',
+      '   - script 用模板内容（按项目裁剪阶段与 schema，保持 JSON Schema 仅用 type/properties/required/additionalProperties/items/enum）。',
+      '   - args：`{ brief, shots?, count?, dryRun? }`。dryRun=true 只产出剧本与提示词并做质检，不花生成配额——任何新流水线先 dryRun。',
+      '3. 子代理会在其上下文里收到 DirectorX 编排纪律（directorx-subagent-orchestration），并拥有与主代理相同的生成工具与知识库。',
+      '',
+      '## 编排纪律',
+      '',
+      '- 每个子代理只做一件事并返回结构化报告（文件路径 / task id / status 原样引用）。',
+      '- 锚点（主体/风格/光线/镜头）在「剧本与分镜」阶段一次性锁定，后续阶段引用而不新增设定。',
+      '- 生成失败不重试第三次：记录错误，让质检阶段给出降级路径。',
+      '- 编排只负责流程；付费生成前四道闸门（规格/内容/成本/权利）由生成执行员按 playbook 确认。',
+    ].join('\n'),
+    source: 'runtime',
+    provider: 'directorx',
+    invocation: { modelInvocable: true, userInvocable: true },
+  })
 }

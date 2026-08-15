@@ -23,8 +23,17 @@ DeepSeek Harness
 │ tools:                                               │
 │   view_image / generate_image / generate_video       │
 │   generate_audio / knowledge_search / knowledge_read │
+│   task_status / cancel_task（任务账本）               │
+│ web route: GET /directorx/media (流式媒体供给)        │
+│ task ledger: <outputDir>/tasks.jsonl (append-only)   │
 │ bundled corpus: knowledge/ skills/ recipes/          │
-│ bundled corpus: knowledge/ skills/ recipes/            │
+└──────────────────────────────────────────────────────┘
+        ▲
+        │  dsh-directorx client (WebUI)
+        ▼
+┌──────────────────────────────────────────────────────┐
+│ Settings → DirectorX 设置页（四能力卡片）            │
+│ tool.call.toolview 键控卡片（生成中/结果内联预览）   │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -126,11 +135,79 @@ DSH model calls directorx_generate_video
 - `skills/directorx-playbook/`：原创制作手册，作为 DSH skill 直接加载。
 
 
+## 任务账本与异步任务恢复
+
+异步模式（`openai-videos`、`modelverse-tasks`）在 `outputDir/tasks.jsonl` 里
+记录状态转换：`submitted` → `succeeded` / `failed` / `cancelled`，成功记录附带
+结果 URLs 与本地文件路径。轮询循环每次迭代检查账本：
+
+- 工具超时或会话中断后，账本仍保留任务：`directorx_task_status` 找回最新状态
+  与结果文件，`directorx_cancel_task` 追加 `cancelled` 转换；
+- 进行中的轮询在下次检查时看到 `cancelled` 即中止（本地进程内生效）；
+- 本地 `failed` 可能对应仍在 provider 运行的孤儿任务，因此仍可接受取消；
+  `succeeded`/`cancelled` 对取消幂等。
+
+## WebUI 编辑坞（二次编辑）
+
+- 客户端在 `shell.overlay` 注册 `directorx-editor` 条目：关闭时是右侧悬浮把手，
+  打开时是右侧停靠面板；生成卡片（图像/视频）提供「编辑」按钮，把本地文件
+  路径放入共享 store（`src/client/editor.ts`）后打开面板。
+- 源文件经 `GET /directorx/media` 取回 Blob URL 交给编辑器；编辑器导出后
+  `POST /directorx/media`（raw body + `content-type` 媒体类型 + `x-directorx-name`
+  文件名提示）流式写入 `outputDir/edited/`（512MB 上限、媒体类型白名单、
+  跨源 403），并追加 `edits.jsonl`。
+- `GET /directorx/media/edits` 供面板展示历史；`directorx_edits` 工具让 DSH
+  引用编辑产物。
+
+### 编辑器选型（2026-08-16 一手核实）
+
+- **图像**：tui.image-editor（MIT，7.6k★，2023 年后维护放缓）——功能覆盖
+  最全的浏览器图片编辑器，且为框架无关（fabric.js），不受宿主 React 版本
+  影响。曾优先评估 react-filerobot-image-editor（MIT，活跃，React 原生），
+  但其依赖 react-konva@18 自带 react-reconciler@0.29，与 DSH 的 React
+  18.3.1 内部 API 不兼容（`isBatchingLegacy` 崩溃），弃用。
+- **视频**：自建轻量 React 时间线（分割/重排/删除）+ **WebAV**（MIT，2k★，
+  2026-01 活跃）做解码与 MP4 导出（WebCodecs，仅 Chrome/Edge；`Combinator.
+  isSupported()` 前置检查）。音频轨用 **wavesurfer.js**（BSD-3-Clause，
+  10k★，极活跃）渲染波形，导出经 WebAV `AudioClip` + `OffscreenSprite`
+  混入 AAC 音轨（音量 0–200%）。一体化时间线组件经调研不存在（omniclip 为完整
+  应用、npm 停摆 15 个月；etro 为 GPL；remotion/Revideo 导出走 CLI），
+  omniclip 作为 UI 参考。
+- **导出保存**：编辑器产物 blob → `POST /directorx/media` → `edited/` 落盘
+  + `edits.jsonl` 记账。
+
+## 编排层：Workflow 提示词编排与子代理编排
+
+- **流水线模板** `workflows/directorx-pipeline.js`：用 workflow 工具把
+  「剧本分镜 → 并行提示词工坊 → 并行生成 → 质检 → 组装方案」编排为子代理
+  流水线；`dryRun` 模式零成本验证编排与提示词质量。
+- **`directorx-workflow` 技能**：主代理的编排入口（何时用 workflow、模板
+  位置、args 约定、编排纪律）；systemPrompt 同步加入「多镜头不串行生成」。
+- **子代理注入**：`src/subagents.ts` 经 `subagents.registerContinuableSetup`
+  （Harness 官方扩展点）为每个可续子代理安装编排纪律（systemPrompt section
+  + `directorx-subagent-orchestration` 技能），随子代理与贡献生命周期回收。
+  一次性子代理（spawn/fork）天然继承全局的 DirectorX 工具与技能（已验证）。
+- 编排纪律核心：每子代理单任务 + 结构化报告；锚点在分镜阶段一次性锁定；
+  失败不重试第三次；付费前四道闸门由执行员按 playbook 确认。
+
+## WebUI 媒体显示
+
+生成工具的调用在对话流中渲染为键控 `tool.call.toolview` 卡片（客户端半注册，
+每个 wire 工具名一个 key）。运行中显示提示词摘要；结束后解析规范 JSON 的
+`files[]`，按媒体类型内联渲染 `<img>` / `<video>` / `<audio>`。
+
+- 本地文件经 **`GET /directorx/media?path=…`** 流式供给：路径必须落在
+  `outputDir` 内（与知识库同款路径逃逸防护），支持 HTTP Range（`bytes=start-end`、
+  开区间与后缀区间），响应 `cache-control: no-store`；跨源 `Origin` 直接 403。
+- `https` / `data:` 结果 URL 直接引用原地址，不回源。
+- 无 `webServer` 服务的 profile（非 web 运行形态）下路由注册为 no-op，插件照常工作。
+
 ## 安全边界
 
 - API Key 使用 `role('secret')`，settings describe 永远不回显明文。
 - 工具参数通过 `defineTool` schema 校验。
 - 文件读取限制在知识库根目录内，禁止路径逃逸。
+- `/directorx/media` 仅服务 outputDir 内文件，拒绝跨源与路径逃逸，单文件上限 512MB。
 - 异步任务遵守 `AbortSignal` 与超时预算。
 - 插件不注册任何 shell、文件写入或系统管理工具；DSH 自身的权限体系负责边界。
 
@@ -139,4 +216,6 @@ DSH model calls directorx_generate_video
 - 知识库检索/读取单测。
 - mock 视觉、图像、音频、视频单测。
 - 本地 HTTP 假服务覆盖 OpenAI-compatible 四个适配器端到端 round-trip。
+- 媒体路由单测：路径逃逸、Range 解析、查询解析、文件检查；另有针对编译产物
+  的完整 handler 验证（字节一致、206 切片、跨源 403、同源放行）。
 - `pretest` 先跑 `tsc --noEmit` 与 `npm run build`，保证提交产物和源码一致。

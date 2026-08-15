@@ -76,7 +76,20 @@ export async function modelverseImage(
   ]
   const parameters: Record<string, unknown> = { size: size !== undefined && size !== '' ? size : '1024x1024' }
   const taskId = await submitModelverseTask(baseURL, apiKey, ctx.capability.model, content, parameters, ctx.signal)
-  const finished = await pollModelverseTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal)
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'modelverse-tasks',
+    prompt,
+    state: 'submitted',
+    at: Date.now(),
+  })
+  const finished = await pollModelverseTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal, ctx.ledger)
+    .catch(error => {
+      const taskIdError = (error as Error & { taskId?: string })
+      taskIdError.taskId = taskId
+      throw taskIdError
+    })
   const files: MediaFile[] = []
   for (const url of finished.urls) {
     files.push({ url })
@@ -85,6 +98,16 @@ export async function modelverseImage(
       files[0] = { path, url, mimeType: 'image/png' }
     }
   }
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'modelverse-tasks',
+    prompt,
+    state: 'succeeded',
+    at: Date.now(),
+    urls: finished.urls,
+    files,
+  })
   return { model: ctx.capability.model, prompt, files, mode: 'modelverse-tasks' }
 }
 
@@ -93,8 +116,25 @@ export async function runImage(
   prompt: string,
   options: { size?: string; quality?: string; referenceImagePaths?: string[] },
 ): Promise<ImageResult> {
-  if (ctx.capability.mode === 'mock') return mockImage(ctx, prompt, options.size ?? '1024x1024')
-  if (ctx.capability.mode === 'openai-images') return openaiImage(ctx, prompt, options.size, options.quality)
-  if (ctx.capability.mode === 'modelverse-tasks') return modelverseImage(ctx, prompt, options.size, options.referenceImagePaths ?? [])
-  throw new Error(`Unsupported image mode: ${ctx.capability.mode}`)
+  try {
+    if (ctx.capability.mode === 'mock') return mockImage(ctx, prompt, options.size ?? '1024x1024')
+    if (ctx.capability.mode === 'openai-images') return openaiImage(ctx, prompt, options.size, options.quality)
+    if (ctx.capability.mode === 'modelverse-tasks') return modelverseImage(ctx, prompt, options.size, options.referenceImagePaths ?? [])
+    throw new Error(`Unsupported image mode: ${ctx.capability.mode}`)
+  } catch (error) {
+    const taskId = (error as { taskId?: string } | null)?.taskId
+    if (taskId !== undefined && taskId !== '' && !(await ctx.ledger?.isCancelled(taskId))) {
+      const message = error instanceof Error ? error.message : String(error)
+      await ctx.ledger?.append({
+        taskId,
+        model: ctx.capability.model,
+        mode: ctx.capability.mode,
+        prompt,
+        state: 'failed',
+        at: Date.now(),
+        error: `${message} — the provider task may still be running; check directorx_task_status.`,
+      }).catch(() => {})
+    }
+    throw error
+  }
 }

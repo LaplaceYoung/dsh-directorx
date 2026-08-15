@@ -11,7 +11,7 @@ const SCAN_EXTS = new Set(['.md', '.mjs', '.ts', '.tsx', '.json', '.yaml', '.yml
 async function walk(dir) {
   const out = []
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'lib') continue
+    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'lib' || entry.name === 'package-lock.json') continue
     const path = join(dir, entry.name)
     if (entry.isDirectory()) out.push(...await walk(path))
     else if (SCAN_EXTS.has(entry.name.slice(entry.name.lastIndexOf('.')))) out.push(path)

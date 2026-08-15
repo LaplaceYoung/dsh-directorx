@@ -61,11 +61,17 @@ flowchart LR
   TOOLS --> AUDIO["directorx_generate_audio"]
   TOOLS --> SEARCH["directorx_knowledge_search"]
   TOOLS --> READ["directorx_knowledge_read"]
+  TOOLS --> STATUS["directorx_task_status / cancel_task"]
+  STATUS --> LEDGER["tasks.jsonl 任务账本"]
 
   VISION & IMAGE & VIDEO & AUDIO --> API["OpenAI-compatible / ModelVerse / mock"]
   SEARCH & READ --> CORPUS["knowledge/ · skills/ · recipes/"]
   SKILLS --> PLAYBOOK["directorx-playbook"]
   PLAYBOOK --> NOTES["原创制作手册"]
+
+  IMAGE & VIDEO & AUDIO --> CARDS["WebUI 生成卡片"]
+  CARDS --> MEDIA["/directorx/media 流式路由"]
+  MEDIA --> OUT["cwd/directorx_output/"]
 ```
 
 插件只负责「眼睛、画笔、摄影机、麦克风和片场百科」，调度、审批、会话、subagent 全由 DSH 自己管。
@@ -108,6 +114,40 @@ dsh web
 
 ---
 
+## 🖼️ WebUI 生成卡片：看得见，才叫拍片
+
+生成工具在对话流里有专属卡片，跑完就能直接在聊天里看结果：
+
+- 🎨 **图像** —— 卡片内直接预览，点击可在新标签页打开原图；
+- 🎥 **视频** —— 内嵌播放器，支持进度拖拽（HTTP Range）；
+- 🔊 **音频** —— 内嵌播放器直接试听；
+- 👁️ **看图** —— 卡片显示问题、回答文本与可预览的源图；
+- 运行中显示提示词与「进行中…」，完成后显示模型 / 协议 / 文件数，失败显示错误摘要。
+
+本地文件由插件注册的 **`/directorx/media`** 路由以流式方式供给浏览器（仅限
+`directorx_output` 目录内、同源访问、带 Range 支持），不经过模型上下文；
+`https` URL 结果（如 `openai-images` 返回的图片链接）直接引用原地址。
+
+异步任务会写入 **`tasks.jsonl` 任务账本**：超时或会话中断后，DSH 可用
+`directorx_task_status` 找回任务与结果文件，用 `directorx_cancel_task` 中止。
+
+---
+
+## ✂️ 右侧编辑面板：生成之后，随手再修
+
+对话流右侧有一个 **DirectorX 编辑面板**（悬浮把手随时可开，生成卡片上也有
+「✏️ 编辑」按钮）：
+
+- 🖼️ **图片** → PS 式编辑器（tui.image-editor，MIT）：裁剪、旋转、翻转、
+  滤镜、画笔、文字、形状、缩放、撤销重做，一键导出 PNG；
+- 🎞️ **视频** → 时间线编辑器（WebAV，MIT，活跃维护）：播放头分割、片段
+  删除与重排、时长刻度、**音频轨（wavesurfer.js 波形 + 音量 + 混音导出）**，
+  浏览器内 WebCodecs 导出 MP4；
+- 保存后写入 `directorx_output/edited/`，面板显示历史，DSH 可用
+  `directorx_edits` 工具引用这些二次编辑产物。
+
+---
+
 ## 🧰 工具速查
 
 | 工具 | 一句话说明 | 典型用法 |
@@ -118,6 +158,12 @@ dsh web
 | `directorx_generate_audio` | 生成旁白/音频 | 广告口播、短剧对白、音效底子 |
 | `directorx_knowledge_search` | 搜片场百科 | 查运镜术语、模型参数、平台规格 |
 | `directorx_knowledge_read` | 读完整词条 | 把搜索结果展开成可执行方法论 |
+| `directorx_task_status` | 查生成任务状态 | 超时/中断后找回 provider 任务、拿回结果文件 |
+| `directorx_cancel_task` | 取消进行中任务 | 停止卡住或不再需要的异步生成 |
+| `directorx_edits` | 列出 WebUI 编辑产物 | 引用用户在右侧面板里二次编辑保存的文件 |
+| `directorx_transcribe_audio` | 音频/视频转写 | 生成旁白字幕 SRT、素材整理，打通字幕链路 |
+| `directorx_probe_media` | 媒体元数据探测 | 校验生成物规格（时长/编码/分辨率/音轨） |
+| `directorx_extract_frames` | 视频抽帧 | 抽帧 PNG 配合 view_image 做 frame-qa 质检 |
 
 支持的协议：
 
@@ -157,8 +203,10 @@ npm run build
 npm test
 ```
 
-测试覆盖知识库检索、四个模型适配器的 mock 链路，以及本地 HTTP 假服务的
-OpenAI-compatible 端到端 round-trip。当前：**7/7 全绿**。
+测试覆盖知识库检索、四个模型适配器的 mock 链路、媒体路由（路径逃逸拦截、
+Range、同源校验）、任务账本（追加/取消/轮询中止）、modelverse-tasks 往返，
+以及本地 HTTP 假服务的 OpenAI-compatible 端到端 round-trip。
+当前：**18/18 全绿**。
 
 想连 DSH 一起冒烟？
 

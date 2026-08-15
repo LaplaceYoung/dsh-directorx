@@ -28,6 +28,13 @@ export async function mockVideo(ctx: ProviderContext, prompt: string): Promise<V
   return { model: ctx.capability.model, prompt, status: 'completed', files: [{ path, mimeType: 'video/mp4' }], mode: 'mock' }
 }
 
+/** Attach the provider task id to an error so the caller can record which task failed. */
+function withTaskId(error: unknown, taskId: string): Error {
+  const wrapped = error instanceof Error ? error : new Error(String(error))
+  ;(wrapped as Error & { taskId?: string }).taskId = taskId
+  return wrapped
+}
+
 export async function openaiVideo(ctx: ProviderContext, prompt: string, seconds?: number, size?: string): Promise<VideoResult> {
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_VIDEO_API_KEY', 'OPENAI_API_KEY'], baseURL)
@@ -46,7 +53,16 @@ export async function openaiVideo(ctx: ProviderContext, prompt: string, seconds?
   }
   const taskId = body.id ?? body.output?.task_id
   if (taskId === undefined || taskId === '') throw new Error(`Video response did not contain a task id: ${JSON.stringify(body).slice(0, 400)}`)
-  const finished = await pollOpenAIVideoTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal)
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'openai-videos',
+    prompt,
+    state: 'submitted',
+    at: Date.now(),
+  })
+  const finished = await pollOpenAIVideoTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal, ctx.ledger)
+    .catch(error => { throw withTaskId(error, taskId) })
   const files: MediaFile[] = []
   for (const url of finished.urls) {
     files.push({ url })
@@ -55,6 +71,16 @@ export async function openaiVideo(ctx: ProviderContext, prompt: string, seconds?
       files[0] = { path, url, mimeType: 'video/mp4' }
     }
   }
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'openai-videos',
+    prompt,
+    state: 'succeeded',
+    at: Date.now(),
+    urls: finished.urls,
+    files,
+  })
   return { model: ctx.capability.model, prompt, taskId, status: finished.status, files, mode: 'openai-videos' }
 }
 
@@ -80,7 +106,16 @@ export async function modelverseVideo(
   const ratio = hasFrameLocks ? 'adaptive' : options.aspectRatio ?? '16:9'
   const parameters: Record<string, unknown> = { duration, ratio, resolution: options.resolution ?? '2K', aigc_watermark: false }
   const taskId = await submitModelverseTask(baseURL, apiKey, ctx.capability.model, content, parameters, ctx.signal)
-  const finished = await pollModelverseTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal)
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'modelverse-tasks',
+    prompt,
+    state: 'submitted',
+    at: Date.now(),
+  })
+  const finished = await pollModelverseTask(baseURL, apiKey, taskId, ctx.settings, ctx.signal, ctx.ledger)
+    .catch(error => { throw withTaskId(error, taskId) })
   const files: MediaFile[] = []
   for (const url of finished.urls) {
     files.push({ url })
@@ -89,6 +124,16 @@ export async function modelverseVideo(
       files[0] = { path, url, mimeType: 'video/mp4' }
     }
   }
+  await ctx.ledger?.append({
+    taskId,
+    model: ctx.capability.model,
+    mode: 'modelverse-tasks',
+    prompt,
+    state: 'succeeded',
+    at: Date.now(),
+    urls: finished.urls,
+    files,
+  })
   return { model: ctx.capability.model, prompt, taskId, status: finished.status, files, mode: 'modelverse-tasks' }
 }
 
@@ -97,8 +142,28 @@ export async function runVideo(
   prompt: string,
   options: { seconds?: number; size?: string; aspectRatio?: string; resolution?: string; firstFramePath?: string; lastFramePath?: string; referenceImagePaths?: string[] },
 ): Promise<VideoResult> {
-  if (ctx.capability.mode === 'mock') return mockVideo(ctx, prompt)
-  if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size)
-  if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
-  throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
+  try {
+    if (ctx.capability.mode === 'mock') return mockVideo(ctx, prompt)
+    if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size)
+    if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
+    throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
+  } catch (error) {
+    // A timeout or abort may leave the provider task running: record the
+    // local failure under the task id so directorx_task_status can surface
+    // the orphan and directorx_cancel_task can mark it.
+    const taskId = (error as { taskId?: string } | null)?.taskId
+    if (taskId !== undefined && taskId !== '' && !(await ctx.ledger?.isCancelled(taskId))) {
+      const message = error instanceof Error ? error.message : String(error)
+      await ctx.ledger?.append({
+        taskId,
+        model: ctx.capability.model,
+        mode: ctx.capability.mode,
+        prompt,
+        state: 'failed',
+        at: Date.now(),
+        error: `${message} — the provider task may still be running; check directorx_task_status.`,
+      }).catch(() => {})
+    }
+    throw error
+  }
 }

@@ -6,6 +6,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
+  DirectorxTaskLedger,
   runAudio,
   runImage,
   runVideo,
@@ -83,8 +84,31 @@ test('OpenAI-compatible provider adapters round-trip through a local endpoint', 
       return response.end(Buffer.from([0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70]))
     }
 
+    if (request.method === 'POST' && url.pathname === '/v1/tasks/submit') {
+      const body = await readJson(request)
+      assert.equal(body.model, 'test-image-mv')
+      assert.equal(body.input.content[0].type, 'text')
+      assert.equal(body.input.content[0].text, 'a modelverse image')
+      return sendJson(response, 200, { output: { task_id: 'mve-img-1' } })
+    }
+
+    if (request.method === 'GET' && url.pathname === '/v1/tasks/status' && url.searchParams.get('task_id') === 'mve-img-1') {
+      statusPolls += 1
+      if (statusPolls === 1) return sendJson(response, 200, { output: { task_id: 'mve-img-1', task_status: 'running' } })
+      const address = server.address()
+      const activePort = typeof address === 'object' && address !== null ? address.port : 0
+      return sendJson(response, 200, { output: { task_id: 'mve-img-1', task_status: 'success', urls: [`http://127.0.0.1:${activePort}/image.png`] } })
+    }
+
+    if (request.method === 'GET' && url.pathname === '/image.png') {
+      response.writeHead(200, { 'content-type': 'image/png' })
+      return response.end(PNG_1PX)
+    }
+
     return sendJson(response, 404, { error: { message: `unexpected route ${request.method} ${url.pathname}` } })
   })
+
+  let statusPolls = 0
 
   server.listen(0, '127.0.0.1')
   await once(server, 'listening')
@@ -138,9 +162,31 @@ test('OpenAI-compatible provider adapters round-trip through a local endpoint', 
   assert.equal(video.files[0]?.path !== undefined, true)
   assert.equal((await readFile(video.files[0].path))[4], 0x66)
 
-  const expected = ['/v1/chat/completions', '/v1/images/generations', '/v1/audio/speech', '/v1/videos', '/v1/videos/vid-1', '/video.mp4']
+  const ledger = new DirectorxTaskLedger(outDir)
+  const modelverseImage = await runImage(
+    { settings, capability: { ...capability, mode: 'modelverse-tasks', model: 'test-image-mv' }, signal: new AbortController().signal, ledger },
+    'a modelverse image',
+    { size: '1024x1024' },
+  )
+  assert.equal(modelverseImage.files[0]?.path !== undefined, true)
+  assert.deepEqual(await readFile(modelverseImage.files[0].path), PNG_1PX)
+  assert.equal((await ledger.latest('mve-img-1'))?.state, 'succeeded')
+  assert.equal((await ledger.latest('mve-img-1'))?.urls?.[0].endsWith('/image.png'), true)
+
+  const expected = [
+    '/v1/chat/completions',
+    '/v1/images/generations',
+    '/v1/audio/speech',
+    '/v1/videos',
+    '/v1/videos/vid-1',
+    '/video.mp4',
+    '/v1/tasks/submit',
+    '/v1/tasks/status',
+    '/v1/tasks/status',
+    '/image.png',
+  ]
   assert.deepEqual(requests.map(request => request.url), expected)
-  for (const request of requests.filter(request => request.url !== '/video.mp4')) {
+  for (const request of requests.filter(request => request.url !== '/video.mp4' && request.url !== '/image.png')) {
     assert.equal(request.auth, 'Bearer test-key')
   }
 })

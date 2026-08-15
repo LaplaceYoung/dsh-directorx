@@ -1,0 +1,98 @@
+import { spawnSync } from 'node:child_process'
+import { mkdir } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+import { slugify } from '../support.ts'
+import type { MediaFile } from './types.ts'
+
+/**
+ * Local ffmpeg/ffprobe helpers (plugin-native, no network). ffmpeg is a soft
+ * dependency: the tools degrade with a friendly error when it is missing
+ * (the same contract mock video mode already uses).
+ */
+
+export interface MediaProbe {
+  source: string
+  format: string
+  durationSec: number
+  sizeBytes: number
+  streams: Array<Record<string, unknown>>
+}
+
+function requireBinary(command: 'ffmpeg' | 'ffprobe'): string {
+  const found = spawnSync('which', [command], { encoding: 'utf8' })
+  if (found.status !== 0 || found.stdout.trim() === '') {
+    throw new Error(`${command} is required for this operation but was not found on PATH. Install ffmpeg (brew install ffmpeg) or use the model-provider tools instead.`)
+  }
+  return command
+}
+
+export function probeMedia(source: string): MediaProbe {
+  requireBinary('ffprobe')
+  const result = spawnSync('ffprobe', [
+    '-v', 'error',
+    '-print_format', 'json',
+    '-show_format',
+    '-show_streams',
+    source,
+  ], { encoding: 'utf8' })
+  if (result.status !== 0) {
+    throw new Error(`ffprobe failed: ${result.stderr?.slice(-400) || `exit ${result.status}`}`)
+  }
+  const parsed = JSON.parse(result.stdout) as {
+    format?: { format_name?: string; duration?: string; size?: string }
+    streams?: Array<Record<string, unknown>>
+  }
+  const compactStreams = (parsed.streams ?? []).map(stream => ({
+    type: stream.codec_type,
+    codec: stream.codec_name,
+    ...(stream.width !== undefined ? { width: stream.width } : {}),
+    ...(stream.height !== undefined ? { height: stream.height } : {}),
+    ...(stream.r_frame_rate !== undefined ? { fps: String(stream.r_frame_rate) } : {}),
+    ...(stream.channels !== undefined ? { channels: stream.channels } : {}),
+    ...(stream.sample_rate !== undefined ? { sampleRate: stream.sample_rate } : {}),
+  }))
+  return {
+    source,
+    format: parsed.format?.format_name ?? 'unknown',
+    durationSec: Number(parsed.format?.duration ?? 0),
+    sizeBytes: Number(parsed.format?.size ?? 0),
+    streams: compactStreams,
+  }
+}
+
+export interface ExtractFramesOptions {
+  /** Timestamps in seconds to capture one frame each. */
+  at?: number[]
+  /** Evenly spaced frame count over the whole duration (used when `at` is empty). */
+  count?: number
+}
+
+export async function extractFrames(source: string, outputDir: string, options: ExtractFramesOptions = {}): Promise<MediaFile[]> {
+  requireBinary('ffmpeg')
+  const dir = join(resolve(process.cwd(), outputDir), 'frames')
+  await mkdir(dir, { recursive: true })
+  const stem = slugify(source, 24)
+  const times: number[] = []
+  if (options.at !== undefined && options.at.length > 0) {
+    for (const t of options.at) if (Number.isFinite(t) && t >= 0) times.push(t)
+  } else {
+    const info = probeMedia(source)
+    const count = Math.min(24, Math.max(1, Math.round(options.count ?? 4)))
+    for (let i = 0; i < count; i += 1) {
+      times.push((info.durationSec * (i + 0.5)) / count)
+    }
+  }
+  const files: MediaFile[] = []
+  for (const t of times) {
+    const stamp = new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')
+    const path = join(dir, `${stem}-${stamp}-${t.toFixed(2)}s.png`)
+    const result = spawnSync('ffmpeg', [
+      '-y', '-ss', String(t), '-i', source, '-frames:v', '1', '-q:v', '2', path,
+    ], { encoding: 'utf8' })
+    if (result.status !== 0) {
+      throw new Error(`ffmpeg frame extraction failed at ${t}s: ${result.stderr?.slice(-400) || `exit ${result.status}`}`)
+    }
+    files.push({ path, mimeType: 'image/png' })
+  }
+  return files
+}

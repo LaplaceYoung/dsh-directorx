@@ -1,5 +1,5 @@
 import { build } from 'esbuild'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile, appendFile } from 'node:fs/promises'
 
 const HOST_EXTERNALS = [
   'cordis',
@@ -56,6 +56,7 @@ await build({
   target: 'es2022',
   sourcemap: true,
   jsx: 'automatic',
+  loader: { '.css': 'local-css' },
   external: CLIENT_EXTERNALS,
   banner: {
     js: `var module = { exports: {} }; var exports = module.exports;
@@ -76,5 +77,18 @@ await writeFile('lib/client.d.ts', `export declare const name: string
 export declare const inject: string[]
 export declare function apply(ctx: any): void
 `)
+
+// The module loader serves only client.js (and its map); any CSS esbuild
+// still emits (e.g. tippy styles pulled in by the image editor) is inlined
+// into the bundle as a runtime style injection so no separate file is needed.
+try {
+  const css = await readFile('lib/client.css', 'utf8')
+  const injected = `\n;(function(){try{var el=document.createElement('style');el.setAttribute('data-directorx','1');el.textContent=${JSON.stringify(css)};document.head.appendChild(el);}catch(e){}})();`
+  await appendFile('lib/client.js', injected)
+  await rm('lib/client.css', { force: true })
+  await rm('lib/client.css.map', { force: true })
+} catch {
+  // No CSS emitted this build — nothing to inline.
+}
 
 console.log('dsh-directorx built: lib/index.js, lib/client.js')

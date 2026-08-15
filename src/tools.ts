@@ -5,8 +5,12 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
 import { corpus } from './corpus.ts'
+import { DirectorxEditLedger } from './edits.ts'
+import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
+import { extractFrames, probeMedia } from './providers/ffmpeg.ts'
 import { runImage } from './providers/image.ts'
+import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 
@@ -26,7 +30,7 @@ function combinedSignal(execSignal: AbortSignal, timeoutMs: number): AbortSignal
 }
 
 function toolContext(settings: DirectorxSettings, capability: DirectorxSettings['vision'], signal: AbortSignal) {
-  return { settings, capability, signal }
+  return { settings, capability, signal, ledger: new DirectorxTaskLedger(settings.outputDir) }
 }
 
 export function syncTools(ctx: Context, settings: DirectorxSettings): () => void {
@@ -122,6 +126,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         return runAudio(toolContext(settings, settings.audio, signal), args.text, { voice: args.voice, format: args.format })
       },
     })))
+
+    disposers.push(ctx.tools.register(defineTool({
+      name: 'directorx_transcribe_audio',
+      description: 'Transcribe a local audio/video file through a configurable OpenAI-compatible /audio/transcriptions endpoint (multipart). Supports json/text/srt output; srt transcripts are saved under the output dir for the subtitle pipeline. Configure the audio Base URL / API Key / model in DSH WebUI Settings → DirectorX (mock mode returns a deterministic transcript).',
+      parameters: {
+        source: { type: 'string', required: true, description: 'Absolute path of the local audio or video file to transcribe.' },
+        format: { type: 'string', enum: ['json', 'text', 'srt'], description: 'Response format. Default json; choose srt for subtitles.' },
+        language: { type: 'string', description: 'Optional ISO-639-1 language hint, e.g. "zh" or "en".' },
+      },
+      output: objectOutput(),
+      timeoutMs: Math.max(settings.timeoutMs, 300_000),
+      async execute(args: any, exec: any) {
+        const signal = combinedSignal(exec.signal, settings.timeoutMs)
+        return runTranscribe(toolContext(settings, settings.audio, signal), args.source, { language: args.language, format: args.format })
+      },
+    })))
   }
 
   disposers.push(ctx.tools.register(defineTool({
@@ -154,6 +174,105 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
+  // Task ledger tools: registered unconditionally (independent of capability
+  // switches) so the agent can always inspect and stop generation tasks.
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_task_status',
+    description: 'Read the DirectorX task ledger (persisted under the output directory). Without task_id, returns the most recent tasks; with task_id, the latest transition. Use it to recover tasks whose original tool call timed out or whose session was interrupted.',
+    parameters: {
+      task_id: { type: 'string', description: 'Optional provider task id; omit to list recent tasks.' },
+      limit: { type: 'number', description: 'Max tasks to list when task_id is omitted (default 10, max 50).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any, exec: any) {
+      void exec
+      const ledger = new DirectorxTaskLedger(settings.outputDir)
+      const taskId = typeof args.task_id === 'string' ? args.task_id.trim() : ''
+      if (taskId !== '') {
+        const record = await ledger.latest(taskId)
+        return record === undefined
+          ? { task_id: taskId, found: false }
+          : { task_id: taskId, found: true, task: record }
+      }
+      const limit = Math.min(50, Math.max(1, Math.round(args.limit ?? 10)))
+      const records = await ledger.list()
+      // Latest state per task id, newest first.
+      const byId = new Map<string, (typeof records)[number]>()
+      for (const record of records) byId.set(record.taskId, record)
+      const tasks = [...byId.values()].reverse().slice(0, limit)
+      return { tasks, count: byId.size }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_cancel_task',
+    description: 'Cancel an in-flight or orphaned DirectorX generation task by task id. An in-flight poll loop stops at its next ledger check; a task already succeeded is a no-op. The provider-side task may keep running remotely.',
+    parameters: {
+      task_id: { type: 'string', required: true, description: 'Provider task id from directorx_task_status or a previous generation result.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const ledger = new DirectorxTaskLedger(settings.outputDir)
+      const taskId = args.task_id.trim()
+      if (taskId === '') throw new Error('directorx_cancel_task requires a non-empty task_id')
+      const record = await ledger.cancel(taskId)
+      return { task_id: taskId, task: record }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_edits',
+    description: 'List media files saved from the WebUI editor panel (image/video secondary edits). Returns absolute paths under the output directory that the agent can reference in further steps.',
+    parameters: {
+      limit: { type: 'number', description: 'Max edits to list (default 20, max 50).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const ledger = new DirectorxEditLedger(settings.outputDir)
+      const limit = Math.min(50, Math.max(1, Math.round(args.limit ?? 20)))
+      return { edits: await ledger.list(limit) }
+    },
+  })))
+
+  // Local ffmpeg/ffprobe tools: registered unconditionally (they need no
+  // provider keys); each degrades with a friendly error when ffmpeg is missing.
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_probe_media',
+    description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the local media file.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return probeMedia(args.source)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_extract_frames',
+    description: 'Extract still frames from a local video with ffmpeg and save them as PNGs under the output dir (frames/). Use it with directorx_view_image for frame-level QA (the frame-qa workflow). Requires ffmpeg on PATH.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the local video file.' },
+      at: { type: 'array', items: { type: 'number' }, description: 'Timestamps in seconds to capture one frame each; omit to sample evenly.' },
+      count: { type: 'number', description: 'Evenly spaced frame count when `at` is omitted (default 4, max 24).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 120_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const files = await extractFrames(args.source, settings.outputDir, { at: args.at, count: args.count })
+      return { source: args.source, files }
+    },
+  })))
+
   return () => {
     for (const dispose of disposers.reverse()) dispose()
   }
@@ -166,7 +285,9 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     ...(settings.vision.enabled ? ['directorx_view_image'] : []),
     ...(settings.image.enabled ? ['directorx_generate_image'] : []),
     ...(settings.video.enabled ? ['directorx_generate_video'] : []),
-    ...(settings.audio.enabled ? ['directorx_generate_audio'] : []),
+    ...(settings.audio.enabled ? ['directorx_generate_audio', 'directorx_transcribe_audio'] : []),
+    'directorx_probe_media',
+    'directorx_extract_frames',
   ]
   return ctx.systemPrompt.section({
     name: 'tool:directorx',
@@ -179,6 +300,10 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
+      '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',
+      '- Multi-shot projects should be orchestrated with the `workflow` tool and the `directorx-workflow` skill (script/storyboard → parallel prompt crafting → parallel generation → QA → assembly); do not generate shots serially.',
+      '- Frame-level QA: extract stills with `directorx_extract_frames`, then inspect them with `directorx_view_image` (multi-frame comparisons) before accepting a video result.',
+      '- Subtitle pipeline: `directorx_transcribe_audio` (format srt) produces subtitle files the video editor can overlay; keep transcripts in the output dir for reuse.',
       '- If a tool fails with a Base URL / API Key / mode error, tell the user to open WebUI Settings → DirectorX and configure the matching capability.',
     ].filter(Boolean).join('\n'),
   })

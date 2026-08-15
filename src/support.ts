@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
-import { basename, extname, join, resolve } from 'node:path'
+import { basename, extname, join, resolve, sep } from 'node:path'
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -59,6 +59,62 @@ export async function saveBase64ToFile(data: string, outDir: string, prefix: str
   const path = join(outDir, `${prefix}-${new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')}${normalizedExt}`)
   await writeFile(path, Buffer.from(raw, 'base64'))
   return path
+}
+
+/** Hard cap for one media file served to the browser; keeps one request from pinning host memory. */
+export const MAX_MEDIA_BYTES = 512 * 1024 * 1024
+
+/**
+ * Resolve a browser-requested media path against the plugin output directory.
+ * The output dir itself resolves against `process.cwd()`, matching
+ * {@link ensureOutputDir}; absolute request paths are allowed only inside it.
+ * @throws when the resolved path escapes the output directory.
+ */
+export function resolveMediaPath(outputDir: string, candidate: string): string {
+  const root = resolve(process.cwd(), outputDir)
+  const target = resolve(root, candidate)
+  if (target !== root && !target.startsWith(root + sep)) {
+    throw new Error(`Media path escapes the DirectorX output directory: ${candidate}`)
+  }
+  return target
+}
+
+export interface ByteRange {
+  start: number
+  end: number
+}
+
+/**
+ * Parse a single `bytes=start-end` HTTP range against a known size.
+ * Supports `start-`, `-suffix`, and closed ranges; invalid or unsatisfiable
+ * ranges return `undefined` (caller answers 200 with the full body).
+ */
+export function parseRangeHeader(value: string | undefined, size: number): ByteRange | undefined {
+  if (value === undefined) return undefined
+  const match = /^bytes=(\d*)-(\d*)$/.exec(value.trim())
+  if (match === null || size <= 0) return undefined
+  const startRaw = match[1] ?? ''
+  const endRaw = match[2] ?? ''
+  if (startRaw === '' && endRaw === '') return undefined
+  if (startRaw === '') {
+    const suffix = Number(endRaw)
+    if (!Number.isFinite(suffix) || suffix <= 0) return undefined
+    return { start: Math.max(0, size - suffix), end: size - 1 }
+  }
+  const start = Number(startRaw)
+  if (!Number.isFinite(start) || start < 0 || start >= size) return undefined
+  const end = endRaw === '' ? size - 1 : Math.min(size - 1, Number(endRaw))
+  if (!Number.isFinite(end) || end < start) return undefined
+  return { start, end }
+}
+
+/** Extract the `path` query parameter of a media route request URL. */
+export function parseMediaQuery(url: string | undefined): string | undefined {
+  if (url === undefined) return undefined
+  const queryStart = url.indexOf('?')
+  if (queryStart < 0) return undefined
+  const value = new URLSearchParams(url.slice(queryStart + 1)).get('path')
+  return value === null || value === '' ? undefined : value
 }
 
 export function apiKeyOf(configApiKey: string, envNames: string[], baseURL: string): string {

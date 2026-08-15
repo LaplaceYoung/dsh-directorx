@@ -34,6 +34,14 @@ declare module 'cordis' {
     logger?: {
       error(...args: unknown[]): void
     }
+    /** Present only in profiles that run the DSH web server. */
+    webServer?: {
+      register(route: {
+        kind: 'exact' | 'prefix'
+        path: string
+        handler: (request: unknown, response: unknown) => void | Promise<void>
+      }): () => void
+    }
   }
 }
 
@@ -50,3 +58,12 @@ declare module '@deepseek-ai/dsh-skill' {}
 declare module '@deepseek-ai/dsh-system-prompt' {}
 
 declare module '@deepseek-ai/dsh-llm' {}
+
+interface Window {
+  /** Debug/automation hook driving the DirectorX editor dock (see src/client/index.ts). */
+  __directorxEditor?: {
+    open(kind: 'image' | 'video', path: string): void
+    close(): void
+    snapshot(): { open: boolean; kind: 'image' | 'video' | null; path: string | null }
+  }
+}

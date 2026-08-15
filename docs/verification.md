@@ -12,8 +12,42 @@ npm test
 - mock vision / image / audio flows
 - package metadata (`dsh.bundle`, `dsh.client`, README `dsh-plugin`)
 - OpenAI-compatible vision, image, audio, and polling video adapters against a local HTTP server
+- modelverse-tasks submit/poll round-trip with ledger transitions
+- task ledger: append/fold/latest, cancel semantics, poll-loop abort on cancel
+- media route: path escape rejection, Range parsing, media query parsing, file inspection
 
-Expected: **7/7 passing**.
+Expected: **18/18 passing**.
+
+## Media route handler verification
+
+Beyond the unit tests, the compiled `lib/testing.js` handler is exercised against
+a real local HTTP server (stub `webServer` context):
+
+- PNG/MP4 bytes round-trip, `content-type`, `no-store`, `accept-ranges`
+- `HEAD` length, `bytes=2-5` → 206 with correct slice and `content-range`
+- path traversal / missing file → 404; no `path` → 400; POST → 405
+- cross-origin `Origin` → 403; same-origin passes
+
+Recorded run: all 14 checks passed.
+
+## Live deployment verification (running server, no process restart)
+
+The rebuilt host bundle was activated in the running `dsh web` process by a
+loader entry reset (disable → re-enable forces a fresh module import; all
+plugin registrations are fiber-effect-bound, so the swap is clean). Verified
+on the live `127.0.0.1:3082` server:
+
+- `GET /directorx/media?path=<file>` → 200 with correct bytes/type,
+  `accept-ranges: bytes`, `cache-control: no-store`
+- `Range: bytes=2-5` → 206 with correct `content-range`
+- `HEAD` → 200 with correct `content-length`
+- path traversal / missing file → 404; missing `path` → 400; cross-origin → 403
+- `directorx_task_status` and `directorx_cancel_task` registered in the tool
+  registry alongside the six original tools
+- `/plugins/dsh-directorx/client.js` serves the card bundle (no-cache), so a
+  browser refresh activates the WebUI media cards
+
+No server process was restarted and other sessions were unaffected.
 
 ## DSH smoke test
 

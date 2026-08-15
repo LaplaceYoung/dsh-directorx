@@ -1,5 +1,6 @@
 import { readJsonResponse } from '../support.ts'
 import type { DirectorxSettings } from '../config.ts'
+import type { DirectorxTaskLedger } from '../tasks.ts'
 
 export interface TaskContentItem {
   type: 'text' | 'image_url' | 'video_url'
@@ -57,10 +58,14 @@ export async function pollModelverseTask(
   taskId: string,
   settings: DirectorxSettings,
   signal: AbortSignal,
+  ledger?: DirectorxTaskLedger,
 ): Promise<{ urls: string[]; status: string }> {
   const base = baseURL.replace(/\/+$/, '')
   for (let attempt = 0; attempt < settings.maxPollAttempts; attempt += 1) {
     if (signal.aborted) throw new Error('Task polling cancelled')
+    if (ledger !== undefined && await ledger.isCancelled(taskId)) {
+      throw new Error(`Task ${taskId} was cancelled via directorx_cancel_task`)
+    }
     await new Promise(resolve => setTimeout(resolve, settings.pollIntervalMs))
     const response = await fetch(`${base}/tasks/status?task_id=${encodeURIComponent(taskId)}`, {
       headers: { Authorization: `Bearer ${apiKey}` },
@@ -88,10 +93,14 @@ export async function pollOpenAIVideoTask(
   taskId: string,
   settings: DirectorxSettings,
   signal: AbortSignal,
+  ledger?: DirectorxTaskLedger,
 ): Promise<{ urls: string[]; status: string }> {
   const base = baseURL.replace(/\/+$/, '')
   for (let attempt = 0; attempt < settings.maxPollAttempts; attempt += 1) {
     if (signal.aborted) throw new Error('Video polling cancelled')
+    if (ledger !== undefined && await ledger.isCancelled(taskId)) {
+      throw new Error(`Video task ${taskId} was cancelled via directorx_cancel_task`)
+    }
     await new Promise(resolve => setTimeout(resolve, settings.pollIntervalMs))
     const response = await fetch(`${base}/videos/${encodeURIComponent(taskId)}`, {
       headers: { Authorization: `Bearer ${apiKey}` },
