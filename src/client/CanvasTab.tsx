@@ -211,9 +211,27 @@ const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: G
 const toolbar: CSSProperties = {
   position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
 }
+const ICONS = {
+  media: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>,
+  text: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7V5h16v2M12 5v14M9 19h6"/></svg>,
+  group: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg>,
+  arrange: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
+  export: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v12M7 8l5 5 5-5M4 21h16"/></svg>,
+  reload: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>,
+  plus: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>,
+}
+
 const toolBtn: CSSProperties = {
   padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)',
   color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer',
+}
+const iconBtn: CSSProperties = {
+  width: 38, height: 38, borderRadius: 10, border: '1px solid transparent', background: 'transparent',
+  color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+}
+const pillBtn: CSSProperties = {
+  width: 40, height: 40, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
+  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
 }
 const picker: CSSProperties = {
   position: 'absolute', top: 46, left: 12, zIndex: 6, width: 300, maxHeight: 320, overflowY: 'auto',
@@ -1105,15 +1123,16 @@ function CanvasTabInner(): ReactNode {
         title="画布标题（tapnow 式）"
       />
       <div style={toolbar}>
-        <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
-        <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>
-        <button style={toolBtn} onClick={addGroup}>＋ 分组</button>
+        <button style={pillBtn} onClick={() => void openPicker()} title="添加媒体（媒体库）">{ICONS.plus}</button>
+        <button style={iconBtn} onClick={() => void openPicker()} title="媒体库">{ICONS.media}</button>
+        <button style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
+        <button style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
+        <button style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
+        <button style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
+        <button style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
-        <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
-        <button style={toolBtn} onClick={() => void exportPng()}>导出 PNG</button>
-        <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘D 复制 · ⌫ 删除 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
         {conflict !== undefined ? (

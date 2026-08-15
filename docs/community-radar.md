@@ -37,6 +37,7 @@
 | html2canvas | 31,912 | MIT | DOM → 位图快照 | 已用原生 SVG 快照替代（画布导出 PNG 无依赖实现）；如需富 CSS 页面截图再评估 |
 | modern-screenshot | 2,052 | MIT | html2canvas 活跃 fork（现代 CSS 支持） | 富 CSS 页面截图候选 |
 | react-rnd | 4,321 | MIT | React 可拖拽/缩放容器组件 | 编辑器浮动窗口等场景备选（画布节点已用 xyflow 原生） |
+| lucide（lucide-react） | 23,966 | ISC（API 显示 NOASSERTION，仓库实际 ISC） | 图标库（原 directorx 设计保留项） | 工具栏目前用内联 SVG（零依赖）；图标需求增长后评估接入 |
 
 ## 已调研 · 弃用（附原因）
 
