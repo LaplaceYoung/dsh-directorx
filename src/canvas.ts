@@ -34,6 +34,8 @@ export interface CanvasEdge {
 export interface CanvasDocument {
   version: 1
   updatedAt: number
+  /** Optional project title (tapnow-style canvas header). */
+  title?: string
   nodes: CanvasNode[]
   edges: CanvasEdge[]
 }
@@ -118,6 +120,7 @@ export class DirectorxCanvasStore {
       const migrated: CanvasDocument = {
         version: 1,
         updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+        ...(typeof parsed.title === 'string' && parsed.title !== '' ? { title: parsed.title.slice(0, 200) } : {}),
         nodes: Array.isArray(parsed.nodes) ? parsed.nodes.map(item => sanitizeNode(item as unknown as Record<string, unknown>)) : [],
         edges: Array.isArray(parsed.edges) ? parsed.edges.map(item => sanitizeEdge(item as unknown as Record<string, unknown>)) : [],
       }
@@ -146,6 +149,7 @@ export class DirectorxCanvasStore {
     const saved: CanvasDocument = {
       version: 1,
       updatedAt: Date.now(),
+      ...(typeof doc.title === 'string' && doc.title !== '' ? { title: doc.title.slice(0, 200) } : {}),
       nodes: doc.nodes.map(node => sanitizeNode(node as unknown as Record<string, unknown>)),
       edges: doc.edges.map(edge => sanitizeEdge(edge as unknown as Record<string, unknown>)),
     }

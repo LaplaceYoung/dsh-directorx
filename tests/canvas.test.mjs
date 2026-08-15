@@ -122,6 +122,21 @@ test('canvas store write enforces optimistic concurrency', async () => {
   }
 })
 
+test('canvas route PUT preserves the document title', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ kind: 'text', label: 'x', x: 0, y: 0 })
+    const current = await store.read()
+    const withTitle = await store.write({ version: 1, updatedAt: 0, title: '雨夜霓虹短片', nodes: current.nodes, edges: [] }, current.updatedAt)
+    assert.equal(withTitle.title, '雨夜霓虹短片')
+    const again = await store.read()
+    assert.equal(again.title, '雨夜霓虹短片')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas route GET/PUT round-trips with conflict handling', async () => {
   const handlers = new Map()
   const server = createServer((request, response) => {

@@ -224,7 +224,7 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
+interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
@@ -364,6 +364,8 @@ function CanvasTabInner(): ReactNode {
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
   const [conflict, setConflict] = useState<CanvasDocument | undefined>(undefined)
+  const [title, setTitle] = useState('未命名画布')
+  const titleRef = useRef('未命名画布')
   const cascadeRef = useRef(0)
 
   const renameNode = useCallback((id: string, label: string) => {
@@ -400,6 +402,9 @@ function CanvasTabInner(): ReactNode {
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
     updatedAtRef.current = doc.updatedAt
+    const nextTitle = typeof doc.title === 'string' && doc.title !== '' ? doc.title : '未命名画布'
+    titleRef.current = nextTitle
+    setTitle(nextTitle)
     setNodes(toFlowNodes(doc, nodeCallbacks))
     setEdges(toFlowEdges(doc))
   }, [setNodes, setEdges, nodeCallbacks])
@@ -429,6 +434,7 @@ function CanvasTabInner(): ReactNode {
       const doc = {
         version: 1,
         updatedAt: updatedAtRef.current,
+        ...(titleRef.current !== '' && titleRef.current !== '未命名画布' ? { title: titleRef.current } : {}),
         nodes: currentNodes.map(node => {
           const absolute = node.parentId !== undefined && node.parentId !== ''
             ? { x: node.position.x + (parentPos.get(node.parentId)?.x ?? 0), y: node.position.y + (parentPos.get(node.parentId)?.y ?? 0) }
@@ -1090,6 +1096,14 @@ function CanvasTabInner(): ReactNode {
         <Controls position="bottom-left" showInteractive={false} />
         <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }} maskColor="rgba(0,0,0,.75)" nodeColor="#3f3f3f" nodeStrokeColor="#5c5c5c" />
       </ReactFlow>
+      <input
+        value={title}
+        placeholder="请输入标题"
+        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 5, background: 'transparent', border: '1px solid transparent', borderRadius: 8, color: '#f5f5f5', fontSize: 15, fontWeight: 600, textAlign: 'center', padding: '6px 12px', width: 260, outline: 'none' }}
+        onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
+        onBlur={() => void saveNow()}
+        title="画布标题（tapnow 式）"
+      />
       <div style={toolbar}>
         <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
         <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>

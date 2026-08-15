@@ -362,14 +362,14 @@ export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): (
           const chunks: Buffer[] = []
           for await (const chunk of request) chunks.push(chunk as Buffer)
           const raw = Buffer.concat(chunks).toString('utf8')
-          const body = JSON.parse(raw) as { nodes?: unknown[]; edges?: unknown[]; updatedAt?: number }
+          const body = JSON.parse(raw) as { nodes?: unknown[]; edges?: unknown[]; updatedAt?: number; title?: string }
           const queryStart = request.url?.indexOf('?') ?? -1
           const expectedRaw = queryStart >= 0 && request.url !== undefined
             ? new URLSearchParams(request.url.slice(queryStart + 1)).get('expectedUpdatedAt')
             : null
           const expectedUpdatedAt = expectedRaw !== null && expectedRaw !== '' && Number.isFinite(Number(expectedRaw)) ? Number(expectedRaw) : undefined
           const doc = await store.write(
-            { version: 1, updatedAt: body.updatedAt ?? 0, nodes: (body.nodes ?? []) as unknown as CanvasDocument['nodes'], edges: (body.edges ?? []) as unknown as CanvasDocument['edges'] },
+            { version: 1, updatedAt: body.updatedAt ?? 0, ...(typeof body.title === 'string' && body.title !== '' ? { title: body.title } : {}), nodes: (body.nodes ?? []) as unknown as CanvasDocument['nodes'], edges: (body.edges ?? []) as unknown as CanvasDocument['edges'] },
             expectedUpdatedAt,
           )
           send(200, doc)
