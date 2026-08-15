@@ -386,7 +386,7 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
               style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)', background: 'rgba(80,130,255,.16)', color: 'inherit', fontSize: 12.5, cursor: 'pointer' }}
               onClick={() => openEditor(editableKind, editablePath)}
             >
-              ✏️ 编辑（打开右侧面板）
+              编辑（打开右侧面板）
             </button>
           ) : null}
         </>

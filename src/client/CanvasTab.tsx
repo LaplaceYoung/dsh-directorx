@@ -25,17 +25,17 @@ interface MediaListFile { path: string; name: string; mediaType: string; size: n
 
 const flowStyles = {
   mediaCard: {
-    borderRadius: 12, border: '1px solid rgba(128,140,160,.35)', background: 'rgba(18,22,30,.92)',
-    boxShadow: '0 6px 18px rgba(0,0,0,.35)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
+    borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: '#1d1d1d',
+    boxShadow: '0 4px 14px rgba(0,0,0,.4)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
   } as CSSProperties,
-  selectedCard: { boxShadow: '0 0 0 2px rgba(128,160,255,.75), 0 8px 24px rgba(0,0,0,.45)' } as CSSProperties,
+  selectedCard: { border: '1px solid rgba(255,255,255,.85)', boxShadow: '0 8px 24px rgba(0,0,0,.55)' } as CSSProperties,
   thumb: { width: 100 + '%', height: 96, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
-  label: { fontSize: 11.5, padding: '6px 8px', opacity: .85, wordBreak: 'break-word' as const, lineHeight: 1.4 },
+  label: { fontSize: 11.5, padding: '7px 10px', color: '#f7f7f7', wordBreak: 'break-word' as const, lineHeight: 1.4, borderTop: '1px solid rgba(255,255,255,.08)' },
   textCard: {
-    borderRadius: 10, border: '1px solid rgba(128,160,255,.45)', background: 'rgba(28,34,48,.92)',
-    padding: '10px 12px', fontSize: 12.5, minWidth: 120, maxWidth: 220, cursor: 'pointer',
+    borderRadius: 10, border: '1px solid rgba(255,255,255,.14)', background: '#1d1d1d',
+    padding: '10px 12px', fontSize: 12.5, minWidth: 120, maxWidth: 220, cursor: 'pointer', color: '#f7f7f7',
   } as CSSProperties,
-  handle: { width: 9, height: 9, background: '#6f87c9', border: '2px solid #10131a' } as CSSProperties,
+  handle: { width: 8, height: 8, background: '#5a5a5a', border: '2px solid #1d1d1d' } as CSSProperties,
 }
 
 function mediaUrl(path: string): string {
@@ -83,17 +83,17 @@ const toolbar: CSSProperties = {
   position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
 }
 const toolBtn: CSSProperties = {
-  padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(128,140,160,.4)', background: 'rgba(20,24,32,.92)',
-  color: 'inherit', fontSize: 12.5, cursor: 'pointer', backdropFilter: 'blur(4px)',
+  padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,.16)', background: '#2a2a2a',
+  color: '#f7f7f7', fontSize: 12.5, cursor: 'pointer',
 }
 const picker: CSSProperties = {
   position: 'absolute', top: 46, left: 12, zIndex: 6, width: 300, maxHeight: 320, overflowY: 'auto',
-  border: '1px solid rgba(128,140,160,.35)', borderRadius: 10, background: 'rgba(18,22,30,.96)', padding: 10,
-  boxShadow: '0 10px 30px rgba(0,0,0,.5)',
+  border: '1px solid rgba(255,255,255,.16)', borderRadius: 12, background: '#1d1d1d', padding: 10,
+  boxShadow: '0 10px 30px rgba(0,0,0,.55)',
 }
 const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }
-const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(128,140,160,.3)', display: 'block' }
-const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(0,0,0,.35)', color: '#8fdc9f' }
+const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
+const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
 interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
 
@@ -155,9 +155,9 @@ function DirectorxEdges({ nodes, edges }: { nodes: CanvasFlowNode[]; edges: Edge
     })
     return (
       <g key={edge.id}>
-        <path d={path} fill="none" stroke="rgba(128,160,255,.55)" strokeWidth={1.6} markerEnd="url(#dx-arrow)" />
+        <path d={path} fill="none" stroke="rgba(255,255,255,.3)" strokeWidth={1.4} markerEnd="url(#dx-arrow)" />
         {typeof edge.label === 'string' && edge.label !== '' ? (
-          <text fontSize={10} fill="rgba(200,214,244,.75)" dy={-4}>
+          <text fontSize={10} fill="rgba(247,247,247,.65)" dy={-4}>
             <textPath href={`#dx-edge-${edge.id}`} startOffset="50%" textAnchor="middle">{edge.label}</textPath>
           </text>
         ) : null}
@@ -171,7 +171,7 @@ function DirectorxEdges({ nodes, edges }: { nodes: CanvasFlowNode[]; edges: Edge
     <svg className="directorx-edges" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
       <defs>
         <marker id="dx-arrow" viewBox="0 -4 8 8" refX="7" refY="0" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,-4 L8,0 L0,4 Z" fill="rgba(128,160,255,.8)" />
+          <path d="M0,-4 L8,0 L0,4 Z" fill="rgba(255,255,255,.55)" />
         </marker>
       </defs>
       {paths}
@@ -371,6 +371,7 @@ export function CanvasTab(): ReactNode {
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
         defaultEdgeOptions={defaultEdgeOptions}
+        style={{ background: '#141414' }}
         fitView
         proOptions={{ hideAttribution: true }}
         colorMode="dark"
@@ -378,22 +379,22 @@ export function CanvasTab(): ReactNode {
         maxZoom={2.5}
         deleteKeyCode={['Backspace', 'Delete']}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(128,140,160,.28)" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.12)" />
         <DirectorxEdges nodes={nodes} edges={edges} />
         <Controls position="bottom-left" showInteractive={false} />
-        <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8 }} maskColor="rgba(8,10,14,.7)" />
+        <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#1a1a1a' }} maskColor="rgba(0,0,0,.7)" nodeColor="#4a4a4a" nodeStrokeColor="#6a6a6a" />
       </ReactFlow>
       <div style={toolbar}>
         <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
         <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>
-        <button style={toolBtn} onClick={arrangeGrid}>🧹 网格整理</button>
-        <button style={toolBtn} onClick={() => void load()}>⟳ 重载</button>
+        <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
+        <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={saveChip}>{saveState}</span>
-        {error !== undefined ? <span style={{ ...saveChip, color: '#ff9b8f' }}>{error}</span> : null}
+        {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
       {pickerOpen ? (
         <div style={picker}>
-          <div style={{ fontSize: 12, opacity: .7, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: '#919191', marginBottom: 8 }}>
             从输出目录选择媒体（{mediaFiles.length} 项，点击添加到画布）
           </div>
           <div style={pickerGrid}>
@@ -401,11 +402,11 @@ export function CanvasTab(): ReactNode {
               <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => addMedia(file)} title={file.path}>
                 {file.mediaType.startsWith('image/')
                   ? <img src={mediaUrl(file.path)} alt={file.name} style={pickerThumb} />
-                  : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0b1020' }}>🎞</div>}
+                  : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#141414', color: '#919191', fontSize: 11 }}>视频</div>}
               </button>
             ))}
           </div>
-          {mediaFiles.length === 0 ? <div style={{ fontSize: 12, opacity: .6 }}>输出目录还没有媒体文件。</div> : null}
+          {mediaFiles.length === 0 ? <div style={{ fontSize: 12, color: '#919191' }}>输出目录还没有媒体文件。</div> : null}
         </div>
       ) : null}
     </div>

@@ -248,9 +248,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
         <>
           <video ref={videoRef} src={props.source} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 8, background: '#000' }} />
           <div style={row}>
-            <button style={btn} disabled={busy} onClick={splitAtPlayhead}>✂ 在播放头分割</button>
-            <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(-1)}>◀ 前移</button>
-            <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(1)}>后移 ▶</button>
+            <button style={btn} disabled={busy} onClick={splitAtPlayhead}>在播放头分割</button>
+            <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(-1)}>前移</button>
+            <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(1)}>后移</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={deleteSegment}>删除片段</button>
             <button style={primaryBtn} disabled={busy} onClick={() => void exportVideo()}>
               {busy ? `导出中…${progress !== undefined ? ` ${Math.round(progress * 100)}%` : ''}` : `导出 MP4（${fmt(totalUs)}）`}
@@ -276,7 +276,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
           </div>
           <div style={audioLane}>
             <div style={audioLabel}>
-              <span>🎵 音频轨（wavesurfer.js）</span>
+              <span>音频轨（wavesurfer.js）</span>
               <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {audio !== undefined ? <button style={btn} onClick={() => { setAudio(undefined); setVolume(100) }}>移除</button> : null}
                 <label style={{ ...btn, cursor: 'pointer' }}>

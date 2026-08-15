@@ -87,7 +87,7 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
     <div style={wrapper}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
       <button style={exportBtn} disabled={busy} onClick={exportPng}>
-        {busy ? '导出中…' : '💾 导出 PNG'}
+        {busy ? '导出中…' : '导出 PNG'}
       </button>
       {error !== undefined ? <div style={overlay}>{error}</div> : null}
     </div>

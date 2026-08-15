@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore, Component, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore, Component, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import { closeEditor, editorSnapshot, setEditorTab, subscribeEditor, toggleEditor, type EditorTab } from './editor.ts'
 import { CanvasTab } from './CanvasTab.tsx'
 import { ImageEditBody } from './ImageEditBody.tsx'
@@ -16,7 +16,6 @@ const panel: CSSProperties = {
   top: 0,
   right: 0,
   bottom: 0,
-  width: 'min(760px, 94vw)',
   display: 'flex',
   flexDirection: 'column',
   background: 'var(--bg-secondary, #10131a)',
@@ -24,6 +23,14 @@ const panel: CSSProperties = {
   boxShadow: '-12px 0 32px rgba(0,0,0,.35)',
   zIndex: 60,
   pointerEvents: 'auto',
+}
+
+const resizeHandle: CSSProperties = {
+  position: 'absolute', left: -3, top: 0, bottom: 0, width: 6, cursor: 'col-resize', zIndex: 61,
+}
+
+const backdrop: CSSProperties = {
+  position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 59, pointerEvents: 'auto',
 }
 
 const handle: CSSProperties = {
@@ -50,9 +57,9 @@ const body: CSSProperties = { flex: 1, overflow: 'auto' }
 const emptyBox: CSSProperties = { padding: 16, fontSize: 13, opacity: .78, lineHeight: 1.6 }
 
 const TABS: Array<{ id: EditorTab; label: string }> = [
-  { id: 'canvas', label: '🎨 画布' },
-  { id: 'image', label: '🖼 图片编辑' },
-  { id: 'video', label: '🎞 视频编辑' },
+  { id: 'canvas', label: '画布' },
+  { id: 'image', label: '图片编辑' },
+  { id: 'video', label: '视频编辑' },
 ]
 
 /** One crashing editor body must never take the whole dock down. */
@@ -103,7 +110,7 @@ function DockHandle(): ReactNode {
   if (snapshot.open) return null
   return (
     <button style={handle} onClick={toggleEditor} title="DirectorX 编辑面板">
-      🎬 DirectorX 编辑
+      DirectorX 编辑
     </button>
   )
 }
@@ -139,6 +146,33 @@ function DockPanel(): ReactNode {
   const [sourceUrl, setSourceUrl] = useState<string | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | undefined>(undefined)
   const [saved, setSaved] = useState<EditRecord | undefined>(undefined)
+  // Responsive width: CSS clamp by default; drag-resize sets an explicit px
+  // width; very narrow viewports get a full-width sheet.
+  const [widthPx, setWidthPx] = useState<number | undefined>(undefined)
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 620px)').matches)
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 620px)')
+    const listener = (event: MediaQueryListEvent) => setNarrow(event.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
+  const startResize = useCallback((event: ReactPointerEvent) => {
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = widthPx ?? Math.round(window.innerWidth * 0.42)
+    const move = (moveEvent: PointerEvent) => {
+      const next = Math.min(900, Math.max(340, startWidth + (startX - moveEvent.clientX)))
+      setWidthPx(next)
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }, [widthPx])
+
+  const panelWidth = narrow ? '100vw' : widthPx !== undefined ? `${widthPx}px` : 'clamp(380px, 42vw, 760px)'
 
   useEffect(() => {
     let live = true
@@ -162,11 +196,14 @@ function DockPanel(): ReactNode {
 
   const title = snapshot.tab === 'canvas' ? 'DirectorX 画布' : snapshot.tab === 'video' ? '视频时间线编辑' : '图片编辑'
   return (
-    <div style={panel}>
-      <div style={headerBar}>
-        <strong style={{ fontSize: 13 }}>{title}</strong>
-        <button onClick={closeEditor} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>✕ 关闭</button>
-      </div>
+    <>
+      <div style={backdrop} onClick={closeEditor} />
+      <div style={{ ...panel, width: panelWidth }}>
+        {narrow ? null : <div style={resizeHandle} onPointerDown={startResize} />}
+        <div style={headerBar}>
+          <strong style={{ fontSize: 13 }}>{title}</strong>
+          <button onClick={closeEditor} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>关闭</button>
+        </div>
       <div style={tabBar}>
         {TABS.map(tab => (
           <button
@@ -208,7 +245,8 @@ function DockPanel(): ReactNode {
       ) : (
         <div style={body}><EditorBoundary><VideoEditBody source={sourceUrl} path={snapshot.path} onExport={onExport} /></EditorBoundary></div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 
