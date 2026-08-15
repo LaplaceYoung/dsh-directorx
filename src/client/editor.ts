@@ -6,15 +6,17 @@
  */
 
 export type EditorKind = 'image' | 'video'
+export type EditorTab = 'canvas' | EditorKind
 
 export interface EditorSnapshot {
   open: boolean
+  tab: EditorTab
   kind: EditorKind | null
   /** Local media path under the output dir; may be null while the dock is empty. */
   path: string | null
 }
 
-let snapshot: EditorSnapshot = { open: false, kind: null, path: null }
+let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null }
 const listeners = new Set<() => void>()
 
 /** Stable reference until the next update — required by useSyncExternalStore. */
@@ -36,7 +38,12 @@ function update(next: Partial<EditorSnapshot>): void {
 
 /** Open the dock with one media file queued for secondary editing. */
 export function openEditor(kind: EditorKind, path: string): void {
-  update({ open: true, kind, path })
+  update({ open: true, tab: kind, kind, path })
+}
+
+/** Switch the active dock tab (canvas / image editor / video editor). */
+export function setEditorTab(tab: EditorTab): void {
+  update({ open: true, tab })
 }
 
 export function closeEditor(): void {

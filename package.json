@@ -89,6 +89,7 @@
     "cordis": "^4.0.0-rc.8",
     "esbuild": "^0.25.0",
     "react": "^18.2.0",
+    "react-dom": "^18.3.1",
     "schemastery": "^3.18.0",
     "typescript": "^5.6.0"
   },
@@ -98,6 +99,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@webav/av-cliper": "^1.2.8",
+    "@xyflow/react": "^12.11.3",
     "tui-image-editor": "^3.15.3",
     "wavesurfer.js": "^7.12.11"
   }

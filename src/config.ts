@@ -80,7 +80,7 @@ export const DirectorxSettings = z.object({
   timeoutMs: z.number().step(1).min(1_000).max(3_600_000).default(120_000).description('HTTP timeout for one provider request.'),
   pollIntervalMs: z.number().step(1).min(500).max(60_000).default(5_000).description('Async task polling interval.'),
   maxPollAttempts: z.number().step(1).min(1).max(2_000).default(360).description('Maximum async task polling attempts.'),
-  vision: capability(VISION_MODES, 'openai-chat', 'https://api.openai.com/v1', 'gpt-4o-mini'),
+  vision: capability(VISION_MODES, 'openai-chat', 'https://aigw.sotatts.online/v1', 'gpt-5.6-luna'),
   image: capability(IMAGE_MODES, 'openai-images', 'https://api.openai.com/v1', 'gpt-image-1'),
   video: capability(VIDEO_MODES, 'openai-videos', 'https://api.openai.com/v1', 'sora-2', '2K'),
   audio: capability(AUDIO_MODES, 'openai-tts', 'https://api.openai.com/v1', 'gpt-4o-mini-tts'),

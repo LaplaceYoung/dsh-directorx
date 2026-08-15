@@ -1,7 +1,7 @@
 import { DirectorxSettingsSection } from './DirectorxSettingsSection.tsx'
 import { DirectorxToolRow, DIRECTORX_TOOLVIEW_KEYS } from './DirectorxToolRow.tsx'
 import { EditorDock } from './EditorDock.tsx'
-import { closeEditor, editorSnapshot, openEditor } from './editor.ts'
+import { closeEditor, editorSnapshot, openEditor, setEditorTab } from './editor.ts'
 
 interface ClientContext {
   get(name: string): unknown
@@ -56,6 +56,6 @@ export function apply(ctx: ClientContext): void {
   // Debug/automation hook: lets console users (and browser tests) drive the
   // dock directly without a generation card.
   if (typeof window !== 'undefined' && window.__directorxEditor === undefined) {
-    window.__directorxEditor = { open: openEditor, close: closeEditor, snapshot: editorSnapshot }
+    window.__directorxEditor = { open: openEditor, close: closeEditor, snapshot: editorSnapshot, setTab: setEditorTab }
   }
 }

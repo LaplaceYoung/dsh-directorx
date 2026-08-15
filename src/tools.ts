@@ -5,6 +5,7 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
 import { corpus } from './corpus.ts'
+import { DirectorxCanvasStore } from './canvas.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -240,8 +241,93 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  // Local ffmpeg/ffprobe tools: registered unconditionally (they need no
-  // provider keys); each degrades with a friendly error when ffmpeg is missing.
+  // Canvas CRUD tools: the agent owns the infinite canvas the same way the
+  // WebUI does — every write goes through the durable canvas.json document.
+  const canvas = new DirectorxCanvasStore(settings.outputDir)
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_get',
+    description: 'Read the DirectorX infinite-canvas document (nodes and edges). Use it before mutating the canvas, or to answer questions about what is on it.',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    isConcurrencySafe: () => true,
+    async execute() {
+      return canvas.read()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_add',
+    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path (from generation/edit results) or an http(s) URL; they render previews in the WebUI canvas.',
+    parameters: {
+      kind: { type: 'string', enum: ['image', 'video', 'text', 'group'], required: true, description: 'Node kind.' },
+      label: { type: 'string', description: 'Node label (shown under the preview).' },
+      path: { type: 'string', description: 'Media path (local output-dir path or http(s) URL) for image/video nodes.' },
+      x: { type: 'number', description: 'Canvas x position.' },
+      y: { type: 'number', description: 'Canvas y position.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.addNode(args)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_connect',
+    description: 'Connect two existing canvas nodes with an edge (optional label). Both endpoint ids must exist on the canvas.',
+    parameters: {
+      from: { type: 'string', required: true, description: 'Source node id.' },
+      to: { type: 'string', required: true, description: 'Target node id.' },
+      label: { type: 'string', description: 'Optional edge label.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.addEdge(args)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_update',
+    description: 'Update a canvas node or edge by id: move (x/y), resize (width/height), relabel, or replace its media path. Patch fields merge over the existing element.',
+    parameters: {
+      id: { type: 'string', required: true, description: 'Node or edge id from directorx_canvas_get.' },
+      patch: { type: 'object', additionalProperties: true, description: 'Fields to change, e.g. { x: 100, y: 200 } or { label: "镜头 2" }.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.update(args.id, args.patch ?? {})
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_remove',
+    description: 'Remove a canvas node (its edges go with it) or a single edge by id.',
+    parameters: {
+      id: { type: 'string', required: true, description: 'Node or edge id to remove.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.remove(args.id)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_arrange',
+    description: '整理画布：auto-layout every node into a tidy grid (or a single row) while keeping all connections.',
+    parameters: {
+      layout: { type: 'string', enum: ['grid', 'row'], description: 'grid (default) or row.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.arrange(args.layout ?? 'grid')
+    },
+  })))
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_probe_media',
     description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',

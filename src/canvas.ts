@@ -1,0 +1,200 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+
+/**
+ * Durable canvas document shared between the WebUI infinite canvas and the
+ * agent's canvas tools. Stored as `<outputDir>/canvas.json`; writes carry an
+ * optimistic-concurrency guard (expectedUpdatedAt) so a stale WebUI save
+ * cannot clobber a newer agent edit.
+ */
+
+export type CanvasNodeKind = 'image' | 'video' | 'text' | 'group'
+
+export interface CanvasNode {
+  id: string
+  kind: CanvasNodeKind
+  label: string
+  /** Local media path (served by /directorx/media) or an http(s) URL. */
+  path?: string
+  x: number
+  y: number
+  width?: number
+  height?: number
+}
+
+export interface CanvasEdge {
+  id: string
+  from: string
+  to: string
+  label?: string
+}
+
+export interface CanvasDocument {
+  version: 1
+  updatedAt: number
+  nodes: CanvasNode[]
+  edges: CanvasEdge[]
+}
+
+const CANVAS_FILE = 'canvas.json'
+
+/** A missing canvas document reads as epoch 0 — a stable stamp for the first write. */
+function emptyDocument(): CanvasDocument {
+  return { version: 1, updatedAt: 0, nodes: [], edges: [] }
+}
+
+function newId(prefix: string): string {
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+/** Strip unknown fields and clamp numeric positions so foreign input stays safe. */
+function sanitizeNode(input: Record<string, unknown>): CanvasNode {
+  const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'text' || input.kind === 'group' ? input.kind : 'text'
+  const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
+  return {
+    id: typeof input.id === 'string' && input.id !== '' ? input.id : newId(kind),
+    kind,
+    label: typeof input.label === 'string' ? input.label.slice(0, 200) : '',
+    ...(typeof input.path === 'string' && input.path !== '' ? { path: input.path.slice(0, 1000) } : {}),
+    x: numberOr(input.x, 0),
+    y: numberOr(input.y, 0),
+    ...(input.width !== undefined ? { width: Math.max(60, Math.min(1200, numberOr(input.width, 240))) } : {}),
+    ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
+  }
+}
+
+function sanitizeEdge(input: Record<string, unknown>): CanvasEdge {
+  return {
+    id: typeof input.id === 'string' && input.id !== '' ? input.id : newId('edge'),
+    from: typeof input.from === 'string' ? input.from : '',
+    to: typeof input.to === 'string' ? input.to : '',
+    ...(typeof input.label === 'string' && input.label !== '' ? { label: input.label.slice(0, 200) } : {}),
+  }
+}
+
+export class DirectorxCanvasStore {
+  private readonly outputDir: string
+
+  constructor(outputDir: string) {
+    this.outputDir = outputDir
+  }
+
+  private filePath(): string {
+    return join(resolve(process.cwd(), this.outputDir), CANVAS_FILE)
+  }
+
+  async read(): Promise<CanvasDocument> {
+    const path = this.filePath()
+    const raw = await readFile(path, 'utf8').catch(error => {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return ''
+      throw error
+    })
+    if (raw === '') return emptyDocument()
+    try {
+      const parsed = JSON.parse(raw) as Partial<CanvasDocument>
+      return {
+        version: 1,
+        updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : Date.now(),
+        nodes: Array.isArray(parsed.nodes) ? parsed.nodes.map(item => sanitizeNode(item as unknown as Record<string, unknown>)) : [],
+        edges: Array.isArray(parsed.edges) ? parsed.edges.map(item => sanitizeEdge(item as unknown as Record<string, unknown>)) : [],
+      }
+    } catch {
+      return emptyDocument()
+    }
+  }
+
+  /**
+   * Persist a full document. When `expectedUpdatedAt` is provided and does not
+   * match the stored revision, the write is refused with a conflict error so
+   * the caller can re-read and merge.
+   */
+  async write(doc: CanvasDocument, expectedUpdatedAt?: number): Promise<CanvasDocument> {
+    const dir = join(resolve(process.cwd(), this.outputDir))
+    await mkdir(dir, { recursive: true })
+    const path = this.filePath()
+    if (expectedUpdatedAt !== undefined) {
+      const current = await this.read()
+      if (current.updatedAt !== expectedUpdatedAt) {
+        throw Object.assign(new Error('canvas document changed since read; re-read and merge before saving'), { code: 'CANVAS_CONFLICT' })
+      }
+    }
+    const saved: CanvasDocument = {
+      version: 1,
+      updatedAt: Date.now(),
+      nodes: doc.nodes.map(node => sanitizeNode(node as unknown as Record<string, unknown>)),
+      edges: doc.edges.map(edge => sanitizeEdge(edge as unknown as Record<string, unknown>)),
+    }
+    await writeFile(path, JSON.stringify(saved), 'utf8')
+    return saved
+  }
+
+  /** Apply one mutation transactionally: read → mutate → write (with conflict retry off). */
+  private async mutate(mutator: (doc: CanvasDocument) => void): Promise<CanvasDocument> {
+    const current = await this.read()
+    mutator(current)
+    return this.write(current, current.updatedAt)
+  }
+
+  async addNode(input: Record<string, unknown>): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const node = sanitizeNode(input)
+      if (!doc.nodes.some(existing => existing.id === node.id)) doc.nodes.push(node)
+    })
+  }
+
+  async addEdge(input: Record<string, unknown>): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const edge = sanitizeEdge(input)
+      const fromExists = doc.nodes.some(node => node.id === edge.from)
+      const toExists = doc.nodes.some(node => node.id === edge.to)
+      if (!fromExists || !toExists) {
+        throw new Error(`canvas edge endpoints must reference existing nodes (${edge.from} -> ${edge.to})`)
+      }
+      if (!doc.edges.some(existing => existing.id === edge.id)) doc.edges.push(edge)
+    })
+  }
+
+  async update(id: string, patch: Record<string, unknown>): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const nodeIndex = doc.nodes.findIndex(node => node.id === id)
+      if (nodeIndex >= 0) {
+        doc.nodes[nodeIndex] = sanitizeNode({ ...doc.nodes[nodeIndex], ...patch, id } as unknown as Record<string, unknown>)
+        return
+      }
+      const edgeIndex = doc.edges.findIndex(edge => edge.id === id)
+      if (edgeIndex >= 0) {
+        doc.edges[edgeIndex] = sanitizeEdge({ ...doc.edges[edgeIndex], ...patch, id } as unknown as Record<string, unknown>)
+        return
+      }
+      throw new Error(`canvas element "${id}" not found`)
+    })
+  }
+
+  async remove(id: string): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const hadNode = doc.nodes.some(node => node.id === id)
+      const hadEdge = doc.edges.some(edge => edge.id === id)
+      if (!hadNode && !hadEdge) throw new Error(`canvas element "${id}" not found`)
+      doc.nodes = doc.nodes.filter(node => node.id !== id)
+      doc.edges = doc.edges.filter(edge => edge.id !== id && edge.from !== id && edge.to !== id)
+    })
+  }
+
+  /** 整理：auto-layout nodes into a grid (or a single row) without touching edges. */
+  async arrange(layout: 'grid' | 'row' = 'grid', gap = 40): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const columns = layout === 'row' ? doc.nodes.length : Math.max(1, Math.ceil(Math.sqrt(doc.nodes.length)))
+      doc.nodes.forEach((node, index) => {
+        const width = node.width ?? 240
+        const height = node.height ?? 160
+        if (layout === 'row') {
+          node.x = index * (width + gap)
+          node.y = 0
+        } else {
+          node.x = (index % columns) * (width + gap)
+          node.y = Math.floor(index / columns) * (height + gap)
+        }
+      })
+    })
+  }
+}

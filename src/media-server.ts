@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs'
-import { mkdir, rm, stat } from 'node:fs/promises'
+import { mkdir, readdir, rm, stat } from 'node:fs/promises'
 import { createWriteStream } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Transform } from 'node:stream'
@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path'
 import type { Context } from 'cordis'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
+import { DirectorxCanvasStore, type CanvasDocument } from './canvas.ts'
 import { MAX_MEDIA_BYTES, mimeForPath, parseMediaQuery, parseRangeHeader, resolveMediaPath, slugify } from './support.ts'
 
 /** Exact pathname the browser fetches generated media from: `/directorx/media?path=<abs-or-relative>` (GET) or saves edits to (POST). */
@@ -18,6 +19,12 @@ export const MEDIA_EDITS_ROUTE_PATH = '/directorx/media/edits'
 
 /** GET endpoint returning recent generation-task states (live progress cards). */
 export const MEDIA_TASKS_ROUTE_PATH = '/directorx/media/tasks'
+
+/** GET endpoint listing media files under the output dir (canvas picker). */
+export const MEDIA_LIST_ROUTE_PATH = '/directorx/media/list'
+
+/** GET/PUT endpoints for the infinite-canvas document. */
+export const CANVAS_ROUTE_PATH = '/directorx/canvas'
 
 /** Subdirectory receiving WebUI editor exports. */
 export const EDIT_SUBDIR = 'edited'
@@ -254,6 +261,126 @@ export function registerMediaTasksRoute(ctx: Context, getOutputDir: () => string
       const tasks = [...latestByTask.values()].reverse().slice(0, 20)
       response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
       response.end(JSON.stringify({ tasks }))
+    },
+  })
+}
+
+/**
+ * Register the `/directorx/media/list` route (GET): media files under the
+ * output dir (top level, edited/, frames/, transcripts/), one level deep —
+ * the canvas "add media" picker and the dock media library consume it.
+ */
+export function registerMediaListRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+
+  return webServer.register({
+    kind: 'exact',
+    path: MEDIA_LIST_ROUTE_PATH,
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      try {
+        const root = resolve(process.cwd(), getOutputDir())
+        const files: Array<{ path: string; name: string; mediaType: string; size: number }> = []
+        const scan = async (dir: string, depth: number) => {
+          if (depth > 1) return
+          let entries
+          try {
+            entries = await readdir(dir, { withFileTypes: true })
+          } catch {
+            return
+          }
+          for (const entry of entries) {
+            const full = join(dir, entry.name)
+            if (entry.isDirectory()) {
+              if (entry.name === 'frames' || entry.name === 'edited' || entry.name === 'transcripts') await scan(full, depth + 1)
+              continue
+            }
+            const info = await stat(full).catch(() => undefined)
+            if (info === undefined || !info.isFile()) continue
+            const mediaType = mimeForPath(full)
+            if (mediaType === 'application/octet-stream') continue
+            files.push({ path: full, name: entry.name, mediaType, size: info.size })
+          }
+        }
+        await scan(root, 0)
+        files.sort((a, b) => b.size - a.size)
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+        response.end(JSON.stringify({ files: files.slice(0, 200) }))
+      } catch (error) {
+        response.writeHead(500, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({ error: error instanceof Error ? error.message : 'list failed' }))
+      }
+    },
+  })
+}
+
+/**
+ * Register the `/directorx/canvas` route: GET returns the canvas document,
+ * PUT persists a full document with optional optimistic-concurrency
+ * (`?expectedUpdatedAt=<ms>`; 409 on conflict).
+ */
+export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+
+  return webServer.register({
+    kind: 'exact',
+    path: CANVAS_ROUTE_PATH,
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const store = new DirectorxCanvasStore(getOutputDir())
+      const send = (status: number, body: unknown) => {
+        response.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+        response.end(JSON.stringify(body))
+      }
+      try {
+        if (request.method === 'GET' || request.method === 'HEAD') {
+          const doc = await store.read()
+          if (request.method === 'HEAD') { response.writeHead(200); response.end(); return }
+          send(200, doc)
+          return
+        }
+        if (request.method === 'PUT') {
+          const chunks: Buffer[] = []
+          for await (const chunk of request) chunks.push(chunk as Buffer)
+          const raw = Buffer.concat(chunks).toString('utf8')
+          const body = JSON.parse(raw) as { nodes?: unknown[]; edges?: unknown[]; updatedAt?: number }
+          const queryStart = request.url?.indexOf('?') ?? -1
+          const expectedRaw = queryStart >= 0 && request.url !== undefined
+            ? new URLSearchParams(request.url.slice(queryStart + 1)).get('expectedUpdatedAt')
+            : null
+          const expectedUpdatedAt = expectedRaw !== null && expectedRaw !== '' && Number.isFinite(Number(expectedRaw)) ? Number(expectedRaw) : undefined
+          const doc = await store.write(
+            { version: 1, updatedAt: body.updatedAt ?? 0, nodes: (body.nodes ?? []) as unknown as CanvasDocument['nodes'], edges: (body.edges ?? []) as unknown as CanvasDocument['edges'] },
+            expectedUpdatedAt,
+          )
+          send(200, doc)
+          return
+        }
+        response.writeHead(405)
+        response.end('method not allowed')
+      } catch (error) {
+        const code = (error as { code?: string } | null)?.code
+        send(code === 'CANVAS_CONFLICT' ? 409 : 400, { error: error instanceof Error ? error.message : String(error), code })
+      }
     },
   })
 }

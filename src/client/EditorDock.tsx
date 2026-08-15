@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
-import { closeEditor, editorSnapshot, subscribeEditor, toggleEditor } from './editor.ts'
+import { useCallback, useEffect, useState, useSyncExternalStore, Component, type CSSProperties, type ReactNode } from 'react'
+import { closeEditor, editorSnapshot, setEditorTab, subscribeEditor, toggleEditor, type EditorTab } from './editor.ts'
+import { CanvasTab } from './CanvasTab.tsx'
 import { ImageEditBody } from './ImageEditBody.tsx'
 import { VideoEditBody } from './VideoEditBody.tsx'
 
@@ -15,7 +16,7 @@ const panel: CSSProperties = {
   top: 0,
   right: 0,
   bottom: 0,
-  width: 'min(560px, 92vw)',
+  width: 'min(760px, 94vw)',
   display: 'flex',
   flexDirection: 'column',
   background: 'var(--bg-secondary, #10131a)',
@@ -42,9 +43,33 @@ const handle: CSSProperties = {
   pointerEvents: 'auto',
 }
 
-const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderBottom: '1px solid rgba(128,140,160,.25)' }
+const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid rgba(128,140,160,.25)' }
+const tabBar: CSSProperties = { display: 'flex', gap: 2, padding: '0 10px', borderBottom: '1px solid rgba(128,140,160,.2)', background: 'rgba(0,0,0,.18)' }
+const tabItemBase: CSSProperties = { padding: '9px 14px', fontSize: 12.5, cursor: 'pointer', background: 'transparent', border: 'none', color: 'rgba(214,224,246,.62)' }
 const body: CSSProperties = { flex: 1, overflow: 'auto' }
 const emptyBox: CSSProperties = { padding: 16, fontSize: 13, opacity: .78, lineHeight: 1.6 }
+
+const TABS: Array<{ id: EditorTab; label: string }> = [
+  { id: 'canvas', label: '🎨 画布' },
+  { id: 'image', label: '🖼 图片编辑' },
+  { id: 'video', label: '🎞 视频编辑' },
+]
+
+/** One crashing editor body must never take the whole dock down. */
+class EditorBoundary extends Component<{ children: ReactNode }, { error: string | undefined }> {
+  state = { error: undefined as string | undefined }
+
+  static getDerivedStateFromError(error: unknown) {
+    return { error: error instanceof Error ? error.message : String(error) }
+  }
+
+  render() {
+    if (this.state.error !== undefined) {
+      return <div style={{ padding: 16, fontSize: 12.5, color: '#ff9b8f' }}>编辑器组件出错：{this.state.error}（其它 Tab 不受影响）</div>
+    }
+    return this.props.children
+  }
+}
 
 interface EditRecord { path: string; bytes: number; mediaType: string; name: string; at: number }
 
@@ -135,14 +160,32 @@ function DockPanel(): ReactNode {
       .catch(cause => setLoadError(cause instanceof Error ? cause.message : String(cause)))
   }, [snapshot.path])
 
-  const title = snapshot.kind === 'video' ? '视频时间线编辑' : snapshot.kind === 'image' ? '图片编辑' : 'DirectorX 编辑'
+  const title = snapshot.tab === 'canvas' ? 'DirectorX 画布' : snapshot.tab === 'video' ? '视频时间线编辑' : '图片编辑'
   return (
     <div style={panel}>
       <div style={headerBar}>
         <strong style={{ fontSize: 13 }}>{title}</strong>
         <button onClick={closeEditor} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>✕ 关闭</button>
       </div>
-      {saved !== undefined ? (
+      <div style={tabBar}>
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            style={{
+              ...tabItemBase,
+              color: snapshot.tab === tab.id ? 'inherit' : tabItemBase.color,
+              borderBottom: snapshot.tab === tab.id ? '2px solid rgba(128,160,255,.85)' : '2px solid transparent',
+              fontWeight: snapshot.tab === tab.id ? 600 : 400,
+            }}
+            onClick={() => setEditorTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {snapshot.tab === 'canvas' ? (
+        <div style={{ ...body, overflow: 'hidden' }}><EditorBoundary><CanvasTab /></EditorBoundary></div>
+      ) : saved !== undefined ? (
         <div style={{ padding: 12, fontSize: 12.5 }}>
           <div style={{ color: '#8fdc9f', marginBottom: 6 }}>已保存 ✓</div>
           <div style={{ wordBreak: 'break-all', opacity: .85 }}>{saved.path}</div>
@@ -151,17 +194,19 @@ function DockPanel(): ReactNode {
         </div>
       ) : snapshot.path === null ? (
         <div style={body}>
-          <div style={emptyBox}>在对话流中生成图片或视频后，卡片上会出现「编辑」按钮，点击即在此打开对应编辑器。</div>
+          <div style={emptyBox}>
+            {snapshot.tab === 'image' ? '在对话流中生成图片后，卡片上的「编辑」按钮会把图片带到这里。' : '在对话流中生成视频后，卡片上的「编辑」按钮会把视频带到这里（时间线剪辑）。'}
+          </div>
           <RecentEdits />
         </div>
       ) : loadError !== undefined ? (
         <div style={emptyBox}>加载失败：{loadError}</div>
       ) : sourceUrl === undefined ? (
         <div style={emptyBox}>正在加载媒体…</div>
-      ) : snapshot.kind === 'image' ? (
-        <div style={body}><ImageEditBody source={sourceUrl} path={snapshot.path} onExport={onExport} /></div>
+      ) : snapshot.tab === 'image' ? (
+        <div style={body}><EditorBoundary><ImageEditBody source={sourceUrl} path={snapshot.path} onExport={onExport} /></EditorBoundary></div>
       ) : (
-        <div style={body}><VideoEditBody source={sourceUrl} path={snapshot.path} onExport={onExport} /></div>
+        <div style={body}><EditorBoundary><VideoEditBody source={sourceUrl} path={snapshot.path} onExport={onExport} /></EditorBoundary></div>
       )}
     </div>
   )

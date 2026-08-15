@@ -64,6 +64,7 @@ interface Window {
   __directorxEditor?: {
     open(kind: 'image' | 'video', path: string): void
     close(): void
-    snapshot(): { open: boolean; kind: 'image' | 'video' | null; path: string | null }
+    setTab(tab: 'canvas' | 'image' | 'video'): void
+    snapshot(): { open: boolean; tab: 'canvas' | 'image' | 'video'; kind: 'image' | 'video' | null; path: string | null }
   }
 }
