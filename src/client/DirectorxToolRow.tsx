@@ -48,6 +48,15 @@ interface ToolResultJson {
   files?: MediaFile[]
   answer?: string
   source?: string
+  srt?: string
+  format?: string
+  durationSec?: number
+  sizeBytes?: number
+  streams?: Array<Record<string, unknown>>
+  tasks?: Array<{ taskId?: string; state?: string; model?: string; at?: number }>
+  task?: { taskId?: string; state?: string; model?: string; at?: number }
+  task_id?: string
+  edits?: Array<{ path?: string; name?: string; mediaType?: string; bytes?: number }>
 }
 
 interface DirectorxToolRowProps {
@@ -68,6 +77,12 @@ const META: Record<string, ToolMeta> = {
   directorx_generate_image: { title: '生成图像 · Image', kind: 'image' },
   directorx_generate_video: { title: '生成视频 · Video', kind: 'video' },
   directorx_generate_audio: { title: '生成音频 · Audio', kind: 'audio' },
+  directorx_transcribe_audio: { title: '音频转写 · Transcribe', kind: 'audio' },
+  directorx_probe_media: { title: '媒体探测 · Probe', kind: 'video' },
+  directorx_extract_frames: { title: '抽帧 · Frames', kind: 'image' },
+  directorx_task_status: { title: '任务状态 · Tasks', kind: 'video' },
+  directorx_cancel_task: { title: '取消任务 · Cancel', kind: 'video' },
+  directorx_edits: { title: '编辑产物 · Edits', kind: 'image' },
 }
 
 const card: CSSProperties = {
@@ -167,6 +182,105 @@ function MediaPreview({ file, fallback }: { file: MediaFile; fallback: MediaKind
   )
 }
 
+const kvRow: CSSProperties = { display: 'grid', gridTemplateColumns: '92px 1fr', gap: '2px 10px', fontSize: 12, marginTop: 6, alignItems: 'baseline' }
+const kvLabel: CSSProperties = { opacity: .55 }
+const thumbGrid: CSSProperties = { display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }
+const thumb: CSSProperties = { width: 132, height: 74, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(128,140,160,.3)', display: 'block' }
+const itemRow: CSSProperties = { fontSize: 12, marginBottom: 6, wordBreak: 'break-all', opacity: .88 }
+
+function fmtBytesLocal(bytes: number | undefined): string {
+  if (bytes === undefined) return '—'
+  return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`
+}
+
+/** Frame grid for directorx_extract_frames: thumbnails served by the media route. */
+function FramesGrid({ files }: { files: MediaFile[] }): ReactNode {
+  return (
+    <div style={thumbGrid}>
+      {files.slice(0, 12).map((file, index) => {
+        const src = mediaSrc(file)
+        return src !== undefined
+          ? <a key={index} href={src} target="_blank" rel="noreferrer"><img src={src} alt={file.path ?? `frame-${index}`} style={thumb} /></a>
+          : <div key={index} style={LINK}>{file.path}</div>
+      })}
+    </div>
+  )
+}
+
+/** Transcript + subtitle files for directorx_transcribe_audio. */
+function TranscribeBody({ result }: { result: ToolResultJson }): ReactNode {
+  const srtFiles = (result.files ?? []).filter(file => file.mimeType === 'application/x-subrip')
+  const otherFiles = (result.files ?? []).filter(file => file.mimeType !== 'application/x-subrip')
+  return (
+    <>
+      {typeof result.text === 'string' && result.text !== '' ? (
+        <div style={summary}>{result.text.slice(0, 900)}{result.text.length > 900 ? '…' : ''}</div>
+      ) : null}
+      {result.srt !== undefined && result.srt !== '' ? (
+        <div style={summary}>{String(result.srt).slice(0, 400)}{String(result.srt).length > 400 ? '…' : ''}</div>
+      ) : null}
+      {srtFiles.map((file, index) => <div key={index} style={LINK}>字幕文件：{file.path}</div>)}
+      {otherFiles.map((file, index) => <div key={index} style={LINK}>文本文件：{file.path}</div>)}
+    </>
+  )
+}
+
+/** Metadata table for directorx_probe_media. */
+function ProbeBody({ result }: { result: ToolResultJson }): ReactNode {
+  const streams = Array.isArray(result.streams) ? result.streams : []
+  return (
+    <div>
+      <div style={kvRow}><span style={kvLabel}>容器</span><span>{result.format ?? '—'}</span></div>
+      <div style={kvRow}><span style={kvLabel}>时长</span><span>{result.durationSec !== undefined ? `${result.durationSec.toFixed(2)}s` : '—'}</span></div>
+      <div style={kvRow}><span style={kvLabel}>大小</span><span>{fmtBytesLocal(result.sizeBytes)}</span></div>
+      <div style={kvRow}><span style={kvLabel}>流</span><span>
+        {streams.map((stream, index) => {
+          const parts = [String(stream.type ?? ''), String(stream.codec ?? '')].filter(part => part !== '')
+          if (stream.width !== undefined && stream.height !== undefined) parts.push(`${stream.width}×${stream.height}`)
+          if (stream.fps !== undefined) parts.push(`${stream.fps} fps`)
+          return <div key={index}>{parts.join(' · ')}</div>
+        })}
+      </span></div>
+    </div>
+  )
+}
+
+/** Task state rows for directorx_task_status / directorx_cancel_task. */
+function TaskRows({ result }: { result: ToolResultJson }): ReactNode {
+  const tasks = Array.isArray(result.tasks)
+    ? result.tasks
+    : result.task !== undefined ? [result.task] : []
+  return (
+    <div style={{ marginTop: 6 }}>
+      {tasks.map((task, index) => (
+        <div key={index} style={itemRow}>
+          <span style={{ fontWeight: 600 }}>{TASK_STATE_LABEL[task.state ?? ''] ?? task.state ?? '—'}</span>
+          {' · '}{task.taskId ?? result.task_id ?? ''}
+          {task.model !== undefined && task.model !== '' ? ` · ${task.model}` : ''}
+        </div>
+      ))}
+      {tasks.length === 0 ? <div style={itemRow}>无任务记录</div> : null}
+    </div>
+  )
+}
+
+/** Edit ledger rows for directorx_edits. */
+function EditsBody({ result }: { result: ToolResultJson }): ReactNode {
+  const edits = Array.isArray(result.edits) ? result.edits : []
+  return (
+    <div style={{ marginTop: 6 }}>
+      {edits.map((edit, index) => (
+        <div key={index} style={itemRow}>
+          <span style={{ fontWeight: 600 }}>{edit.name ?? edit.path?.split('/').pop()}</span>
+          {' · '}{fmtBytesLocal(edit.bytes)}
+          {typeof edit.path === 'string' ? <div style={{ opacity: .55 }}>{edit.path}</div> : null}
+        </div>
+      ))}
+      {edits.length === 0 ? <div style={itemRow}>还没有编辑产物。在生成卡片上点「编辑」，保存后会出现在这里。</div> : null}
+    </div>
+  )
+}
+
 /**
  * Keyed atomic tool view for the three DirectorX generation tools.
  * Running calls show the prompt; settled calls render the generated media.
@@ -179,9 +293,18 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
   const settled = block.kind === 'tool-result'
   const args = argsOf(block)
   const result = useMemo(() => (settled ? resultOf(block) : null), [block])
+  const isSpecial = props.toolName === 'directorx_transcribe_audio'
+    || props.toolName === 'directorx_probe_media'
+    || props.toolName === 'directorx_extract_frames'
+    || props.toolName === 'directorx_task_status'
+    || props.toolName === 'directorx_cancel_task'
+    || props.toolName === 'directorx_edits'
   const prompt = typeof args.question === 'string' && args.question !== ''
     ? args.question
-    : typeof args.prompt === 'string' ? args.prompt : typeof args.text === 'string' ? args.text : ''
+    : typeof args.prompt === 'string' ? args.prompt
+      : typeof args.source === 'string' ? args.source
+        : typeof args.task_id === 'string' ? args.task_id
+          : typeof args.text === 'string' ? args.text : ''
   const failed = settled && (block.isError === true || (result === null && textContentOf(block) !== ''))
 
   // Live task progress: while a video generation call runs, poll the host
@@ -245,9 +368,19 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
         <>
           {visionPreview}
           {result?.answer !== undefined && result.answer !== '' ? <div style={summary}>{result.answer.slice(0, 1200)}</div> : null}
-          <div style={mediaBox}>
-            {files.map((file, index) => <MediaPreview key={index} file={file} fallback={meta.kind} />)}
-          </div>
+          {isSpecial && result !== null ? (
+            <div style={mediaBox}>
+              {props.toolName === 'directorx_transcribe_audio' ? <TranscribeBody result={result} /> : null}
+              {props.toolName === 'directorx_probe_media' ? <ProbeBody result={result} /> : null}
+              {props.toolName === 'directorx_extract_frames' ? <FramesGrid files={result.files ?? []} /> : null}
+              {props.toolName === 'directorx_task_status' || props.toolName === 'directorx_cancel_task' ? <TaskRows result={result} /> : null}
+              {props.toolName === 'directorx_edits' ? <EditsBody result={result} /> : null}
+            </div>
+          ) : (
+            <div style={mediaBox}>
+              {files.map((file, index) => <MediaPreview key={index} file={file} fallback={meta.kind} />)}
+            </div>
+          )}
           {editableKind !== null && editablePath !== null ? (
             <button
               style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)', background: 'rgba(80,130,255,.16)', color: 'inherit', fontSize: 12.5, cursor: 'pointer' }}
@@ -268,4 +401,15 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
   )
 }
 
-export const DIRECTORX_TOOLVIEW_KEYS = ['directorx_view_image', 'directorx_generate_image', 'directorx_generate_video', 'directorx_generate_audio'] as const
+export const DIRECTORX_TOOLVIEW_KEYS = [
+  'directorx_view_image',
+  'directorx_generate_image',
+  'directorx_generate_video',
+  'directorx_generate_audio',
+  'directorx_transcribe_audio',
+  'directorx_probe_media',
+  'directorx_extract_frames',
+  'directorx_task_status',
+  'directorx_cancel_task',
+  'directorx_edits',
+] as const
