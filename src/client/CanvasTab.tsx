@@ -758,6 +758,27 @@ function CanvasTabInner(): ReactNode {
 
   const { screenToFlowPosition } = useReactFlow()
 
+  const mediaByPath = useMemo(() => new Map(mediaFiles.map(file => [file.path, file])), [mediaFiles])
+
+  const onPaneDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  const onPaneDrop = useCallback((event: React.DragEvent) => {
+    event.preventDefault()
+    const path = event.dataTransfer.getData('text/plain')
+    const file = mediaByPath.get(path)
+    if (file === undefined) return
+    const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
+    setNodes(current => [...current, {
+      id: newLocalId(kind), type: 'media', position: flowPos,
+      data: { kind, label: file.name, path: file.path, ...nodeCallbacks },
+    }])
+    scheduleSave()
+  }, [mediaByPath, screenToFlowPosition, setNodes, scheduleSave, nodeCallbacks])
+
   const onPaneDoubleClick = useCallback((event: React.MouseEvent) => {
     const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
     addNodeAt({
@@ -974,6 +995,8 @@ function CanvasTabInner(): ReactNode {
         onPaneClick={closeContextMenu}
         onNodeContextMenu={onNodeContextMenu}
         onDoubleClick={onPaneDoubleClick}
+        onDragOver={onPaneDragOver}
+        onDrop={onPaneDrop}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
         onlyRenderVisibleElements
@@ -1093,7 +1116,7 @@ function CanvasTabInner(): ReactNode {
               <div style={{ fontSize: 11.5, color: '#919191', marginBottom: 6 }}>{section.name} · {section.files.length}</div>
               <div style={pickerGrid}>
                 {section.files.slice(0, 60).map(file => (
-                  <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => {
+                  <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'grab' }} draggable onDragStart={event => { event.dataTransfer.setData('text/plain', file.path); event.dataTransfer.effectAllowed = 'copy' }} onClick={() => {
                 if (connectSourceRef.current !== undefined) {
                   connectCreate(() => {
                     const id = newLocalId('media')
@@ -1103,7 +1126,7 @@ function CanvasTabInner(): ReactNode {
                 } else {
                   addMedia(file)
                 }
-              }} title={file.path}>
+              }} title={`${file.name}（点击添加 / 拖到画布）`}>
                     {file.mediaType.startsWith('image/')
                       ? <img src={mediaUrl(file.path)} alt={file.name} style={pickerThumb} />
                       : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#141414', color: '#919191', fontSize: 11 }}>{file.mediaType.startsWith('video/') ? '视频' : '音频'}</div>}
