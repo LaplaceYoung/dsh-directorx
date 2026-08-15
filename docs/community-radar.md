@@ -36,7 +36,7 @@
 | motion-canvas | 18,940 | MIT | 程序化动画画布（TS 时间轴编辑器） | 分镜动态预览/关键帧动画演示候选 |
 | html2canvas | 31,912 | MIT | DOM → 位图快照 | 已用原生 SVG 快照替代（画布导出 PNG 无依赖实现）；如需富 CSS 页面截图再评估 |
 | modern-screenshot | 2,052 | MIT | html2canvas 活跃 fork（现代 CSS 支持） | 富 CSS 页面截图候选 |
-| react-rnd | 4,416 | MIT | React 可拖拽/缩放容器组件 | 编辑器浮动窗口等场景备选（画布节点已用 xyflow 原生） |
+| react-rnd | 4,321 | MIT | React 可拖拽/缩放容器组件 | 编辑器浮动窗口等场景备选（画布节点已用 xyflow 原生） |
 
 ## 已调研 · 弃用（附原因）
 
