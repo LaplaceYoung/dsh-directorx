@@ -349,7 +349,7 @@ function CanvasTabInner(): ReactNode {
   const updatedAtRef = useRef(0)
   const dirtyRef = useRef(false)
   const saveTimerRef = useRef<number | undefined>(undefined)
-  const [saveState, setSaveState] = useState<'已保存' | '保存中…' | '已同步' | '冲突已同步'>('已保存')
+  const [saveState, setSaveState] = useState<'已保存' | '保存中…' | '已同步' | '冲突：画布已被修改'>('已保存')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [mediaFiles, setMediaFiles] = useState<MediaListFile[]>([])
   const [mediaQuery, setMediaQuery] = useState('')
@@ -357,11 +357,13 @@ function CanvasTabInner(): ReactNode {
   const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [conflict, setConflict] = useState<CanvasDocument | undefined>(undefined)
   const cascadeRef = useRef(0)
 
   const renameNode = useCallback((id: string, label: string) => {
@@ -450,9 +452,11 @@ function CanvasTabInner(): ReactNode {
         body: JSON.stringify(doc),
       })
       if (response.status === 409) {
+        // Agent (or another tab) edited the canvas: keep the local draft and
+        // let the user arbitrate instead of silently discarding it.
         const fresh = await fetch('/directorx/canvas').then(r => r.json()) as CanvasDocument
-        applyDoc(fresh)
-        setSaveState('冲突已同步')
+        setConflict(fresh)
+        setSaveState('冲突：画布已被修改')
         return
       }
       if (!response.ok) throw new Error(`canvas save failed (${response.status})`)
@@ -465,6 +469,24 @@ function CanvasTabInner(): ReactNode {
       setSaveState('已保存')
     }
   }, [applyDoc])
+
+  const conflictKeepMine = useCallback(() => {
+    if (conflict === undefined) return
+    // Re-save the local draft against the freshly observed revision.
+    updatedAtRef.current = conflict.updatedAt
+    setConflict(undefined)
+    dirtyRef.current = true
+    setSaveState('保存中…')
+    void saveNow()
+  }, [conflict, saveNow])
+
+  const conflictLoadFresh = useCallback(() => {
+    if (conflict === undefined) return
+    applyDoc(conflict)
+    setConflict(undefined)
+    dirtyRef.current = false
+    setSaveState('已同步')
+  }, [conflict, applyDoc])
 
   const scheduleSave = useCallback(() => {
     dirtyRef.current = true
@@ -788,6 +810,12 @@ function CanvasTabInner(): ReactNode {
     })
   }, [connectCreate, addNodeAt])
 
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: CanvasFlowNode) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setNodeMenu({ x: event.clientX, y: event.clientY, nodeId: node.id })
+  }, [])
+
   const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     event.preventDefault()
     setContextMenu({ x: event.clientX, y: event.clientY })
@@ -944,6 +972,7 @@ function CanvasTabInner(): ReactNode {
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
         onPaneClick={closeContextMenu}
+        onNodeContextMenu={onNodeContextMenu}
         onDoubleClick={onPaneDoubleClick}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
@@ -982,6 +1011,12 @@ function CanvasTabInner(): ReactNode {
         <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘D 复制 · ⌫ 删除 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
+        {conflict !== undefined ? (
+          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <button style={toolBtn} onClick={conflictKeepMine}>保留我的</button>
+            <button style={toolBtn} onClick={conflictLoadFresh}>载入最新</button>
+          </span>
+        ) : null}
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
       {connectMenu !== undefined ? (
@@ -990,6 +1025,29 @@ function CanvasTabInner(): ReactNode {
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setConnectMenu(undefined); void openPicker() }}>媒体库…</button>
+        </div>
+      ) : null}
+      {nodeMenu !== undefined ? (
+        <div style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+          {(() => {
+            const target = nodesRef.current.find(node => node.id === nodeMenu.nodeId)
+            const isMedia = target?.type === 'media'
+            const items: Array<{ label: string; run: () => void }> = []
+            if (target !== undefined) {
+              items.push({ label: '编辑', run: () => { if (isMedia) openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) } })
+              items.push({ label: '复制', run: () => duplicateNode(target.id) })
+              items.push({ label: '删除', run: () => deleteNode(target.id) })
+            }
+            return items.map(item => (
+              <button
+                key={item.label}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+                onClick={() => { setNodeMenu(undefined); item.run() }}
+              >
+                {item.label}
+              </button>
+            ))
+          })()}
         </div>
       ) : null}
       {contextMenu !== undefined ? (
