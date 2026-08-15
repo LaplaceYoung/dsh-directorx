@@ -30,6 +30,7 @@
 | waveform-playlist | 1,668 | MIT | 多轨 Web Audio 编辑器（canvas 波形） | 视频编辑器音频轨升级候选（多轨替代 wavesurfer 单轨） |
 | cate（0-AI-UG/cate） | 2,083 | MIT | 无限缩放编码画布（编辑器+终端） | 无限画布 UX 范式参考（缩放/面板布局） |
 | canvas-editor（Hufe921） | 5,110 | MIT | Canvas/SVG 富文本编辑器 | 若画布要富文本节点时评估 |
+| moveable（daybrush） | 10,460 | MIT | 拖拽/缩放/旋转/对齐参考线引擎（DOM/SVG 元素） | 节点精细交互（自由旋转、snappable 对齐线）增强候选 |
 
 ## 已调研 · 弃用（附原因）
 

@@ -112,12 +112,17 @@ export class DirectorxCanvasStore {
     if (raw === '') return emptyDocument()
     try {
       const parsed = JSON.parse(raw) as Partial<CanvasDocument>
-      return {
+      // Migration scaffold: any legacy shape is normalized to the current
+      // document format. A missing updatedAt resolves to the stable 0 (never
+      // Date.now(), which would churn the WebUI poll on every read).
+      const migrated: CanvasDocument = {
         version: 1,
-        updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : Date.now(),
+        updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
         nodes: Array.isArray(parsed.nodes) ? parsed.nodes.map(item => sanitizeNode(item as unknown as Record<string, unknown>)) : [],
         edges: Array.isArray(parsed.edges) ? parsed.edges.map(item => sanitizeEdge(item as unknown as Record<string, unknown>)) : [],
       }
+      validateParents(migrated)
+      return migrated
     } catch {
       return emptyDocument()
     }

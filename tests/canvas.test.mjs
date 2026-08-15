@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DirectorxCanvasStore, registerCanvasRoute } from '../lib/testing.js'
@@ -72,6 +72,32 @@ test('canvas grouping: members follow their group, arrange keeps children inside
     const member = doc.nodes.find(node => node.label === '镜头A')
     assert.ok(member.x >= arrangedGroup.x && member.y >= arrangedGroup.y)
     assert.ok(member.x < arrangedGroup.x + 600 && member.y < arrangedGroup.y + 500)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas read migrates legacy documents (no version/updatedAt, dangling parent)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const legacy = {
+      nodes: [
+        { id: 'a', kind: 'text', label: '旧节点', x: 5, y: 6, parent: 'ghost-group' },
+        { id: 'b', kind: 'image', label: '旧图', path: '/tmp/x.png', x: 0, y: 0 },
+      ],
+      edges: [{ id: 'e', from: 'a', to: 'b' }],
+    }
+    await writeFile(join(dir, 'canvas.json'), JSON.stringify(legacy), 'utf8')
+    const store = new DirectorxCanvasStore(dir)
+    const doc = await store.read()
+    assert.equal(doc.version, 1)
+    assert.equal(doc.updatedAt, 0, 'legacy updatedAt resolves to stable 0')
+    assert.equal(doc.nodes.length, 2)
+    assert.equal(doc.nodes.find(node => node.id === 'a').parent, undefined, 'dangling parent dropped on read')
+    assert.equal(doc.edges.length, 1)
+    // A second read must keep the same stable updatedAt (no poll churn).
+    const again = await store.read()
+    assert.equal(again.updatedAt, 0)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

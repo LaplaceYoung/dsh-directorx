@@ -111,7 +111,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
   const [hovered, setHovered] = useState(false)
   return (
     <div
-      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}
+      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,.6)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
       onClick={() => openEditor(data.kind, data.path)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -126,7 +126,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       ) : null}
       <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
       {data.kind === 'image'
-        ? <img src={mediaUrl(data.path)} alt={data.label} style={flowStyles.thumb} draggable={false} />
+        ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : <video
             ref={ref => { if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() } }}
             src={mediaUrl(data.path)}
@@ -160,7 +160,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   const [hovered, setHovered] = useState(false)
   return (
     <div
-      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}
+      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
