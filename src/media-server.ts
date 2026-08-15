@@ -384,3 +384,36 @@ export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): (
     },
   })
 }
+
+/** POST /directorx/canvas/reset: clear the canvas after backing it up. */
+export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/canvas/reset',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      try {
+        const store = new DirectorxCanvasStore(resolve(process.cwd(), getOutputDir()))
+        const doc = await store.reset()
+        response.writeHead(200, { 'content-type': 'application/json' })
+        response.end(JSON.stringify(doc))
+      } catch (error) {
+        response.writeHead(400, { 'content-type': 'application/json' })
+        response.end(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }))
+      }
+    },
+  })
+}

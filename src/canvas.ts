@@ -131,6 +131,21 @@ export class DirectorxCanvasStore {
     }
   }
 
+  /** Clear the canvas, keeping a timestamped backup of the previous doc. */
+  async reset(): Promise<CanvasDocument> {
+    const path = this.filePath()
+    try {
+      const existing = await readFile(path, 'utf8')
+      if (existing.trim() !== '') {
+        const backup = join(resolve(process.cwd(), this.outputDir), `canvas.json.bak-${Date.now()}`)
+        await writeFile(backup, existing, 'utf8')
+      }
+    } catch {
+      // No previous document to back up.
+    }
+    return this.write({ version: 1, updatedAt: 0, nodes: [], edges: [] })
+  }
+
   /**
    * Persist a full document. When `expectedUpdatedAt` is provided and does not
    * match the stored revision, the write is refused with a conflict error so

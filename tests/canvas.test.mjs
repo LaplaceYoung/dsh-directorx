@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DirectorxCanvasStore, registerCanvasRoute } from '../lib/testing.js'
@@ -117,6 +117,24 @@ test('canvas store write enforces optimistic concurrency', async () => {
     const current = await store.read()
     const merged = await store.write({ ...current, nodes: [...current.nodes, { id: 'n2', kind: 'text', label: 'b', x: 1, y: 1 }] }, current.updatedAt)
     assert.equal(merged.nodes.length, 2)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas reset clears the doc and keeps a timestamped backup', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ kind: 'text', label: '要保留的内容', x: 0, y: 0 })
+    const reset = await store.reset()
+    assert.equal(reset.nodes.length, 0)
+    assert.equal(reset.edges.length, 0)
+    const entries = await readdir(dir)
+    const backup = entries.find(name => name.startsWith('canvas.json.bak-'))
+    assert.ok(backup !== undefined, 'backup file exists')
+    const backed = JSON.parse(await readFile(join(dir, backup), 'utf8'))
+    assert.equal(backed.nodes.length, 1, 'backup contains the previous doc')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

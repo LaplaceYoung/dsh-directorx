@@ -221,6 +221,31 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | undefined>(undefined)
+  const [canvasInfo, setCanvasInfo] = useState<{ nodes: number; edges: number; title?: string } | undefined>(undefined)
+  const [canvasAction, setCanvasAction] = useState<string | undefined>(undefined)
+
+  async function refreshCanvas(): Promise<void> {
+    try {
+      const response = await fetch('/directorx/canvas')
+      if (!response.ok) return
+      const doc = await response.json() as { nodes: unknown[]; edges: unknown[]; title?: string }
+      setCanvasInfo({ nodes: doc.nodes.length, edges: doc.edges.length, title: doc.title })
+    } catch {
+      // Non-blocking info refresh.
+    }
+  }
+
+  async function resetCanvas(): Promise<void> {
+    setCanvasAction('重置中…')
+    try {
+      const response = await fetch('/directorx/canvas/reset', { method: 'POST' })
+      if (!response.ok) throw new Error(String(response.status))
+      setCanvasAction('已重置（旧画布已备份为 canvas.json.bak-<时间戳>）')
+      await refreshCanvas()
+    } catch (cause) {
+      setCanvasAction(`重置失败：${cause instanceof Error ? cause.message : String(cause)}`)
+    }
+  }
 
   async function load(): Promise<void> {
     if (api === undefined) return
@@ -240,6 +265,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
       setDraft(readDraft(target.value))
       setWritable(response.result.value.writable)
       setStatus('ready')
+      void refreshCanvas()
     } catch (loadError) {
       setStatus('error')
       setError(messageOf(loadError))
@@ -319,6 +345,18 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           />
         )
       })}
+      <div style={{ ...card, marginTop: 12 }}>
+        <strong>画布</strong>
+        <div style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.7, opacity: .85 }}>
+          <div>文档位置：<span style={{ opacity: .65 }}>directorx_output/canvas.json</span></div>
+          <div>当前状态：{canvasInfo === undefined ? '读取中…' : `${canvasInfo.nodes} 个节点 · ${canvasInfo.edges} 条连线${canvasInfo.title !== undefined && canvasInfo.title !== '' ? ` · 标题「${canvasInfo.title}」` : ''}`}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
+          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
+          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { void resetCanvas() }}>重置画布（自动备份）</button>
+          {canvasAction !== undefined ? <span style={{ fontSize: 12, color: '#919191' }}>{canvasAction}</span> : null}
+        </div>
+      </div>
       <button style={button} disabled={saving || !writable} onClick={() => void save()}>
         {saving ? '保存中…' : '保存全部配置'}
       </button>
