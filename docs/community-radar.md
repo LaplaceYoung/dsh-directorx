@@ -17,7 +17,8 @@
 
 | 项目 | Stars | 许可证 | 定位 | 待集成点 |
 |---|---|---|---|---|
-| tldraw | 49,789 | 非标准（2026-08 核实 NOASSERTION，需读 LICENSE 再定） | 白板/画布引擎（tldraw SDK 可嵌入） | 若 react-flow 扩展瓶颈出现，评估迁移或并行模式 |
+| tldraw | 49,789 | **定制商业许可**（2026-08 核实 LICENSE.md：试用/替代许可模式，非开源自由许可） | 白板/画布引擎 | 仅作交互参考，不可直接集成（许可阻断） |
+| revideo（midrender/revideo，原 redotvideo） | 3,975 | MIT | React 视频程序化生成（remotion 的 MIT 替代） | 画布导出高级编排备选；浏览器内渲染能力需再核 |
 | mediabunny | 6,921 | MPL-2.0 | WebCodecs 媒体处理（mp4-muxer 官方后继） | Safari/FF 导出兜底候选 |
 | ffmpeg.wasm (@ffmpeg/core) | ~32MB | GPL-2.0-or-later | 万能转码兜底 | 仅网络分发需法务确认，暂缓 |
 | node-edge-tts | —（npm 周下载 210 万） | MIT | 免费本地 TTS（微软在线语音） | `audio` 能力 `edge-tts` 模式（模型侧后置项） |

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, getBezierPath,
+  Handle, Position, NodeResizer, getBezierPath,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -16,9 +16,9 @@ import { openEditor } from './editor.ts'
  * agent edits while the tab has no unsaved local changes.
  */
 
-type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string }
-type TextNodeData = { label: string }
-type GroupNodeData = { label: string }
+type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; onRename?: (id: string, label: string) => void }
+type TextNodeData = { label: string; onRename?: (id: string, label: string) => void }
+type GroupNodeData = { label: string; onRename?: (id: string, label: string) => void }
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -48,19 +48,71 @@ function baseName(path: string): string {
   return parts[parts.length - 1] ?? path
 }
 
+/** Inline rename: double-click a label to edit it in place. */
+function RenameLabel({ value, id, onRename, style }: { value: string; id: string; onRename?: (id: string, label: string) => void; style: CSSProperties }): ReactNode {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(value)
+  const commit = () => {
+    setEditing(false)
+    const next = draft.trim()
+    if (next !== '' && next !== value) onRename?.(id, next)
+    else setDraft(value)
+  }
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        style={{ ...style, background: 'transparent', border: 'none', outline: '1px solid rgba(245,245,245,.6)', borderRadius: 4, color: '#f5f5f5', padding: 0, width: '100%', fontSize: 11.5 }}
+        onChange={event => setDraft(event.target.value)}
+        onBlur={commit}
+        onKeyDown={event => {
+          if (event.key === 'Enter') commit()
+          if (event.key === 'Escape') { setDraft(value); setEditing(false) }
+        }}
+        onClick={event => event.stopPropagation()}
+        onDoubleClick={event => event.stopPropagation()}
+      />
+    )
+  }
+  return <div style={style} onDoubleClick={event => { event.stopPropagation(); setEditing(true) }}>{value}</div>
+}
+
 function MediaNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as MediaNodeData
   const selected = props.selected === true
+  const [playing, setPlaying] = useState(false)
   return (
     <div
-      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}) }}
+      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}
       onClick={() => openEditor(data.kind, data.path)}
     >
+      <NodeResizer isVisible={selected} minWidth={120} minHeight={80} color="rgba(245,245,245,.85)" />
       <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} style={flowStyles.thumb} draggable={false} />
-        : <video src={mediaUrl(data.path)} muted preload="metadata" style={flowStyles.thumb} draggable={false} />}
-      <div style={flowStyles.label}>{data.label !== '' ? data.label : baseName(data.path)}</div>
+        : <video
+            ref={ref => { if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() } }}
+            src={mediaUrl(data.path)}
+            muted={!playing}
+            loop
+            preload="metadata"
+            style={flowStyles.thumb}
+            draggable={false}
+          />}
+      {data.kind === 'video' ? (
+        <button
+          style={{
+            position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: 12,
+            border: '1px solid rgba(255,255,255,.35)', background: 'rgba(0,0,0,.55)',
+            color: '#f5f5f5', fontSize: 11, cursor: 'pointer', lineHeight: 1,
+          }}
+          onClick={event => { event.stopPropagation(); setPlaying(value => !value) }}
+        >
+          {playing ? 'Ⅱ' : '▶'}
+        </button>
+      ) : null}
+      <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} />
       <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
     </div>
   )
@@ -70,9 +122,10 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as TextNodeData
   const selected = props.selected === true
   return (
-    <div style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}) }}>
+    <div style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}>
+      <NodeResizer isVisible={selected} minWidth={100} minHeight={40} color="rgba(245,245,245,.85)" />
       <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
-      <div>{data.label || '文本节点'}</div>
+      <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} />
       <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
     </div>
   )
@@ -91,7 +144,7 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
   const selected = props.selected === true
   return (
     <div style={{ ...groupFrame, ...(selected ? { border: '1px solid rgba(255,255,255,.85)' } : {}) }}>
-      <div style={groupTitle}>{data.label || '分组'}</div>
+      <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={groupTitle} />
     </div>
   )
 }
@@ -117,7 +170,7 @@ const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius
 interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
-function toFlowNodes(doc: CanvasDocument): CanvasFlowNode[] {
+function toFlowNodes(doc: CanvasDocument, onRename?: (id: string, label: string) => void): CanvasFlowNode[] {
   const byId = new Map(doc.nodes.map(node => [node.id, node]))
   return doc.nodes.map(node => {
     const isMedia = node.kind === 'image' || node.kind === 'video'
@@ -133,8 +186,8 @@ function toFlowNodes(doc: CanvasDocument): CanvasFlowNode[] {
       style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
       ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
       data: isMedia
-        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '' }
-        : { label: node.label },
+        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', onRename }
+        : { label: node.label, onRename },
     }
   })
 }
@@ -228,6 +281,9 @@ export function CanvasTab(): ReactNode {
   // the same tick would otherwise leave a stale closure behind.
   const nodesRef = useRef(nodes)
   const edgesRef = useRef(edges)
+  // Breaks the renameNode → scheduleSave → applyDoc cycle: rename writes
+  // through this late-bound ref.
+  const saveRef = useRef<() => void>(() => {})
   useEffect(() => {
     nodesRef.current = nodes
     edgesRef.current = edges
@@ -241,13 +297,21 @@ export function CanvasTab(): ReactNode {
   const [error, setError] = useState<string | undefined>(undefined)
   const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [selectedCount, setSelectedCount] = useState(0)
   const cascadeRef = useRef(0)
+
+  const renameNode = useCallback((id: string, label: string) => {
+    setNodes(current => current.map(node => node.id === id
+      ? { ...node, data: { ...node.data, label } }
+      : node))
+    saveRef.current()
+  }, [setNodes])
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
     updatedAtRef.current = doc.updatedAt
-    setNodes(toFlowNodes(doc))
+    setNodes(toFlowNodes(doc, renameNode))
     setEdges(toFlowEdges(doc))
-  }, [setNodes, setEdges])
+  }, [setNodes, setEdges, renameNode])
 
   const load = useCallback(async () => {
     try {
@@ -320,6 +384,10 @@ export function CanvasTab(): ReactNode {
     saveTimerRef.current = window.setTimeout(() => { void saveNow() }, 900)
   }, [saveNow])
 
+  useEffect(() => {
+    saveRef.current = scheduleSave
+  }, [scheduleSave])
+
   // Light poll: reflect agent-side canvas edits while nothing local is pending.
   // Background tabs throttle timers, so re-poll on focus and visibility too.
   useEffect(() => {
@@ -352,6 +420,7 @@ export function CanvasTab(): ReactNode {
   const onNodesChange = useCallback((changes: NodeChange<CanvasFlowNode>[]) => {
     const removedIds = changes.filter(change => change.type === 'remove').map(change => change.id)
     setNodes(current => applyNodeChanges(changes, current))
+    if (changes.some(change => change.type === 'dimensions')) scheduleSave()
     if (removedIds.length > 0) {
       // Orphaned children of a removed group become top-level again.
       setNodes(current => current.map(node => node.parentId !== undefined && removedIds.includes(node.parentId)
@@ -404,9 +473,9 @@ export function CanvasTab(): ReactNode {
   const addNodeAt = useCallback((node: CanvasFlowNode) => {
     cascadeRef.current += 1
     const offset = (cascadeRef.current % 5) * 32
-    setNodes(current => [...current, { ...node, position: { x: node.position.x + offset, y: node.position.y + offset } }])
+    setNodes(current => [...current, { ...node, data: { ...node.data, onRename: renameNode }, position: { x: node.position.x + offset, y: node.position.y + offset } }])
     scheduleSave()
-  }, [setNodes, scheduleSave])
+  }, [setNodes, scheduleSave, renameNode])
 
   const openPicker = useCallback(async () => {
     if (pickerOpen) { setPickerOpen(false); return }
@@ -444,6 +513,10 @@ export function CanvasTab(): ReactNode {
     })
   }, [addNodeAt])
 
+  const onSelectionChange = useCallback((params: { nodes: CanvasFlowNode[] }) => {
+    setSelectedCount(params.nodes.length)
+  }, [])
+
   const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     event.preventDefault()
     setContextMenu({ x: event.clientX, y: event.clientY })
@@ -455,6 +528,37 @@ export function CanvasTab(): ReactNode {
     closeContextMenu()
     action()
   }, [closeContextMenu])
+
+  const batchDelete = useCallback(() => {
+    setNodes(current => current.filter(node => node.selected !== true))
+    setSelectedCount(0)
+    scheduleSave()
+  }, [setNodes, scheduleSave])
+
+  const batchGroup = useCallback(() => {
+    const groupId = newLocalId('group')
+    setNodes(current => {
+      const selected = current.filter(node => node.selected === true && node.type !== 'group')
+      if (selected.length < 2) return current
+      const top = selected.filter(node => node.parentId === undefined || node.parentId === '')
+      const origin = top[0]?.position ?? { x: 160, y: 160 }
+      const groupNode: CanvasFlowNode = {
+        id: groupId, type: 'group', position: { x: origin.x - 60, y: origin.y - 60 },
+        style: { width: 520, height: 380 },
+        data: { label: '分组', onRename: renameNode },
+      }
+      const members = selected.map(node => ({
+        ...node,
+        selected: false,
+        parentId: groupId,
+        extent: 'parent' as const,
+        position: { x: node.position.x - (origin.x - 60), y: node.position.y - (origin.y - 60) },
+      }))
+      return [...current.filter(node => node.selected !== true), groupNode, ...members]
+    })
+    setSelectedCount(0)
+    scheduleSave()
+  }, [setNodes, scheduleSave, renameNode])
 
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
@@ -529,6 +633,7 @@ export function CanvasTab(): ReactNode {
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
         onPaneClick={closeContextMenu}
+        onSelectionChange={onSelectionChange}
         selectionOnDrag
         panOnDrag={false}
         panActivationKeyCode="Space"
@@ -551,6 +656,8 @@ export function CanvasTab(): ReactNode {
         <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
         <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>
         <button style={toolBtn} onClick={addGroup}>＋ 分组</button>
+        {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
+        {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <button style={toolBtn} onClick={() => void load()}>重载</button>
