@@ -356,6 +356,8 @@ function CanvasTabInner(): ReactNode {
   const [error, setError] = useState<string | undefined>(undefined)
   const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
+  const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const cascadeRef = useRef(0)
 
@@ -596,10 +598,10 @@ function CanvasTabInner(): ReactNode {
     return order.map(name => ({ name, files: groups.get(name) ?? [] })).filter(section => section.files.length > 0)
   }, [mediaFiles, mediaQuery])
 
-  const addMedia = useCallback((file: MediaListFile) => {
+  const addMedia = useCallback((file: MediaListFile, fixedId?: string) => {
     const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
     addNodeAt({
-      id: newLocalId(kind), type: 'media', position: { x: 120, y: 120 },
+      id: fixedId ?? newLocalId(kind), type: 'media', position: { x: 120, y: 120 },
       data: { kind, label: file.name, path: file.path },
     })
     setPickerOpen(false)
@@ -633,6 +635,50 @@ function CanvasTabInner(): ReactNode {
       data: { label: '文本节点' },
     })
   }, [screenToFlowPosition, addNodeAt])
+
+  const onConnectStart = useCallback((_event: unknown, params: { nodeId: string | null }) => {
+    connectSourceRef.current = params.nodeId ?? undefined
+  }, [])
+
+  const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
+    // Dropped on the empty pane (no target handle): offer to create a node
+    // and auto-connect from the source (LibTV-style quick build).
+    const point = 'clientX' in event ? { x: event.clientX, y: event.clientY }
+      : event.touches.length > 0 ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
+      : undefined
+    if (point === undefined) return
+    const target = event.target as HTMLElement | null
+    const isPane = target !== null && (target.closest('.react-flow__pane') !== null || !target.closest('.react-flow__handle'))
+    const source = connectSourceRef.current
+    if (source === undefined || !isPane) return
+    setConnectMenu(point)
+  }, [])
+
+  const connectCreate = useCallback((factory: () => string) => {
+    const source = connectSourceRef.current
+    connectSourceRef.current = undefined
+    setConnectMenu(undefined)
+    if (source === undefined) return
+    const id = factory()
+    setEdges(current => [...current, { id: newLocalId('edge'), source, target: id, type: 'bezier' }])
+    scheduleSave()
+  }, [setEdges, scheduleSave])
+
+  const connectAddText = useCallback(() => {
+    connectCreate(() => {
+      const id = newLocalId('text')
+      addNodeAt({ id, type: 'text', position: { x: 180, y: 180 }, data: { label: '文本节点' } })
+      return id
+    })
+  }, [connectCreate, addNodeAt])
+
+  const connectAddGroup = useCallback(() => {
+    connectCreate(() => {
+      const id = newLocalId('group')
+      addNodeAt({ id, type: 'group', position: { x: 180, y: 180 }, style: { width: 520, height: 380 }, data: { label: '分组' } })
+      return id
+    })
+  }, [connectCreate, addNodeAt])
 
   const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     event.preventDefault()
@@ -746,6 +792,8 @@ function CanvasTabInner(): ReactNode {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onConnectStart={onConnectStart}
+        onConnectEnd={onConnectEnd}
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
@@ -782,6 +830,14 @@ function CanvasTabInner(): ReactNode {
         <span style={saveChip}>{saveState}</span>
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
+      {connectMenu !== undefined ? (
+        <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+          <div style={{ fontSize: 11, color: '#919191', padding: '4px 10px' }}>拖线到空白：新建并连线</div>
+          <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
+          <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
+          <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setConnectMenu(undefined); void openPicker() }}>媒体库…</button>
+        </div>
+      ) : null}
       {contextMenu !== undefined ? (
         <div
           style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
@@ -816,7 +872,17 @@ function CanvasTabInner(): ReactNode {
               <div style={{ fontSize: 11.5, color: '#919191', marginBottom: 6 }}>{section.name} · {section.files.length}</div>
               <div style={pickerGrid}>
                 {section.files.slice(0, 60).map(file => (
-                  <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => addMedia(file)} title={file.path}>
+                  <button key={file.path} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => {
+                if (connectSourceRef.current !== undefined) {
+                  connectCreate(() => {
+                    const id = newLocalId('media')
+                    addMedia(file, id)
+                    return id
+                  })
+                } else {
+                  addMedia(file)
+                }
+              }} title={file.path}>
                     {file.mediaType.startsWith('image/')
                       ? <img src={mediaUrl(file.path)} alt={file.name} style={pickerThumb} />
                       : <div style={{ ...pickerThumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#141414', color: '#919191', fontSize: 11 }}>{file.mediaType.startsWith('video/') ? '视频' : '音频'}</div>}

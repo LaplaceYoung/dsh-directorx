@@ -24,6 +24,8 @@
 | node-edge-tts | —（npm 周下载 210 万） | MIT | 免费本地 TTS（微软在线语音） | `audio` 能力 `edge-tts` 模式（模型侧后置项） |
 | omniclip | 1,448 | MIT（LICENSE 文件；package.json 字段 ISC） | 视频时间线应用（UI 参考） | 已作交互参考；npm 停摆 15 个月不宜直接依赖 |
 | konva / react-konva | 14,683 / 6,398 | MIT | Canvas 2D 底座 | 画布性能优化备选 |
+| excalidraw | 129,660 | MIT | 手绘风白板引擎（@excalidraw/excalidraw 可嵌入） | 画布引擎备选（性能/手绘风格场景）；体积大，需按需加载 |
+| blocksuite | 5,976 | MPL-2.0 | Affine 的块编辑器框架（文档+画布） | 若画布要文档化协同（富文本节点）时评估 |
 
 ## 已调研 · 弃用（附原因）
 
