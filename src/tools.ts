@@ -356,6 +356,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       return canvas.write({ version: 1, updatedAt: 0, nodes: [], edges: [] }, current.updatedAt)
     },
   })))
+
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_probe_media',
     description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',
@@ -411,7 +412,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       `Enabled capabilities: ${enabled.length === 0 ? 'none (open Settings → DirectorX to enable)' : enabled.join(', ')}.`,
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
-      '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities.',
+      '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
       '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',

@@ -16,9 +16,14 @@ import { openEditor } from './editor.ts'
  * agent edits while the tab has no unsaved local changes.
  */
 
-type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; onRename?: (id: string, label: string) => void }
-type TextNodeData = { label: string; onRename?: (id: string, label: string) => void }
-type GroupNodeData = { label: string; onRename?: (id: string, label: string) => void }
+type NodeCallbacks = {
+  onRename?: (id: string, label: string) => void
+  onDuplicate?: (id: string) => void
+  onDelete?: (id: string) => void
+}
+type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string } & NodeCallbacks
+type TextNodeData = { label: string } & NodeCallbacks
+type GroupNodeData = { label: string } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -78,16 +83,47 @@ function RenameLabel({ value, id, onRename, style }: { value: string; id: string
   return <div style={style} onDoubleClick={event => { event.stopPropagation(); setEditing(true) }}>{value}</div>
 }
 
+/** Hover action bar: ghost buttons overlaid on a node (tapnow-style card actions). */
+function NodeActions({ actions }: { actions: Array<{ label: string; hint: string; run: () => void }> }): ReactNode {
+  return (
+    <div style={{ position: 'absolute', top: 6, left: 6, display: 'flex', gap: 4, zIndex: 3 }}>
+      {actions.map(action => (
+        <button
+          key={action.label}
+          title={action.hint}
+          style={{
+            padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)',
+            background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer',
+          }}
+          onClick={event => { event.stopPropagation(); action.run() }}
+        >
+          {action.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function MediaNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as MediaNodeData
   const selected = props.selected === true
   const [playing, setPlaying] = useState(false)
+  const [hovered, setHovered] = useState(false)
   return (
     <div
       style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}
       onClick={() => openEditor(data.kind, data.path)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <NodeResizer isVisible={selected} minWidth={120} minHeight={80} color="rgba(245,245,245,.85)" />
+      {hovered ? (
+        <NodeActions actions={[
+          { label: '编辑', hint: '打开右侧编辑器', run: () => openEditor(data.kind, data.path) },
+          { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
+          { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
+        ]} />
+      ) : null}
       <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} style={flowStyles.thumb} draggable={false} />
@@ -121,9 +157,20 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
 function TextNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as TextNodeData
   const selected = props.selected === true
+  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}>
+    <div
+      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), position: 'relative' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <NodeResizer isVisible={selected} minWidth={100} minHeight={40} color="rgba(245,245,245,.85)" />
+      {hovered ? (
+        <NodeActions actions={[
+          { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
+          { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
+        ]} />
+      ) : null}
       <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
       <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} />
       <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
@@ -142,9 +189,19 @@ const groupTitle: CSSProperties = {
 function GroupNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as GroupNodeData
   const selected = props.selected === true
+  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ ...groupFrame, ...(selected ? { border: '1px solid rgba(255,255,255,.85)' } : {}) }}>
+    <div
+      style={{ ...groupFrame, ...(selected ? { border: '1px solid rgba(255,255,255,.85)' } : {}), position: 'relative' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={groupTitle} />
+      {hovered ? (
+        <div style={{ position: 'absolute', top: 8, right: 10, display: 'flex', gap: 4 }}>
+          <button style={{ padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer' }} onClick={event => { event.stopPropagation(); data.onDelete?.(props.id) }}>删除</button>
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -170,7 +227,8 @@ const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius
 interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
-function toFlowNodes(doc: CanvasDocument, onRename?: (id: string, label: string) => void): CanvasFlowNode[] {
+function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
+  const { onRename, onDuplicate, onDelete } = callbacks ?? {}
   const byId = new Map(doc.nodes.map(node => [node.id, node]))
   return doc.nodes.map(node => {
     const isMedia = node.kind === 'image' || node.kind === 'video'
@@ -186,8 +244,8 @@ function toFlowNodes(doc: CanvasDocument, onRename?: (id: string, label: string)
       style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
       ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
       data: isMedia
-        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', onRename }
-        : { label: node.label, onRename },
+        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', onRename, onDuplicate, onDelete }
+        : { label: node.label, onRename, onDuplicate, onDelete },
     }
   })
 }
@@ -274,7 +332,7 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect }: {
   )
 }
 
-export function CanvasTab(): ReactNode {
+function CanvasTabInner(): ReactNode {
   const [nodes, setNodes] = useState<CanvasFlowNode[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
   // The debounced save reads the LATEST graph through refs: state updates from
@@ -308,11 +366,36 @@ export function CanvasTab(): ReactNode {
     saveRef.current()
   }, [setNodes])
 
+  const duplicateNode = useCallback((id: string) => {
+    setNodes(current => {
+      const source = current.find(node => node.id === id)
+      if (source === undefined) return current
+      const copy: CanvasFlowNode = {
+        ...source,
+        id: newLocalId(source.type ?? 'text'),
+        position: { x: source.position.x + 40, y: source.position.y + 40 },
+        selected: false,
+      }
+      return [...current, copy]
+    })
+    saveRef.current()
+  }, [setNodes])
+
+  const deleteNode = useCallback((id: string) => {
+    setNodes(current => current.filter(node => node.id !== id))
+    setEdges(current => current.filter(edge => edge.source !== id && edge.target !== id))
+    saveRef.current()
+  }, [setNodes, setEdges])
+
+  const nodeCallbacks = useMemo<NodeCallbacks>(() => ({
+    onRename: renameNode, onDuplicate: duplicateNode, onDelete: deleteNode,
+  }), [renameNode, duplicateNode, deleteNode])
+
   const applyDoc = useCallback((doc: CanvasDocument) => {
     updatedAtRef.current = doc.updatedAt
-    setNodes(toFlowNodes(doc, renameNode))
+    setNodes(toFlowNodes(doc, nodeCallbacks))
     setEdges(toFlowEdges(doc))
-  }, [setNodes, setEdges, renameNode])
+  }, [setNodes, setEdges, nodeCallbacks])
 
   const load = useCallback(async () => {
     try {
@@ -474,9 +557,9 @@ export function CanvasTab(): ReactNode {
   const addNodeAt = useCallback((node: CanvasFlowNode) => {
     cascadeRef.current += 1
     const offset = (cascadeRef.current % 5) * 32
-    setNodes(current => [...current, { ...node, data: { ...node.data, onRename: renameNode }, position: { x: node.position.x + offset, y: node.position.y + offset } }])
+    setNodes(current => [...current, { ...node, data: { ...node.data, ...nodeCallbacks }, position: { x: node.position.x + offset, y: node.position.y + offset } }])
     scheduleSave()
-  }, [setNodes, scheduleSave, renameNode])
+  }, [setNodes, scheduleSave, nodeCallbacks])
 
   const openPicker = useCallback(async () => {
     if (pickerOpen) { setPickerOpen(false); return }
@@ -654,7 +737,6 @@ export function CanvasTab(): ReactNode {
   }, [edges, nodes])
 
   return (
-    <ReactFlowProvider>
     <div style={{ position: 'relative', height: '100%', minHeight: 480 }}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
       <ReactFlow
@@ -747,6 +829,14 @@ export function CanvasTab(): ReactNode {
         </div>
       ) : null}
     </div>
+  )
+}
+
+/** Provider must be an ancestor of the hook callers, so it wraps the inner component. */
+export function CanvasTab(): ReactNode {
+  return (
+    <ReactFlowProvider>
+      <CanvasTabInner />
     </ReactFlowProvider>
   )
 }
