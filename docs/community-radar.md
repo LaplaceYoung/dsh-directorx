@@ -40,7 +40,7 @@
 | lucide（lucide-react） | 23,966 | ISC（API 显示 NOASSERTION，仓库实际 ISC） | 图标库（原 directorx 设计保留项） | 工具栏目前用内联 SVG（零依赖）；图标需求增长后评估接入 |
 | media-chrome（Mux） | 2,725 | MIT | Web Components 播放器控制条 | 媒体节点/预览播放器 UI 升级候选 |
 | zundo（charkour） | 883 | MIT | zustand 撤销/重做中间件 | 已自研轻量历史栈（画布 50 步上限）；多 store 协同再评估 |
-| plyr | 28,997 | MIT | 全功能 HTML5 播放器 | 编辑器大预览/成片播放场景候选（节点内已自绘轻量控制条） |
+| plyr | 29,951 | MIT | 全功能 HTML5 播放器 | 编辑器大预览/成片播放场景候选（节点内已自绘轻量控制条） |
 
 ## 已调研 · 弃用（附原因）
 
