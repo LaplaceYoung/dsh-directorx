@@ -1,0 +1,7 @@
+# dsh-directorx bundle patch.
+# One row carries both halves: the Node half registers DirectorX tools and
+# skills, and package.json#dsh.client makes the same package register the
+# DirectorX WebUI settings section.
+- insert:
+    - id: directorx
+      name: dsh-directorx

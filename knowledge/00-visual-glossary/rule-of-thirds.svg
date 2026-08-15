@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <title>Rule of Thirds 三分法构图</title>
+  <desc>三分法网格：两条水平线与两条垂直线把画面分成九宫格，主体与兴趣点放在交点。</desc>
+  <rect width="640" height="360" fill="#1a1a2e"/>
+  <!-- 三分线 -->
+  <line x1="213" y1="0" x2="213" y2="360" stroke="#4a4a6a" stroke-width="2"/>
+  <line x1="427" y1="0" x2="427" y2="360" stroke="#4a4a6a" stroke-width="2"/>
+  <line x1="0" y1="120" x2="640" y2="120" stroke="#4a4a6a" stroke-width="2"/>
+  <line x1="0" y1="240" x2="640" y2="240" stroke="#4a4a6a" stroke-width="2"/>
+  <!-- 兴趣点 -->
+  <circle cx="213" cy="120" r="18" fill="none" stroke="#ffd166" stroke-width="3"/>
+  <circle cx="213" cy="120" r="6" fill="#ffd166"/>
+  <circle cx="427" cy="240" r="18" fill="none" stroke="#ef476f" stroke-width="3"/>
+  <circle cx="427" cy="240" r="6" fill="#ef476f"/>
+  <text x="20" y="340" fill="#8a8ab0" font-size="18" font-family="sans-serif">Rule of Thirds — place key subject (face/eyes) near intersections</text>
+</svg>

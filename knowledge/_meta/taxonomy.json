@@ -1,0 +1,26 @@
+[
+  {
+    "id": "foundation",
+    "label": "基础理论与核心方法",
+    "min": 0,
+    "max": 60
+  },
+  {
+    "id": "production",
+    "label": "生产流程与工程",
+    "min": 61,
+    "max": 150
+  },
+  {
+    "id": "consistency",
+    "label": "风格与一致性体系",
+    "min": 151,
+    "max": 240
+  },
+  {
+    "id": "synthesis",
+    "label": "高阶综合方法论",
+    "min": 241,
+    "max": 400
+  }
+]

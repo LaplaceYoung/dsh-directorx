@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="220" viewBox="0 0 640 220">
+  <title>Shot Size 景别对比</title>
+  <desc>同一位人物的六种取景：大远景、远景、中景、中近景、特写、大特写——裁切线逐步靠近面部。</desc>
+  <rect width="640" height="220" fill="#141422"/>
+  <!-- 人物简笔画 ×6：简单人形 -->
+  <g stroke="#e0e0f0" stroke-width="2" fill="none">
+    <!-- 1 EWS -->
+    <circle cx="50" cy="60" r="6"/>
+    <line x1="50" y1="66" x2="50" y2="100"/>
+    <line x1="50" y1="74" x2="38" y2="90"/>
+    <line x1="50" y1="74" x2="62" y2="90"/>
+    <line x1="50" y1="100" x2="42" y2="124"/>
+    <line x1="50" y1="100" x2="58" y2="124"/>
+    <rect x="26" y="12" width="48" height="124" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="22" y="150" fill="#ffd166" font-size="13">EWS</text>
+    <!-- 2 LS -->
+    <circle cx="150" cy="48" r="9"/>
+    <line x1="150" y1="57" x2="150" y2="110"/>
+    <line x1="150" y1="68" x2="134" y2="90"/>
+    <line x1="150" y1="68" x2="166" y2="90"/>
+    <line x1="150" y1="110" x2="138" y2="140"/>
+    <line x1="150" y1="110" x2="162" y2="140"/>
+    <rect x="120" y="10" width="60" height="140" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="128" y="165" fill="#ffd166" font-size="13">LS/FS</text>
+    <!-- 3 MS -->
+    <circle cx="250" cy="38" r="10"/>
+    <line x1="250" y1="48" x2="250" y2="100"/>
+    <line x1="250" y1="58" x2="232" y2="80"/>
+    <line x1="250" y1="58" x2="268" y2="80"/>
+    <rect x="222" y="8" width="56" height="100" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="230" y="125" fill="#ffd166" font-size="13">MS</text>
+    <!-- 4 MCU -->
+    <circle cx="350" cy="30" r="12"/>
+    <line x1="350" y1="42" x2="350" y2="80"/>
+    <rect x="322" y="8" width="56" height="78" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="326" y="102" fill="#ffd166" font-size="13">MCU</text>
+    <!-- 5 CU -->
+    <circle cx="450" cy="30" r="16"/>
+    <rect x="422" y="10" width="56" height="48" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="434" y="72" fill="#ffd166" font-size="13">CU</text>
+    <!-- 6 BCU/ECU -->
+    <ellipse cx="560" cy="34" rx="14" ry="18"/>
+    <circle cx="554" cy="30" r="2.5" fill="#e0e0f0"/>
+    <circle cx="566" cy="30" r="2.5" fill="#e0e0f0"/>
+    <rect x="538" y="12" width="44" height="40" stroke="#ffd166" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="538" y="68" fill="#ffd166" font-size="13">BCU/ECU</text>
+  </g>
+  <text x="20" y="205" fill="#8a8ab0" font-size="15" font-family="sans-serif">Shot size = where you crop: wide = context, close = emotion</text>
+</svg>
