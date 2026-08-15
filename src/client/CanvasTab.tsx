@@ -1070,6 +1070,13 @@ function CanvasTabInner(): ReactNode {
   return (
     <div style={{ position: 'relative', height: '100%', minHeight: 480 }}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
+      <style>{`
+        .react-flow__controls { background: transparent; box-shadow: none; border: 1px solid rgba(255,255,255,.16); border-radius: 10px; overflow: hidden; }
+        .react-flow__controls-button { width: 34px; height: 34px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); fill: #f5f5f5; color: #f5f5f5; }
+        .react-flow__controls-button:hover { background: rgba(255,255,255,.1); }
+        .react-flow__controls-button:last-child { border-bottom: none; }
+        .react-flow__minimap { border: 1px solid rgba(255,255,255,.16); }
+      `}</style>
       <ReactFlow
         nodes={nodes}
         edges={[]}

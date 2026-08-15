@@ -223,6 +223,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   const [error, setError] = useState<string | undefined>(undefined)
   const [canvasInfo, setCanvasInfo] = useState<{ nodes: number; edges: number; title?: string } | undefined>(undefined)
   const [canvasAction, setCanvasAction] = useState<string | undefined>(undefined)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   async function refreshCanvas(): Promise<void> {
     try {
@@ -353,7 +354,14 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
           <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
-          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { void resetCanvas() }}>重置画布（自动备份）</button>
+          {confirmReset ? (
+            <>
+              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.7)', background: 'rgba(200,80,80,.15)', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { setConfirmReset(false); void resetCanvas() }}>确认重置（备份后清空）</button>
+              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(false)}>取消</button>
+            </>
+          ) : (
+            <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(true)}>重置画布（自动备份）</button>
+          )}
           {canvasAction !== undefined ? <span style={{ fontSize: 12, color: '#919191' }}>{canvasAction}</span> : null}
         </div>
       </div>
