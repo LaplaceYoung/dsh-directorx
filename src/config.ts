@@ -8,6 +8,8 @@ export type CapabilityMode =
   | 'openai-videos'
   | 'modelverse-tasks'
   | 'openai-tts'
+  | 'kling'
+  | 'runway'
   | 'mock'
 
 export interface CapabilitySettings {
@@ -23,6 +25,18 @@ export interface CapabilitySettings {
   model: string
   /** Provider-specific output tier, e.g. 2K for MiniMax-H3 video tasks. */
   resolution: string
+  /** Mode-specific credentials and options (per-provider auth schemes). */
+  auth: ModeAuth
+}
+
+/** Per-mode credential/option bag; every field defaults empty and stays secret where it names a credential. */
+export interface ModeAuth {
+  /** Kling (可灵) AccessKey for JWT signing. */
+  klingAk: string
+  /** Kling (可灵) SecretKey for JWT signing. */
+  klingSk: string
+  /** Runway API version header value, e.g. `2024-11-06`; empty = omit the header. */
+  runwayVersion: string
 }
 
 export interface DirectorxSettings {
@@ -38,8 +52,16 @@ export interface DirectorxSettings {
 
 export const VISION_MODES = ['openai-chat', 'mock'] as const
 export const IMAGE_MODES = ['openai-images', 'modelverse-tasks', 'mock'] as const
-export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'mock'] as const
+export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'runway', 'mock'] as const
 export const AUDIO_MODES = ['openai-tts', 'mock'] as const
+
+function modeAuth() {
+  return z.object({
+    klingAk: z.string().role('secret').default('').description('Kling 可灵 AccessKey（JWT 签名用，仅 kling 模式需要）。'),
+    klingSk: z.string().role('secret').default('').description('Kling 可灵 SecretKey（JWT 签名用，仅 kling 模式需要）。'),
+    runwayVersion: z.string().default('').description('Runway API 版本头（如 2024-11-06），留空则不发送该头。'),
+  })
+}
 
 function capability(modes: readonly string[], mode: string, baseURL: string, model: string, resolution = '1K') {
   return z.object({
@@ -49,6 +71,7 @@ function capability(modes: readonly string[], mode: string, baseURL: string, mod
     apiKey: z.string().role('secret').default('').description('API key; empty means local endpoint or env fallback.'),
     model: z.string().default(model).description('Model id.'),
     resolution: z.string().default(resolution).description('Provider-specific output tier.'),
+    auth: modeAuth(),
   })
 }
 

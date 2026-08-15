@@ -6,6 +6,15 @@
 
 ### Added
 
+- **主流视频模型直连接入**（协议均按官方文档/官方仓库一手核实）：
+  - `kling` 模式：可灵 Kling 直连（AK/SK → HS256 JWT 鉴权；text2video /
+    image2video + 首尾帧；任务轮询路径为创建路径+id）；设置页新增 AK/SK 字段；
+  - `runway` 模式：Runway Gen-4.5 / gen4_turbo / veo3.1 / **hailuo3**（Runway
+    平台内的海螺 3.0）直连（Bearer + x-runway-version；promptImage
+    {uri,position} 首/尾帧结构；像素比例表）；设置页新增版本头字段；
+  - 豆包 Seedance 与 MiniMax-H3 继续由 `modelverse-tasks` 模式覆盖。
+  - 协议往返测试：Kling JWT 签名 + 提交/轮询/下载、Runway 提交/轮询/下载
+    （31/31 全绿）。
 - **制作闭环三件套**：
   - `directorx_transcribe_audio`（openai-transcriptions 协议 + mock）：本地音视频
     → 转写文本，支持 json/text/**srt** 输出，srt 落盘 `outputDir/transcripts/`

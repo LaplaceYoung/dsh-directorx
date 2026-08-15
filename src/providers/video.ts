@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { apiKeyOf, downloadToFile, ensureOutputDir, mediaSourceToDataUrl, readJsonResponse, slugify } from '../support.ts'
 import { pollModelverseTask, pollOpenAIVideoTask, submitModelverseTask } from './tasks.ts'
+import { klingVideo, runwayVideo } from './video-models.ts'
 import type { MediaFile, ProviderContext, VideoResult } from './types.ts'
 
 interface VideoCreateEnvelope {
@@ -146,6 +147,8 @@ export async function runVideo(
     if (ctx.capability.mode === 'mock') return mockVideo(ctx, prompt)
     if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size)
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
+    if (ctx.capability.mode === 'kling') return klingVideo(ctx, prompt, options)
+    if (ctx.capability.mode === 'runway') return runwayVideo(ctx, prompt, options)
     throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
   } catch (error) {
     // A timeout or abort may leave the provider task running: record the

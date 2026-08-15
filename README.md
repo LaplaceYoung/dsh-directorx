@@ -99,7 +99,7 @@ dsh web
 |---|---|---|---|
 | 👁️ 视觉 | `directorx_view_image` | `openai-chat` / `mock` | `gpt-4o-mini`、任意兼容 VLM |
 | 🎨 图像 | `directorx_generate_image` | `openai-images` / `modelverse-tasks` / `mock` | `gpt-image-1`、`doubao-seedream-*` |
-| 🎥 视频 | `directorx_generate_video` | `openai-videos` / `modelverse-tasks` / `mock` | `sora-2`、`MiniMax-H3` |
+| 🎥 视频 | `directorx_generate_video` | `openai-videos` / `modelverse-tasks` / `kling` / `runway` / `mock` | `sora-2`、`MiniMax-H3`、`kling-v2`、`gen4.5`/`gen4_turbo`/`hailuo3` |
 | 🔊 音频 | `directorx_generate_audio` | `openai-tts` / `mock` | `gpt-4o-mini-tts`、任意兼容 TTS |
 
 每张卡片都能填：

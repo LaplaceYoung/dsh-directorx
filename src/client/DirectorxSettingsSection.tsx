@@ -37,6 +37,9 @@ interface CapabilityDraft {
   model: string
   resolution: string
   apiKey: string
+  klingAk: string
+  klingSk: string
+  runwayVersion: string
 }
 
 interface Draft {
@@ -51,16 +54,16 @@ interface SectionInjected {
 }
 
 const DEFAULT_DRAFT: Draft = {
-  vision: { enabled: true, mode: 'openai-chat', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini', resolution: '1K', apiKey: '' },
-  image: { enabled: true, mode: 'openai-images', baseURL: 'https://api.openai.com/v1', model: 'gpt-image-1', resolution: '1K', apiKey: '' },
-  video: { enabled: true, mode: 'openai-videos', baseURL: 'https://api.openai.com/v1', model: 'sora-2', resolution: '2K', apiKey: '' },
-  audio: { enabled: true, mode: 'openai-tts', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini-tts', resolution: '1K', apiKey: '' },
+  vision: { enabled: true, mode: 'openai-chat', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  image: { enabled: true, mode: 'openai-images', baseURL: 'https://api.openai.com/v1', model: 'gpt-image-1', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  video: { enabled: true, mode: 'openai-videos', baseURL: 'https://api.openai.com/v1', model: 'sora-2', resolution: '2K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '2024-11-06' },
+  audio: { enabled: true, mode: 'openai-tts', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini-tts', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
 }
 
 const MODES: Record<keyof Draft, string[]> = {
   vision: ['openai-chat', 'mock'],
   image: ['openai-images', 'modelverse-tasks', 'mock'],
-  video: ['openai-videos', 'modelverse-tasks', 'mock'],
+  video: ['openai-videos', 'modelverse-tasks', 'kling', 'runway', 'mock'],
   audio: ['openai-tts', 'mock'],
 }
 
@@ -77,6 +80,7 @@ function readDraft(value: Record<string, unknown> | undefined): Draft {
     const raw = value?.[key]
     if (raw !== null && typeof raw === 'object') {
       const record = raw as Record<string, unknown>
+      const auth = record.auth !== null && typeof record.auth === 'object' ? record.auth as Record<string, unknown> : {}
       next[key] = {
         enabled: typeof record.enabled === 'boolean' ? record.enabled : next[key].enabled,
         mode: typeof record.mode === 'string' ? record.mode : next[key].mode,
@@ -84,6 +88,9 @@ function readDraft(value: Record<string, unknown> | undefined): Draft {
         model: typeof record.model === 'string' ? record.model : next[key].model,
         resolution: typeof record.resolution === 'string' ? record.resolution : next[key].resolution,
         apiKey: '',
+        klingAk: '',
+        klingSk: '',
+        runwayVersion: typeof auth.runwayVersion === 'string' ? auth.runwayVersion : next[key].runwayVersion,
       }
     }
   }
@@ -139,10 +146,34 @@ function CapabilityCard(props: {
             <input style={input} value={draft.model} placeholder="model id" onChange={event => props.onChange({ ...draft, model: event.target.value })} />
           </div>
           {props.title === CAPABILITY_LABEL.video ? (
-            <div style={row}>
-              <span style={label}>Resolution</span>
-              <input style={input} value={draft.resolution} placeholder="2K / 720p / 1080p" onChange={event => props.onChange({ ...draft, resolution: event.target.value })} />
-            </div>
+            <>
+              <div style={row}>
+                <span style={label}>Resolution</span>
+                <input style={input} value={draft.resolution} placeholder="2K / 720p / 1080p" onChange={event => props.onChange({ ...draft, resolution: event.target.value })} />
+              </div>
+              {draft.mode === 'kling' ? (
+                <>
+                  <div style={row}>
+                    <span style={label}>可灵 AccessKey</span>
+                    <input style={input} type="password" autoComplete="off" value={draft.klingAk} placeholder="AK…（留空则不修改）" onChange={event => props.onChange({ ...draft, klingAk: event.target.value })} />
+                  </div>
+                  <div style={row}>
+                    <span style={label}>可灵 SecretKey</span>
+                    <input style={input} type="password" autoComplete="off" value={draft.klingSk} placeholder="SK…（留空则不修改）" onChange={event => props.onChange({ ...draft, klingSk: event.target.value })} />
+                  </div>
+                  <p style={hint}>可灵（Kling）模式使用 AK/SK 做 JWT 签名鉴权，不使用上面的 API Key；Base URL 填 https://api-beijing.klingai.com（国内）或 https://api.klingai.com（全球）。模型建议 kling-v2。</p>
+                </>
+              ) : null}
+              {draft.mode === 'runway' ? (
+                <>
+                  <div style={row}>
+                    <span style={label}>API 版本头</span>
+                    <input style={input} value={draft.runwayVersion} placeholder="如 2024-11-06（留空不发送）" onChange={event => props.onChange({ ...draft, runwayVersion: event.target.value })} />
+                  </div>
+                  <p style={hint}>Runway 模式使用上面的 API Key；Base URL 填 https://api.dev.runwayml.com。模型建议 gen4.5（文生/图生）或 gen4_turbo（图生）；Hailuo 3.0 可通过模型 hailuo3 调用。</p>
+                </>
+              ) : null}
+            </>
           ) : null}
         </>
       ) : (
@@ -205,9 +236,16 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           { op: 'set', path: [key, 'baseURL'], value: capability.baseURL },
           { op: 'set', path: [key, 'model'], value: capability.model },
           { op: 'set', path: [key, 'resolution'], value: capability.resolution },
+          { op: 'set', path: [key, 'auth', 'runwayVersion'], value: capability.runwayVersion },
         )
         if (capability.apiKey.trim() !== '') {
           ops.push({ op: 'set', path: [key, 'apiKey'], value: capability.apiKey.trim() })
+        }
+        if (capability.klingAk.trim() !== '') {
+          ops.push({ op: 'set', path: [key, 'auth', 'klingAk'], value: capability.klingAk.trim() })
+        }
+        if (capability.klingSk.trim() !== '') {
+          ops.push({ op: 'set', path: [key, 'auth', 'klingSk'], value: capability.klingSk.trim() })
         }
       }
       const response = await api.mutate({ ns: 'directorx', ops, expectedRevision: view.revision })
