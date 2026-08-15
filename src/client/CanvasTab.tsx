@@ -104,11 +104,34 @@ function NodeActions({ actions }: { actions: Array<{ label: string; hint: string
   )
 }
 
+function fmtTime(seconds: number): string {
+  const s = Math.floor(seconds % 60)
+  const m = Math.floor(seconds / 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 function MediaNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as MediaNodeData
   const selected = props.selected === true
   const [playing, setPlaying] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [progress, setProgress] = useState({ t: 0, d: 0 })
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const barRef = useRef<HTMLDivElement | null>(null)
+  const togglePlay = (event?: React.MouseEvent) => {
+    event?.stopPropagation()
+    setPlaying(value => !value)
+  }
+  const seek = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    const video = videoRef.current
+    const bar = barRef.current
+    if (video === null || bar === null || !Number.isFinite(video.duration)) return
+    const rect = bar.getBoundingClientRect()
+    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+    video.currentTime = ratio * video.duration
+  }
+  const showControls = data.kind === 'video' && (hovered || playing)
   return (
     <div
       style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,.6)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
@@ -128,25 +151,45 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : <video
-            ref={ref => { if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() } }}
+            ref={ref => {
+              videoRef.current = ref
+              if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() }
+            }}
             src={mediaUrl(data.path)}
             muted={!playing}
             loop
             preload="metadata"
             style={flowStyles.thumb}
             draggable={false}
+            onTimeUpdate={event => {
+              const video = event.currentTarget
+              setProgress({ t: video.currentTime, d: Number.isFinite(video.duration) ? video.duration : 0 })
+            }}
+            onLoadedMetadata={event => setProgress({ t: 0, d: event.currentTarget.duration })}
+            onEnded={() => setPlaying(false)}
           />}
-      {data.kind === 'video' ? (
-        <button
+      {showControls ? (
+        <div
           style={{
-            position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: 12,
-            border: '1px solid rgba(255,255,255,.35)', background: 'rgba(0,0,0,.55)',
-            color: '#f5f5f5', fontSize: 11, cursor: 'pointer', lineHeight: 1,
+            position: 'absolute', left: 6, right: 6, bottom: 36, display: 'flex', alignItems: 'center', gap: 6,
+            padding: '3px 6px', borderRadius: 8, background: 'rgba(0,0,0,.55)', zIndex: 2,
           }}
-          onClick={event => { event.stopPropagation(); setPlaying(value => !value) }}
+          onClick={event => event.stopPropagation()}
         >
-          {playing ? 'Ⅱ' : '▶'}
-        </button>
+          <button
+            style={{ width: 20, height: 20, borderRadius: 10, border: '1px solid rgba(255,255,255,.35)', background: 'transparent', color: '#f5f5f5', fontSize: 9, cursor: 'pointer', lineHeight: 1, flexShrink: 0 }}
+            onClick={togglePlay}
+            title={playing ? '暂停' : '播放'}
+          >
+            {playing ? 'Ⅱ' : '▶'}
+          </button>
+          <div ref={barRef} style={{ flex: 1, height: 10, display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={seek}>
+            <div style={{ height: 3, width: '100%', background: 'rgba(255,255,255,.25)', borderRadius: 2, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${progress.d > 0 ? Math.min(100, (progress.t / progress.d) * 100) : 0}%`, background: '#f5f5f5', borderRadius: 2 }} />
+            </div>
+          </div>
+          <span style={{ fontSize: 9, color: '#d8d8d8', flexShrink: 0 }}>{fmtTime(progress.t)}/{fmtTime(progress.d)}</span>
+        </div>
       ) : null}
       <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} />
       <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
