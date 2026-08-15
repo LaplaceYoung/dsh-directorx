@@ -34,7 +34,8 @@
 | react-zoom-pan-pinch | 1,911 | MIT | 缩放/平移封装（轮询/捏合/双击） | 图片查看器等轻量缩放场景备选（画布已用 xyflow 内置） |
 | dnd-kit | 17,544 | MIT | 现代拖拽引擎（可访问性/传感器/碰撞） | 素材库「拖到画布」交互候选（libtv 素材拖拽） |
 | motion-canvas | 18,940 | MIT | 程序化动画画布（TS 时间轴编辑器） | 分镜动态预览/关键帧动画演示候选 |
-| html2canvas | 31,912 | MIT | DOM → 位图快照 | 画布导出 PNG（分镜板分享）候选 |
+| html2canvas | 31,912 | MIT | DOM → 位图快照 | 已用原生 SVG 快照替代（画布导出 PNG 无依赖实现）；如需富 CSS 页面截图再评估 |
+| modern-screenshot | — | MIT | html2canvas 活跃 fork（现代 CSS 支持） | 富 CSS 页面截图候选 |
 
 ## 已调研 · 弃用（附原因）
 

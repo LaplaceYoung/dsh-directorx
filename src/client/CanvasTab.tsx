@@ -917,6 +917,73 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [addMedia, scheduleSave])
 
+  const exportPng = useCallback(async () => {
+    const ns = nodesRef.current
+    const es = edgesRef.current
+    if (ns.length === 0) { setError('画布为空，先添加节点再导出。'); return }
+    const width = (node: CanvasFlowNode) => typeof node.style?.width === 'number' ? node.style.width : node.type === 'group' ? 520 : 200
+    const height = (node: CanvasFlowNode) => typeof node.style?.height === 'number' ? node.style.height : node.type === 'group' ? 380 : 126
+    const minX = Math.min(...ns.map(node => node.position.x)) - 60
+    const minY = Math.min(...ns.map(node => node.position.y)) - 60
+    const maxX = Math.max(...ns.map(node => node.position.x + width(node))) + 60
+    const maxY = Math.max(...ns.map(node => node.position.y + height(node))) + 60
+    const w = maxX - minX
+    const h = maxY - minY
+    const paths = es.map(edge => {
+      const source = ns.find(node => node.id === edge.source)
+      const target = ns.find(node => node.id === edge.target)
+      if (source === undefined || target === undefined) return ''
+      const [d] = getBezierPath({
+        sourceX: source.position.x + width(source), sourceY: source.position.y + height(source) / 2,
+        sourcePosition: Position.Right,
+        targetX: target.position.x, targetY: target.position.y + height(target) / 2,
+        targetPosition: Position.Left,
+      })
+      return `<path d="${d}" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.4"/>`
+    }).join('')
+    const nodeSvg = ns.map(node => {
+      const x = node.position.x
+      const y = node.position.y
+      const wNode = width(node)
+      const hNode = height(node)
+      const label = String(node.data.label ?? '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char] as string)
+      if (node.type === 'group') {
+        return `<rect x="${x}" y="${y}" width="${wNode}" height="${hNode}" rx="16" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.18)"/><text x="${x + 14}" y="${y + 22}" font-size="12" fill="#f5f5f5">${label}</text>`
+      }
+      if (node.type === 'media') {
+        const kind = (node.data as MediaNodeData).kind
+        const path = (node.data as MediaNodeData).path
+        const body = kind === 'image' && path !== ''
+          ? `<image href="${mediaUrl(path)}" x="${x + 1}" y="${y + 1}" width="${wNode - 2}" height="${hNode - 34}" preserveAspectRatio="xMidYMid slice"/>`
+          : `<rect x="${x + 1}" y="${y + 1}" width="${wNode - 2}" height="${hNode - 34}" fill="#141414"/>`
+        return `<rect x="${x}" y="${y}" width="${wNode}" height="${hNode}" rx="16" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.14)"/>${body}<text x="${x + 10}" y="${y + hNode - 12}" font-size="11" fill="#f5f5f5">${label}</text>`
+      }
+      return `<rect x="${x}" y="${y}" width="${wNode}" height="42" rx="16" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.14)"/><text x="${x + 12}" y="${y + 26}" font-size="12.5" fill="#f5f5f5">${label}</text>`
+    }).join('')
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(w)}" height="${Math.round(h)}" viewBox="${minX} ${minY} ${w} ${h}"><rect x="${minX}" y="${minY}" width="${w}" height="${h}" fill="#000"/>${paths}${nodeSvg}</svg>`
+    const blobUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }))
+    const image = new Image()
+    image.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(w)
+      canvas.height = Math.round(h)
+      const context = canvas.getContext('2d')
+      if (context === null) return
+      context.drawImage(image, 0, 0)
+      URL.revokeObjectURL(blobUrl)
+      canvas.toBlob(blob => {
+        if (blob === null) return
+        const url = URL.createObjectURL(blob)
+        const anchor = document.createElement('a')
+        anchor.href = url
+        anchor.download = `directorx-canvas-${Date.now()}.png`
+        anchor.click()
+        URL.revokeObjectURL(url)
+      }, 'image/png')
+    }
+    image.src = blobUrl
+  }, [])
+
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
     setEdges(current => current.filter(edge => edge.id !== selectedEdge))
@@ -1031,6 +1098,7 @@ function CanvasTabInner(): ReactNode {
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
+        <button style={toolBtn} onClick={() => void exportPng()}>导出 PNG</button>
         <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘D 复制 · ⌫ 删除 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
