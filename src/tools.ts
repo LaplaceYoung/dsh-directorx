@@ -259,13 +259,14 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_add',
-    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path (from generation/edit results) or an http(s) URL; they render previews in the WebUI canvas.',
+    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path (from generation/edit results) or an http(s) URL; group nodes act as containers (pass their id as `parent` when adding members).',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'text', 'group'], required: true, description: 'Node kind.' },
       label: { type: 'string', description: 'Node label (shown under the preview).' },
       path: { type: 'string', description: 'Media path (local output-dir path or http(s) URL) for image/video nodes.' },
       x: { type: 'number', description: 'Canvas x position.' },
       y: { type: 'number', description: 'Canvas y position.' },
+      parent: { type: 'string', description: 'Optional id of a group node to place this node inside.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
@@ -291,10 +292,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_update',
-    description: 'Update a canvas node or edge by id: move (x/y), resize (width/height), relabel, or replace its media path. Patch fields merge over the existing element.',
+    description: 'Update a canvas node or edge by id: move (x/y), resize (width/height), relabel, replace its media path, or move it into/out of a group (patch { parent: "<group id>" } or { parent: null }). Patch fields merge over the existing element.',
     parameters: {
       id: { type: 'string', required: true, description: 'Node or edge id from directorx_canvas_get.' },
-      patch: { type: 'object', additionalProperties: true, description: 'Fields to change, e.g. { x: 100, y: 200 } or { label: "镜头 2" }.' },
+      patch: { type: 'object', additionalProperties: true, description: 'Fields to change, e.g. { x: 100, y: 200 } or { label: "镜头 2" } or { parent: "group-xxx" }.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,

@@ -41,6 +41,42 @@ test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   }
 })
 
+test('canvas grouping: members follow their group, arrange keeps children inside', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    let doc = await store.addNode({ kind: 'group', label: '第一幕', x: 0, y: 0 })
+    const group = doc.nodes[0]
+    doc = await store.addNode({ kind: 'text', label: '镜头A', x: 50, y: 50, parent: group.id })
+    doc = await store.addNode({ kind: 'text', label: '镜头B', x: 50, y: 120, parent: group.id })
+
+    // Invalid parent references are dropped on write.
+    doc = await store.addNode({ kind: 'text', label: '孤儿', x: 10, y: 10, parent: 'missing-group' })
+    const orphan = doc.nodes.find(node => node.label === '孤儿')
+    assert.equal(orphan.parent, undefined)
+
+    // Moving the group keeps membership intact.
+    doc = await store.update(group.id, { x: 200, y: 100 })
+    const groupAfter = doc.nodes.find(node => node.id === group.id)
+    assert.equal(groupAfter.x, 200)
+    assert.equal(doc.nodes.find(node => node.label === '镜头A').parent, group.id)
+
+    // Ungroup via parent: null.
+    doc = await store.update(doc.nodes.find(node => node.label === '镜头A').id, { parent: null })
+    assert.equal(doc.nodes.find(node => node.label === '镜头A').parent, undefined)
+
+    // Arrange lays the group out and keeps its member inside.
+    await store.update(doc.nodes.find(node => node.label === '镜头A').id, { parent: group.id })
+    doc = await store.arrange('grid')
+    const arrangedGroup = doc.nodes.find(node => node.id === group.id)
+    const member = doc.nodes.find(node => node.label === '镜头A')
+    assert.ok(member.x >= arrangedGroup.x && member.y >= arrangedGroup.y)
+    assert.ok(member.x < arrangedGroup.x + 600 && member.y < arrangedGroup.y + 500)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas store write enforces optimistic concurrency', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
   try {

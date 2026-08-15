@@ -16,6 +16,8 @@ export interface CanvasNode {
   label: string
   /** Local media path (served by /directorx/media) or an http(s) URL. */
   path?: string
+  /** Group membership: id of a `group` node in the same document. */
+  parent?: string
   x: number
   y: number
   width?: number
@@ -51,15 +53,33 @@ function newId(prefix: string): string {
 function sanitizeNode(input: Record<string, unknown>): CanvasNode {
   const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'text' || input.kind === 'group' ? input.kind : 'text'
   const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
-  return {
+  const rawParent = input.parent
+  const node: CanvasNode = {
     id: typeof input.id === 'string' && input.id !== '' ? input.id : newId(kind),
     kind,
-    label: typeof input.label === 'string' ? input.label.slice(0, 200) : '',
+    label: typeof input.label === 'string' ? input.label.slice(0,200) : '',
     ...(typeof input.path === 'string' && input.path !== '' ? { path: input.path.slice(0, 1000) } : {}),
+    ...(typeof rawParent === 'string' && rawParent !== '' ? { parent: rawParent.slice(0, 100) } : {}),
     x: numberOr(input.x, 0),
     y: numberOr(input.y, 0),
     ...(input.width !== undefined ? { width: Math.max(60, Math.min(1200, numberOr(input.width, 240))) } : {}),
     ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
+  }
+  return node
+}
+
+/**
+ * Drop parent references that do not point at a group node in this document
+ * (self/cycles/missing nodes included).
+ */
+function validateParents(doc: CanvasDocument): void {
+  const byId = new Map(doc.nodes.map(node => [node.id, node]))
+  for (const node of doc.nodes) {
+    if (node.parent === undefined) continue
+    const parent = byId.get(node.parent)
+    if (parent === undefined || parent.kind !== 'group' || parent.id === node.id) {
+      delete node.parent
+    }
   }
 }
 
@@ -124,6 +144,7 @@ export class DirectorxCanvasStore {
       nodes: doc.nodes.map(node => sanitizeNode(node as unknown as Record<string, unknown>)),
       edges: doc.edges.map(edge => sanitizeEdge(edge as unknown as Record<string, unknown>)),
     }
+    validateParents(saved)
     await writeFile(path, JSON.stringify(saved), 'utf8')
     return saved
   }
@@ -158,7 +179,10 @@ export class DirectorxCanvasStore {
     return this.mutate(doc => {
       const nodeIndex = doc.nodes.findIndex(node => node.id === id)
       if (nodeIndex >= 0) {
-        doc.nodes[nodeIndex] = sanitizeNode({ ...doc.nodes[nodeIndex], ...patch, id } as unknown as Record<string, unknown>)
+        const merged = { ...doc.nodes[nodeIndex], ...patch, id } as unknown as Record<string, unknown>
+        // Explicitly ungroup: parent null clears membership.
+        if (patch.parent === null) delete merged.parent
+        doc.nodes[nodeIndex] = sanitizeNode(merged)
         return
       }
       const edgeIndex = doc.edges.findIndex(edge => edge.id === id)
@@ -180,13 +204,14 @@ export class DirectorxCanvasStore {
     })
   }
 
-  /** 整理：auto-layout nodes into a grid (or a single row) without touching edges. */
+  /** 整理：auto-layout nodes into a tidy grid (or a single row) while keeping all connections. Group children stay inside their group. */
   async arrange(layout: 'grid' | 'row' = 'grid', gap = 40): Promise<CanvasDocument> {
     return this.mutate(doc => {
-      const columns = layout === 'row' ? doc.nodes.length : Math.max(1, Math.ceil(Math.sqrt(doc.nodes.length)))
-      doc.nodes.forEach((node, index) => {
-        const width = node.width ?? 240
-        const height = node.height ?? 160
+      const topLevel = doc.nodes.filter(node => node.parent === undefined)
+      const columns = layout === 'row' ? topLevel.length : Math.max(1, Math.ceil(Math.sqrt(topLevel.length)))
+      topLevel.forEach((node, index) => {
+        const width = node.width ?? (node.kind === 'group' ? 520 : 240)
+        const height = node.height ?? (node.kind === 'group' ? 380 : 160)
         if (layout === 'row') {
           node.x = index * (width + gap)
           node.y = 0
@@ -194,7 +219,21 @@ export class DirectorxCanvasStore {
           node.x = (index % columns) * (width + gap)
           node.y = Math.floor(index / columns) * (height + gap)
         }
+        node.width = width
+        node.height = height
       })
+      // Lay each group's children out inside the group frame.
+      for (const group of topLevel.filter(node => node.kind === 'group')) {
+        const members = doc.nodes.filter(node => node.parent === group.id)
+        const frameWidth = group.width ?? 520
+        const margin = 46
+        const memberColumns = Math.max(1, Math.floor((frameWidth - margin) / 260))
+        members.forEach((member, index) => {
+          const width = member.width ?? 200
+          member.x = group.x + margin + (index % memberColumns) * (width + 20)
+          member.y = group.y + margin + Math.floor(index / memberColumns) * 150
+        })
+      }
     })
   }
 }

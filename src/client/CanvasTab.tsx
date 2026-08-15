@@ -18,8 +18,9 @@ import { openEditor } from './editor.ts'
 
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string }
 type TextNodeData = { label: string }
+type GroupNodeData = { label: string }
 
-type CanvasFlowNode = Node<MediaNodeData | TextNodeData>
+type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
 interface MediaListFile { path: string; name: string; mediaType: string; size: number }
 
@@ -77,7 +78,25 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   )
 }
 
-const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent }
+const groupFrame: CSSProperties = {
+  borderRadius: 14, border: '1px solid rgba(255,255,255,.2)', background: 'rgba(38,38,38,.55)',
+  width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+}
+const groupTitle: CSSProperties = {
+  fontSize: 12, color: '#f7f7f7', opacity: .85, padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,.1)',
+}
+
+function GroupNodeComponent(props: NodeProps): ReactNode {
+  const data = props.data as unknown as GroupNodeData
+  const selected = props.selected === true
+  return (
+    <div style={{ ...groupFrame, ...(selected ? { border: '1px solid rgba(255,255,255,.85)' } : {}) }}>
+      <div style={groupTitle}>{data.label || '分组'}</div>
+    </div>
+  )
+}
+
+const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent }
 
 const toolbar: CSSProperties = {
   position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
@@ -95,16 +114,24 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
+interface CanvasDocument { version: number; updatedAt: number; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
 
+/** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument): CanvasFlowNode[] {
+  const byId = new Map(doc.nodes.map(node => [node.id, node]))
   return doc.nodes.map(node => {
     const isMedia = node.kind === 'image' || node.kind === 'video'
+    const isGroup = node.kind === 'group'
+    const parentNode = node.parent !== undefined ? byId.get(node.parent) : undefined
+    const position = parentNode !== undefined
+      ? { x: node.x - parentNode.x, y: node.y - parentNode.y }
+      : { x: node.x, y: node.y }
     return {
       id: node.id,
-      type: isMedia ? 'media' : 'text',
-      position: { x: node.x, y: node.y },
-      style: { width: node.width ?? 200, height: node.height ?? undefined },
+      type: isGroup ? 'group' : isMedia ? 'media' : 'text',
+      position,
+      style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
+      ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
       data: isMedia
         ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '' }
         : { label: node.label },
@@ -126,7 +153,7 @@ function newLocalId(prefix: string): string {
 
 function nodeMetrics(node: CanvasFlowNode): { width: number; height: number } {
   const width = typeof node.style?.width === 'number' ? node.style.width : 200
-  const height = node.type === 'media' ? 126 : 42
+  const height = typeof node.style?.height === 'number' ? node.style.height : node.type === 'media' ? 126 : 42
   return { width, height }
 }
 
@@ -223,17 +250,28 @@ export function CanvasTab(): ReactNode {
     try {
       const currentNodes = nodesRef.current
       const currentEdges = edgesRef.current
+      // Persist ABSOLUTE positions: children are parent-relative in the flow
+      // state, so add the parent's position back on save.
+      const parentPos = new Map<string, { x: number; y: number }>()
+      for (const node of currentNodes) parentPos.set(node.id, node.position)
       const doc = {
         version: 1,
         updatedAt: updatedAtRef.current,
-        nodes: currentNodes.map(node => ({
-          id: node.id,
-          kind: node.type === 'media' ? (node.data as MediaNodeData).kind : 'text',
-          label: node.data.label,
-          ...(node.type === 'media' ? { path: (node.data as MediaNodeData).path } : {}),
-          x: node.position.x, y: node.position.y,
-          ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),
-        })),
+        nodes: currentNodes.map(node => {
+          const absolute = node.parentId !== undefined && node.parentId !== ''
+            ? { x: node.position.x + (parentPos.get(node.parentId)?.x ?? 0), y: node.position.y + (parentPos.get(node.parentId)?.y ?? 0) }
+            : { x: node.position.x, y: node.position.y }
+          return {
+            id: node.id,
+            kind: node.type === 'media' ? (node.data as MediaNodeData).kind : node.type === 'group' ? 'group' : 'text',
+            label: node.data.label,
+            ...(node.type === 'media' ? { path: (node.data as MediaNodeData).path } : {}),
+            ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
+            x: absolute.x, y: absolute.y,
+            ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),
+            ...(typeof node.style?.height === 'number' ? { height: node.style.height } : {}),
+          }
+        }),
         edges: currentEdges.map(edge => ({ id: edge.id, from: edge.source, to: edge.target, label: typeof edge.label === 'string' ? edge.label : undefined })),
       }
       const response = await fetch(`/directorx/canvas?expectedUpdatedAt=${updatedAtRef.current}`, {
@@ -280,14 +318,50 @@ export function CanvasTab(): ReactNode {
   }, [applyDoc])
 
   const onNodesChange = useCallback((changes: NodeChange<CanvasFlowNode>[]) => {
+    const removedIds = changes.filter(change => change.type === 'remove').map(change => change.id)
     setNodes(current => applyNodeChanges(changes, current))
-  }, [])
+    if (removedIds.length > 0) {
+      // Orphaned children of a removed group become top-level again.
+      setNodes(current => current.map(node => node.parentId !== undefined && removedIds.includes(node.parentId)
+        ? { ...node, parentId: undefined, extent: undefined }
+        : node))
+      scheduleSave()
+    }
+  }, [scheduleSave])
 
   const onEdgesChange = useCallback((changes: EdgeChange<Edge>[]) => {
     setEdges(current => applyEdgeChanges(changes, current))
   }, [])
 
-  const onNodeDragStop = useCallback(() => scheduleSave(), [scheduleSave])
+  const onNodeDragStop = useCallback((_event: unknown, node: CanvasFlowNode) => {
+    // Drop-into-group: when a top-level node lands inside a group frame,
+    // adopt it into the group (position becomes parent-relative).
+    if (node.parentId === undefined || node.parentId === '') {
+      const width = nodeMetrics(node).width
+      const height = nodeMetrics(node).height
+      const cx = node.position.x + width / 2
+      const cy = node.position.y + height / 2
+      setNodes(current => {
+        const groups = current.filter(candidate => candidate.type === 'group')
+        const group = groups.find(candidate => {
+          const gw = nodeMetrics(candidate).width
+          const gh = nodeMetrics(candidate).height
+          return cx >= candidate.position.x && cx <= candidate.position.x + gw
+            && cy >= candidate.position.y && cy <= candidate.position.y + gh
+        })
+        if (group === undefined) return current
+        return current.map(candidate => candidate.id === node.id
+          ? {
+              ...candidate,
+              parentId: group.id,
+              extent: 'parent' as const,
+              position: { x: candidate.position.x - group.position.x, y: candidate.position.y - group.position.y },
+            }
+          : candidate)
+      })
+    }
+    scheduleSave()
+  }, [scheduleSave])
   const onEdgesDelete = useCallback(() => scheduleSave(), [scheduleSave])
 
   const onConnect = useCallback((connection: Connection) => {
@@ -330,16 +404,48 @@ export function CanvasTab(): ReactNode {
     })
   }, [addNodeAt])
 
+  const addGroup = useCallback(() => {
+    addNodeAt({
+      id: newLocalId('group'), type: 'group', position: { x: 160, y: 160 },
+      style: { width: 520, height: 380 },
+      data: { label: '分组' },
+    })
+  }, [addNodeAt])
+
   const arrangeGrid = useCallback(() => {
     setNodes(current => {
-      const columns = Math.max(1, Math.ceil(Math.sqrt(current.length)))
-      return current.map((node, index) => ({
-        ...node,
-        position: {
-          x: (index % columns) * 260,
-          y: Math.floor(index / columns) * 200,
-        },
-      }))
+      const topLevel = current.filter(node => node.parentId === undefined || node.parentId === '')
+      const columns = Math.max(1, Math.ceil(Math.sqrt(topLevel.length)))
+      const laid = topLevel.map((node, index) => {
+        const isGroup = node.type === 'group'
+        const width = nodeMetrics(node).width
+        const height = nodeMetrics(node).height
+        return {
+          ...node,
+          position: {
+            x: (index % columns) * (width + 40),
+            y: Math.floor(index / columns) * (height + 40),
+          },
+          style: { ...node.style, width, height: isGroup ? 380 : node.style?.height },
+        }
+      })
+      const groupById = new Map(laid.map(node => [node.id, node]))
+      // Group children follow their group's new origin.
+      const children = current
+        .filter(node => node.parentId !== undefined && node.parentId !== '' && groupById.has(node.parentId))
+        .map(node => {
+          const group = groupById.get(node.parentId as string)
+          const index = current.filter(n => n.parentId === node.parentId).indexOf(node)
+          const columnsIn = Math.max(1, Math.floor((nodeMetrics(group as CanvasFlowNode).width - 46) / 260))
+          return {
+            ...node,
+            position: {
+              x: 46 + (index % columnsIn) * (nodeMetrics(node).width + 20),
+              y: 46 + Math.floor(index / columnsIn) * 150,
+            },
+          }
+        })
+      return [...laid, ...children]
     })
     scheduleSave()
   }, [setNodes, scheduleSave])
@@ -387,6 +493,7 @@ export function CanvasTab(): ReactNode {
       <div style={toolbar}>
         <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
         <button style={toolBtn} onClick={addTextNode}>＋ 文字</button>
+        <button style={toolBtn} onClick={addGroup}>＋ 分组</button>
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         <button style={toolBtn} onClick={() => void load()}>重载</button>
         <span style={saveChip}>{saveState}</span>
