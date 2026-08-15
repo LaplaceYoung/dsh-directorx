@@ -181,8 +181,8 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
             key={tab.id}
             style={{
               ...tabItemBase,
-              color: snapshot.tab === tab.id ? 'inherit' : tabItemBase.color,
-              borderBottom: snapshot.tab === tab.id ? '2px solid rgba(128,160,255,.85)' : '2px solid transparent',
+              color: snapshot.tab === tab.id ? '#f5f5f5' : tabItemBase.color,
+              borderBottom: snapshot.tab === tab.id ? '2px solid rgba(245,245,245,.85)' : '2px solid transparent',
               fontWeight: snapshot.tab === tab.id ? 600 : 400,
             }}
             onClick={() => setEditorTab(tab.id)}
