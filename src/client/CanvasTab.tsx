@@ -360,6 +360,8 @@ function CanvasTabInner(): ReactNode {
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
+  const [uploading, setUploading] = useState(false)
   const cascadeRef = useRef(0)
 
   const renameNode = useCallback((id: string, label: string) => {
@@ -829,6 +831,43 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setNodes, scheduleSave, renameNode])
 
+  const importMedia = useCallback(() => {
+    uploadInputRef.current?.click()
+  }, [])
+
+  const onUploadFiles = useCallback(async (files: FileList | null) => {
+    if (files === null || files.length === 0) return
+    setUploading(true)
+    const added: Array<{ name: string; path: string }> = []
+    let firstError: string | undefined
+    for (const file of Array.from(files).slice(0, 12)) {
+      try {
+        const response = await fetch('/directorx/media', {
+          method: 'POST',
+          headers: {
+            'content-type': file.type !== '' ? file.type : 'application/octet-stream',
+            'x-directorx-name': encodeURIComponent(file.name),
+          },
+          body: file,
+        })
+        if (!response.ok) {
+          const text = await response.text().catch(() => '')
+          throw new Error(`HTTP ${response.status} ${text.slice(0, 120)}`)
+        }
+        const record = await response.json() as { path: string }
+        added.push({ name: file.name, path: record.path })
+      } catch (cause) {
+        firstError = cause instanceof Error ? cause.message : String(cause)
+      }
+    }
+    for (const item of added) {
+      addMedia({ path: item.path, name: item.name, mediaType: item.name.endsWith('.mp4') || item.name.endsWith('.mov') || item.name.endsWith('.webm') ? 'video/mp4' : 'image/png', size: 0 })
+    }
+    if (firstError !== undefined) setError(firstError)
+    setUploading(false)
+    scheduleSave()
+  }, [addMedia, scheduleSave])
+
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
     setEdges(current => current.filter(edge => edge.id !== selectedEdge))
@@ -941,7 +980,7 @@ function CanvasTabInner(): ReactNode {
         <button style={toolBtn} onClick={arrangeGrid}>网格整理</button>
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <button style={toolBtn} onClick={() => void load()}>重载</button>
-        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>⌘D 复制 · ⌫ 删除 · Esc 清除</span>
+        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘D 复制 · ⌫ 删除 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
@@ -959,6 +998,7 @@ function CanvasTabInner(): ReactNode {
         >
           {[
             { label: '添加媒体', action: () => void openPicker() },
+            { label: '导入本地媒体…', action: importMedia },
             { label: '添加文字', action: addTextNode },
             { label: '新建分组', action: addGroup },
             { label: '网格整理', action: arrangeGrid },
@@ -973,6 +1013,14 @@ function CanvasTabInner(): ReactNode {
           ))}
         </div>
       ) : null}
+      <input
+        ref={uploadInputRef}
+        type="file"
+        accept="image/*,video/*,audio/*"
+        multiple
+        style={{ display: 'none' }}
+        onChange={event => void onUploadFiles(event.target.files)}
+      />
       {pickerOpen ? (
         <div style={{ ...picker, width: 340 }}>
           <input
