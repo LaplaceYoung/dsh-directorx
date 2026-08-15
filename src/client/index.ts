@@ -1,7 +1,14 @@
 import { DirectorxSettingsSection } from './DirectorxSettingsSection.tsx'
 import { DirectorxToolRow, DIRECTORX_TOOLVIEW_KEYS } from './DirectorxToolRow.tsx'
 import { EditorDock } from './EditorDock.tsx'
+import { DirectorxDetailsDock } from './DirectorxDetailsDock.tsx'
 import { closeEditor, editorSnapshot, openEditor, setEditorTab } from './editor.ts'
+
+interface LayoutFace {
+  openDetails(): void
+  closeDetails(): void
+  toggleSidebar(): void
+}
 
 interface ClientContext {
   get(name: string): unknown
@@ -13,15 +20,19 @@ interface ClientContext {
       key?: string
       order?: number
       label?: string
+      priority?: number
+      children?: Record<string, unknown>
       inject?: () => Record<string, unknown>
     }, component: unknown): () => void
   }
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection']
+export const inject = ['slots', 'connection', 'layout']
 
 export function apply(ctx: ClientContext): void {
+  const layout = (): LayoutFace | undefined => ctx.get('layout') as LayoutFace | undefined
+
   ctx.slots.inject('settings.section', () => {
     const connection = ctx.get('connection') as { api: { settings: unknown } } | undefined
     if (connection === undefined) return () => {}
@@ -47,15 +58,42 @@ export function apply(ctx: ClientContext): void {
     }
   })
 
-  // Right-side editor dock: a frame-wide overlay with the image (PS-style)
-  // and video (timeline) secondary editors, plus a floating handle.
+  // The dock occupies the harness `details` column: a first-class layout
+  // column that squeezes the conversation instead of overlaying it. The
+  // floating handle (shell.overlay) toggles the column via ctx.layout.
+  ctx.slots.inject('details', () =>
+    ctx.slots.register({
+      name: 'details',
+      priority: -1,
+      inject: () => ({ closeDetails: () => layout()?.closeDetails() }),
+    }, DirectorxDetailsDock),
+  )
+
   ctx.slots.inject('shell.overlay', () =>
-    ctx.slots.register({ name: 'shell.overlay', id: 'directorx-editor', order: 40, label: 'DirectorX 编辑' }, EditorDock),
+    ctx.slots.register({
+      name: 'shell.overlay',
+      id: 'directorx-editor',
+      order: 40,
+      label: 'DirectorX 编辑',
+      inject: () => ({
+        openDetails: () => layout()?.openDetails(),
+        closeDetails: () => layout()?.closeDetails(),
+      }),
+    }, EditorDock),
   )
 
   // Debug/automation hook: lets console users (and browser tests) drive the
   // dock directly without a generation card.
   if (typeof window !== 'undefined' && window.__directorxEditor === undefined) {
-    window.__directorxEditor = { open: openEditor, close: closeEditor, snapshot: editorSnapshot, setTab: setEditorTab }
+    window.__directorxEditor = {
+      open: openEditor,
+      close: () => { closeEditor(); layout()?.closeDetails() },
+      setTab: (tab) => { setEditorTab(tab); layout()?.openDetails() },
+      snapshot: editorSnapshot,
+      // Debug probes.
+      layoutKind: () => String(typeof layout()),
+      openDetailsNow: () => layout()?.openDetails(),
+      toggleSidebarNow: () => layout()?.toggleSidebar(),
+    }
   }
 }

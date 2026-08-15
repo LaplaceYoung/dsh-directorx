@@ -26,14 +26,14 @@ interface MediaListFile { path: string; name: string; mediaType: string; size: n
 
 const flowStyles = {
   mediaCard: {
-    borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: '#1d1d1d',
-    boxShadow: '0 4px 14px rgba(0,0,0,.4)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
+    borderRadius: 16, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.04)',
+    boxShadow: '0 6px 18px rgba(0,0,0,.5)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
   } as CSSProperties,
-  selectedCard: { border: '1px solid rgba(255,255,255,.85)', boxShadow: '0 8px 24px rgba(0,0,0,.55)' } as CSSProperties,
+  selectedCard: { border: '1px solid rgba(245,245,245,.95)', boxShadow: '0 0 0 1px rgba(245,245,245,.35), 0 10px 28px rgba(0,0,0,.6)' } as CSSProperties,
   thumb: { width: 100 + '%', height: 96, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
-  label: { fontSize: 11.5, padding: '7px 10px', color: '#f7f7f7', wordBreak: 'break-word' as const, lineHeight: 1.4, borderTop: '1px solid rgba(255,255,255,.08)' },
+  label: { fontSize: 11.5, padding: '7px 10px', color: '#f7f7f7', wordBreak: 'break-word' as const, lineHeight: 1.4, borderTop: '1px solid rgba(255,255,255,.1)' },
   textCard: {
-    borderRadius: 10, border: '1px solid rgba(255,255,255,.14)', background: '#1d1d1d',
+    borderRadius: 16, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.04)',
     padding: '10px 12px', fontSize: 12.5, minWidth: 120, maxWidth: 220, cursor: 'pointer', color: '#f7f7f7',
   } as CSSProperties,
   handle: { width: 8, height: 8, background: '#5a5a5a', border: '2px solid #1d1d1d' } as CSSProperties,
@@ -79,11 +79,11 @@ function TextNodeComponent(props: NodeProps): ReactNode {
 }
 
 const groupFrame: CSSProperties = {
-  borderRadius: 14, border: '1px solid rgba(255,255,255,.2)', background: 'rgba(38,38,38,.55)',
+  borderRadius: 16, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.03)',
   width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
 }
 const groupTitle: CSSProperties = {
-  fontSize: 12, color: '#f7f7f7', opacity: .85, padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,.1)',
+  fontSize: 12, color: '#f5f5f5', opacity: .9, padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,.1)',
 }
 
 function GroupNodeComponent(props: NodeProps): ReactNode {
@@ -102,8 +102,8 @@ const toolbar: CSSProperties = {
   position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
 }
 const toolBtn: CSSProperties = {
-  padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,.16)', background: '#2a2a2a',
-  color: '#f7f7f7', fontSize: 12.5, cursor: 'pointer',
+  padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)',
+  color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer',
 }
 const picker: CSSProperties = {
   position: 'absolute', top: 46, left: 12, zIndex: 6, width: 300, maxHeight: 320, overflowY: 'auto',
@@ -240,6 +240,7 @@ export function CanvasTab(): ReactNode {
   const [mediaFiles, setMediaFiles] = useState<MediaListFile[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
   const [selectedEdge, setSelectedEdge] = useState<string | undefined>(undefined)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const cascadeRef = useRef(0)
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
@@ -443,6 +444,18 @@ export function CanvasTab(): ReactNode {
     })
   }, [addNodeAt])
 
+  const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
+    event.preventDefault()
+    setContextMenu({ x: event.clientX, y: event.clientY })
+  }, [])
+
+  const closeContextMenu = useCallback(() => setContextMenu(undefined), [])
+
+  const contextAction = useCallback((action: () => void) => {
+    closeContextMenu()
+    action()
+  }, [closeContextMenu])
+
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
     setEdges(current => current.filter(edge => edge.id !== selectedEdge))
@@ -514,8 +527,14 @@ export function CanvasTab(): ReactNode {
         onConnect={onConnect}
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
+        onPaneContextMenu={onPaneContextMenu}
+        onPaneClick={closeContextMenu}
+        selectionOnDrag
+        panOnDrag={false}
+        panActivationKeyCode="Space"
+        selectionKeyCode="Shift"
         defaultEdgeOptions={defaultEdgeOptions}
-        style={{ background: '#141414' }}
+        style={{ background: '#000000' }}
         fitView
         proOptions={{ hideAttribution: true }}
         colorMode="dark"
@@ -523,10 +542,10 @@ export function CanvasTab(): ReactNode {
         maxZoom={2.5}
         deleteKeyCode={['Backspace', 'Delete']}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.12)" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
         <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} />
         <Controls position="bottom-left" showInteractive={false} />
-        <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#1a1a1a' }} maskColor="rgba(0,0,0,.7)" nodeColor="#4a4a4a" nodeStrokeColor="#6a6a6a" />
+        <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }} maskColor="rgba(0,0,0,.75)" nodeColor="#3f3f3f" nodeStrokeColor="#5c5c5c" />
       </ReactFlow>
       <div style={toolbar}>
         <button style={toolBtn} onClick={() => void openPicker()}>＋ 媒体</button>
@@ -538,6 +557,26 @@ export function CanvasTab(): ReactNode {
         <span style={saveChip}>{saveState}</span>
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
       </div>
+      {contextMenu !== undefined ? (
+        <div
+          style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
+        >
+          {[
+            { label: '添加媒体', action: () => void openPicker() },
+            { label: '添加文字', action: addTextNode },
+            { label: '新建分组', action: addGroup },
+            { label: '网格整理', action: arrangeGrid },
+          ].map(item => (
+            <button
+              key={item.label}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+              onClick={() => contextAction(item.action)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {pickerOpen ? (
         <div style={picker}>
           <div style={{ fontSize: 12, color: '#919191', marginBottom: 8 }}>

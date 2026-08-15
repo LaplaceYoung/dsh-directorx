@@ -1,0 +1,55 @@
+# 社区雷达（Community Radar）
+
+> dsh-directorx 的开源社区沉淀清单：每一行都来自一手核实（GitHub API / npm registry /
+> 官方文档 / 官方仓库源码），记录采用、备选与弃用原因，供后续轮次择优集成。
+> 数据获取日期：2026-08-16（本轮核实部分以标注为准）。
+
+## 已集成（In production）
+
+| 项目 | Stars | 许可证 | 用途 | 集成位置 |
+|---|---|---|---|---|
+| @xyflow/react 12 | 38,026 | MIT | 无限画布（节点/缩放/框选） | `CanvasTab.tsx`（自研边层与右键菜单叠加） |
+| wavesurfer.js 7 | 10,373 | BSD-3-Clause | 视频编辑器音频轨波形 | `VideoEditBody.tsx` |
+| WebAV (@webav/av-cliper) | 2,085 | MIT | 浏览器内解码/分割/合成 MP4 | `VideoEditBody.tsx` |
+| tui.image-editor | 7,665 | MIT | PS 式图片编辑器 | `ImageEditBody.tsx` |
+
+## 已调研 · 备选（P1 候选）
+
+| 项目 | Stars | 许可证 | 定位 | 待集成点 |
+|---|---|---|---|---|
+| tldraw | 49,789 | 非标准（2026-08 核实 NOASSERTION，需读 LICENSE 再定） | 白板/画布引擎（tldraw SDK 可嵌入） | 若 react-flow 扩展瓶颈出现，评估迁移或并行模式 |
+| mediabunny | 6,921 | MPL-2.0 | WebCodecs 媒体处理（mp4-muxer 官方后继） | Safari/FF 导出兜底候选 |
+| ffmpeg.wasm (@ffmpeg/core) | ~32MB | GPL-2.0-or-later | 万能转码兜底 | 仅网络分发需法务确认，暂缓 |
+| node-edge-tts | —（npm 周下载 210 万） | MIT | 免费本地 TTS（微软在线语音） | `audio` 能力 `edge-tts` 模式（模型侧后置项） |
+| omniclip | 1,448 | MIT（LICENSE 文件；package.json 字段 ISC） | 视频时间线应用（UI 参考） | 已作交互参考；npm 停摆 15 个月不宜直接依赖 |
+| konva / react-konva | 14,683 / 6,398 | MIT | Canvas 2D 底座 | 画布性能优化备选 |
+
+## 已调研 · 弃用（附原因）
+
+| 项目 | Stars | 原因 |
+|---|---|---|
+| react-filerobot-image-editor | 1,900（wrapper） | 依赖 react-konva@18 自带 reconciler@0.29，与 DSH 的 React 18.3.1 内部 API 不兼容（isBatchingLegacy 崩溃）；曾尝试 reconciler 0.31 覆盖（React 19 系）亦失败 |
+| etro | 1,147 | GPL-3.0 硬阻断；离线渲染未完成 |
+| remotion | 56,393 | 导出走 CLI（headless Chrome+ffmpeg），非浏览器内交互；商业许可（>3 人公司付费） |
+| peaks.js | 3,403 | LGPL-3.0；开发已迁 Codeberg |
+| twick | — | 非 OSI（Sustainable Use License） |
+
+## 模型 API 适配（协议源）
+
+| 供应商 | 协议要点 | 核实来源 |
+|---|---|---|
+| Kling 可灵 | AK/SK → HS256 JWT（iss/exp/nbf）；POST /v1/videos/{text2video\|image2video}；轮询=创建路径+task_id；task_status: submitted/processing/succeed/failed | KwaiVGI 官方仓库客户端源码 |
+| Runway | Bearer + x-runway-version: 2024-11-06；gen4.5/gen4_turbo/veo3.1/hailuo3 模型矩阵；promptImage {uri,position} 首/尾帧；ratio 为像素比 | 官方 OpenAPI 参考（api.md 全量） |
+| MiniMax 官方 | api.minimax.io：POST /v1/video_generation → task_id；GET /v1/query/video_generation；Success→file_id→GET /v1/files/retrieve；模型 T2V-01/I2V-01/MiniMax-Hailuo-02（6/10s，768P/1080P） | MiniMax-AI/MiniMax-MCP（官方组织仓库） |
+| aigw 网关 | OpenAI-compatible /v1；gpt-5.6-luna 等 53 模型（openai/anthropic/minimax 多归属）；openai 通道 2026-08 期间 503 | 实测 /v1/models + chat/completions |
+
+## 设计参考（视觉/交互）
+
+- **libtv（liblib.tv）**：近黑 #141414 中性底、单色白/灰控件、8–12px 圆角、克制无渐变（2026-08-16 提取自公开分享页）。
+- **tapnow**：纯黑 #000 底、Inter 字体、16px 卡片圆角、白 6% 幽灵按钮/卡片、白 95% 选中描边、卡片内联操作按钮（2026-08-16 提取自公开教程画布）。
+- 本插件画布已按二者合成视觉语言（纯黑底 + 16px 圆角 + 幽灵白层级）。
+
+## 沉淀纪律
+
+- 每轮扫描 ≥1 个新社区项目并更新本表；集成前必须过：许可证可商用、GitHub API 核实活跃度、npm 周下载、React 18.3 兼容性。
+- 弃用记录保留原因，避免团队重复踩坑。

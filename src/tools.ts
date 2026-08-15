@@ -319,7 +319,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_arrange',
-    description: '整理画布：auto-layout every node into a tidy grid (or a single row) while keeping all connections.',
+    description: '整理画布：auto-layout every node into a tidy grid (or a single row) while keeping all connections. Group members stay inside their group frames.',
     parameters: {
       layout: { type: 'string', enum: ['grid', 'row'], description: 'grid (default) or row.' },
     },
@@ -327,6 +327,33 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return canvas.arrange(args.layout ?? 'grid')
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_replace',
+    description: 'Replace the entire canvas document (full control): pass the complete nodes/edges arrays. Use with directorx_canvas_get to compose a new arrangement in one write.',
+    parameters: {
+      nodes: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Complete replacement node list (same shape as canvas_get returns).' },
+      edges: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Complete replacement edge list.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      const current = await canvas.read()
+      return canvas.write({ version: 1, updatedAt: 0, nodes: args.nodes ?? [], edges: args.edges ?? [] }, current.updatedAt)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_clear',
+    description: 'Clear the entire canvas (removes every node and edge). Irreversible; read with directorx_canvas_get first when unsure.',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      const current = await canvas.read()
+      return canvas.write({ version: 1, updatedAt: 0, nodes: [], edges: [] }, current.updatedAt)
     },
   })))
   disposers.push(ctx.tools.register(defineTool({

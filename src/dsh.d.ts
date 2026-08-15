@@ -66,5 +66,8 @@ interface Window {
     close(): void
     setTab(tab: 'canvas' | 'image' | 'video'): void
     snapshot(): { open: boolean; tab: 'canvas' | 'image' | 'video'; kind: 'image' | 'video' | null; path: string | null }
+    layoutKind(): string
+    openDetailsNow(): void
+    toggleSidebarNow(): void
   }
 }
