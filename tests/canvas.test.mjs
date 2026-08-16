@@ -195,6 +195,30 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('node lock guards content edits, deletes and inbound edges', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-lock-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'cast', kind: 'image', label: '定妆', path: '/tmp/c.png', x: 0, y: 0, locked: true })
+    await store.addNode({ id: 'shot', kind: 'video', label: '镜头', x: 0, y: 0 })
+    // position move allowed
+    await store.update('cast', { x: 120 })
+    // content change denied
+    await assert.rejects(() => store.update('cast', { prompt: '改设定' }), /已锁定/)
+    // delete denied
+    await assert.rejects(() => store.remove('cast'), /拒绝删除/)
+    // inbound edge denied
+    await assert.rejects(() => store.addEdge({ id: 'e1', from: 'shot', to: 'cast' }), /拒绝新入边/)
+    // outbound edge allowed
+    await store.addEdge({ id: 'e2', from: 'cast', to: 'shot', sourceVariantIdx: 1 })
+    const doc = await store.read()
+    const edge = doc.edges.find(candidate => candidate.id === 'e2')
+    assert.equal(edge.sourceVariantIdx, 1, 'per-edge variant binding stored')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas prompt synthesis walks upstream with prompt-first blocks', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-prompt-'))
   try {

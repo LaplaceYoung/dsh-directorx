@@ -26,6 +26,8 @@ export interface CanvasNode {
   shotIndex?: number
   /** 节点自带的生成提示词（prompt-first：压过自动合成）。 */
   prompt?: string
+  /** 节点锁：锁定后拒改提示词/删除/入边（定妆用途），出边引用放行。 */
+  locked?: boolean
 }
 
 export interface CanvasEdge {
@@ -33,6 +35,8 @@ export interface CanvasEdge {
   from: string
   to: string
   label?: string
+  /** 变体逐边绑定：多变体源「哪个 variant 喂哪个下游」按边钉住（生成端不保证 output[i]↔input[i] 对齐）。 */
+  sourceVariantIdx?: number
 }
 
 export interface CanvasDocument {
@@ -72,6 +76,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
     ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
     ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
+    ...(input.locked === true ? { locked: true } : {}),
   }
   return node
 }
@@ -97,6 +102,7 @@ function sanitizeEdge(input: Record<string, unknown>): CanvasEdge {
     from: typeof input.from === 'string' ? input.from : '',
     to: typeof input.to === 'string' ? input.to : '',
     ...(typeof input.label === 'string' && input.label !== '' ? { label: input.label.slice(0, 200) } : {}),
+    ...(typeof input.sourceVariantIdx === 'number' && Number.isFinite(input.sourceVariantIdx) && input.sourceVariantIdx >= 0 ? { sourceVariantIdx: Math.floor(input.sourceVariantIdx) } : {}),
   }
 }
 
@@ -207,6 +213,9 @@ export class DirectorxCanvasStore {
       const toNode = doc.nodes.find(node => node.id === edge.to)
       const fromKind = fromNode?.kind
       const toKind = toNode?.kind
+      if (toNode?.locked === true) {
+        throw new Error(`edge reason: 目标节点 ${edge.to} 已锁定（定妆用途），拒绝新入边；解锁 = update 该节点 patch {locked: false}`)
+      }
       if (fromKind !== undefined && toKind !== undefined) {
         if (toKind === 'text' || toKind === 'group') throw new Error(`edge reason: 目标节点是 ${toKind}，不能作为输入依赖（连线只能指向 image/video）`)
         if (fromKind === 'video' && toKind === 'image') throw new Error('edge reason: video 不能喂给 image（视频只能接力到 video）')
@@ -220,6 +229,15 @@ export class DirectorxCanvasStore {
     return this.mutate(doc => {
       const nodeIndex = doc.nodes.findIndex(node => node.id === id)
       if (nodeIndex >= 0) {
+        const lockedNode = doc.nodes[nodeIndex]
+        if (lockedNode.locked === true) {
+          const contentKeys = ['prompt', 'label', 'path', 'kind', 'parent', 'shotIndex']
+          const changingContent = contentKeys.some(key => Object.prototype.hasOwnProperty.call(patch, key))
+          const onlyPosition = Object.keys(patch).every(key => key === 'x' || key === 'y' || key === 'width' || key === 'height')
+          if (changingContent && !onlyPosition) {
+            throw new Error(`节点 ${id} 已锁定（定妆用途）：拒改提示词/内容/分组；解锁 = 先 update 该节点 patch {locked: false}。位置调整放行。`)
+          }
+        }
         const merged = { ...doc.nodes[nodeIndex], ...patch, id } as unknown as Record<string, unknown>
         // Explicitly ungroup: parent null clears membership.
         if (patch.parent === null) delete merged.parent
@@ -237,6 +255,10 @@ export class DirectorxCanvasStore {
 
   async remove(id: string): Promise<CanvasDocument> {
     return this.mutate(doc => {
+      const target = doc.nodes.find(node => node.id === id)
+      if (target?.locked === true) {
+        throw new Error(`节点 ${id} 已锁定（定妆用途）：拒绝删除；解锁 = 先 update 该节点 patch {locked: false}`)
+      }
       const hadNode = doc.nodes.some(node => node.id === id)
       const hadEdge = doc.edges.some(edge => edge.id === id)
       if (!hadNode && !hadEdge) throw new Error(`canvas element "${id}" not found`)
