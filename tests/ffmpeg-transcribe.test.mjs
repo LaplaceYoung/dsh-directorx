@@ -133,6 +133,20 @@ test('videoZoom diagonal pans produce valid output', async () => {
   }
 })
 
+test('videoAnalyze detects luminance flicker', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-flicker-'))
+  try {
+    const clip = join(dir, 'flicker.mp4')
+    // 交替黑白帧：2fps 持续 2s 制造强闪烁。
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', "nullsrc=s=64x64:r=2:d=2,geq=r='if(mod(N,2),255,0)':g='if(mod(N,2),255,0)':b='if(mod(N,2),255,0)',format=yuv420p", '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('flicker clip gen failed')
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    assert.ok(analysis.flickerCount > 0, 'alternating luminance counts as flicker')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess applies cinematic grade presets', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-grade-'))
   try {

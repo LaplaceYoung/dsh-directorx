@@ -35,6 +35,8 @@ export interface VideoAnalyzeOutput {
   shots: ShotSegment[]
   /** Sampled frames near black (YAVG < 16) — bad-frame sanity signal. */
   blackFrameCount: number
+  /** 闪烁事件：亮度符号交替（相邻差分异号且两侧均超阈值）——AI 视频常见伪影。 */
+  flickerCount: number
   /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
   whiteFrameCount: number
   /** blackdetect 黑场区间（d=0.25, pix=0.10 参数口径）。 */
@@ -60,6 +62,13 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
   for (const line of (result.stderr ?? '').split('\n')) {
     const match = line.match(/YAVG=([\d.]+)/)
     if (match !== null) yavg.push(Number(match[1]))
+  }
+  // 闪烁检测：差分符号交替（|delta|>=4）计事件。
+  let flickerCount = 0
+  for (let index = 2; index < yavg.length; index += 1) {
+    const prev = yavg[index - 1] - yavg[index - 2]
+    const current = yavg[index] - yavg[index - 1]
+    if (Math.abs(prev) >= 4 && Math.abs(current) >= 4 && prev * current < 0) flickerCount += 1
   }
   const fps = probe.streams.find(stream => stream.type === 'video' && typeof stream.fps === 'number')
   const frameRate = (fps?.fps as number | undefined) ?? 24
@@ -152,6 +161,7 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     fps: frameRate,
     shots,
     blackFrameCount: yavg.filter(value => value < 16).length,
+    flickerCount,
     whiteFrameCount: yavg.filter(value => value > 240).length,
     ...(blackSegments.length > 0 ? { blackSegments } : {}),
     ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
@@ -219,6 +229,7 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   // Black/white frame sanity from the analysis output.
   checks.push({ name: '黑帧', pass: analysis.blackFrameCount === 0, detail: analysis.blackFrameCount > 0 ? `检出 ${analysis.blackFrameCount} 帧近黑（YAVG<16）` : '无近黑帧' })
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
+  checks.push({ name: '闪烁', pass: analysis.flickerCount <= Math.max(3, Math.round((analysis.probe.durationSec ?? 0) * 2)), detail: analysis.flickerCount > 0 ? `检出 ${analysis.flickerCount} 次亮度符号交替（AI 视频常见闪烁伪影）` : '无闪烁' })
   if (analysis.blackSegments !== undefined && analysis.blackSegments.length > 0) {
     const total = analysis.blackSegments.reduce((sum, segment) => sum + segment.durationSec, 0)
     checks.push({ name: '黑场段', pass: false, detail: `${analysis.blackSegments.length} 段黑场共 ${total.toFixed(2)}s（blackdetect d=0.25）` })
