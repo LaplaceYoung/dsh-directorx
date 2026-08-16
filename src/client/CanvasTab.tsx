@@ -497,6 +497,8 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
     const hovered = edge.id === hoveredId
     return (
       <g key={edge.id}>
+        <circle cx={sourceX} cy={sourceY} r={selected ? 3.2 : 2.6} fill={selected ? 'rgba(245,245,245,.95)' : 'rgba(255,255,255,.5)'} pointerEvents="none" />
+        <circle cx={targetX} cy={targetY} r={selected ? 3.2 : 2.6} fill={selected ? 'rgba(245,245,245,.95)' : 'rgba(255,255,255,.5)'} pointerEvents="none" />
         <path
           d={path} fill="none"
           stroke="transparent"
