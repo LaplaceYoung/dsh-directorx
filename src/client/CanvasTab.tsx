@@ -94,7 +94,7 @@ function NodeActions({ actions }: { actions: Array<{ label: string; hint: string
           title={action.hint}
           style={{
             padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.22)',
-            background: 'rgba(18,18,18,.92)', backdropFilter: 'blur(8px)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer',
+            background: '#3f3f46', backdropFilter: 'blur(8px)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer',
             boxShadow: '0 6px 16px rgba(0,0,0,.45)',
           }}
           onClick={event => { event.stopPropagation(); action.run() }}
@@ -327,14 +327,14 @@ const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: G
 const toolbar: CSSProperties = {
   position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 2, alignItems: 'center',
   maxWidth: 'calc(100% - 24px)', flexWrap: 'wrap', justifyContent: 'center',
-  padding: '6px 8px', borderRadius: 16, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(18,18,18,.9)', backdropFilter: 'blur(14px)',
+  padding: '6px 8px', borderRadius: 16, border: '1px solid rgba(255,255,255,.12)', background: '#3f3f46', backdropFilter: 'blur(14px)',
   boxShadow: '0 8px 24px rgba(0,0,0,.5)',
 }
 
 const topBar: CSSProperties = {
   position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10,
   height: 48, padding: '0 14px',
-  background: 'rgba(18,18,18,.9)', backdropFilter: 'blur(14px)',
+  background: '#3f3f46', backdropFilter: 'blur(14px)',
   borderBottom: '1px solid rgba(255,255,255,.1)',
 }
 
@@ -586,6 +586,7 @@ function CanvasTabInner(): ReactNode {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [snapOn, setSnapOn] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
+  const [toast, setToast] = useState<string | undefined>(undefined)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -777,9 +778,13 @@ function CanvasTabInner(): ReactNode {
       updatedAtRef.current = saved.updatedAt
       dirtyRef.current = false
       setSaveState('已保存')
+      setToast('已同步到画布文档')
+      window.setTimeout(() => setToast(undefined), 2400)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
       setSaveState('已保存')
+      setToast('已同步到画布文档')
+      window.setTimeout(() => setToast(undefined), 2400)
     }
   }, [applyDoc])
 
@@ -1894,6 +1899,7 @@ function CanvasTabInner(): ReactNode {
         .react-flow__controls-button:hover { background: rgba(255,255,255,.1); }
         .react-flow__controls-button:last-child { border-bottom: none; }
         .react-flow__minimap { border: 1px solid rgba(255,255,255,.14); border-radius: 8px; overflow: hidden; }
+        .react-flow { --xy-node-background-color-default: #27272a; --xy-node-border-default: 1px solid #52525b; --xy-node-boxshadow-selected-default: 0 0 0 2px #a1a1aa; --xy-edge-stroke-default: #71717a; --xy-edge-stroke-selected-default: #e4e4e7; --xy-handle-background-color-default: #a1a1aa; --xy-selection-background-color-default: rgba(255,255,255,0.06); --xy-selection-border-default: 1px dotted rgba(255,255,255,0.4); --xy-minimap-background-color-default: #18181b; --xy-background-pattern-dots-color-default: #3f3f46; }
         .react-flow__selection { background: rgba(245,245,245,.08); border: 1px solid rgba(245,245,245,.5); }
         .react-flow__attribution { background: transparent; color: rgba(255,255,255,.35); }
         .dx-tool-icon:hover { background: rgba(255,255,255,.08); }
@@ -1958,6 +1964,7 @@ function CanvasTabInner(): ReactNode {
         }}
         selectionOnDrag
         selectionMode={SelectionMode.Partial}
+        elevateEdgesOnSelect
         multiSelectionKeyCode="Shift"
         panOnDrag={[2]}
         panActivationKeyCode="Space"
@@ -2000,10 +2007,10 @@ function CanvasTabInner(): ReactNode {
         {flowWidth >= 340 ? (
           <MiniMap
             pannable zoomable
-            style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }}
-            maskColor="rgba(0,0,0,.75)"
-            nodeColor={node => node.type === 'group' ? '#454545' : node.type === 'media' ? '#6f6f6f' : '#5a5a5a'}
-            nodeStrokeColor={node => node.type === 'group' ? '#5c5c5c' : '#777777'}
+            style={{ width: 132, height: 88, borderRadius: 8, background: '#18181b' }}
+            maskColor="rgba(0,0,0,.65)"
+            nodeColor={node => node.type === 'group' ? '#52525b' : node.type === 'media' ? '#a1a1aa' : '#71717a'}
+            nodeStrokeColor={node => node.type === 'group' ? '#3f3f46' : '#52525b'}
           />
         ) : null}
       </ReactFlow>
@@ -2060,7 +2067,7 @@ function CanvasTabInner(): ReactNode {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         </button>
       {helpOpen ? (
-        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
+        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
           <div>左键空白拖动 = 框选</div>
           <div>中键 / 右键拖动 = 平移</div>
@@ -2073,7 +2080,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {shotListOpen ? (
-        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
           <div style={{ fontSize: 11, color: '#9b9b9b', padding: '2px 6px 6px' }}>镜头列表（shotIndex 序）</div>
           {orderedShots.length === 0 ? (
             <div style={{ fontSize: 11.5, color: '#777', padding: '2px 6px' }}>暂无入镜镜头：给媒体节点设 shotIndex。</div>
@@ -2095,7 +2102,7 @@ function CanvasTabInner(): ReactNode {
         {moreOpen ? (
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setMoreOpen(false)} />
-            <div className="dx-pop" style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+            <div className="dx-pop" style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); arrangeSemantic() }}>语义泳道布局</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); openCompare() }}>对比分支版本</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); void exportPng() }}>导出 PNG 分镜板</button>
@@ -2149,7 +2156,7 @@ function CanvasTabInner(): ReactNode {
         <button
           title="打开画布上下文面板"
           onClick={() => setAgentOpen(true)}
-          style={{ position: 'absolute', right: 14, bottom: 14, zIndex: 10, width: 44, height: 44, borderRadius: 9999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(18,18,18,.9)', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}
+          style={{ position: 'absolute', right: 14, bottom: 14, zIndex: 10, width: 44, height: 44, borderRadius: 9999, border: '1px solid rgba(255,255,255,.16)', background: '#3f3f46', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12z"/></svg>
         </button>
@@ -2164,7 +2171,7 @@ function CanvasTabInner(): ReactNode {
         </button>
       </div>
       {stripOpen ? (
-        <div style={{ position: 'absolute', bottom: 60, left: 12, right: 12, zIndex: 9, display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', padding: '8px 10px', borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.92)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.5)' }}>
+        <div style={{ position: 'absolute', bottom: 60, left: 12, right: 12, zIndex: 9, display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', padding: '8px 10px', borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', backdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.5)' }}>
           {orderedShots.length === 0 ? (
             <span style={{ fontSize: 11.5, color: '#9b9b9b', padding: '4px 6px' }}>粗剪条：给媒体节点设 shotIndex 即按序入镜（agent 可用 directorx_canvas_update 写入）。</span>
           ) : orderedShots.map(shot => {
@@ -2206,7 +2213,7 @@ function CanvasTabInner(): ReactNode {
         <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.4)' }}>⌘K 命令 · ⌘+/- 缩放 · Esc 清除</span>
       </div>
       {connectMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+        <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           <div style={{ fontSize: 11, color: '#919191', padding: '4px 10px' }}>拖线到空白：新建并连线</div>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
@@ -2215,7 +2222,7 @@ function CanvasTabInner(): ReactNode {
       ) : null}
       {paletteOpen ? (
         <div
-          style={{ position: 'fixed', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 9, width: 360, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 8 }}
+          style={{ position: 'fixed', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 9, width: 360, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 8 }}
           onClick={event => event.stopPropagation()}
         >
           <input
@@ -2276,7 +2283,7 @@ function CanvasTabInner(): ReactNode {
       ) : null}
       {compareGroup !== undefined ? (
         <div
-          style={{ position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', zIndex: 9, width: 'min(720px, 90vw)', maxHeight: '72vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 14 }}
+          style={{ position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', zIndex: 9, width: 'min(720px, 90vw)', maxHeight: '72vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 14 }}
           onClick={event => event.stopPropagation()}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2308,7 +2315,7 @@ function CanvasTabInner(): ReactNode {
       {quickAdd !== undefined ? (
         <div
           className="dx-pop"
-          style={{ position: 'fixed', left: quickAdd.x, top: quickAdd.y, zIndex: 8, display: 'flex', gap: 4, padding: 6, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}
+          style={{ position: 'fixed', left: quickAdd.x, top: quickAdd.y, zIndex: 8, display: 'flex', gap: 4, padding: 6, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}
           onClick={event => event.stopPropagation()}
         >
           {[
@@ -2329,7 +2336,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {nodeMenu !== undefined ? (
-        <div className="dx-pop" style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+        <div className="dx-pop" style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           {(() => {
             const target = nodesRef.current.find(node => node.id === nodeMenu.nodeId)
             const isMedia = target?.type === 'media'
@@ -2357,7 +2364,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {edgeMenu !== undefined ? (
-        <div className="dx-pop" style={{ position: 'fixed', left: edgeMenu.x, top: edgeMenu.y, zIndex: 8, minWidth: 200, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 8 }}
+        <div className="dx-pop" style={{ position: 'fixed', left: edgeMenu.x, top: edgeMenu.y, zIndex: 8, minWidth: 200, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 8 }}
           onClick={event => event.stopPropagation()}
         >
           <div style={{ fontSize: 11, color: '#919191', marginBottom: 6 }}>连线操作</div>
@@ -2376,7 +2383,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {alignMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: alignMenu.x, top: alignMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
+        <div style={{ position: 'fixed', left: alignMenu.x, top: alignMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
           onClick={event => event.stopPropagation()}
         >
           {[
@@ -2399,7 +2406,7 @@ function CanvasTabInner(): ReactNode {
       ) : null}
       {contextMenu !== undefined ? (
         <div
-          style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
+          style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
         >
           {[
             { label: '添加媒体', action: () => void openPicker() },
