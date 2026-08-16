@@ -66,7 +66,13 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const [error, setError] = useState<string | undefined>(undefined)
   const [matting, setMatting] = useState(false)
   const [matteStatus, setMatteStatus] = useState<string | undefined>(undefined)
-  const [matte, setMatte] = useState<{ url: string } | undefined>(undefined)
+  const [matte, setMatte] = useState<{ url: string; origUrl: string } | undefined>(undefined)
+  const [brushMode, setBrushMode] = useState<'restore' | 'erase'>('erase')
+  const [brushSize, setBrushSize] = useState(24)
+  const [showOriginal, setShowOriginal] = useState(false)
+  const matteCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const origImageRef = useRef<HTMLImageElement | null>(null)
+  const paintingRef = useRef(false)
   const [exportFormat, setExportFormat] = useState<'png' | 'jpg'>('png')
   const [exportQuality, setExportQuality] = useState<'low' | 'medium' | 'high' | 'max'>('high')
   const [exportOpen, setExportOpen] = useState(false)
@@ -139,7 +145,12 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
         pixels.data[index + 3] = maskData[index]
       }
       context.putImageData(pixels, 0, 0)
-      setMatte({ url: canvas.toDataURL('image/png') })
+      const matteUrl = canvas.toDataURL('image/png')
+      const orig = new Image()
+      orig.src = dataUrl
+      await orig.decode()
+      origImageRef.current = orig
+      setMatte({ url: matteUrl, origUrl: dataUrl })
       setMatteStatus(undefined)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
@@ -148,11 +159,70 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
     }
   }
 
+  const brushAt = (x: number, y: number) => {
+    const canvas = matteCanvasRef.current
+    const orig = origImageRef.current
+    if (canvas === null || orig === null) return
+    const context = canvas.getContext('2d')
+    if (context === null) return
+    const rect = canvas.getBoundingClientRect()
+    const sx = (x - rect.left) * (canvas.width / rect.width)
+    const sy = (y - rect.top) * (canvas.height / rect.height)
+    if (brushMode === 'erase') {
+      context.globalCompositeOperation = 'destination-out'
+      context.beginPath()
+      context.arc(sx, sy, brushSize, 0, Math.PI * 2)
+      context.fill()
+      context.globalCompositeOperation = 'source-over'
+    } else {
+      // 涂抹恢复：从原图取样画回（非破坏源，蒙版独立）。
+      context.drawImage(orig, sx - brushSize, sy - brushSize, brushSize * 2, brushSize * 2, sx - brushSize, sy - brushSize, brushSize * 2, brushSize * 2)
+    }
+  }
+
+  const moveBrushCursor = (event: React.PointerEvent) => {
+    const cursor = (event.currentTarget as HTMLElement).parentElement?.querySelector('.dx-brush-cursor') as HTMLElement | null
+    if (cursor === null) return
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    cursor.style.display = 'block'
+    cursor.style.left = `${event.clientX - rect.left}px`
+    cursor.style.top = `${event.clientY - rect.top}px`
+  }
+
+  const beginBrush = (event: React.PointerEvent) => {
+    event.preventDefault()
+    paintingRef.current = true
+    brushAt(event.clientX, event.clientY)
+    const move = (moveEvent: PointerEvent) => brushAt(moveEvent.clientX, moveEvent.clientY)
+    const up = () => {
+      paintingRef.current = false
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
+  // [ ] 调整笔刷大小（输入框焦点保护）。
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if (event.key === '[') setBrushSize(current => Math.max(4, current - 4))
+      if (event.key === ']') setBrushSize(current => Math.min(120, current + 4))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   const saveMatte = async () => {
     if (matte === undefined) return
-    const blob = await (await fetch(matte.url)).blob()
+    const canvas = matteCanvasRef.current
+    const url = canvas !== null ? canvas.toDataURL('image/png') : matte.url
+    const blob = await (await fetch(url)).blob()
     props.onExport(blob, 'image/png')
     setMatte(undefined)
+    setBrushMode('erase')
   }
 
   const qualityValue = exportQuality === 'low' ? 0.5 : exportQuality === 'medium' ? 0.7 : exportQuality === 'high' ? 0.92 : 1
@@ -264,13 +334,59 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
       ) : null}
       {matte !== undefined ? (
         <div style={overlay}>
-          <div style={overlayCard}>
-            <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f5f5f5' }}>抠图结果预览</div>
-            <img src={matte.url} alt="抠图结果" style={{ maxWidth: '100%', maxHeight: '52vh', borderRadius: 12, border: '1px solid rgba(255,255,255,.18)' }} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button style={exportBtn} onClick={() => void saveMatte()}>保存抠图</button>
-              <button style={toolChip} onClick={() => setMatte(undefined)}>关闭</button>
+          <div style={{ ...overlayCard, width: 'min(720px, 94%)', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>抠图结果 · 笔刷精修</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => setBrushMode('erase')}
+                  style={{ padding: '5px 10px', borderRadius: 999, border: brushMode === 'erase' ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: brushMode === 'erase' ? 'rgba(255,255,255,.14)' : 'transparent', color: '#f0f0f0', fontSize: 11.5, cursor: 'pointer' }}
+                >
+                  涂抹擦除
+                </button>
+                <button
+                  onClick={() => setBrushMode('restore')}
+                  style={{ padding: '5px 10px', borderRadius: 999, border: brushMode === 'restore' ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: brushMode === 'restore' ? 'rgba(255,255,255,.14)' : 'transparent', color: '#f0f0f0', fontSize: 11.5, cursor: 'pointer' }}
+                >
+                  涂抹恢复
+                </button>
+              </div>
             </div>
+            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,.16)', background: 'repeating-conic-gradient(#2a2a2a 0% 25%, #1d1d1d 0% 50%) 0 0 / 16px 16px' }}>
+              {showOriginal ? (
+                <img src={matte.origUrl} alt="原图" style={{ width: '100%', maxHeight: '46vh', objectFit: 'contain', display: 'block' }} />
+              ) : (
+                <canvas
+                  ref={matteCanvasRef}
+                  onPointerDown={beginBrush}
+                  onPointerMove={moveBrushCursor}
+                  onPointerLeave={event => {
+                    const cursor = (event.currentTarget as HTMLElement).parentElement?.querySelector('.dx-brush-cursor') as HTMLElement | null
+                    cursor?.style.setProperty('display', 'none')
+                  }}
+                  style={{ width: '100%', maxHeight: '46vh', objectFit: 'contain', display: 'block', touchAction: 'none', cursor: 'none' }}
+                />
+              )}
+              {!showOriginal ? (
+                <div style={{ position: 'absolute', left: 0, top: 0, width: brushSize * 2, height: brushSize * 2, borderRadius: 9999, border: '1px solid rgba(245,245,245,.8)', pointerEvents: 'none', transform: 'translate(-50%, -50%)', display: 'none' }} className="dx-brush-cursor" />
+              ) : null}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, color: '#9b9b9b' }}>笔刷 {brushSize}px（[ / ] 调整）</span>
+              <input type="range" min={4} max={120} value={brushSize} onChange={event => setBrushSize(Number(event.target.value))} style={{ flex: 1, minWidth: 120 }} />
+              <button
+                style={{ ...toolChip, ...(showOriginal ? { background: 'rgba(255,255,255,.18)' } : {}) }}
+                onPointerDown={() => setShowOriginal(true)}
+                onPointerUp={() => setShowOriginal(false)}
+                onPointerLeave={() => setShowOriginal(false)}
+                title="按住查看原图对比"
+              >
+                按住查看原图
+              </button>
+              <button style={exportBtn} onClick={() => void saveMatte()}>保存抠图</button>
+              <button style={toolChip} onClick={() => { setMatte(undefined); setBrushMode('erase') }}>关闭</button>
+            </div>
+            <div style={{ fontSize: 10.5, color: '#666' }}>左键涂抹 · 擦除=去背景 · 恢复=取回原图 · 棋盘格即透明区</div>
           </div>
         </div>
       ) : null}
