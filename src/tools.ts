@@ -742,7 +742,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     parameters: {
       video: { type: 'string', required: true, description: 'Absolute path of the local video.' },
       strength: { type: 'number', description: 'End scale delta (default 0.25).' },
-      direction: { type: 'string', enum: ['in', 'out', 'left', 'right'], description: 'in = push-in (default); out = pull-back; left/right = pan.' },
+      direction: { type: 'string', enum: ['in', 'out', 'left', 'right', 'tl', 'tr', 'bl', 'br'], description: 'in = push-in (default); out = pull-back; left/right/tl/tr/bl/br = pan（对角线）。' },
     },
     output: objectOutput(),
     timeoutMs: 900_000,

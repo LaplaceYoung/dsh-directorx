@@ -118,6 +118,21 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
   }
 })
 
+test('videoZoom diagonal pans produce valid output', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-diag-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    for (const direction of ['tl', 'br']) {
+      const out = await videoZoom({ video: clip, outputDir: dir, direction, strength: 0.3 })
+      assert.ok(existsSync(out.path), `${direction} pan renders`)
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess renders styled text overlays via drawtext', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-text-'))
   try {

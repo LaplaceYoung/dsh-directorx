@@ -382,8 +382,8 @@ export interface VideoZoomInput {
   outputDir: string
   /** Zoom strength: end scale = 1 + strength (e.g. 0.3 -> 1.3x). */
   strength?: number
-  /** Pan direction: 'in' (push-in), 'out' (pull-back), 'left', 'right'. */
-  direction?: 'in' | 'out' | 'left' | 'right'
+  /** Pan direction: 'in' (push-in), 'out' (pull-back), 'left'/'right'/'tl'/'tr'/'bl'/'br'（对角线平移）. */
+  direction?: 'in' | 'out' | 'left' | 'right' | 'tl' | 'tr' | 'bl' | 'br'
 }
 
 /** Ken Burns push/pull via animated crop (zoompan is absent from this build). */
@@ -394,11 +394,25 @@ export async function videoZoom(input: VideoZoomInput): Promise<VideoOutput> {
   const dur = probeMedia(input.video).durationSec || 3
   // Crop a shrinking window (push-in) or a growing one (pull-back), then
   // scale back to the source size. Pan directions shift the crop origin.
-  const sizeExpr = direction === 'in'
-    ? `iw-iw*${strength}*min(t/${dur}\\,1):ih-ih*${strength}*min(t/${dur}\\,1)`
-    : `iw/(1+${strength})+iw*${strength}*min(t/${dur}\\,1):ih/(1+${strength})+ih*${strength}*min(t/${dur}\\,1)`
-  const xExpr = direction === 'left' ? '(iw-ow)*min(t/' + dur + '\\,1)' : direction === 'right' ? '(iw-ow)*(1-min(t/' + dur + '\\,1))' : '(iw-ow)/2'
-  const yExpr = '(ih-oh)/2'
+  const isPan = direction !== 'in' && direction !== 'out'
+  // 缩放（in/out）：窗口随时间收放、原点居中；平移（八向）：窗口恒定
+  // （本构建的 crop 只允许窗口恒定时 x/y 随时间变化）、原点随时间线性移动。
+  const sizeExpr = isPan
+    ? `iw/(1+${strength}):ih/(1+${strength})`
+    : direction === 'in'
+      ? `iw-iw*${strength}*min(t/${dur}\\,1):ih-ih*${strength}*min(t/${dur}\\,1)`
+      : `iw/(1+${strength})+iw*${strength}*min(t/${dur}\\,1):ih/(1+${strength})+ih*${strength}*min(t/${dur}\\,1)`
+  // 平移方向：水平/垂直/对角线（crop 窗口原点随时间线性移动）。
+  const xExpr = direction === 'left' || direction === 'tl' || direction === 'bl'
+    ? '(iw-ow)*min(t/' + dur + '\\,1)'
+    : direction === 'right' || direction === 'tr' || direction === 'br'
+      ? '(iw-ow)*(1-min(t/' + dur + '\\,1))'
+      : '(iw-ow)/2'
+  const yExpr = direction === 'tl' || direction === 'tr'
+    ? '(ih-oh)*min(t/' + dur + '\\,1)'
+    : direction === 'bl' || direction === 'br'
+      ? '(ih-oh)*(1-min(t/' + dur + '\\,1))'
+      : '(ih-oh)/2'
   runFfmpeg([
     '-i', input.video,
     '-vf', `crop=${sizeExpr}:x=${xExpr}:y=${yExpr},scale=iw:ih`,
