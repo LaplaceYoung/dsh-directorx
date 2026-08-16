@@ -838,7 +838,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_proposal_next',
-    description: '审批门循环：返回队列中最旧的一条待批准提案（或 null）。配合 directorx_proposal_update 逐条走 提案→批准→执行→完成 的人机审批环。',
+    description: '审批门循环：返回队列中最旧的一条待执行提案——优先返回已批准且未回填 taskId 的（画布 UI 批准后由 DSH 承接执行），否则返回最旧待批准提案；配合 directorx_proposal_update 走 提案→批准→执行→完成 的人机审批环。',
     parameters: {},
     output: objectOutput(),
     timeoutMs: 30_000,

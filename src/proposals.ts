@@ -97,6 +97,11 @@ export class ProposalStore {
   /** 审批队列：取最旧的一条待批准提案（审批门循环的下一步）。 */
   async next(): Promise<GenerationProposal | null> {
     const ledger = await this.read()
+    // 批准执行环：已批准且未回填 taskId 的提案优先入执行队列（画布 UI 批准后 DSH 承接执行）。
+    const approved = ledger.proposals
+      .filter(proposal => proposal.status === 'approved' && (proposal.taskId ?? '') === '')
+      .sort((a, b) => a.at - b.at)
+    if (approved.length > 0) return approved[0]
     const proposed = ledger.proposals
       .filter(proposal => proposal.status === 'proposed')
       .sort((a, b) => a.at - b.at)

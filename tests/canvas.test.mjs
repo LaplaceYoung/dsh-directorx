@@ -421,8 +421,11 @@ test('proposal next returns the oldest pending item for the approval loop', asyn
     const next = await store.next()
     assert.equal(next.prompt, '第一张', 'oldest first')
     await store.update(next.id, 'approved')
+    const afterApproval = await store.next()
+    assert.equal(afterApproval.prompt, '第一张', 'approved executes first (approval-execution loop)')
+    await store.update(next.id, 'done', { taskId: 'task-1' })
     const after = await store.next()
-    assert.equal(after.prompt, '第二张', 'queue advances')
+    assert.equal(after.prompt, '第二张', 'queue advances once executed')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
