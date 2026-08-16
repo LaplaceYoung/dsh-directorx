@@ -466,6 +466,33 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_style',
+    description: 'Style / camera-language injector grounded in the bundled film knowledge corpus. Give a style name or craft need (e.g. "赛博朋克", "黑色电影", "推镜头 霓虹光", "韦斯·安德森") and get the matching craft article condensed for prompt injection — append it to generation prompts to lock the look. Never fabricates: returns real corpus text.',
+    parameters: {
+      style: { type: 'string', required: true, description: 'Style name or craft need (Chinese or English).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      const style = String(args.style ?? '').trim()
+      if (style === '') throw new Error('style is required')
+      const hits = await corpus.search(style, 3)
+      if (hits.length === 0) {
+        return { style, found: false, hint: '未找到匹配的工艺文章；换一个风格/镜头语言关键词，或用 directorx_knowledge_search 直接检索。' }
+      }
+      const hit = hits[0]
+      const article = await corpus.readArticle(hit.id)
+      return {
+        style,
+        found: true,
+        article: { id: article.article.id, title: article.article.title },
+        guidance: article.content.slice(0, 3500),
+        usage: '把 guidance 的关键词/句式并入生成提示词；可继续 directorx_knowledge_read 读全文。',
+      }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_probe_media',
     description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',
     parameters: {
@@ -527,7 +554,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
       '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
-      '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools.',
+      '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
       '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',
       '- Multi-shot projects should be orchestrated with the `workflow` tool and the `directorx-workflow` skill (script/storyboard → parallel prompt crafting → parallel generation → QA → assembly); do not generate shots serially.',

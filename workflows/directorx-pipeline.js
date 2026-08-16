@@ -85,6 +85,7 @@ const prompts = await pipeline(shots, (prev, shot) => agent(
     `全片锚点：${JSON.stringify(script.anchors ?? {})}`,
     '要求：',
     '- 用 directorx_knowledge_search 查该题材/模型的提示词规格，引用文章 id；',
+    '- 用 directorx_style 注入题材风格与镜头语言（知识库实文，不臆造）；',
     '- 提示词正面、具体、可生成：动作在前，再写机位、环境、风格、光线；',
     '- 与该镜头的连续性要求保持一致，不重复描述锚点之外的新设定；',
     '- 附上 negative（负面词）与建议尺寸。',
@@ -143,10 +144,14 @@ const qa = await agent(
 phase('组装方案')
 const assembly = await agent(
   [
-    '你是后期组装师。基于分镜顺序与质检结论给出组装方案。先用 directorx_canvas_get 读画布确认镜头清单，并用 directorx_canvas_update 把质检结论（label 或注释）反映到对应节点。组装方案要求：',
+    '你是后期组装师。基于分镜顺序与质检结论给出组装方案，并直接执行组装。先用 directorx_canvas_get 读画布确认镜头清单，并用 directorx_canvas_update 把质检结论（label 或注释）反映到对应节点。组装要求：',
     JSON.stringify({ shots, outputs, qa }),
-    '输出：镜头顺序、转场/节奏建议、需要的音频（旁白/音效，用 directorx_generate_audio）、',
-    '以及在 WebUI 右侧编辑面板中二次剪辑的步骤（分割、重排、导出），最终交付文件清单。',
+    '输出并执行：',
+    '1. 镜头顺序与转场方案（transition/cut 与淡入淡出时长）；',
+    '2. 若 outputs 里有 2 个以上本地视频文件：用 directorx_video_process 统一规格（scale/fps），再用 directorx_video_concat 按顺序拼接（xfade），记录返回的 path；',
+    '3. 需要旁白/音效用 directorx_generate_audio；',
+    '4. 成片产物 path 用 directorx_canvas_update 写回画布节点（patch { path } 或 label 标记）；',
+    '5. 交付文件清单（路径原样引用，不猜测）。',
   ].join('\n'),
   { label: '组装方案', phase: '组装方案' },
 )
