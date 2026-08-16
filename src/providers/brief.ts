@@ -18,6 +18,9 @@ export interface BriefInput {
 export interface BriefOutput {
   /** 建议的下一步动作序列（按顺序调用）。 */
   nextActions: string[]
+  /** 标题变体（钩子公式）与可直接用于 generate_image 的封面提示词。 */
+  titles: string[]
+  coverPrompt: string | null
   brief: {
     type: string
     typeConfidence: 'high' | 'medium' | 'low'
@@ -116,6 +119,17 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
   if (type === '混剪/卡点') suggestedFlow = 'directorx-montage（素材盘点 → 节拍检测 → 卡点裁剪 → 拼接 → 混音）'
   if (type === '广告/宣传') suggestedFlow = 'preflight 四道闸门 → propose 占位 → 批准后按 pipeline 生成（成本护栏优先）'
 
+  // 标题变体：钩子公式库（数字悬念/反常识/利益点），运营方法论规则 70-71。
+  const topic = request.replace(/[帮我做要搞|，。！？\s]/g, '').slice(0, 24)
+  const titles = topic === ''
+    ? []
+    : [
+        `3 个关于「${topic}」的真相，第 2 个没人告诉你`,
+        `为什么「${topic}」总被误解？一次说清`,
+        `「${topic}」的正确打开方式（${targetSeconds}s 看完）`,
+      ]
+  const coverPrompt = topic === '' ? null : `短视频封面：主题「${topic}」大字标题居中，${aspectRatio} 竖幅构图，风格 ${styleHints.length > 0 ? styleHints.join('、') : '干净高对比'}，标题文字区域留白，主体清晰，无杂乱背景`
+
   const nextActions: string[] = []
   if (materials.length > 0) {
     nextActions.push('先 directorx_video_analyze / directorx_probe_media 理解素材（或画布盘点 directorx_canvas_get）')
@@ -129,6 +143,8 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
 
   return {
     nextActions,
+    titles,
+    coverPrompt,
     brief: {
       type,
       typeConfidence: matchedType !== undefined ? 'high' : 'low',

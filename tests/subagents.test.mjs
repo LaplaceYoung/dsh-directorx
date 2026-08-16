@@ -84,6 +84,9 @@ test('brief infers type/platform/duration and asks one-shot clarifications', asy
   assert.equal(out.brief.materials[0].kind, 'video')
   assert.ok(out.questions.length >= 3, 'clarification questions generated')
   assert.ok(out.suggestedFlow.includes('preflight'), 'ad flow suggests cost gates')
+  assert.ok(out.titles.length === 3, 'three hook-formula title variants')
+  assert.ok(out.coverPrompt !== null && out.coverPrompt.includes('封面'), 'cover prompt generated')
+  assert.ok(out.nextActions.length >= 3, 'nextActions sequence present')
 })
 
 test('planStoryboard allocates durations and checks continuity anchors', () => {
