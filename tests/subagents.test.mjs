@@ -91,6 +91,18 @@ test('brief infers type/platform/duration and asks one-shot clarifications', asy
   assert.ok(out.nextActions.length >= 3, 'nextActions sequence present')
 })
 
+test('planStoryboard keeps industrial shot fields through the plan', () => {
+  const plan = planStoryboard({
+    shots: [
+      { id: 's1', description: '主角转身', seconds: 5, cameraShot: 'MCU', angle: 'eye-level', movement: 'slow dolly in', moodTags: ['紧张'], actionBeats: ['转身', '停顿'], dialogue: '你来了' },
+    ],
+    targetSeconds: 5,
+  })
+  assert.equal(plan.shots[0].cameraShot, 'MCU')
+  assert.equal(plan.shots[0].movement, 'slow dolly in')
+  assert.deepEqual(plan.shots[0].actionBeats, ['转身', '停顿'])
+})
+
 test('planStoryboard allocates durations and checks continuity anchors', () => {
   const plan = planStoryboard({
     shots: [

@@ -88,7 +88,12 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
         const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
-        const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
+        const style = await new ProjectStyleStore(settings.outputDir).read()
+        const styleNote = style !== null
+          ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
+          : ''
+        const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
+        const prompt = blocks.length > 0 ? `${args.prompt}\n\n${blocks.join('；')}` : args.prompt
         return runImage(toolContext(settings, settings.image, signal), prompt, {
           size: args.size,
           quality: args.quality,
@@ -120,7 +125,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
         const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
-        const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
+        const style = await new ProjectStyleStore(settings.outputDir).read()
+        const styleNote = style !== null
+          ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
+          : ''
+        const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
+        const prompt = blocks.length > 0 ? `${args.prompt}\n\n${blocks.join('；')}` : args.prompt
+        const negative = [typeof args.negative_prompt === 'string' ? args.negative_prompt : '', style?.negativeBaseline ?? ''].filter(part => part !== '').join(', ')
         return runVideo(toolContext(settings, settings.video, signal), prompt, {
           seconds: args.seconds,
           size: args.size,
@@ -129,7 +140,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           firstFramePath: args.first_frame_path,
           lastFramePath: args.last_frame_path,
           referenceImagePaths: refs,
-          negativePrompt: typeof args.negative_prompt === 'string' ? args.negative_prompt : undefined,
+          negativePrompt: negative !== '' ? negative : undefined,
         })
       },
     })))

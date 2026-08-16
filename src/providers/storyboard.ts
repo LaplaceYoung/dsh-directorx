@@ -6,7 +6,18 @@
  */
 
 export interface ShotPlanInput {
-  shots: Array<{ id: string; description: string; seconds?: number }>
+  shots: Array<{
+    id: string
+    description: string
+    seconds?: number
+    /** 工业分镜字段（透传并保留在输出，供提示词工坊使用）。 */
+    cameraShot?: string
+    angle?: string
+    movement?: string
+    moodTags?: string[]
+    actionBeats?: string[]
+    dialogue?: string
+  }>
   /** Whole-film target (e.g. 30). Allocation scales when not all shots specify seconds. */
   targetSeconds?: number
   /** Provider clamp (e.g. seedance 10s). Defaults per kind. */
@@ -17,7 +28,17 @@ export interface ShotPlanInput {
 }
 
 export interface ShotPlanOutput {
-  shots: Array<{ id: string; description: string; seconds: number }>
+  shots: Array<{
+    id: string
+    description: string
+    seconds: number
+    cameraShot?: string
+    angle?: string
+    movement?: string
+    moodTags?: string[]
+    actionBeats?: string[]
+    dialogue?: string
+  }>
   totalSeconds: number
   issues: string[]
   notes: string[]
@@ -34,7 +55,17 @@ export function planStoryboard(input: ShotPlanInput): ShotPlanOutput {
       issues.push(`镜头 ${shot.id ?? index + 1} 时长 ${seconds}s 超出模型区间 [${minShot},${maxShot}]，已钳制`)
       seconds = Math.min(maxShot, Math.max(minShot, seconds))
     }
-    return { id: shot.id ?? `shot-${index + 1}`, description: shot.description, seconds }
+    return {
+      id: shot.id ?? `shot-${index + 1}`,
+      description: shot.description,
+      seconds,
+      ...(shot.cameraShot !== undefined ? { cameraShot: shot.cameraShot } : {}),
+      ...(shot.angle !== undefined ? { angle: shot.angle } : {}),
+      ...(shot.movement !== undefined ? { movement: shot.movement } : {}),
+      ...(shot.moodTags !== undefined ? { moodTags: shot.moodTags } : {}),
+      ...(shot.actionBeats !== undefined ? { actionBeats: shot.actionBeats } : {}),
+      ...(shot.dialogue !== undefined ? { dialogue: shot.dialogue } : {}),
+    }
   })
   // Allocate unspecified durations: fill to target or the max-shot default.
   const unspecified = shots.filter(shot => shot.seconds === 0)
