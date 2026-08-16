@@ -1,0 +1,9 @@
+{
+  "name": "golden-timeline",
+  "scenes": [
+    { "source": "__CLIP__", "trim": [0, 2], "speed": 2 },
+    { "source": "__CLIP__", "trim": [0.5, 2.5], "transition": "cut" }
+  ],
+  "fadeIn": 0.3,
+  "fadeOut": 0.3
+}

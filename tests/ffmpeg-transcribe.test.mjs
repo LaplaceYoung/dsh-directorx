@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, clipRank, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -112,6 +112,39 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
     const audioOnly = await videoProcess({ source: clip, outputDir: dir, extractAudio: true })
     assert.ok(audioOnly.path.endsWith('.m4a'), 'audio extracted as m4a')
     assert.ok(audioOnly.probe.streams.every(stream => stream.type === 'audio'), 'audio-only stream')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('timeline golden vector renders with pinned structural invariants', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-golden-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=4', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const fixture = JSON.parse(await readFile(join(import.meta.dirname, 'fixtures', 'timeline-golden.json'), 'utf8'))
+    const out = await renderTimeline({
+      scenes: fixture.scenes.map((scene) => ({ ...scene, source: clip })),
+      fadeIn: fixture.fadeIn,
+      fadeOut: fixture.fadeOut,
+    }, dir)
+    assert.ok(existsSync(out.path), 'golden render exists')
+    assert.ok(out.probe.durationSec > 2.5 && out.probe.durationSec < 3.5, `2s@2x + 2s = ~3s, got ${out.probe.durationSec}`)
+    assert.ok(out.steps.some(step => step.includes('speed 2x')), 'speed step')
+    assert.ok(out.steps.some(step => step.includes('fade in/out')), 'fade step')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('timeline errors carry the stable machine-readable code', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-err-'))
+  try {
+    await assert.rejects(() => renderTimeline({ scenes: [{ source: '/nonexistent.mp4' }] }, dir), (error) => error instanceof DirectiveError && error.code === 'notFound')
+    const real = join(dir, 'real.mp4')
+    await writeFile(real, 'stub')
+    await assert.rejects(() => renderTimeline({ scenes: [{ source: real, trim: [5, 2] }] }, dir), (error) => error instanceof DirectiveError && error.code === 'outOfRange')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

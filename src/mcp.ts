@@ -39,20 +39,20 @@ async function readBody(request: IncomingMessage): Promise<JsonRpcRequest | unde
   }
 }
 
-const MCP_TOOLS: Array<{ name: string; description: string; inputSchema: Record<string, unknown> }> = [
-  { name: 'directorx_canvas_get', description: 'Read the full canvas document (nodes + edges).', inputSchema: { type: 'object', properties: {} } },
-  { name: 'directorx_canvas_add', description: 'Add a canvas node (image/video/text/group).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, label: { type: 'string' }, path: { type: 'string' }, x: { type: 'number' }, y: { type: 'number' }, parent: { type: 'string' } } } },
-  { name: 'directorx_canvas_batch', description: 'Batch add nodes and edges in one write.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
-  { name: 'directorx_canvas_replace', description: 'Replace the entire canvas document.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
-  { name: 'directorx_canvas_arrange', description: 'Auto-layout the canvas (grid/row).', inputSchema: { type: 'object', properties: { layout: { type: 'string' } } } },
-  { name: 'directorx_propose', description: 'Queue a generation proposal placeholder (no API spend).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, prompt: { type: 'string' }, count: { type: 'number' }, duration: { type: 'number' } } } },
-  { name: 'directorx_proposals', description: 'List generation proposals.', inputSchema: { type: 'object', properties: { status: { type: 'string' } } } },
-  { name: 'directorx_preflight', description: 'Four-gate pre-generation audit.', inputSchema: { type: 'object', properties: { prompt: { type: 'string' }, type: { type: 'string' } } } },
-  { name: 'directorx_style', description: 'Grounded style/camera-language injection from the corpus.', inputSchema: { type: 'object', properties: { style: { type: 'string' } } } },
-  { name: 'directorx_video_process', description: 'Deterministic trim/speed/scale/volume/mute/fps via ffmpeg.', inputSchema: { type: 'object', properties: { source: { type: 'string' }, start: { type: 'number' }, end: { type: 'number' }, speed: { type: 'number' }, scale: { type: 'string' }, volume: { type: 'number' }, mute: { type: 'boolean' }, fps: { type: 'number' } } } },
-  { name: 'directorx_video_concat', description: 'Concatenate clips (cut or xfade).', inputSchema: { type: 'object', properties: { files: { type: 'array' }, transition: { type: 'string' }, fadeSec: { type: 'number' }, scale: { type: 'string' } } } },
-  { name: 'directorx_audio_mix', description: 'Mix tracks onto a video with ducking.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, tracks: { type: 'array' }, duckUnder: { type: 'number' } } } },
-  { name: 'directorx_video_subtitle', description: 'Mux or burn subtitles.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, srt: { type: 'string' }, mode: { type: 'string' } } } },
+const MCP_TOOLS: Array<{ name: string; description: string; inputSchema: Record<string, unknown>; readOnly: boolean }> = [
+  { name: 'directorx_canvas_get', description: 'Read the full canvas document (nodes + edges).', inputSchema: { type: 'object', properties: {} }, readOnly: true },
+  { name: 'directorx_canvas_add', readOnly: false, description: 'Add a canvas node (image/video/text/group).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, label: { type: 'string' }, path: { type: 'string' }, x: { type: 'number' }, y: { type: 'number' }, parent: { type: 'string' } } } },
+  { name: 'directorx_canvas_batch', readOnly: false, description: 'Batch add nodes and edges in one write.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
+  { name: 'directorx_canvas_replace', readOnly: false, description: 'Replace the entire canvas document.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
+  { name: 'directorx_canvas_arrange', readOnly: false, description: 'Auto-layout the canvas (grid/row).', inputSchema: { type: 'object', properties: { layout: { type: 'string' } } } },
+  { name: 'directorx_propose', readOnly: false, description: 'Queue a generation proposal placeholder (no API spend).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, prompt: { type: 'string' }, count: { type: 'number' }, duration: { type: 'number' } } } },
+  { name: 'directorx_proposals', description: 'List generation proposals.', inputSchema: { type: 'object', properties: { status: { type: 'string' } } }, readOnly: true },
+  { name: 'directorx_preflight', description: 'Four-gate pre-generation audit.', inputSchema: { type: 'object', properties: { prompt: { type: 'string' }, type: { type: 'string' } } }, readOnly: true },
+  { name: 'directorx_style', description: 'Grounded style/camera-language injection from the corpus.', inputSchema: { type: 'object', properties: { style: { type: 'string' } } }, readOnly: true },
+  { name: 'directorx_video_process', readOnly: false, description: 'Deterministic trim/speed/scale/volume/mute/fps via ffmpeg.', inputSchema: { type: 'object', properties: { source: { type: 'string' }, start: { type: 'number' }, end: { type: 'number' }, speed: { type: 'number' }, scale: { type: 'string' }, volume: { type: 'number' }, mute: { type: 'boolean' }, fps: { type: 'number' } } } },
+  { name: 'directorx_video_concat', readOnly: false, description: 'Concatenate clips (cut or xfade).', inputSchema: { type: 'object', properties: { files: { type: 'array' }, transition: { type: 'string' }, fadeSec: { type: 'number' }, scale: { type: 'string' } } } },
+  { name: 'directorx_audio_mix', readOnly: false, description: 'Mix tracks onto a video with ducking.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, tracks: { type: 'array' }, duckUnder: { type: 'number' } } } },
+  { name: 'directorx_video_subtitle', readOnly: false, description: 'Mux or burn subtitles.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, srt: { type: 'string' }, mode: { type: 'string' } } } },
 ]
 
 export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSettings): () => void {

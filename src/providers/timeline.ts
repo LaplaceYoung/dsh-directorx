@@ -32,6 +32,14 @@ export interface TimelineScene {
   transition?: 'fade' | 'cut'
 }
 
+/** 机器可读错误码契约：timeline 层的失败都带稳定 code。 */
+export class DirectiveError extends Error {
+  constructor(public readonly code: 'notFound' | 'overlap' | 'invalidArg' | 'locked' | 'parse' | 'outOfRange', message: string) {
+    super(message)
+    this.name = 'DirectiveError'
+  }
+}
+
 export interface TimelineSpec {
   scenes: TimelineScene[]
   subtitle?: string
@@ -49,20 +57,20 @@ export interface TimelineOutput {
 }
 
 export async function renderTimeline(spec: TimelineSpec, outputDir: string): Promise<TimelineOutput> {
-  if (spec.scenes.length === 0) throw new Error('timeline needs at least one scene')
+  if (spec.scenes.length === 0) throw new DirectiveError('invalidArg', 'timeline needs at least one scene')
   // Input guardrails: fail fast with actionable messages before any ffmpeg work.
   for (const [index, scene] of spec.scenes.entries()) {
     if (scene.source === '' || !existsSync(scene.source)) {
-      throw new Error(`timeline scene ${index + 1}: source not found (${scene.source || '<empty>'})`)
+      throw new DirectiveError('notFound', `timeline scene ${index + 1}: source not found (${scene.source || '<empty>'})`)
     }
     if (scene.trim !== undefined) {
       const [start, end] = scene.trim
       if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end <= start) {
-        throw new Error(`timeline scene ${index + 1}: trim window [${start},${end}] invalid (0 <= start < end)`)
+        throw new DirectiveError('outOfRange', `timeline scene ${index + 1}: trim window [${start},${end}] invalid (0 <= start < end)`)
       }
     }
     if (scene.speed !== undefined && (scene.speed < 0.5 || scene.speed > 8)) {
-      throw new Error(`timeline scene ${index + 1}: speed ${scene.speed}x out of range [0.5, 8]`)
+      throw new DirectiveError('outOfRange', `timeline scene ${index + 1}: speed ${scene.speed}x out of range [0.5, 8]`)
     }
   }
   const steps: string[] = []
@@ -320,7 +328,7 @@ export async function subtitleCut(input: SubtitleCutInput): Promise<SubtitleCutO
   if (input.include !== undefined && input.include !== '') {
     cues = cues.filter(cue => cue.text.includes(input.include ?? ''))
   }
-  if (cues.length === 0) throw new Error('srt 中没有匹配的字幕条目')
+  if (cues.length === 0) throw new DirectiveError('parse', 'srt 中没有匹配的字幕条目')
   // Windows with padding, merged when overlapping.
   let windows = cues.map(cue => ({ start: Math.max(0, cue.start - pad), end: cue.end + pad }))
   if (input.mergeOverlap !== false) {
@@ -398,7 +406,7 @@ export async function smartCut(input: SmartCutInput): Promise<SmartCutOutput> {
     windows.push({ start, end })
     matched.push({ script: sentence, cue: best, start, end })
   }
-  if (windows.length === 0) throw new Error('脚本与字幕没有可匹配的条目（换更接近原话的脚本，或先 transcribe 得到字幕）')
+  if (windows.length === 0) throw new DirectiveError('parse', '脚本与字幕没有可匹配的条目（换更接近原话的脚本，或先 transcribe 得到字幕）')
   const rendered = await renderTimeline({
     scenes: windows.map(window => ({ source: input.video, trim: [window.start, window.end], transition: 'cut' })),
   }, input.outputDir)
