@@ -86,11 +86,11 @@ const META: Record<string, ToolMeta> = {
 }
 
 const card: CSSProperties = {
-  border: '1px solid rgba(128, 140, 160, .25)',
+  border: '1px solid var(--dsw-alias-border-l1)',
   borderRadius: 10,
   padding: 12,
   marginBottom: 10,
-  background: 'rgba(255,255,255,.02)',
+  background: 'var(--dsw-alias-bg-layer-1)',
 }
 
 const head: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }
@@ -98,9 +98,9 @@ const status: CSSProperties = { fontSize: 12, opacity: .65, whiteSpace: 'nowrap'
 const summary: CSSProperties = { fontSize: 12.5, opacity: .85, marginTop: 6, lineHeight: 1.5, wordBreak: 'break-word' }
 const metaLine: CSSProperties = { fontSize: 11.5, opacity: .55, marginTop: 4, wordBreak: 'break-all' }
 const mediaBox: CSSProperties = { marginTop: 10 }
-const errorText: CSSProperties = { fontSize: 12.5, color: '#ff9b8f', marginTop: 6, wordBreak: 'break-word' }
+const errorText: CSSProperties = { fontSize: 12.5, color: 'var(--dsw-alias-state-error-primary, #ff9b8f)', marginTop: 6, wordBreak: 'break-word' }
 
-const IMG: CSSProperties = { display: 'block', maxWidth: '100%', maxHeight: 280, borderRadius: 8, border: '1px solid rgba(128,140,160,.25)' }
+const IMG: CSSProperties = { display: 'block', maxWidth: '100%', maxHeight: 280, borderRadius: 8, border: '1px solid var(--dsw-alias-border-l1)' }
 const VIDEO: CSSProperties = { display: 'block', width: '100%', maxWidth: 480, maxHeight: 300, borderRadius: 8, background: '#000' }
 const AUDIO: CSSProperties = { display: 'block', width: '100%', maxWidth: 480, marginTop: 4 }
 const LINK: CSSProperties = { fontSize: 12, opacity: .8, wordBreak: 'break-all' }
@@ -185,7 +185,7 @@ function MediaPreview({ file, fallback }: { file: MediaFile; fallback: MediaKind
 const kvRow: CSSProperties = { display: 'grid', gridTemplateColumns: '92px 1fr', gap: '2px 10px', fontSize: 12, marginTop: 6, alignItems: 'baseline' }
 const kvLabel: CSSProperties = { opacity: .55 }
 const thumbGrid: CSSProperties = { display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }
-const thumb: CSSProperties = { width: 132, height: 74, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(128,140,160,.3)', display: 'block' }
+const thumb: CSSProperties = { width: 132, height: 74, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l1)', display: 'block' }
 const itemRow: CSSProperties = { fontSize: 12, marginBottom: 6, wordBreak: 'break-all', opacity: .88 }
 
 function fmtBytesLocal(bytes: number | undefined): string {
@@ -383,7 +383,7 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
           )}
           {editableKind !== null && editablePath !== null ? (
             <button
-              style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)', background: 'rgba(80,130,255,.16)', color: 'inherit', fontSize: 12.5, cursor: 'pointer' }}
+              style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid var(--dsw-alias-brand-primary)', background: 'transparent', color: 'var(--dsw-alias-label-primary)', fontSize: 12.5, cursor: 'pointer' }}
               onClick={() => openEditor(editableKind, editablePath)}
             >
               编辑（打开右侧面板）
