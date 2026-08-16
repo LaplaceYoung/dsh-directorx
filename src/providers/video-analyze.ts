@@ -134,6 +134,8 @@ export interface QaInput {
     hasAudio?: boolean
     minShots?: number
     maxShots?: number
+    /** 节奏密度：多镜头成片时，每镜 ≤ 8s（pattern interrupt 规则）。 */
+    rhythm?: boolean
   }
 }
 
@@ -175,6 +177,11 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
     const minOk = input.expect.minShots === undefined || count >= input.expect.minShots
     const maxOk = input.expect.maxShots === undefined || count <= input.expect.maxShots
     checks.push({ name: '镜头数', pass: minOk && maxOk, detail: `${count} 镜 / 期望 [${input.expect.minShots ?? '-'}, ${input.expect.maxShots ?? '-'}]` })
+  }
+  if (input.expect?.rhythm === true && analysis.shots.length > 1) {
+    const longest = Math.max(...analysis.shots.map(shot => shot.durationSec))
+    const over = analysis.shots.filter(shot => shot.durationSec > 8).length
+    checks.push({ name: '节奏密度', pass: over === 0, detail: `最长镜 ${longest.toFixed(1)}s（${analysis.shots.length} 镜）${over > 0 ? `，${over} 镜超 8s 无变化` : ''}` })
   }
   if (analysis.audioLoudness !== undefined && analysis.audioLoudness.peakLu > -60) {
     checks.push({ name: '响度', pass: true, detail: `均值 ${analysis.audioLoudness.meanLu} LU，峰值 ${analysis.audioLoudness.peakLu} LU` })

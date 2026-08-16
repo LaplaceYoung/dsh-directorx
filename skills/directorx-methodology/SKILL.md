@@ -57,3 +57,25 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 - 写脚本/分镜/剪辑决策前，把对应规则编号写进计划理由；
 - 质检结论引用规则编号（如「中段信息密度低（规则 3）」）；
 - 新调研发现按「规则 + 来源」追加本节。
+
+## 增补细则（2026-08 全量报告回收）
+
+14. **Sora 镜头解剖写法**：容器与内容分离（时长/分辨率/角色是参数不是散文）；
+    每镜 = 1 机位 + 1 运镜 + 1 主体动作（动作写节拍计数：「走四步到窗边，
+    停顿，最后一秒拉开窗帘」）；跨镜复用相同描述短语 + 固定 3–5 个颜色锚点；
+    精修一次只改一个变量，反复翻车就做减法。
+15. **Veo 景别/运镜词汇表**（可直接进提示词）：eye-level/low/high/bird's-eye/
+    worm's-eye/dutch/close-up/ECU/medium/full/wide/OTS/POV ×
+    static/pan/tilt/tracking；负面提示用描述（"wall, frame"）不用祈使句。
+16. **角色参考图标准**（Runway 官方）：自然均匀光 + 中性表情 + 中等画质
+    （「空白画布」原则）；一张角色一张用途（角色/环境/风格分别控制）；
+    Sketch 参考可控制构图与视线。`directorx_character_register` 的
+    refPath 应遵守本标准。
+17. **卡点 9 步工作法**（Moozix）：按歌曲结构分配镜头（重音 2s / 叙事
+    4–6s / 副歌 6–10s，3 分钟约 24–28 镜）；高能段 cut-on-beat、
+    抒情段 cut-on-breath 交替；A/B 配比 60–70% 表演 + 30–40% 穿插；
+    灯光当节奏图谱（快段高对比浅景深）。
+18. **LLM 精剪四步管线**（NarratoAI + ESA 论文）：转写+抽帧描述 →
+    按脚本标注所需镜头语义 → 视觉语义检索候选片段评分排序 →
+    组装时间轴导出（EDL/剪映草稿）。我们对应：transcribe →
+    smart_cut 匹配 → subtitle_cut/timeline 组装 → 导出 timeline.json。

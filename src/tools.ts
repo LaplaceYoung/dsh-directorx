@@ -707,7 +707,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     parameters: {
       name: { type: 'string', required: true, description: 'Character name (unique; re-registering overwrites).' },
       description: { type: 'string', description: 'Appearance description (stable features only: hair/outfit/scars/props).' },
-      refPath: { type: 'string', required: true, description: 'Reference image path (local output-dir media or http(s) URL).' },
+      refPath: { type: 'string', required: true, description: 'Reference image path (local output-dir media or http(s) URL). 标准（Runway 官方）：自然均匀光 + 中性表情 + 中等画质（「空白画布」原则，便于跨场景改造）。' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
