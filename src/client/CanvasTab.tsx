@@ -2443,25 +2443,46 @@ function CanvasTabInner(): ReactNode {
           {(() => {
             const target = nodesRef.current.find(node => node.id === nodeMenu.nodeId)
             const isMedia = target?.type === 'media'
-            const items: Array<{ label: string; run: () => void }> = []
-            if (target !== undefined) {
-              if (isMedia) items.push({ label: '编辑', run: () => openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) })
-              items.push({ label: '复制', run: () => duplicateNode(target.id) })
-              const locked = (target.data as { locked?: boolean } | undefined)?.locked === true
-              items.push({ label: locked ? '解锁（允许编辑）' : '锁定（定妆）', run: () => {
-                setNodes(list => list.map(node => node.id === target.id ? { ...node, data: { ...node.data, locked: !locked } } : node))
-                scheduleSave()
-              } })
-              items.push({ label: '删除', run: () => deleteNode(target.id) })
-            }
-            return items.map(item => (
-              <button
-                key={item.label}
-                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
-                onClick={() => { setNodeMenu(undefined); item.run() }}
-              >
-                {item.label}
-              </button>
+            const locked = (target?.data as { locked?: boolean } | undefined)?.locked === true
+            if (target === undefined) return null
+            const groups: Array<{ title: string; items: Array<{ label: string; destructive?: boolean; run: () => void }> }> = [
+              {
+                title: '节点',
+                items: [
+                  ...(isMedia ? [{ label: '编辑', run: () => openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) }] : []),
+                  { label: '复制', run: () => duplicateNode(target.id) },
+                ],
+              },
+              {
+                title: '状态',
+                items: [
+                  { label: locked ? '解锁（允许编辑）' : '锁定（定妆）', run: () => {
+                    setNodes(list => list.map(node => node.id === target.id ? { ...node, data: { ...node.data, locked: !locked } } : node))
+                    scheduleSave()
+                  } },
+                  ...(target.type === 'group' ? [{ label: '镜头状态循环', run: () => nodeCallbacks.onCycleShotStatus?.(target.id) }] : []),
+                ],
+              },
+              {
+                title: '危险区',
+                items: [
+                  { label: '删除', destructive: true, run: () => deleteNode(target.id) },
+                ],
+              },
+            ]
+            return groups.map(group => (
+              <div key={group.title}>
+                <div style={{ fontSize: 10, color: '#9b9b9b', padding: '6px 10px 2px', textTransform: 'uppercase', letterSpacing: .8 }}>{group.title}</div>
+                {group.items.map(item => (
+                  <button
+                    key={item.label}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: item.destructive === true ? '#f0a3a3' : '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+                    onClick={() => { setNodeMenu(undefined); item.run() }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             ))
           })()}
         </div>
