@@ -238,3 +238,14 @@
 | 卡片微交互 | 按压缩放 .97（whileTap 等价）；悬停抬升已有 |
 | xyflow 暗色变量 | 选择框/attribution/minimap 样式覆盖；connectionDragThreshold 25 |
 | 待办 | Sonner 保存 toast 桥接、多选 NodeToolbar、Vaul 底部快速添加抽屉 |
+
+
+## WebCodecs 剪辑能力调研采纳（2026-08-18）
+
+| 判定 | 落地 |
+|---|---|
+| 字幕烧录可行（引擎内置） | EmbedSubtitlesClip 接入导出：白字黑描边、按片高缩放字号/偏移、font.ready 等待；兼容文案改 Chrome/Edge 102+ |
+| 常量变速可行（已实现） | 副作用=音频变调（上游 issue 已记录）；曲线变速=分段常量近似，保调 PR 未发版暂缓 |
+| 帧级切割 | 帧边界级精度（回退最近 IDR）；fps 保真需显式传（Combinator 默认 30） |
+| 响度归一 | 变通：RMS/峰值可行，R128 待 ebur128-wasm |
+| 待办 | 变速导出前提示「音频会变调」、60fps 素材 fps 透传、BGM 电流音 issue 跟踪 |
