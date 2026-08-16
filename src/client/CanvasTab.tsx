@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap, NodeToolbar,
   addEdge, applyEdgeChanges, applyNodeChanges,
@@ -112,7 +112,7 @@ function fmtTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-function MediaNodeComponent(props: NodeProps): ReactNode {
+const MediaNodeComponent = memo(function MediaNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as MediaNodeData
   const selected = props.selected === true
   const [playing, setPlaying] = useState(false)
@@ -218,9 +218,9 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       ) : null}
     </div>
   )
-}
+})
 
-function TextNodeComponent(props: NodeProps): ReactNode {
+const TextNodeComponent = memo(function TextNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as TextNodeData
   const selected = props.selected === true
   const [hovered, setHovered] = useState(false)
@@ -252,7 +252,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
       ) : null}
     </div>
   )
-}
+})
 
 const SHOT_STATUS_COLORS: Record<string, string> = {
   idea: '#8a8a8a', approved: '#4f9dff', generating: '#4f9dff', review: '#e8b64f', locked: '#f5f5f5',
@@ -270,7 +270,7 @@ const groupTitle: CSSProperties = {
   background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
 }
 
-function GroupNodeComponent(props: NodeProps): ReactNode {
+const GroupNodeComponent = memo(function GroupNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as GroupNodeData
   const selected = props.selected === true
   const [hovered, setHovered] = useState(false)
@@ -320,9 +320,9 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
       ) : null}
     </div>
   )
-}
+})
 
-const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent }
+const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent } as const
 
 const toolbar: CSSProperties = {
   position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 2, alignItems: 'center',
