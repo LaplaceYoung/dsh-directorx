@@ -70,8 +70,8 @@ async function saveEdit(blob: Blob, name: string, mediaType: string): Promise<Ed
   return response.json() as Promise<EditRecord & { name: string }>
 }
 
-const column: CSSProperties = { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-secondary, #10131a)' }
-const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid rgba(128,140,160,.25)' }
+const column: CSSProperties = { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--dsw-alias-bg-base)' }
+const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid var(--dsw-alias-border-l1)', color: 'var(--dsw-alias-label-primary)' }
 const tabBar: CSSProperties = { display: 'flex', gap: 2, padding: '0 8px', borderBottom: '1px solid rgba(128,140,160,.2)', background: 'rgba(0,0,0,.18)' }
 const tabItemBase: CSSProperties = { padding: '9px 12px', fontSize: 12.5, cursor: 'pointer', background: 'transparent', border: 'none', color: 'rgba(214,224,246,.62)' }
 const body: CSSProperties = { flex: 1, overflow: 'auto' }

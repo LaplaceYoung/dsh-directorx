@@ -219,3 +219,15 @@ DSH model calls directorx_generate_video
 - 媒体路由单测：路径逃逸、Range 解析、查询解析、文件检查；另有针对编译产物
   的完整 handler 验证（字节一致、206 切片、跨源 403、同源放行）。
 - `pretest` 先跑 `tsc --noEmit` 与 `npm run build`，保证提交产物和源码一致。
+
+## DSH 插件协议合规审计（2026-08-18）
+
+**合规面**：
+- Host：`inject` 声明 tools/skills/systemPrompt/settings/llm；settings 用 `settings.register(ns, schema, {applies:'live', validate})`；全部 HTTP 路由经 `ctx.effect(registerXxx, label)` 效应绑定并返回清理器；工具随设置变更整体重注册（disposeTools 前先释放）；模型供应商经 `llm.registerConfigurableProviders` 声明为 declared 提供者。
+- Client：`inject` 声明 slots/connection/layout；所有 slot 经 `ctx.slots.inject(cb → disposer)` 注册；details 用 priority -1 替换内置面板并注入 closeDetails；shell.overlay 注入 open/closeDetails；settings.section 注入 connection.api.settings。
+- 主题策略：**壳层组件（details 栏/编辑入口/设置节/工具卡）使用 DSW 主题令牌**（--dsw-alias-*），浅色/深色主题均可用；**画布与编辑器画布面为刻意恒暗的创作表面**（行业惯例，如纯黑点阵工作台），内部配色自成体系、不随 shell 主题翻转。
+- 全局副作用（window 监听/localStorage/剪贴板）全部在 React effect 内注册并返回清理器。
+
+**已知非合规项（记录，不阻塞）**：
+- 客户端用 fetch 直连插件自身 HTTP 路由（/directorx/*），未走 package 私有 RPC——媒体必须经 HTTP 服务，画布文档 GET/PUT 走同一路由族，属于设计取舍而非违规。
+- window.__directorxEditor 调试钩子暴露（供浏览器自动化验证用）。

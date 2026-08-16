@@ -101,11 +101,11 @@ function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-const card: CSSProperties = { border: '1px solid rgba(128, 140, 160, .25)', borderRadius: 10, padding: 14, marginBottom: 12, background: 'rgba(255,255,255,.02)' }
+const card: CSSProperties = { border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 10, padding: 14, marginBottom: 12, background: 'var(--dsw-alias-bg-layer-1)' }
 const row: CSSProperties = { display: 'grid', gridTemplateColumns: 'minmax(90px, 140px) 1fr', gap: 10, marginBottom: 8, alignItems: 'center' }
 const label: CSSProperties = { fontSize: 12, opacity: .72 }
-const input: CSSProperties = { width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(128,140,160,.35)', background: 'rgba(0,0,0,.15)', color: 'inherit' }
-const button: CSSProperties = { padding: '7px 12px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)', background: 'rgba(80,130,255,.18)', color: 'inherit', cursor: 'pointer' }
+const input: CSSProperties = { width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-2)', color: 'inherit' }
+const button: CSSProperties = { padding: '7px 12px', borderRadius: 7, border: '1px solid var(--dsw-alias-brand-primary)', background: 'transparent', color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' }
 const sectionTitle: CSSProperties = { fontSize: 15, fontWeight: 600, margin: '0 0 2px' }
 const hint: CSSProperties = { fontSize: 12, opacity: .62, lineHeight: 1.5 }
 
@@ -168,7 +168,7 @@ function CapabilityCard(props: {
           <div style={{ ...row, marginTop: 8 }}>
             <span style={label}>连接测试</span>
             <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => void testConnection()} disabled={testState === 'testing'}>
+              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => void testConnection()} disabled={testState === 'testing'}>
                 {testState === 'testing' ? '测试中…' : '测试连接'}
               </button>
               {testMessage !== undefined ? <span style={{ fontSize: 12, color: testState === 'ok' ? '#8fdc9f' : '#e88f8f' }}>{testMessage}</span> : null}
@@ -353,11 +353,11 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           <div>当前状态：{canvasInfo === undefined ? '读取中…' : `${canvasInfo.nodes} 个节点 · ${canvasInfo.edges} 条连线${canvasInfo.title !== undefined && canvasInfo.title !== '' ? ` · 标题「${canvasInfo.title}」` : ''}`}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
+          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
           {confirmReset ? (
             <>
               <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.7)', background: 'rgba(200,80,80,.15)', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { setConfirmReset(false); void resetCanvas() }}>确认重置（备份后清空）</button>
-              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(false)}>取消</button>
+              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(false)}>取消</button>
             </>
           ) : (
             <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(true)}>重置画布（自动备份）</button>
