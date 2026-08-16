@@ -79,6 +79,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [error, setError] = useState<string | undefined>(undefined)
   const [progress, setProgress] = useState<number | undefined>(undefined)
   const [exported, setExported] = useState<{ blob: Blob; url: string } | undefined>(undefined)
+  const [currentTime, setCurrentTime] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const waveInstanceRef = useRef<WaveSurfer | null>(null)
@@ -252,13 +253,19 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
       const state = trimRef.current
       if (state === undefined || meta === undefined) return
       const deltaUs = (moveEvent.clientX - state.originX) / scale * 1e6
+      const snapWindowUs = (10 / scale) * 1e6
       setSegments(current => current.map(segment => {
         if (segment.id !== state.id) return segment
-        if (state.edge === 'start') {
-          const next = Math.min(state.originEnd - 200_000, Math.max(0, state.originStart + deltaUs))
-          return { ...segment, startUs: next }
-        }
-        const next = Math.max(state.originStart + 200_000, Math.min(meta.durationUs, state.originEnd + deltaUs))
+        let next = state.edge === 'start'
+          ? Math.min(state.originEnd - 200_000, Math.max(0, state.originStart + deltaUs))
+          : Math.max(state.originStart + 200_000, Math.min(meta.durationUs, state.originEnd + deltaUs))
+        // 吸附：播放头 / 0 / 片长 / 其他片段边界（±10px）。
+        const video = videoRef.current
+        const playheadUs = video !== null ? video.currentTime * 1e6 : -1
+        const anchors = [0, meta.durationUs, playheadUs, ...current.flatMap(other => other.id === state.id ? [] : [other.startUs, other.endUs])]
+        const hit = anchors.find(anchor => anchor >= 0 && Math.abs(anchor - next) <= snapWindowUs)
+        if (hit !== undefined) next = hit
+        if (state.edge === 'start') return { ...segment, startUs: next }
         return { ...segment, endUs: next }
       }))
     }
@@ -278,7 +285,19 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
       {error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12.5, marginBottom: 8 }}>{error}</div> : null}
       {meta !== undefined ? (
         <>
-          <video ref={videoRef} src={props.source} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 12, background: '#000', border: '1px solid rgba(255,255,255,.1)' }} />
+          <video
+            ref={videoRef} src={props.source} controls preload="metadata"
+            onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
+            onKeyDown={event => {
+              if (event.code !== 'Space') return
+              event.preventDefault()
+              const video = videoRef.current
+              if (video === null) return
+              if (video.paused) void video.play().catch(() => {})
+              else video.pause()
+            }}
+            style={{ width: '100%', maxHeight: 260, borderRadius: 12, background: '#000', border: '1px solid rgba(255,255,255,.1)' }}
+          />
           <div style={row}>
             <button style={btn} disabled={busy} onClick={splitAtPlayhead}>在播放头分割</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(-1)}>前移</button>
@@ -292,11 +311,12 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             {meta.width}×{meta.height} · 源时长 {fmt(meta.durationUs)} · 输出 {fmt(totalUs)} · 片段 {segments.length}
             {audio !== undefined ? ` · 音频 ${audio.name}` : ''}
           </div>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11.5, color: '#e8e8e8', fontVariantNumeric: 'tabular-nums', padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)' }}>{fmt(currentTime * 1e6)} / {fmt(meta.durationUs)}</span>
             <button style={btn} onClick={() => setScale(current => Math.max(MIN_SCALE, current - 8))} title="缩小时间线">−</button>
             <span style={{ fontSize: 11, opacity: .65, minWidth: 44, textAlign: 'center' }}>{Math.round(scale)} px/s</span>
             <button style={btn} onClick={() => setScale(current => Math.min(MAX_SCALE, current + 8))} title="放大时间线">＋</button>
-            <span style={{ fontSize: 11, opacity: .5 }}>拖动片段左右边缘可裁剪入/出点</span>
+            <span style={{ fontSize: 11, opacity: .5 }}>空格播放/暂停 · 拖动片段边缘裁剪（自动吸附边界/播放头）</span>
           </div>
           <div style={lane}>
             {segments.map(segment => {
