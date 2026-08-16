@@ -101,7 +101,16 @@ async function downloadFirst(urls: string[], ctx: ProviderContext, prompt: strin
 export async function klingVideo(
   ctx: ProviderContext,
   prompt: string,
-  options: { seconds?: number; aspectRatio?: string; firstFramePath?: string; lastFramePath?: string },
+  options: {
+    seconds?: number
+    aspectRatio?: string
+    firstFramePath?: string
+    lastFramePath?: string
+    /** Kling 3.0: native audio generation (音画同出). */
+    generateAudio?: boolean
+    /** Kling 3.0: narration voice ids (referenced as <<<voice_1>>> in the prompt). */
+    voiceIds?: string[]
+  },
 ): Promise<VideoResult> {
   const ak = ctx.capability.auth.klingAk
   const sk = ctx.capability.auth.klingSk
@@ -116,9 +125,11 @@ export async function klingVideo(
     model_name: ctx.capability.model !== '' ? ctx.capability.model : 'kling-v2',
     prompt,
     mode: 'std',
-    duration: clampDuration(options.seconds, 5, 5, 10),
+    duration: clampDuration(options.seconds, 5, 5, 15),
     aspect_ratio: options.aspectRatio ?? '16:9',
   }
+  if (options.generateAudio === true) payload.generate_audio = true
+  if (options.voiceIds !== undefined && options.voiceIds.length > 0) payload.voice_ids = options.voiceIds
   if (isImageToVideo) {
     payload.image = await mediaSourceToDataUrl(options.firstFramePath as string)
     if (options.lastFramePath !== undefined) payload.image_tail = await mediaSourceToDataUrl(options.lastFramePath)

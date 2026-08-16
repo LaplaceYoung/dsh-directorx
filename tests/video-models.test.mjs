@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { klingJwt, runVideo } from '../lib/testing.js'
+import { klingJwt, klingVideo, runVideo } from '../lib/testing.js'
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -22,6 +22,41 @@ async function readJson(request, limit = 1024 * 1024) {
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
 }
+
+test('klingVideo payload supports 15s duration and native audio', async () => {
+  let captured = null
+  const server = createServer(async (req, res) => {
+    if (req.url?.includes('text2video') && req.method === 'POST') {
+      captured = await readJson(req)
+      sendJson(res, 200, { code: 0, message: 'ok', data: { task_id: 't1', task_status: 'submitted' } })
+      return
+    }
+    if (req.url?.includes('/v1/videos/text2video/t1')) {
+      sendJson(res, 200, { code: 0, data: { task_id: 't1', task_status: 'failed', task_status_msg: 'stop' } })
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+  await new Promise(resolve => server.listen(0, resolve))
+  const port = server.address().port
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-kl-'))
+  try {
+    const ctx = {
+      capability: { mode: 'kling', model: 'kling-v3', baseURL: `http://127.0.0.1:${port}`, auth: { klingAk: 'ak', klingSk: 'sk' }, apiKey: '', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 20, maxPollAttempts: 2, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+    }
+    await klingVideo(ctx, '测试', { seconds: 15, generateAudio: true, voiceIds: ['v1'] }).catch(() => {})
+    assert.ok(captured !== null, 'payload captured')
+    assert.equal(Number(captured.duration), 15)
+    assert.equal(captured.generate_audio, true)
+    assert.deepEqual(captured.voice_ids, ['v1'])
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.close()
+  }
+})
 
 test('klingJwt signs an HS256 token with iss/exp/nbf', () => {
   const token = klingJwt('test-ak', 'test-sk')
