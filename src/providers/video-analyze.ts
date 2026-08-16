@@ -37,6 +37,8 @@ export interface VideoAnalyzeOutput {
   blackFrameCount: number
   /** 闪烁事件：亮度符号交替（相邻差分异号且两侧均超阈值）——AI 视频常见伪影。 */
   flickerCount: number
+  /** 锐度代理：sobel 边缘能量均值（<15 疑似模糊，本地校准：锐 22 / 重模糊 14）。 */
+  edgeSharpness: number
   /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
   whiteFrameCount: number
   /** blackdetect 黑场区间（d=0.25, pix=0.10 参数口径）。 */
@@ -63,6 +65,19 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     const match = line.match(/YAVG=([\d.]+)/)
     if (match !== null) yavg.push(Number(match[1]))
   }
+  // 锐度代理：sobel 边缘能量均值（第二趟扫描，与 YAVG 同成本）。
+  const sobelResult = spawnSync('ffmpeg', [
+    '-hide_banner', '-i', input.source,
+    '-vf', 'sobel,signalstats,metadata=print:key=lavfi.signalstats.YAVG',
+    '-an', '-f', 'null', '-',
+  ], { encoding: 'utf8' })
+  const edgeValues: number[] = []
+  for (const line of (sobelResult.stderr ?? '').split('\n')) {
+    const match = line.match(/YAVG=([\d.]+)/)
+    if (match !== null) edgeValues.push(Number(match[1]))
+  }
+  const edgeSharpness = edgeValues.length > 0 ? Number((edgeValues.reduce((sum, value) => sum + value, 0) / edgeValues.length).toFixed(1)) : 0
+
   // 闪烁检测：差分符号交替（|delta|>=4）计事件。
   let flickerCount = 0
   for (let index = 2; index < yavg.length; index += 1) {
@@ -162,6 +177,7 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     shots,
     blackFrameCount: yavg.filter(value => value < 16).length,
     flickerCount,
+    edgeSharpness,
     whiteFrameCount: yavg.filter(value => value > 240).length,
     ...(blackSegments.length > 0 ? { blackSegments } : {}),
     ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
@@ -230,6 +246,7 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   checks.push({ name: '黑帧', pass: analysis.blackFrameCount === 0, detail: analysis.blackFrameCount > 0 ? `检出 ${analysis.blackFrameCount} 帧近黑（YAVG<16）` : '无近黑帧' })
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
   checks.push({ name: '闪烁', pass: analysis.flickerCount <= Math.max(3, Math.round((analysis.probe.durationSec ?? 0) * 2)), detail: analysis.flickerCount > 0 ? `检出 ${analysis.flickerCount} 次亮度符号交替（AI 视频常见闪烁伪影）` : '无闪烁' })
+  checks.push({ name: '锐度', pass: analysis.edgeSharpness >= 15, detail: analysis.edgeSharpness > 0 ? `边缘能量均值 ${analysis.edgeSharpness}${analysis.edgeSharpness < 15 ? '（疑似整体模糊）' : '（清晰）'}` : '无法测量' })
   if (analysis.blackSegments !== undefined && analysis.blackSegments.length > 0) {
     const total = analysis.blackSegments.reduce((sum, segment) => sum + segment.durationSec, 0)
     checks.push({ name: '黑场段', pass: false, detail: `${analysis.blackSegments.length} 段黑场共 ${total.toFixed(2)}s（blackdetect d=0.25）` })
