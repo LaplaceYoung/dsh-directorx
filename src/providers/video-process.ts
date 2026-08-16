@@ -157,6 +157,8 @@ export interface AudioMixInput {
   tracks: Array<{ path: string; volume?: number }>
   /** Duck the later tracks under this track index (0-based into tracks, typically the narration). */
   duckUnder?: number
+  /** Optional EBU R128 target (e.g. -14 for short video, -23 broadcast). */
+  targetLufs?: number
 }
 
 export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
@@ -185,8 +187,15 @@ export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
       mixInputs = all.join('')
     }
   }
-  parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed]`)
-  args.push('-filter_complex', parts.join(';'), '-map', '0:v', '-map', '[mixed]', '-c:v', 'copy', '-c:a', 'aac', '-shortest', out)
+  let audioLabel = '[mixed]'
+  if (input.targetLufs !== undefined) {
+    parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed0]`)
+    parts.push(`[mixed0]loudnorm=I=${input.targetLufs}:TP=-1:LRA=11[mixed]`)
+    audioLabel = '[mixed]'
+  } else {
+    parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed]`)
+  }
+  args.push('-filter_complex', parts.join(';'), '-map', '0:v', '-map', audioLabel, '-c:v', 'copy', '-c:a', 'aac', '-shortest', out)
   runFfmpeg(args, 'audio mix')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }

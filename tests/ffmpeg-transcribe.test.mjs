@@ -123,6 +123,33 @@ test('videoUnderstand samples frames and degrades without vision', async () => {
   }
 })
 
+test('audioMix targetLufs normalizes to the requested loudness', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-lufs-'))
+  try {
+    const make = (name) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', `sine=frequency=440:duration=3`, '-f', 'lavfi', '-i', 'testsrc2=size=160x90:rate=12:duration=3', '-c:a', 'aac', '-c:v', 'libx264', '-shortest', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('gen failed')
+      return path
+    }
+    const video = make('base.mp4')
+    const narration = make('voice.mp4')
+    const out = await audioMix({ video, outputDir: dir, tracks: [{ path: narration, volume: 1 }], duckUnder: 0, targetLufs: -14 })
+    assert.ok(existsSync(out.path), 'normalized file exists')
+    // Verify integrated loudness via ebur128 summary.
+    const measure = spawnSync('ffmpeg', ['-hide_banner', '-i', out.path, '-af', 'ebur128', '-vn', '-f', 'null', '-'], { encoding: 'utf8' })
+    const summary = measure.stderr ?? ''
+    const all = [...summary.matchAll(/I:\s*(-?[\d.]+)\s*LUFS/g)]
+    const match = all[all.length - 1]
+    if (match !== undefined) {
+      const integrated = Number(match[1])
+      assert.ok(Math.abs(integrated - (-14)) < 3, `integrated loudness ~-14 LUFS, got ${integrated}`)
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('audioSync detects narration intervals and mixes with ducking', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sync-'))
   try {
