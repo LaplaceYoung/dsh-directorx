@@ -36,7 +36,7 @@ const scriptResult = await agent(
     '你是口播短视频的脚本导演。',
     `主题：${topic}；目标时长约 ${targetSeconds} 秒（中文口播约 4 字/秒）。`,
     '要求：',
-    '- 先加载 directorx-production-lead 做分诊，再查 directorx_knowledge_search 的短视频结构（黄金 3 秒钩子/转折/结尾行动号召）；',
+    '- 先加载 directorx-methodology，按规则写脚本：规则 1 黄金 3 秒钩子（痛点+结果+悬念，零铺垫）、规则 2（15s/30s 处埋中期留存钩子）、规则 4（每句 ≤16 字、4 字/秒）；再查 directorx_knowledge_search 的短视频结构；',
     '- 产出：标题、口播稿全文（口语化、短句）、按句切好的 subtitleLines（字幕行数组）、建议音色（导演级中文女声/男声）；',
     '- 硬性规范（dryRun 质检沉淀）：全角标点（，：——）；每行字幕 ≤16 字（超长用 \\n 屏内换行）；避开广告法极限词（最/第一/顶级）与绝对承诺；每条字幕标注建议出现秒段。',
     '- 画布镜像：directorx_canvas_get 读现状后，用 directorx_canvas_title 设置标题，用 directorx_canvas_batch 建 text 节点（脚本 + 每句字幕行），不覆盖已有内容。',
