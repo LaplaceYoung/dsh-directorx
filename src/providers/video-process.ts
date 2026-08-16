@@ -62,6 +62,8 @@ export interface VideoProcessInput {
   filters?: Array<{ name: string; value: string }>
   /** 只导出音频轨（.m4a，跳过视频编码）。 */
   extractAudio?: boolean
+  /** 电影感调色预设：teal-orange 青橙 / film-fade 褪色胶片 / bw-contrast 黑白高对比。 */
+  grade?: 'teal-orange' | 'film-fade' | 'bw-contrast'
   /** 文字层：样式化文字叠加（drawtext）。CJK 需 fontFile 指定字体文件路径。 */
   textOverlays?: Array<{
     text: string
@@ -182,6 +184,15 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
   if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
   if (input.mute === true) args.push('-an')
+  if (input.grade !== undefined) {
+    if (input.grade === 'teal-orange') {
+      videoFilters.push('colorbalance=rs=.08:gs=.02:bs=-.08:rm=.06:bm=-.06,colorchannelmixer=rr=.95:bb=1.05,eq=saturation=1.12:contrast=1.06')
+    } else if (input.grade === 'film-fade') {
+      videoFilters.push('eq=contrast=.92:saturation=.85:gamma=.95,colorbalance=rm=-.03:bm=-.03:rs=-.02,noise=alls=4:allf=t')
+    } else if (input.grade === 'bw-contrast') {
+      videoFilters.push('hue=s=0,eq=contrast=1.25:brightness=-.02')
+    }
+  }
   if (input.textOverlays !== undefined && input.textOverlays.length > 0) {
     for (const overlay of input.textOverlays) {
       // drawtext 文本转义：反斜杠/冒号/逗号/百分号/单引号。

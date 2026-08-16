@@ -133,6 +133,21 @@ test('videoZoom diagonal pans produce valid output', async () => {
   }
 })
 
+test('videoProcess applies cinematic grade presets', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-grade-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    for (const grade of ['teal-orange', 'film-fade', 'bw-contrast']) {
+      const out = await videoProcess({ source: clip, outputDir: dir, grade })
+      assert.ok(existsSync(out.path), `${grade} renders`)
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess renders styled text overlays via drawtext', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-text-'))
   try {
