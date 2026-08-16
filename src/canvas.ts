@@ -22,6 +22,8 @@ export interface CanvasNode {
   y: number
   width?: number
   height?: number
+  /** 存储身份的稳定镜号（确定性排片的唯一依据，不靠坐标/连线）。 */
+  shotIndex?: number
 }
 
 export interface CanvasEdge {
@@ -66,6 +68,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     y: numberOr(input.y, 0),
     ...(input.width !== undefined ? { width: Math.max(60, Math.min(1200, numberOr(input.width, 240))) } : {}),
     ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
+    ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
   }
   return node
 }
@@ -195,6 +198,17 @@ export class DirectorxCanvasStore {
       if (!fromExists || !toExists) {
         throw new Error(`canvas edge endpoints must reference existing nodes (${edge.from} -> ${edge.to})`)
       }
+      // 连线 = 生成时的输入依赖（非执行顺序）；类型连接矩阵校验，
+      // 拒绝时给出可读 reason 供 agent 自纠。
+      const fromNode = doc.nodes.find(node => node.id === edge.from)
+      const toNode = doc.nodes.find(node => node.id === edge.to)
+      const fromKind = fromNode?.kind
+      const toKind = toNode?.kind
+      if (fromKind !== undefined && toKind !== undefined) {
+        if (toKind === 'text' || toKind === 'group') throw new Error(`edge reason: 目标节点是 ${toKind}，不能作为输入依赖（连线只能指向 image/video）`)
+        if (fromKind === 'video' && toKind === 'image') throw new Error('edge reason: video 不能喂给 image（视频只能接力到 video）')
+        if (fromKind === 'group') throw new Error('edge reason: group 只作容器，不能作为连线源')
+      }
       if (!doc.edges.some(existing => existing.id === edge.id)) doc.edges.push(edge)
     })
   }
@@ -297,6 +311,38 @@ export class DirectorxCanvasStore {
           ...(source.width !== undefined ? { width: source.width } : {}),
         })
       })
+    })
+  }
+
+  /**
+   * 确定性排片：按显式 shotIndex（存储身份）排序镜头节点；
+   * 未标 shotIndex 的按创建序（id 时间序）排后。
+   */
+  async shotSequence(parentGroupId?: string): Promise<Array<{ id: string; label: string; shotIndex: number | null }>> {
+    const doc = await this.read()
+    const shots = doc.nodes
+      .filter(node => (node.kind === 'image' || node.kind === 'video') && (parentGroupId === undefined ? node.parent === undefined : node.parent === parentGroupId))
+      .map(node => ({ id: node.id, label: node.label, shotIndex: node.shotIndex ?? null }))
+    shots.sort((a, b) => {
+      if (a.shotIndex !== null && b.shotIndex !== null) return a.shotIndex - b.shotIndex
+      if (a.shotIndex !== null) return -1
+      if (b.shotIndex !== null) return 1
+      return 0
+    })
+    return shots
+  }
+
+  /**
+   * 紧凑上下文快照：白名单行格式（id|kind|label 截断|parent），
+   * 给 LLM 的画布上下文从 2-3k token 压到几百。
+   */
+  async summary(): Promise<string[]> {
+    const doc = await this.read()
+    return doc.nodes.map(node => {
+      const label = node.label.replace(/\n/g, ' ').slice(0, 60)
+      const parent = node.parent ?? '-'
+      const index = node.shotIndex !== undefined ? `#${node.shotIndex}` : ''
+      return `${node.id}|${node.kind}${index}|${label}|${parent}`
     })
   }
 

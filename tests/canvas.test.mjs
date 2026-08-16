@@ -195,6 +195,29 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('edge type matrix and deterministic shot ordering', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-order-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 's2', kind: 'video', label: '镜2', x: 0, y: 0, shotIndex: 2 })
+    await store.addNode({ id: 's1', kind: 'video', label: '镜1', x: 0, y: 0, shotIndex: 1 })
+    await store.addNode({ id: 's0', kind: 'video', label: '无号', x: 0, y: 0 })
+    await store.addNode({ id: 't1', kind: 'text', label: '文本', x: 0, y: 0 })
+    await store.addNode({ id: 'img1', kind: 'image', label: '图', x: 0, y: 0 })
+    // type matrix: text/group cannot be targets; video cannot feed image
+    await assert.rejects(() => store.addEdge({ id: 'e1', from: 's1', to: 't1' }), /reason/)
+    await assert.rejects(() => store.addEdge({ id: 'e2', from: 's1', to: 'img1' }), /video 不能喂给 image/)
+    await store.addEdge({ id: 'e3', from: 't1', to: 'img1' })
+    // deterministic order
+    const order = await store.shotSequence()
+    assert.deepEqual(order.map(item => item.id), ['s1', 's2', 's0', 'img1'], 'shotIndex order wins, unnumbered last')
+    const rows = await store.summary()
+    assert.ok(rows.some(row => row.startsWith('s1|video#1|')), 'compact summary row format')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('style constants lock merges and persists across set calls', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-style-'))
   try {
