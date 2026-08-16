@@ -21,6 +21,13 @@ export interface BriefOutput {
   /** 标题变体（钩子公式）与可直接用于 generate_image 的封面提示词。 */
   titles: string[]
   coverPrompt: string | null
+  /** 平台规格卡：封面规格/标题字数上限/发布窗口（口径见 directorx-methodology 规则 85-88）。 */
+  platformCard: {
+    platform: string
+    coverSpec: string
+    titleCap: number
+    publishWindows: string
+  } | null
   brief: {
     type: string
     typeConfidence: 'high' | 'medium' | 'low'
@@ -47,10 +54,12 @@ const TYPE_RULES: Array<{ type: string; keywords: string[]; seconds: number }> =
   { type: '分镜/成片', keywords: ['分镜', '成片', '短片', '电影感', '宣传片'], seconds: 30 },
 ]
 
-const PLATFORM_RULES: Array<{ platform: string; keywords: string[]; aspect: string }> = [
-  { platform: '抖音/快手/视频号', keywords: ['抖音', '快手', '视频号', '竖屏', '短视频'], aspect: '9:16' },
-  { platform: 'B站/YouTube', keywords: ['b站', 'B站', 'youtube', 'YouTube', '横屏'], aspect: '16:9' },
-  { platform: '小红书', keywords: ['小红书'], aspect: '3:4' },
+const PLATFORM_RULES: Array<{ platform: string; keywords: string[]; aspect: string; coverSpec: string; titleCap: number; publishWindows: string }> = [
+  { platform: '抖音', keywords: ['抖音', '竖屏', '短视频'], aspect: '9:16', coverSpec: '视频 9:16，信息流按 3:4 展示，首帧即封面；核心居中，上下 15% 留 UI 区', titleCap: 55, publishWindows: '21-23 点峰值（完播 +41%）；热点后 30-90 分钟发布加权 3.2x' },
+  { platform: '小红书', keywords: ['小红书'], aspect: '3:4', coverSpec: '1080x1440 3:4，大标题/人脸放居中 1:1 安全区（上下各留 180px）', titleCap: 20, publishWindows: '7-9 / 12-14 / 20-22 点；发布后 1 小时互动定流量池' },
+  { platform: 'B站', keywords: ['b站', 'B站'], aspect: '16:9', coverSpec: '16:9，≥640x360；标题封面不得与内容不符（封面党红线）', titleCap: 80, publishWindows: '播放高峰前 30-60 分钟发布，避开 13 点后发布竞争' },
+  { platform: 'YouTube', keywords: ['youtube', 'YouTube', '横屏'], aspect: '16:9', coverSpec: '16:9 ≥640px（竖视频 16:9 封面会被换成 4:5）', titleCap: 100, publishWindows: '按受众时区；用官方「测试与比较」A/B 缩略图' },
+  { platform: '视频号', keywords: ['视频号'], aspect: '6:7', coverSpec: '竖 6:7 1080x1260 / 横 16:9；暖色亲和风格优先', titleCap: 55, publishWindows: '20-22 点 + 朋友圈活跃时段（点赞即分发）' },
 ]
 
 const STYLE_HINTS: Record<string, string> = {
@@ -88,6 +97,9 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
 
   const platform = PLATFORM_RULES.find(rule => rule.keywords.some(keyword => request.includes(keyword)))
   const aspectRatio = platform?.aspect ?? '16:9'
+  const platformCard = platform !== undefined
+    ? { platform: platform.platform, coverSpec: platform.coverSpec, titleCap: platform.titleCap, publishWindows: platform.publishWindows }
+    : null
 
   const styleHints: string[] = []
   for (const [keyword, slug] of Object.entries(STYLE_HINTS)) {
@@ -145,6 +157,7 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
     nextActions,
     titles,
     coverPrompt,
+    platformCard,
     brief: {
       type,
       typeConfidence: matchedType !== undefined ? 'high' : 'low',
