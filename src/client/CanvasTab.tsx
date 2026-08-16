@@ -32,18 +32,17 @@ interface MediaListFile { path: string; name: string; mediaType: string; size: n
 
 const flowStyles = {
   mediaCard: {
-    borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(24,24,28,.92)',
-    boxShadow: '0 4px 14px rgba(0,0,0,.45)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
+    borderRadius: 16, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)',
+    boxShadow: 'none', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
   } as CSSProperties,
-  selectedCard: { border: '1px solid #f5f5f5', boxShadow: '0 0 0 1px rgba(245,245,245,.4), 0 12px 30px rgba(0,0,0,.6)' } as CSSProperties,
-  thumb: { width: 100 + '%', height: 96, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
-  label: { fontSize: 11, padding: '8px 10px', color: '#ededed', wordBreak: 'break-word' as const, lineHeight: 1.45, background: 'rgba(0,0,0,.32)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as 'vertical', overflow: 'hidden' },
+  selectedCard: { border: '1px solid rgba(245,245,245,.95)', boxShadow: '0 0 0 1px rgba(245,245,245,.4)' } as CSSProperties,
+  thumb: { width: 100 + '%', height: 88, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
+  label: { fontSize: 11, padding: '7px 10px', color: '#efefef', wordBreak: 'break-word' as const, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as 'vertical', overflow: 'hidden' },
   textCard: {
-    borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(24,24,28,.92)',
-    padding: '10px 12px', fontSize: 12, minWidth: 120, maxWidth: 240, cursor: 'pointer', color: '#ececec',
-    boxShadow: '0 3px 10px rgba(0,0,0,.35)',
+    borderRadius: 16, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)',
+    padding: '10px 12px', fontSize: 12, minWidth: 120, maxWidth: 240, cursor: 'pointer', color: '#efefef',
   } as CSSProperties,
-  handle: { width: 7, height: 7, background: '#7a7a7a', border: '2px solid #17171a' } as CSSProperties,
+  handle: { width: 7, height: 7, background: '#6f6f6f', border: '2px solid #000' } as CSSProperties,
 }
 
 function mediaUrl(path: string): string {
@@ -225,7 +224,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
 }
 
 const groupFrame: CSSProperties = {
-  borderRadius: 14, border: '1px dashed rgba(255,255,255,.26)', background: 'rgba(255,255,255,.025)',
+  borderRadius: 16, border: '1px dashed rgba(255,255,255,.22)', background: 'rgba(255,255,255,.02)',
   width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
 }
 const groupTitle: CSSProperties = {
@@ -264,10 +263,8 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
 const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent }
 
 const toolbar: CSSProperties = {
-  position: 'absolute', top: 10, left: 12, zIndex: 10, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap',
-  maxWidth: 'calc(100% - 24px)',
-  border: '1px solid rgba(255,255,255,.12)', borderRadius: 14, background: 'rgba(24,24,28,.88)', backdropFilter: 'blur(14px)',
-  padding: '6px 8px', boxShadow: '0 8px 24px rgba(0,0,0,.5)',
+  position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 2, alignItems: 'center',
+  maxWidth: 'calc(100% - 24px)', flexWrap: 'wrap', justifyContent: 'center',
 }
 const ICONS = {
   media: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>,
@@ -284,16 +281,16 @@ const toolBtn: CSSProperties = {
   color: '#ededed', fontSize: 12, cursor: 'pointer', transition: 'background .15s ease',
 }
 const iconBtn: CSSProperties = {
-  width: 34, height: 34, borderRadius: 9, border: '1px solid transparent', background: 'transparent',
-  color: '#e8e8e8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+  width: 38, height: 38, borderRadius: 10, border: '1px solid transparent', background: 'transparent',
+  color: '#efefef', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15,
 }
 const pillBtn: CSSProperties = {
-  width: 34, height: 34, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
+  width: 40, height: 40, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
 }
 const picker: CSSProperties = {
   position: 'absolute', top: 46, left: 12, zIndex: 6, width: 300, maxHeight: 320, overflowY: 'auto',
-  border: '1px solid rgba(255,255,255,.16)', borderRadius: 12, background: '#1d1d1d', padding: 10,
+  border: '1px solid rgba(255,255,255,.16)', borderRadius: 12, background: '#161616', padding: 10,
   boxShadow: '0 10px 30px rgba(0,0,0,.55)',
 }
 const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }
@@ -1698,8 +1695,8 @@ function CanvasTabInner(): ReactNode {
         .react-flow__controls-button:hover { background: rgba(255,255,255,.1); }
         .react-flow__controls-button:last-child { border-bottom: none; }
         .react-flow__minimap { border: 1px solid rgba(255,255,255,.14); border-radius: 8px; overflow: hidden; }
-        .dx-tool-icon:hover { background: rgba(255,255,255,.1); }
-        .dx-tool-icon:active { background: rgba(255,255,255,.16); }
+        .dx-tool-icon:hover { background: rgba(255,255,255,.08); }
+        .dx-tool-icon:active { background: rgba(255,255,255,.14); }
         .dx-title-input { transition: border-color .15s ease, background .15s ease; }
         .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
       `}</style>
@@ -1769,7 +1766,7 @@ function CanvasTabInner(): ReactNode {
         value={title}
         placeholder="请输入标题"
         className="dx-title-input"
-        style={{ position: 'absolute', top: 56, left: '50%', transform: 'translateX(-50%)', zIndex: 10, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'center', padding: '7px 14px', maxWidth: 'min(260px, calc(100% - 24px))', width: 260, outline: 'none' }}
+        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 10, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 15, fontWeight: 500, textAlign: 'center', padding: '7px 14px', maxWidth: 'min(300px, calc(100% - 24px))', width: 300, outline: 'none', letterSpacing: .3 }}
         onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
         onBlur={() => void saveNow()}
         title="画布标题（tapnow 式）"
@@ -1787,7 +1784,7 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
       </div>
       {selectedCount >= 2 || selectedEdge !== undefined ? (
-        <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(24,24,28,.9)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
+        <div style={{ position: 'absolute', bottom: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 14, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(20,20,20,.92)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
           {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
           {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
           {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
@@ -1820,7 +1817,7 @@ function CanvasTabInner(): ReactNode {
         <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.4)' }}>⌘K 命令 · ⌘+/- 缩放 · Esc 清除</span>
       </div>
       {connectMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+        <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           <div style={{ fontSize: 11, color: '#919191', padding: '4px 10px' }}>拖线到空白：新建并连线</div>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
@@ -1941,7 +1938,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {nodeMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+        <div style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           {(() => {
             const target = nodesRef.current.find(node => node.id === nodeMenu.nodeId)
             const isMedia = target?.type === 'media'
