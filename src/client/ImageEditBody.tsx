@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import ImageEditor from 'tui-image-editor'
 import 'tui-image-editor/dist/tui-image-editor.css'
 
@@ -77,6 +77,53 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const [exportQuality, setExportQuality] = useState<'low' | 'medium' | 'high' | 'max'>('high')
   const [exportOpen, setExportOpen] = useState(false)
   const [exportResult, setExportResult] = useState<{ blob: Blob; url: string } | undefined>(undefined)
+  const [adjustOpen, setAdjustOpen] = useState(false)
+  const [adjust, setAdjust] = useState({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })
+
+  // 调节实时预览：CSS filter 只作用于预览层（像素级提交在「应用」时执行）。
+  const filterString = useMemo(() => {
+    const warmPart = adjust.warm > 0 ? ` sepia(${(adjust.warm * 0.5).toFixed(2)})` : adjust.warm < 0 ? ` hue-rotate(${Math.round(-adjust.warm * 30)}deg)` : ''
+    return `brightness(${adjust.brightness}) contrast(${adjust.contrast}) saturate(${adjust.saturate})${warmPart}`
+  }, [adjust])
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (container === null || !adjustOpen) return
+    const canvases = container.querySelectorAll('canvas')
+    canvases.forEach(canvas => {
+      const element = canvas as HTMLCanvasElement
+      element.style.filter = filterString
+    })
+    return () => {
+      canvases.forEach(canvas => {
+        const element = canvas as HTMLCanvasElement
+        element.style.filter = ''
+      })
+    }
+  }, [adjustOpen, filterString])
+
+  const applyAdjustments = async () => {
+    const editor = editorRef.current
+    if (editor === null) return
+    try {
+      const dataUrl = editor.toDataURL({ format: 'png', quality: 1 })
+      const image = new Image()
+      image.src = dataUrl
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
+      const context = canvas.getContext('2d')
+      if (context === null) throw new Error('canvas 2d context unavailable')
+      context.filter = filterString
+      context.drawImage(image, 0, 0)
+      await editor.loadImageFromURL(canvas.toDataURL('image/png'), props.path.split('/').pop() ?? 'image')
+      setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })
+      setAdjustOpen(false)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    }
+  }
 
   useEffect(() => {
     const container = containerRef.current
@@ -280,6 +327,7 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
         <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.45)', padding: '4px 10px', borderRadius: 999, background: 'rgba(18,18,18,.75)', backdropFilter: 'blur(8px)' }}>滚轮缩放 · 拖拽平移 · 底部菜单：裁剪/旋转/滤镜/文字</span>
       </div>
       <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 30, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button style={{ ...toolChip, ...(adjustOpen ? { background: 'rgba(255,255,255,.16)' } : {}) }} onClick={() => setAdjustOpen(open => !open)}>调节</button>
         <button style={toolChip} disabled={matting} onClick={() => void matteImage()}>
           {matting ? '处理中…' : '智能抠图'}
         </button>
@@ -287,6 +335,41 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
           {busy ? '导出中…' : '导出'}
         </button>
       </div>
+      {adjustOpen ? (
+        <div style={{ position: 'absolute', top: 52, left: 12, zIndex: 30, width: 264, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', backdropFilter: 'blur(10px)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+          {([
+            { key: 'brightness' as const, label: '亮度', min: 0.5, max: 1.5, step: 0.01, reset: 1 },
+            { key: 'contrast' as const, label: '对比度', min: 0.5, max: 1.5, step: 0.01, reset: 1 },
+            { key: 'saturate' as const, label: '饱和度', min: 0, max: 2, step: 0.01, reset: 1 },
+            { key: 'warm' as const, label: '色温', min: -1, max: 1, step: 0.01, reset: 0 },
+          ]).map(row => (
+            <div key={row.key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ width: 44, fontSize: 11, color: '#b8b8b8', flexShrink: 0 }}>{row.label}</span>
+              <input
+                type="range" min={row.min} max={row.max} step={row.step} value={adjust[row.key]}
+                onChange={event => setAdjust(current => ({ ...current, [row.key]: Number(event.target.value) }))}
+                style={{ flex: 1, minWidth: 0 }}
+              />
+              <span
+                onDoubleClick={() => setAdjust(current => ({ ...current, [row.key]: row.reset }))}
+                title="双击复位"
+                style={{ width: 38, fontSize: 10.5, color: '#d8d8d8', textAlign: 'right', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}
+              >
+                {row.key === 'warm' ? (adjust.warm > 0 ? `+${Math.round(adjust.warm * 100)}` : Math.round(adjust.warm * 100)) : adjust[row.key].toFixed(2)}
+              </span>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1.08, contrast: 1.1, saturate: 1.15, warm: 0.05 })}>自动增强</button>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })}>重置全部</button>
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            <button style={{ ...exportBtn, flex: 1, textAlign: 'center' }} onClick={() => void applyAdjustments()}>应用</button>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => { setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 }); setAdjustOpen(false) }}>取消</button>
+          </div>
+          <div style={{ fontSize: 10, color: '#666', marginTop: 8 }}>预览走 CSS filter（零成本即时反馈）；「应用」才做像素级提交。双击数值复位。</div>
+        </div>
+      ) : null}
       {exportOpen ? (
         <div style={overlay}>
           <div style={{ ...overlayCard, width: 340, maxWidth: '92%', alignItems: 'stretch' }}>
