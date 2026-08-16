@@ -2206,6 +2206,63 @@ function CanvasTabInner(): ReactNode {
           </div>
         </>
       ) : null}
+      {historyOpen ? (
+        <div className="dx-pop" style={{ position: 'absolute', top: 52, right: 12, zIndex: 11, width: 300, maxHeight: 340, overflowY: 'auto', padding: 10, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 14px 40px rgba(0,0,0,.6)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: '#f5f5f5' }}>版本历史（检查点）</span>
+            <button style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8', fontSize: 11, cursor: 'pointer' }} onClick={() => { void fetch('/directorx/canvas/snapshots', { method: 'POST' }).then(r => r.json()).then(() => fetch('/directorx/canvas/snapshots').then(r2 => r2.json()).then((data: { snapshots?: Array<{ id: string; at: number; label: string }> }) => setSnapshots(data.snapshots ?? []))).catch(() => {}) }}>现在存检查点</button>
+          </div>
+          {snapshots.length === 0 ? (
+            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>暂无检查点。批准提案时自动建立；也可手动保存当前状态。</div>
+          ) : snapshots.map(snap => (
+            <div key={snap.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderTop: '1px solid rgba(255,255,255,.08)' }}>
+              <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 11.5, color: '#d8d8d8' }}>{snap.label}</span>
+              <span style={{ fontSize: 10, color: '#9b9b9b', flexShrink: 0 }}>{new Date(snap.at).toLocaleTimeString()}</span>
+              <button
+                onClick={() => {
+                  if (!window.confirm('恢复该检查点？当前画布将被整体回滚（已生成素材保留在素材库）。')) return
+                  void fetch('/directorx/canvas/restore', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: snap.id }) })
+                    .then(r => { if (!r.ok) throw new Error('restore failed'); return r.json() })
+                    .then(() => { setHistoryOpen(false); void load() })
+                    .catch(cause => setError(cause instanceof Error ? cause.message : String(cause)))
+                }}
+                style={{ padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(245,245,245,.5)', background: 'transparent', color: '#f0f0f0', fontSize: 11, cursor: 'pointer', flexShrink: 0 }}
+              >
+                恢复
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {proposalPanel ? (
+        <div className="dx-pop" style={{ position: 'absolute', top: 52, right: 12, zIndex: 11, width: 320, maxHeight: 380, overflowY: 'auto', padding: 10, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 14px 40px rgba(0,0,0,.6)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: '#f5f5f5' }}>待批准生成提案</span>
+            {proposals.length > 0 && proposals.some(item => item.estimatedCost !== undefined) ? (
+              <span style={{ fontSize: 10.5, color: '#e8b64f' }}>合计 {proposals.length} 条</span>
+            ) : null}
+          </div>
+          {proposals.length === 0 ? (
+            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>暂无待批准提案。</div>
+          ) : proposals.map(item => (
+            <div key={item.id} style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,.08)' }} onMouseEnter={() => { const target = nodes.find(node => node.id === (item as { canvasNodeId?: string }).canvasNodeId); if (target !== undefined) setProposalFocusId(target.id) }} onMouseLeave={() => setProposalFocusId(undefined)} title="悬停：画布上高亮关联镜头">
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 5, background: 'rgba(255,255,255,.12)', color: '#e8e8e8' }}>{item.kind}</span>
+                {item.model !== undefined ? <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>{item.model}</span> : null}
+                {item.size !== undefined ? <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>{item.size}</span> : null}
+                {item.duration !== undefined ? <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>{item.duration}s</span> : null}
+                <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>×{item.count}</span>
+                {item.estimatedCost !== undefined ? <span style={{ fontSize: 10.5, color: '#e8b64f', marginLeft: 'auto' }}>{item.estimatedCost}</span> : null}
+              </div>
+              <div style={{ fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.5, marginBottom: 6 }}>{item.prompt.length > 80 ? `${item.prompt.slice(0, 80)}…` : item.prompt}</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button onClick={() => { void fetch('/directorx/proposals/update', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: item.id, status: 'approved' }) }).then(r => { if (r.ok) setProposals(current => current.filter(entry => entry.id !== item.id)) }) }} style={{ flex: 1, padding: '5px 10px', borderRadius: 8, border: 'none', background: '#f5f5f5', color: '#171717', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}>批准</button>
+                <button onClick={() => { const reason = window.prompt('拒绝原因（可选，DSH 将据此重做）：'); if (reason === null) return; void fetch('/directorx/proposals/update', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: item.id, status: 'rejected', reason }) }).then(r => { if (r.ok) setProposals(current => current.filter(entry => entry.id !== item.id)) }) }} style={{ flex: 1, padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(240,163,163,.5)', background: 'transparent', color: '#f0a3a3', fontSize: 11.5, cursor: 'pointer' }}>拒绝</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
       <div style={topBar}>
         <input
           value={title}
@@ -2217,6 +2274,26 @@ function CanvasTabInner(): ReactNode {
           title="画布标题"
         />
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            className="dx-tool-icon"
+            onClick={() => { setHistoryOpen(open => !open); if (!historyOpen) { void fetch('/directorx/canvas/snapshots').then(r => r.json()).then((data: { snapshots?: Array<{ id: string; at: number; label: string }> }) => setSnapshots(data.snapshots ?? [])).catch(() => {}) } }}
+            title="版本历史（检查点/撤销此批）"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: historyOpen ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.05)', color: '#e8e8e8', fontSize: 11.5, cursor: 'pointer' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            历史
+          </button>
+          {proposals.length > 0 ? (
+            <button
+              className="dx-tool-icon"
+              onClick={() => setProposalPanel(open => !open)}
+              title="DSH 提交了生成提案，点击审阅"
+              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(79,157,255,.5)', background: 'rgba(79,157,255,.12)', color: '#9dc3ff', fontSize: 11.5, cursor: 'pointer' }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: 9999, background: '#4f9dff' }} />
+              提案 {proposals.length}
+            </button>
+          ) : null}
           <span style={{ ...saveChip, opacity: saveState === '已保存' ? 0 : 1, transition: 'opacity .3s ease' }}>{saveState}</span>
           <button
             className="dx-tool-icon"
