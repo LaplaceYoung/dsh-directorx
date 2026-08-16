@@ -43,8 +43,10 @@ test('MCP endpoint speaks initialize / tools/list / tools/call', async () => {
     const tools = await call({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} })
     assert.ok(tools.result.tools.length >= 10)
     const canvasGet = await call({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'directorx_canvas_get', arguments: {} } })
-    assert.equal(canvasGet.result.version, 1)
+    assert.equal(canvasGet.result.ok, true, 'typed envelope wraps success')
+    assert.equal(canvasGet.result.result.version, 1, 'payload under result.result')
     dispose()
+    server.closeAllConnections?.()
     server.close()
   } finally {
     await rm(dir, { recursive: true, force: true })

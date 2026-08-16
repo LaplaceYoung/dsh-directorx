@@ -75,6 +75,22 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
         return
       }
       const respond = (result: unknown) => sendJson(response, 200, { jsonrpc: '2.0', id: rpc.id ?? null, result })
+      // 类型化信封：{ok, result} 或 {ok:false, error:{code,message,details,recoverable}}
+      // ——外部 agent 按类型路由，不再解析自由文本错误。
+      const envelope = (result: unknown) => ({ ok: true, result })
+      const envelopeError = (error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error)
+        const code = (error as { code?: string } | null)?.code ?? 'internal'
+        return {
+          ok: false,
+          error: {
+            code,
+            message,
+            details: (error as { detail?: string } | null)?.detail ?? null,
+            recoverable: code === 'internal' || code === 'parse' || code === 'notFound',
+          },
+        }
+      }
       const fail = (code: number, message: string) => sendJson(response, 200, { jsonrpc: '2.0', id: rpc.id ?? null, error: { code, message } })
       try {
         if (rpc.method === 'initialize') {
@@ -92,14 +108,14 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
           const canvas = new DirectorxCanvasStore(settings.outputDir)
           const proposals = new ProposalStore(settings.outputDir)
           switch (name) {
-            case 'directorx_canvas_get': respond(await canvas.read()); return
-            case 'directorx_canvas_add': respond(await canvas.addNode(args as never)); return
-            case 'directorx_canvas_batch': respond(await canvas.batchAdd({ nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] })); return
-            case 'directorx_canvas_replace': { const current = await canvas.read(); respond(await canvas.write({ version: 1, updatedAt: 0, nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] }, current.updatedAt)); return }
-            case 'directorx_canvas_arrange': respond(await canvas.arrange(args.layout === 'row' ? 'row' : 'grid')); return
-            case 'directorx_propose': respond(await proposals.propose(args as never)); return
-            case 'directorx_proposals': respond(await proposals.list(args.status as never)); return
-            case 'directorx_preflight': respond(preflight(args as never)); return
+            case 'directorx_canvas_get': respond(envelope(await canvas.read())); return
+            case 'directorx_canvas_add': respond(envelope(await canvas.addNode(args as never))); return
+            case 'directorx_canvas_batch': respond(envelope(await canvas.batchAdd({ nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] }))); return
+            case 'directorx_canvas_replace': { const current = await canvas.read(); respond(envelope(await canvas.write({ version: 1, updatedAt: 0, nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] }, current.updatedAt))); return }
+            case 'directorx_canvas_arrange': respond(envelope(await canvas.arrange(args.layout === 'row' ? 'row' : 'grid'))); return
+            case 'directorx_propose': respond(envelope(await proposals.propose(args as never))); return
+            case 'directorx_proposals': respond(envelope(await proposals.list(args.status as never))); return
+            case 'directorx_preflight': respond(envelope(preflight(args as never))); return
             case 'directorx_style': {
               const style = String(args.style ?? '').trim()
               if (style === '') { fail(-32602, 'style is required'); return }
@@ -109,10 +125,10 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
               respond({ style, found: true, article: { id: article.article.id, title: article.article.title }, guidance: article.content.slice(0, 2500) })
               return
             }
-            case 'directorx_video_process': respond(await videoProcess({ source: String(args.source ?? ''), outputDir: settings.outputDir, start: typeof args.start === 'number' ? args.start : undefined, end: typeof args.end === 'number' ? args.end : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined, scale: typeof args.scale === 'string' ? args.scale : undefined, volume: typeof args.volume === 'number' ? args.volume : undefined, mute: args.mute === true, fps: typeof args.fps === 'number' ? args.fps : undefined })); return
-            case 'directorx_video_concat': respond(await videoConcat({ files: Array.isArray(args.files) ? args.files.map(String) : [], outputDir: settings.outputDir, transition: args.transition === 'cut' ? 'cut' : 'fade', fadeSec: typeof args.fadeSec === 'number' ? args.fadeSec : undefined, scale: typeof args.scale === 'string' ? args.scale : undefined })); return
-            case 'directorx_audio_mix': respond(await audioMix({ video: String(args.video ?? ''), outputDir: settings.outputDir, tracks: Array.isArray(args.tracks) ? args.tracks as never[] : [], duckUnder: typeof args.duckUnder === 'number' ? args.duckUnder : undefined })); return
-            case 'directorx_video_subtitle': respond(await videoSubtitle({ video: String(args.video ?? ''), srt: String(args.srt ?? ''), outputDir: settings.outputDir, mode: args.mode === 'burn' ? 'burn' : 'soft' })); return
+            case 'directorx_video_process': respond(envelope(await videoProcess({ source: String(args.source ?? ''), outputDir: settings.outputDir, start: typeof args.start === 'number' ? args.start : undefined, end: typeof args.end === 'number' ? args.end : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined, scale: typeof args.scale === 'string' ? args.scale : undefined, volume: typeof args.volume === 'number' ? args.volume : undefined, mute: args.mute === true, fps: typeof args.fps === 'number' ? args.fps : undefined }))); return
+            case 'directorx_video_concat': respond(envelope(await videoConcat({ files: Array.isArray(args.files) ? args.files.map(String) : [], outputDir: settings.outputDir, transition: args.transition === 'cut' ? 'cut' : 'fade', fadeSec: typeof args.fadeSec === 'number' ? args.fadeSec : undefined, scale: typeof args.scale === 'string' ? args.scale : undefined }))); return
+            case 'directorx_audio_mix': respond(envelope(await audioMix({ video: String(args.video ?? ''), outputDir: settings.outputDir, tracks: Array.isArray(args.tracks) ? args.tracks as never[] : [], duckUnder: typeof args.duckUnder === 'number' ? args.duckUnder : undefined }))); return
+            case 'directorx_video_subtitle': respond(envelope(await videoSubtitle({ video: String(args.video ?? ''), srt: String(args.srt ?? ''), outputDir: settings.outputDir, mode: args.mode === 'burn' ? 'burn' : 'soft' }))); return
             default: fail(-32602, `unknown tool "${name}"`); return
           }
         }
@@ -122,7 +138,7 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
         }
         fail(-32601, `method not found: ${rpc.method}`)
       } catch (error) {
-        fail(-32000, error instanceof Error ? error.message : String(error))
+        respond(envelopeError(error))
       }
     },
   })
