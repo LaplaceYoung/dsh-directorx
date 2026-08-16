@@ -227,9 +227,6 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     setProgress(undefined)
     setExported(undefined)
     try {
-      if (segments.some(segment => (segment.rate ?? 1) !== 1)) {
-        throw new Error('当前引擎暂不支持变速导出：请先把片段倍率调回 1×（倍率 UI 已就绪，导出接入后续版本）')
-      }
       if (!await Combinator.isSupported({ width: meta.width, height: meta.height })) {
         throw new Error('当前浏览器不支持 WebCodecs H.264 编码（需要 Chrome/Edge/Safari 较新版本）')
       }
@@ -254,10 +251,12 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
       for (const segment of segments) {
         const part = partByKey.get(`${segment.startUs}-${segment.endUs}`)
         if (part === undefined) throw new Error('片段在导出时丢失')
+        const rate = segment.rate ?? 1
         const sprite = new OffscreenSprite(part)
-        sprite.time = { offset: offsetUs, duration: segment.endUs - segment.startUs }
+        // duration = 时间线窗口（源时长÷倍率），playbackRate = 每秒消耗的源时长倍率。
+        sprite.time = { offset: offsetUs, duration: Math.round((segment.endUs - segment.startUs) / rate), playbackRate: rate }
         await combinator.addSprite(sprite)
-        offsetUs += segment.endUs - segment.startUs
+        offsetUs += Math.round((segment.endUs - segment.startUs) / rate)
       }
       const totalUs = offsetUs
       if (audio !== undefined) {
