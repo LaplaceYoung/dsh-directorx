@@ -94,7 +94,10 @@ const card: CSSProperties = {
 }
 
 const head: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }
-const status: CSSProperties = { fontSize: 12, opacity: .65, whiteSpace: 'nowrap' }
+const statusBase: CSSProperties = { fontSize: 11.5, whiteSpace: 'nowrap', padding: '2px 9px', borderRadius: 999, border: '1px solid var(--dsw-alias-border-l1)', color: 'var(--dsw-alias-label-secondary)', background: 'var(--dsw-alias-bg-layer-1)' }
+const statusRunning: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-business-primary, #4f9dff)', border: '1px solid rgba(79,157,255,.4)' }
+const statusFailed: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-error-primary, #f0a3a3)', border: '1px solid rgba(240,163,163,.4)' }
+const statusDone: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-success-primary, #86d993)', border: '1px solid rgba(134,217,147,.35)' }
 const summary: CSSProperties = { fontSize: 12.5, opacity: .85, marginTop: 6, lineHeight: 1.5, wordBreak: 'break-word' }
 const metaLine: CSSProperties = { fontSize: 11.5, opacity: .55, marginTop: 4, wordBreak: 'break-all' }
 const mediaBox: CSSProperties = { marginTop: 10 }
@@ -361,7 +364,7 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
     <div style={card}>
       <div style={head}>
         <strong style={{ fontSize: 13 }}>{meta.title}</strong>
-        <span style={status}>{statusLabel}</span>
+        <span style={failed ? statusFailed : settled ? statusDone : statusRunning}>{statusLabel}</span>
       </div>
       {prompt !== '' ? <div style={summary}>{prompt.length > 220 ? `${prompt.slice(0, 220)}…` : prompt}</div> : null}
       {!failed ? (
