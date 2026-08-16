@@ -478,6 +478,12 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
 
   const candidate = candidateId !== undefined ? lookup.get(candidateId) : undefined
   const candidateMetrics = candidate !== undefined ? nodeMetrics(candidate) : undefined
+  const highlightedEdgeIds = useMemo(() => {
+    const selectedNodeIds = new Set(nodes.filter(node => node.selected === true).map(node => node.id))
+    if (selectedNodeIds.size === 0) return new Set<string>()
+    return new Set(edges.filter(edge => selectedNodeIds.has(edge.source) || selectedNodeIds.has(edge.target)).map(edge => edge.id))
+  }, [nodes, edges])
+
   const paths = edges.map(edge => {
     const source = lookup.get(edge.source)
     const target = lookup.get(edge.target)
@@ -495,6 +501,7 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
     })
     const selected = edge.id === selectedId
     const hovered = edge.id === hoveredId
+    const connected = highlightedEdgeIds.has(edge.id)
     return (
       <g key={edge.id}>
         <circle cx={sourceX} cy={sourceY} r={selected ? 3.2 : 2.6} fill={selected ? 'rgba(245,245,245,.95)' : 'rgba(255,255,255,.5)'} pointerEvents="none" />
@@ -512,8 +519,8 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
         />
         <path
           d={path} fill="none"
-          stroke={selected ? 'rgba(255,255,255,.92)' : hovered ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.32)'}
-          strokeWidth={selected ? 2.2 : hovered ? 1.8 : 1.4}
+          stroke={selected ? 'rgba(255,255,255,.92)' : hovered ? 'rgba(255,255,255,.6)' : connected ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.32)'}
+          strokeWidth={selected ? 2.2 : hovered ? 1.8 : connected ? 1.7 : 1.4}
           strokeDasharray={selected ? '6 4' : undefined}
           markerEnd="url(#dx-arrow)"
           pointerEvents="none"
