@@ -72,8 +72,8 @@ async function saveEdit(blob: Blob, name: string, mediaType: string): Promise<Ed
 
 const column: CSSProperties = { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--dsw-alias-bg-base)' }
 const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid var(--dsw-alias-border-l1)', color: 'var(--dsw-alias-label-primary)' }
-const tabBar: CSSProperties = { display: 'flex', gap: 2, padding: '0 8px', borderBottom: '1px solid rgba(128,140,160,.2)', background: 'rgba(0,0,0,.18)' }
-const tabItemBase: CSSProperties = { padding: '9px 12px', fontSize: 12.5, cursor: 'pointer', background: 'transparent', border: 'none', color: 'rgba(214,224,246,.62)' }
+const tabBar: CSSProperties = { display: 'flex', gap: 2, padding: '0 8px', borderBottom: '1px solid var(--dsw-alias-border-l1)', background: 'transparent' }
+const tabItemBase: CSSProperties = { padding: '9px 12px', fontSize: 12.5, cursor: 'pointer', background: 'transparent', border: 'none', color: 'var(--dsw-alias-label-secondary)' }
 const body: CSSProperties = { flex: 1, overflow: 'auto' }
 const emptyBox: CSSProperties = { padding: 16, fontSize: 13, opacity: .78, lineHeight: 1.6 }
 
@@ -199,7 +199,7 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
     <div ref={rootRef} style={column}>
       <div style={headerBar}>
         <strong style={{ fontSize: 13 }}>{title}</strong>
-        <button onClick={close} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>关闭</button>
+        <button onClick={close} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>关闭</button>
       </div>
       <div style={tabBar}>
         {TABS.map(tab => (
@@ -207,8 +207,8 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
             key={tab.id}
             style={{
               ...tabItemBase,
-              color: snapshot.tab === tab.id ? '#f5f5f5' : tabItemBase.color,
-              borderBottom: snapshot.tab === tab.id ? '2px solid rgba(245,245,245,.85)' : '2px solid transparent',
+              color: snapshot.tab === tab.id ? 'var(--dsw-alias-label-primary)' : tabItemBase.color,
+              borderBottom: snapshot.tab === tab.id ? '2px solid var(--dsw-alias-label-primary)' : '2px solid transparent',
               fontWeight: snapshot.tab === tab.id ? 600 : 400,
             }}
             onClick={() => setEditorTab(tab.id)}
