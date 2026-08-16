@@ -24,7 +24,7 @@ type NodeCallbacks = {
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
-type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[]; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[]; collapsed?: boolean; onCycleShotStatus?: (id: string) => void; onToggleCollapse?: (id: string) => void } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -279,6 +279,13 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
     >
       <NodeResizer isVisible={selected} minWidth={260} minHeight={180} color="rgba(245,245,245,.85)" />
       <div style={groupTitle}>
+        <button
+          onClick={event => { event.stopPropagation(); data.onToggleCollapse?.(props.id) }}
+          title={data.collapsed === true ? '展开分组' : '折叠分组（成员与连线隐藏）'}
+          style={{ width: 18, height: 18, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 5, border: '1px solid rgba(255,255,255,.2)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8', cursor: 'pointer', fontSize: 10, lineHeight: 1 }}
+        >
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" style={{ transform: data.collapsed === true ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform .15s ease' }}><path d="M6 9l6 6 6-6"/></svg>
+        </button>
         <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={{ flex: 1, minWidth: 0 }} />
         {(data.continuityRules?.length ?? 0) > 0 ? (
           <span
@@ -560,6 +567,7 @@ function CanvasTabInner(): ReactNode {
   const [agentGoal, setAgentGoal] = useState('')
   const [agentMode, setAgentMode] = useState<'auto' | 'confirm'>('confirm')
   const [shotListOpen, setShotListOpen] = useState(false)
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [snapOn, setSnapOn] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
@@ -1850,7 +1858,19 @@ function CanvasTabInner(): ReactNode {
         .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
       `}</style>
       <ReactFlow
-        nodes={nodes}
+        nodes={(() => {
+          const hiddenIds = new Set<string>()
+          for (const node of nodes) {
+            if (node.parentId !== undefined && node.parentId !== '' && collapsedGroups.has(node.parentId)) hiddenIds.add(node.id)
+          }
+          return nodes.map(node => {
+            if (hiddenIds.has(node.id)) return { ...node, hidden: true }
+            if (node.type === 'group' && collapsedGroups.has(node.id)) {
+              return { ...node, style: { ...node.style, width: node.style?.width ?? 520, height: 46 } }
+            }
+            return node
+          })
+        })()}
         edges={[]}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
@@ -1911,7 +1931,13 @@ function CanvasTabInner(): ReactNode {
         onlyRenderVisibleElements={nodes.length > 100}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
-        <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} onContext={onEdgeContext} onReconnect={onEdgeReconnect} />
+        <DirectorxEdges nodes={nodes} edges={(() => {
+          const hiddenIds = new Set<string>()
+          for (const node of nodes) {
+            if (node.parentId !== undefined && node.parentId !== '' && collapsedGroups.has(node.parentId)) hiddenIds.add(node.id)
+          }
+          return edges.filter(edge => !hiddenIds.has(edge.source) && !hiddenIds.has(edge.target))
+        })()} selectedId={selectedEdge} onSelect={setSelectedEdge} onContext={onEdgeContext} onReconnect={onEdgeReconnect} />
         {(guides.vertical.length > 0 || guides.horizontal.length > 0) ? (
           <svg className="directorx-guides" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
             {guides.vertical.map(x => <line key={`v${x}`} x1={x} y1={-5000} x2={x} y2={5000} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
