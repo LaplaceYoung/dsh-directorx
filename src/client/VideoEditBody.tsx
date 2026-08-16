@@ -25,6 +25,8 @@ interface Segment {
   id: number
   startUs: number
   endUs: number
+  /** 播放倍率（0.1-4）；时间模型按 时长÷倍率 计，导出暂未接入。 */
+  rate?: number
 }
 
 interface Meta {
@@ -206,6 +208,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     setProgress(undefined)
     setExported(undefined)
     try {
+      if (segments.some(segment => (segment.rate ?? 1) !== 1)) {
+        throw new Error('当前引擎暂不支持变速导出：请先把片段倍率调回 1×（倍率 UI 已就绪，导出接入后续版本）')
+      }
       if (!await Combinator.isSupported({ width: meta.width, height: meta.height })) {
         throw new Error('当前浏览器不支持 WebCodecs H.264 编码（需要 Chrome/Edge/Safari 较新版本）')
       }
@@ -290,7 +295,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     window.addEventListener('pointerup', up)
   }
 
-  const totalUs = useMemo(() => segments.reduce((sum, segment) => sum + (segment.endUs - segment.startUs), 0), [segments])
+  const totalUs = useMemo(() => segments.reduce((sum, segment) => sum + Math.round((segment.endUs - segment.startUs) / (segment.rate ?? 1)), 0), [segments])
 
   // 全局快捷键（输入框焦点保护）：Space 播放 · S 分割 · Delete 删片段 ·
   // ←/→ seek（Shift 大步）· ↑/↓ 跳切点 · Esc 取消选择。
@@ -430,7 +435,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
               <div style={{ position: 'relative', display: 'flex', gap: 2, paddingBottom: 4, alignItems: 'stretch', height: 52 }}>
             <div style={{ position: 'absolute', left: Math.min(Math.max(currentTime * scale, 0), (meta.durationUs / 1e6) * scale), top: 0, bottom: 0, width: 1, background: 'rgba(245,245,245,.75)', pointerEvents: 'none', zIndex: 2, boxShadow: '0 0 4px rgba(0,0,0,.6)' }} title="播放头" />
             {segments.map(segment => {
-              const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
+              const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 / (segment.rate ?? 1) * scale))
               return (
                 <div
                   key={segment.id}
@@ -462,13 +467,42 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                     onPointerDown={beginTrim(segment, 'end')}
                   />
                   <div style={{ opacity: .75 }}>{fmt(segment.startUs)}–{fmt(segment.endUs)}</div>
-                  <div style={{ fontSize: 10, opacity: .55 }}>{fmt(segment.endUs - segment.startUs)}</div>
+                  <div style={{ fontSize: 10, opacity: .55 }}>{fmt(segment.endUs - segment.startUs)}{(segment.rate ?? 1) !== 1 ? ` · ${segment.rate}x` : ''}</div>
                 </div>
               )
             })}
             </div>
           </div>
           </div>
+          {selected !== undefined ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap', padding: '8px 10px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.04)' }}>
+              <span style={{ fontSize: 11, color: '#b8b8b8', flexShrink: 0 }}>片段倍率</span>
+              {[0.5, 1, 1.5, 2].map(rate => (
+                <button
+                  key={rate}
+                  onClick={() => setSegments(current => current.map(segment => segment.id === selected ? { ...segment, rate } : segment))}
+                  style={{ padding: '4px 10px', borderRadius: 999, border: ((segments.find(segment => segment.id === selected)?.rate ?? 1) === rate) ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: ((segments.find(segment => segment.id === selected)?.rate ?? 1) === rate) ? 'rgba(255,255,255,.14)' : 'transparent', color: '#ececec', fontSize: 11.5, cursor: 'pointer' }}
+                >
+                  {rate}x
+                </button>
+              ))}
+              <input
+                type="range" min={0.1} max={4} step={0.1} value={segments.find(segment => segment.id === selected)?.rate ?? 1}
+                onChange={event => {
+                  const value = Number(event.target.value)
+                  setSegments(current => current.map(segment => segment.id === selected ? { ...segment, rate: value } : segment))
+                }}
+                style={{ flex: 1, minWidth: 100 }}
+              />
+              <span style={{ fontSize: 11, color: '#d8d8d8', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                {(() => {
+                  const current = segments.find(segment => segment.id === selected)
+                  if (current === undefined) return ''
+                  return `时长 ${fmt(current.endUs - current.startUs)} → ${fmt((current.endUs - current.startUs) / (current.rate ?? 1))}`
+                })()}
+              </span>
+            </div>
+          ) : null}
           {trimPreview !== undefined ? (
             <div style={{ position: 'fixed', left: '50%', bottom: 24, transform: 'translateX(-50%)', zIndex: 30, fontSize: 12, fontVariantNumeric: 'tabular-nums', padding: '5px 12px', borderRadius: 999, background: 'rgba(18,18,18,.92)', border: '1px solid rgba(255,255,255,.18)', color: '#f5f5f5', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}>{trimPreview}</div>
           ) : null}
