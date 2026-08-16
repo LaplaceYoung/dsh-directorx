@@ -9,6 +9,7 @@ import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
 import { routeModel } from './model-matrix.ts'
+import { buildShotPrompt } from './providers/shot-builder.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
@@ -1310,6 +1311,37 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return estimateSpeech({ text: String(args.text), lang: typeof args.lang === 'string' ? args.lang : undefined }, typeof args.windowSec === 'number' ? args.windowSec : undefined)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_shot',
+    description: '镜头语言→生成提示词确定性翻译器（导演技巧的 AIGC 应用层）：把 景别/角度/运镜/布光/氛围/构图 的结构化选择翻译成五轴装配提示词 + 负面基线 + 规则编号引用（directorx-methodology 规则 29-68）。词表全部来自方法论沉淀，不凭感觉写提示词。',
+    parameters: {
+      subject: { type: 'string', required: true, description: '主体（含 2-3 个特征锚点）。' },
+      action: { type: 'string', description: '动作（节拍计数写法：「走四步到窗边，停顿，最后一秒拉开窗帘」）。' },
+      shotSize: { type: 'string', enum: ['ECU', 'CU', 'MCU', 'MS', 'MLS', 'LS', 'ELS'], description: '景别（默认 MS）。' },
+      angle: { type: 'string', enum: ['eye-level', 'low', 'high', 'birds-eye', 'worms-eye', 'dutch', 'OTS', 'POV'], description: '机位角度（默认 eye-level）。' },
+      cameraMove: { type: 'string', description: '运镜（安全词表：static/push_in/pull_out/pan/tilt/parallax/element；大胆：orbit/dolly_zoom/roll/whip）。' },
+      lighting: { type: 'string', enum: ['rembrandt', 'low-key', 'high-key', 'neon', 'golden-hour', 'soft-window', 'practical'], description: '布光预设（默认 soft-window）。' },
+      mood: { type: 'string', description: '氛围情绪。' },
+      composition: { type: 'string', enum: ['rule-of-thirds', 'symmetry', 'negative-space', 'frame-in-frame', 'depth-layers'], description: '构图预设。' },
+      durationSec: { type: 'number', description: '单镜时长（只用于建议，不写进提示词）。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return buildShotPrompt({
+        subject: String(args.subject),
+        action: typeof args.action === 'string' ? args.action : undefined,
+        shotSize: args.shotSize,
+        angle: args.angle,
+        cameraMove: typeof args.cameraMove === 'string' ? args.cameraMove : undefined,
+        lighting: args.lighting,
+        mood: typeof args.mood === 'string' ? args.mood : undefined,
+        composition: args.composition,
+        durationSec: typeof args.durationSec === 'number' ? args.durationSec : undefined,
+      })
     },
   })))
 

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { brief, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
+import { brief, buildShotPrompt, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -107,6 +107,29 @@ test('storyboard enforces the camera vocabulary and anti-monotony', () => {
   // storyBeat passthrough
   const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
   assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
+test('shot builder translates directing craft into generation prompts', () => {
+  const shot = buildShotPrompt({
+    subject: '红衣女子，黑发，红风衣',
+    action: '独坐窗边，缓缓抬头',
+    shotSize: 'MCU',
+    angle: 'eye-level',
+    cameraMove: 'push_in',
+    lighting: 'neon',
+    composition: 'negative-space',
+    mood: '孤独',
+    durationSec: 5,
+  })
+  assert.ok(shot.prompt.includes('medium close-up'), 'shot size phrase')
+  assert.ok(shot.prompt.includes('push in'), 'camera move phrase')
+  assert.ok(shot.prompt.includes('neon signs'), 'lighting phrase')
+  assert.ok(shot.prompt.includes('negative space'), 'composition phrase')
+  assert.ok(shot.negative.includes('extra fingers'), 'negative baseline')
+  assert.ok(shot.notes.some(note => note.includes('规则')), 'rule citations present')
+  // static move becomes explicit
+  const still = buildShotPrompt({ subject: '桌子', cameraMove: 'static' })
+  assert.ok(still.prompt.includes('Static camera, no movement'), 'static mandate explicit')
 })
 
 test('model router filters and ranks by requirement fit', () => {
