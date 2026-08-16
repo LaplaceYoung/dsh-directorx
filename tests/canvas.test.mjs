@@ -770,6 +770,8 @@ test('takeNext claims the oldest pending intent and never double-takes', async (
     const claimed = await store.takeNext()
     assert.equal(claimed?.id, first.id)
     assert.equal(claimed?.status, 'taken')
+    assert.equal(typeof claimed?.takenAt, 'number')
+    assert.ok(claimed.takenAt >= first.at)
     const claimedAgain = await store.takeNext()
     assert.equal(claimedAgain?.id, second.id)
     assert.equal(await store.takeNext(), null)

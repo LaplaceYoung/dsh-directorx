@@ -18,6 +18,7 @@ export interface CanvasIntent {
   characters: string[]
   status: 'pending' | 'taken' | 'done' | 'cancelled'
   at: number
+  takenAt?: number
 }
 
 interface IntentLedger { intents: CanvasIntent[] }
@@ -114,6 +115,7 @@ export class CanvasIntentStore {
     const intent = pending[0]
     if (intent === undefined) return null
     intent.status = 'taken'
+    intent.takenAt = Date.now()
     await this.write(ledger)
     return intent
   }
@@ -127,6 +129,7 @@ export class CanvasIntentStore {
       throw new Error(`canvas intent "${id}" cannot move ${intent.status} → ${status}`)
     }
     intent.status = status
+    if (status === 'taken') intent.takenAt = Date.now()
     await this.write(ledger)
     return intent
   }
