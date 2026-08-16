@@ -899,7 +899,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     description: 'One-call QC report card: runs directorx_qa against the brief and mirrors the verdict + per-check evidence + rule citations onto the canvas as a「质检｜…」text node. The standardized final-cut QA card for every deliverable.',
     parameters: {
       source: { type: 'string', required: true, description: 'Absolute path of the rendered video.' },
-      expect: { type: 'object', additionalProperties: true, description: 'Expected brief: { targetSeconds?, aspectRatio?, hasAudio?, minShots?, maxShots?, rhythm? }.' },
+      expect: { type: 'object', additionalProperties: true, description: 'Expected brief: { targetSeconds?, aspectRatio?, hasAudio?, minShots?, maxShots?, rhythm?, asl? [min,max] }.' },
       title: { type: 'string', description: 'Optional report title (defaults to the file name).' },
     },
     output: objectOutput(),

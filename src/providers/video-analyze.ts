@@ -142,6 +142,8 @@ export interface QaInput {
     maxShots?: number
     /** 节奏密度：多镜头成片时，每镜 ≤ 8s（pattern interrupt 规则）。 */
     rhythm?: boolean
+    /** 平均镜头时长区间 [min, max]（ASL 节奏律：动作段 2-3s / 情感段 6-10s）。 */
+    asl?: [number, number]
   }
 }
 
@@ -187,6 +189,12 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   // Black/white frame sanity from the analysis output.
   checks.push({ name: '黑帧', pass: analysis.blackFrameCount === 0, detail: analysis.blackFrameCount > 0 ? `检出 ${analysis.blackFrameCount} 帧近黑（YAVG<16）` : '无近黑帧' })
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
+  if (input.expect?.asl !== undefined && analysis.shots.length > 1) {
+    const mean = analysis.shots.reduce((sum, shot) => sum + shot.durationSec, 0) / analysis.shots.length
+    const [min, max] = input.expect.asl
+    const ok = mean >= min && mean <= max
+    checks.push({ name: '平均镜头时长', pass: ok, detail: `ASL ${mean.toFixed(2)}s / 期望 [${min}, ${max}]s` })
+  }
   if (input.expect?.rhythm === true && analysis.shots.length > 1) {
     const longest = Math.max(...analysis.shots.map(shot => shot.durationSec))
     const over = analysis.shots.filter(shot => shot.durationSec > 8).length
