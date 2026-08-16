@@ -19,7 +19,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
+import { audioSync, clipRank, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -905,6 +905,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute(args: any) {
       const expect = (args.expect ?? {}) as { targetSeconds?: number; aspectRatio?: string; hasAudio?: boolean; minShots?: number; maxShots?: number }
       return qaCheck({ source: String(args.source), outputDir: settings.outputDir, expect }, settings, settings.vision)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_clip_rank',
+    description: 'Candidate clip ranking (素材定位): scores every subtitle cue against the script semantics (character overlap) and returns the ranked candidates for the agent to assemble into a cut — the scoring step of the ESA/NarratoAI 精剪 pipeline.',
+    parameters: {
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt transcript.' },
+      script: { type: 'array', items: { type: 'string' }, required: true, description: 'Script sentences (or keyword groups) to match against.' },
+      topN: { type: 'number', description: 'Max candidates (default 10).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return clipRank({ srt: String(args.srt), script: Array.isArray(args.script) ? args.script.map(String) : [], topN: args.topN })
     },
   })))
 

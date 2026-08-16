@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, clipRank, hasLibass, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -34,6 +34,20 @@ test('qaCheck gates duration/aspect/audio against the brief', async () => {
     const fail = await qaCheck({ source: clip, outputDir: dir, expect: { targetSeconds: 10 } }, settings, settings.vision)
     assert.equal(fail.verdict, 'fix')
     assert.ok(fail.checks.some(check => check.name === '时长' && !check.pass))
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('clipRank scores and orders subtitle candidates', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-rank-'))
+  try {
+    const srt = join(dir, 'subs.srt')
+    await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,000\n开场白与客套\n\n2\n00:00:02,000 --> 00:00:03,000\n产品亮点与优惠\n\n3\n00:00:04,000 --> 00:00:05,000\n结尾致谢\n\n', 'utf8')
+    const out = await clipRank({ srt, script: ['产品亮点优惠'], topN: 3 })
+    assert.equal(out.ranked.length, 3)
+    assert.equal(out.ranked[0].cue.index, 2, 'best match ranked first')
+    assert.ok(out.ranked[0].score > out.ranked[1].score, 'descending scores')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

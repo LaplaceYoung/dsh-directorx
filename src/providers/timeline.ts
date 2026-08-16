@@ -344,3 +344,43 @@ export async function smartCut(input: SmartCutInput): Promise<SmartCutOutput> {
   }, input.outputDir)
   return { path: rendered.path, mimeType: 'video/mp4', matched, steps: rendered.steps, probe: rendered.probe }
 }
+
+export interface ClipRankInput {
+  srt: string
+  /** 脚本句（或关键词组）——按这些语义检索候选片段。 */
+  script: string[]
+  topN?: number
+}
+
+export interface ClipRankOutput {
+  ranked: Array<{ cue: SrtCue; score: number; matchedBy: string }>
+}
+
+function charOverlap(a: string, b: string): number {
+  let score = 0
+  for (const char of a) if (b.includes(char)) score += 1
+  return score / Math.max(1, a.length)
+}
+
+/**
+ * Candidate clip ranking (ESA pipeline's scoring step): score every
+ * subtitle cue against the script semantics and return the ranked list
+ * for the agent to assemble. 素材定位的检索面。
+ */
+export async function clipRank(input: ClipRankInput): Promise<ClipRankOutput> {
+  const cues = parseSrt(readFileSync(input.srt, 'utf8'))
+  const script = input.script.filter(sentence => sentence.trim() !== '')
+  const ranked = cues
+    .map(cue => {
+      let best = 0
+      let matchedBy = ''
+      for (const sentence of script) {
+        const score = charOverlap(sentence, cue.text)
+        if (score > best) { best = score; matchedBy = sentence }
+      }
+      return { cue, score: Number(best.toFixed(3)), matchedBy }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, input.topN ?? 10)
+  return { ranked }
+}
