@@ -1284,12 +1284,9 @@ function CanvasTabInner(): ReactNode {
   }, [mediaByPath, screenToFlowPosition, setNodes, scheduleSave, nodeCallbacks])
 
   const onPaneDoubleClick = useCallback((event: React.MouseEvent) => {
-    const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
-    addNodeAt({
-      id: newLocalId('text'), type: 'text', position: flowPos,
-      data: { label: '文本节点' },
-    })
-  }, [screenToFlowPosition, addNodeAt])
+    // 双击空白 = 空间化创建菜单（文字/分组/媒体库/上传），不直接造节点。
+    setQuickAdd({ x: event.clientX, y: event.clientY })
+  }, [])
 
   const onConnectStart = useCallback((_event: unknown, params: { nodeId: string | null }) => {
     connectSourceRef.current = params.nodeId ?? undefined
@@ -1994,17 +1991,12 @@ function CanvasTabInner(): ReactNode {
       {agentOpen ? (
         <div style={agentDrawer}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>导演 Agent</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>画布上下文</span>
             <button className="dx-tool-icon" style={{ ...iconBtn, width: 28, height: 28 }} onClick={() => setAgentOpen(false)} title="收起">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg>
             </button>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, padding: 12, overflowY: 'auto' }}>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11.5, color: '#9b9b9b' }}>模式</div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={() => setAgentMode('auto')} style={{ flex: 1, padding: '6px 10px', borderRadius: 9, border: agentMode === 'auto' ? '1px solid rgba(245,245,245,.8)' : '1px solid rgba(255,255,255,.14)', background: agentMode === 'auto' ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 12, cursor: 'pointer' }}>自动</button>
-              <button onClick={() => setAgentMode('confirm')} style={{ flex: 1, padding: '6px 10px', borderRadius: 9, border: agentMode === 'confirm' ? '1px solid rgba(245,245,245,.8)' : '1px solid rgba(255,255,255,.14)', background: agentMode === 'confirm' ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 12, cursor: 'pointer' }}>手动确认</button>
-            </div>
             <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>画布引用（当前选中节点）</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {selectedCount === 0 ? (
@@ -2015,35 +2007,22 @@ function CanvasTabInner(): ReactNode {
                 return <span key={id} style={{ fontSize: 10.5, padding: '3px 8px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8' }}>@{node?.data?.label ?? id}</span>
               })}
             </div>
-            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>目标</div>
-            <textarea
-              value={agentGoal}
-              onChange={event => setAgentGoal(event.target.value)}
-              placeholder="今天想拍什么？例如：给镜头 1 生成三个霓虹雨夜的变体"
-              style={{ minHeight: 84, resize: 'vertical', padding: '10px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.04)', color: '#f0f0f0', fontSize: 12.5, outline: 'none', lineHeight: 1.5 }}
-            />
-            <button
-              onClick={() => {
-                const goal = agentGoal.trim()
-                if (goal === '') return
-                const firstSelected = nodes.find(node => node.selected === true)
-                const position = firstSelected !== undefined ? { x: firstSelected.position.x, y: firstSelected.position.y + (nodeMetrics(firstSelected).height + 40) } : { x: 240, y: 240 }
-                setNodes(current => [...current, { id: newLocalId('text'), type: 'text', position, data: { label: `目标：${goal}`, ...nodeCallbacks } }])
-                setAgentGoal('')
-                scheduleSave()
-              }}
-              style={{ padding: '9px 12px', borderRadius: 10, border: 'none', background: '#f5f5f5', color: '#171717', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
-            >
-              {agentMode === 'confirm' ? '生成确认卡' : '发送（自动）'}
-            </button>
-            <div style={{ fontSize: 10.5, color: '#666', lineHeight: 1.6 }}>
-              建议卡：高成本生成先确认模型/参数/引用/成本（提案队列同语义）。目标落地为画布文本节点，agent 据此执行。
+            <div style={{ fontSize: 11, color: '#9b9b9b', lineHeight: 1.7, border: '1px solid rgba(79,157,255,.25)', background: 'rgba(79,157,255,.06)', borderRadius: 12, padding: '10px' }}>
+              目标与指令直接在 DSH 会话中提出——DSH 通过 directorx_canvas_* 与生成工具操作画布，改动实时同步到这里。选中节点 = 给 DSH 的精确引用。
+            </div>
+            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>建议卡</div>
+            <div style={{ fontSize: 11.5, color: '#8a8a8a', lineHeight: 1.7 }}>
+              下一步动作（由 DSH 判断与执行）：<br/>
+              1. 选中镜头组 → 让 DSH 生成该镜头的 Take 变体<br/>
+              2. 双击空白 → 建节点/素材，DSH 自动连线<br/>
+              3. 让 DSH 跑 shot_gate 质检再成片<br/>
+              4. 目标可先 brief 分诊再展开
             </div>
           </div>
         </div>
       ) : (
         <button
-          title="打开导演 Agent 抽屉"
+          title="打开画布上下文面板"
           onClick={() => setAgentOpen(true)}
           style={{ position: 'absolute', right: 14, bottom: 14, zIndex: 10, width: 44, height: 44, borderRadius: 9999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(18,18,18,.9)', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}
         >
