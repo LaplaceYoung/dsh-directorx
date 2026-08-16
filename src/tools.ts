@@ -893,6 +893,31 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_qa_report',
+    description: 'One-call QC report card: runs directorx_qa against the brief and mirrors the verdict + per-check evidence + rule citations onto the canvas as a「质检｜…」text node. The standardized final-cut QA card for every deliverable.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the rendered video.' },
+      expect: { type: 'object', additionalProperties: true, description: 'Expected brief: { targetSeconds?, aspectRatio?, hasAudio?, minShots?, maxShots?, rhythm? }.' },
+      title: { type: 'string', description: 'Optional report title (defaults to the file name).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const expect = (args.expect ?? {}) as { targetSeconds?: number; aspectRatio?: string; hasAudio?: boolean; minShots?: number; maxShots?: number; rhythm?: boolean }
+      const report = await qaCheck({ source: String(args.source), outputDir: settings.outputDir, expect }, settings, settings.vision)
+      const name = typeof args.title === 'string' && args.title !== '' ? args.title : String(args.source).split('/').pop()
+      const lines = [`质检｜${name}`, `verdict: ${report.verdict}`, ...report.checks.map(check => `${check.pass ? 'PASS' : 'FAIL'} ${check.name}: ${check.detail}`), '规则引用: directorx-methodology（节奏规则 2/10，黑帧白帧规则由确定性信号分析覆盖）']
+      const doc = await canvas.read()
+      const maxBottom = doc.nodes.reduce((max, node) => Math.max(max, node.y + (node.height ?? 120)), 0)
+      const nodeId = `qc-${Date.now()}`
+      const updatedDoc = await canvas.addNode({ id: nodeId, kind: 'text', label: lines.join('\n'), x: 0, y: maxBottom + 60, width: 420, height: 60 + report.checks.length * 40 })
+      const node = updatedDoc.nodes.find(candidate => candidate.id === nodeId)
+      return { qa: report, canvasNodeId: node?.id ?? nodeId }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_qa',
     description: 'Deterministic final-cut QC gate (成片质检): checks duration vs target, aspect ratio, audio presence, shot-count sanity and loudness — built on videoAnalyze. Frame-level visual QA stays with directorx_extract_frames + directorx_view_image (frame-qa skill). Returns per-check pass/issues + verdict.',
     parameters: {
