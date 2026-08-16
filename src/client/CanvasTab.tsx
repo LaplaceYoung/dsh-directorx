@@ -507,10 +507,12 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
         />
         <path
           d={path} fill="none"
-          stroke={selected ? 'rgba(255,255,255,.85)' : hovered ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)'}
+          stroke={selected ? 'rgba(255,255,255,.92)' : hovered ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.32)'}
           strokeWidth={selected ? 2.2 : hovered ? 1.8 : 1.4}
+          strokeDasharray={selected ? '6 4' : undefined}
           markerEnd="url(#dx-arrow)"
           pointerEvents="none"
+          style={selected ? { animation: 'dx-dash-flow 1s linear infinite' } : undefined}
         />
         <circle
           cx={sourceX} cy={sourceY} r={4.5} fill="#f5f5f5" opacity={hovered || selected ? 0.9 : 0}
@@ -1895,6 +1897,7 @@ function CanvasTabInner(): ReactNode {
         .dx-tool-icon:hover { background: rgba(255,255,255,.08); }
         .dx-tool-icon:active { background: rgba(255,255,255,.14); }
         @keyframes dx-pop-in { from { opacity: 0; transform: translateY(4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes dx-dash-flow { to { stroke-dashoffset: -20; } }
         .dx-pop { animation: dx-pop-in .16s ease; }
         .dx-title-input { transition: border-color .15s ease, background .15s ease; }
         .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
@@ -1997,6 +2000,22 @@ function CanvasTabInner(): ReactNode {
           />
         ) : null}
       </ReactFlow>
+      {nodes.length === 0 && conflict === undefined ? (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, pointerEvents: 'none', padding: 16 }}>
+          <div style={{ fontSize: 19, fontWeight: 600, color: '#f5f5f5', letterSpacing: .5, textAlign: 'center' }}>今天想拍什么？</div>
+          <div style={{ fontSize: 12.5, color: '#8a8a8a', textAlign: 'center', lineHeight: 1.8, maxWidth: 420 }}>
+            让 DSH 在会话里直接开拍（brief 分诊 → 分镜 → 生成 → 质检），画布实时同步；<br />也可以先手动搭一个镜头组，或双击空白处开始。
+          </div>
+          <div style={{ display: 'flex', gap: 10, pointerEvents: 'auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={addGroup}>新建镜头组</button>
+            <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => void openPicker()}>导入素材</button>
+            <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => setAgentOpen(true)}>打开上下文面板</button>
+          </div>
+          <div style={{ fontSize: 10.5, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.8 }}>
+            左键框选 · 中键/右键平移 · ⌘滚轮缩放 · 双击空白建节点 · 右键更多操作
+          </div>
+        </div>
+      ) : null}
       <div style={topBar}>
         <input
           value={title}
