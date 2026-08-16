@@ -94,8 +94,9 @@ export function assertNotPeer(cwd, peer) {
 }
 
 /**
- * Run one tree's shipped tests, then commit only allowlisted paths if green.
- * Never touches `peer`. Push is attempted only after a successful commit.
+ * Stage the allowlisted increment, hide everything else, run the shipped
+ * suite against that index, then commit. Green tests must describe the
+ * commit, not leftover dirty files.
  */
 export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   assertNotPeer(tree, peer)
@@ -105,52 +106,65 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   const peerBefore = peer && existsSync(join(peer, '.git')) ? snapshotTree(peer) : null
   const scoped = scopedPaths(tree, increment.allow, increment.deny)
   const env = authorEnv(tree)
-
-  const testRun = runInTree(tree, increment.test, env)
-  const testsOk = testRun.status === 0
   const record = {
     name: increment.name,
     tree: resolve(tree),
     peer: peer ? resolve(peer) : null,
     testCommand: increment.test,
-    testsOk,
-    testStatus: testRun.status,
+    testsOk: false,
+    testStatus: null,
     scoped,
     startHead: before.head,
     commit: null,
     push: null,
     skip: null,
   }
+  let testRun = { status: 0, stdout: '', stderr: '' }
 
-  if (!testsOk) {
-    record.skip = 'tests_red'
-  } else if (scoped.length === 0) {
+  if (scoped.length === 0) {
     record.skip = 'no_scoped_changes'
+    record.testsOk = true
+    record.testStatus = 0
   } else {
     const add = git(tree, ['add', '--', ...scoped], env)
     if (add.status !== 0) {
       record.skip = 'git_add_failed'
       record.addError = (add.stderr || add.stdout).slice(0, 2000)
     } else {
-      const commit = git(tree, ['commit', '-m', increment.message], env)
-      if (commit.status !== 0) {
-        record.skip = 'git_commit_failed'
-        record.commitError = (commit.stderr || commit.stdout).slice(0, 2000)
-      } else {
-        const head = git(tree, ['rev-parse', 'HEAD'])
-        record.commit = (head.stdout || '').trim()
-        if (skipPush) {
-          record.push = { skipped: 'skip_push_flag' }
+      const stash = git(tree, ['stash', 'push', '--keep-index', '--include-untracked', '-m', 'directorx-loop-gate'], env)
+      const stashOut = `${stash.stdout || ''}\n${stash.stderr || ''}`
+      const stashed = stash.status === 0 && !/No local changes to save/i.test(stashOut)
+      try {
+        testRun = runInTree(tree, increment.test, env)
+        record.testStatus = testRun.status
+        record.testsOk = testRun.status === 0
+        if (!record.testsOk) {
+          record.skip = 'tests_red'
+          git(tree, ['restore', '--staged', '.'], env)
         } else {
-          const pushed = git(tree, ['push', 'origin', 'HEAD'], env)
-          record.push = {
-            attempted: true,
-            ok: pushed.status === 0,
-            status: pushed.status,
-            stdout: (pushed.stdout || '').slice(0, 4000),
-            stderr: (pushed.stderr || '').slice(0, 4000),
+          const commit = git(tree, ['commit', '-m', increment.message], env)
+          if (commit.status !== 0) {
+            record.skip = 'git_commit_failed'
+            record.commitError = (commit.stderr || commit.stdout).slice(0, 2000)
+            git(tree, ['restore', '--staged', '.'], env)
+          } else {
+            record.commit = (git(tree, ['rev-parse', 'HEAD']).stdout || '').trim()
+            if (skipPush) {
+              record.push = { skipped: 'skip_push_flag' }
+            } else {
+              const pushed = git(tree, ['push', 'origin', 'HEAD'], env)
+              record.push = {
+                attempted: true,
+                ok: pushed.status === 0,
+                status: pushed.status,
+                stdout: (pushed.stdout || '').slice(0, 4000),
+                stderr: (pushed.stderr || '').slice(0, 4000),
+              }
+            }
           }
         }
+      } finally {
+        if (stashed) git(tree, ['stash', 'pop'], env)
       }
     }
   }
@@ -160,8 +174,7 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   }
 
   record.endHead = snapshotTree(tree).head
-  const out = join(recordDir, `${increment.name}.json`)
-  writeFileSync(out, `${JSON.stringify(record, null, 2)}\n`)
+  writeFileSync(join(recordDir, `${increment.name}.json`), `${JSON.stringify(record, null, 2)}\n`)
   writeFileSync(join(recordDir, `${increment.name}-test.log`), `${testRun.stdout || ''}\n${testRun.stderr || ''}`)
   return record
 }

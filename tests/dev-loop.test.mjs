@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -94,6 +94,31 @@ test('runTreeJob skips commit when the shipped test command is red', async () =>
   assert.equal(record.skip, 'tests_red')
   assert.equal(record.commit, null)
   assert.equal(snapshotTree(plugin).head, before.head)
+})
+
+test('runTreeJob gates on the staged increment, not leftover dirty files', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'loop-gate-'))
+  const plugin = join(root, 'plugin')
+  const agent = join(root, 'agent')
+  initRepo(plugin, 'plugin')
+  initRepo(agent, 'agent')
+  mkdirSync(join(plugin, 'src'), { recursive: true })
+  writeFileSync(join(plugin, 'src', 'good.js'), 'export const ok = 1\n')
+  writeFileSync(join(plugin, 'poison.js'), 'must not be visible while the suite runs\n')
+  writeFileSync(join(plugin, 'scripts', 'loop-increment.json'), JSON.stringify({
+    name: 'plugin',
+    test: ['node', '-e', "require('node:fs').existsSync('poison.js') ? process.exit(2) : process.exit(0)"],
+    allow: ['src/'],
+    deny: [],
+    message: 'only the increment',
+  }))
+  const record = runTreeJob({ tree: plugin, peer: agent, recordDir: join(root, 'record'), skipPush: true })
+  assert.equal(record.testsOk, true, 'poison.js must be hidden while tests run')
+  assert.ok(record.commit)
+  assert.equal(existsSync(join(plugin, 'poison.js')), true, 'unscoped dirt is restored after the gate')
+  const show = git(plugin, ['show', '--name-only', '--pretty=format:', record.commit])
+  assert.match(show.stdout, /src\/good\.js/)
+  assert.doesNotMatch(show.stdout, /poison/)
 })
 
 test('scopedPaths reads the real git status of the tree under test', async () => {

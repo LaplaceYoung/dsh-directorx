@@ -21,5 +21,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(canvas): generate intents carry registered character anchors"
+  "message": "fix(loop): run the shipped suite against the staged increment only"
 }
