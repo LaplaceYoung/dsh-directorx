@@ -112,7 +112,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   if (settings.video.enabled) {
     disposers.push(ctx.tools.register(defineTool({
       name: 'directorx_generate_video',
-      description: 'Generate an AI video through a configurable OpenAI /videos endpoint or a ModelVerse tasks endpoint. Supports first-frame, last-frame, and reference-image controls. Configure the video Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
+      description: 'Generate an AI video through a configurable OpenAI /videos endpoint or a ModelVerse tasks endpoint. Supports first-frame, last-frame, and reference-image controls. 音画同出：优先选原生音频模型（kling-3.0/veo/vidu/seedance）；不支持音频的模型降级链 = 本工具静音出片 + generate_audio 旁白 + audio_sync 对齐。多镜头一致性：角色先 directorx_character_register 预注册，相邻镜头用上一镜末帧作 first_frame 接力。Configure the video Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
       parameters: {
         prompt: { type: 'string', required: true, description: 'DirectorX video prompt: physical action first, then camera, environment, style, lighting. Positive language; concrete motion.' },
         seconds: { type: 'number', description: 'Target duration in seconds. Provider clamps unknown values.' },

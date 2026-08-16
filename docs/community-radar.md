@@ -249,3 +249,13 @@
 | 帧级切割 | 帧边界级精度（回退最近 IDR）；fps 保真需显式传（Combinator 默认 30） |
 | 响度归一 | 变通：RMS/峰值可行，R128 待 ebur128-wasm |
 | 待办 | 变速导出前提示「音频会变调」、60fps 素材 fps 透传、BGM 电流音 issue 跟踪 |
+
+
+## 音画同出/多镜头一致性调研采纳（2026-08-18）
+
+| 项 | 落地 |
+|---|---|
+| 音画同出三契约 | 文本驱动 / voice_id+台词 / 音频参考——generate_video 描述层给出 native-audio 优先 + 降级链（静音出片→TTS→audio_sync） |
+| 多镜头一致性范式 | 资产预注册（characters）+ 参考图类型化 + 首尾帧接力（handoff 末帧）；pipeline 模板加「主体预注册 + 连续性锁」步骤 |
+| 对口型 as-a-service | 契约统一（视频|图+音频→视频）；建议作音画同出降级路径；开源侧 OpenRAIL++ 需注意条款 |
+| 待核对 | MiniMax audio 字段结构、OpenAI 音频参数名（落地前逐字段核对） |
