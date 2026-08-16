@@ -14,6 +14,7 @@ import { runImage } from './providers/image.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
+import { videoConcat, videoProcess } from './providers/video-process.ts'
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -423,6 +424,44 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute() {
       const current = await canvas.read()
       return canvas.write({ version: 1, updatedAt: 0, nodes: [], edges: [] }, current.updatedAt)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_process',
+    description: 'Deterministic local video processing with ffmpeg: trim (start/end seconds), speed change (0.5-8x), resize (scale like 1280:720 or 16:9), volume adjust, mute, and fps normalization — all in one call. Free and exact; prefer over regenerating. Output lands in the output dir.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      start: { type: 'number', description: 'Trim start (seconds).' },
+      end: { type: 'number', description: 'Trim end (seconds).' },
+      speed: { type: 'number', description: 'Playback speed multiplier (0.5-8).' },
+      scale: { type: 'string', description: 'Output size, e.g. 1280:720 or 16:9.' },
+      volume: { type: 'number', description: 'Audio volume multiplier (e.g. 0.9).' },
+      mute: { type: 'boolean', description: 'Strip the audio track.' },
+      fps: { type: 'number', description: 'Normalize to this frame rate.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoProcess({ ...args, outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_concat',
+    description: 'Concatenate multiple local videos into one: normalizes size/fps/audio, then either hard cuts or xfade (cross-fade) transitions with audio acrossfade. Deterministic ffmpeg assembly for multi-shot deliverables. Output lands in the output dir.',
+    parameters: {
+      files: { type: 'array', items: { type: 'string' }, required: true, description: 'Absolute paths of 2+ local videos in order.' },
+      transition: { type: 'string', enum: ['fade', 'cut'], description: 'fade = xfade cross-fade (default); cut = hard cuts.' },
+      fadeSec: { type: 'number', description: 'Cross-fade duration (default 0.5s).' },
+      scale: { type: 'string', description: 'Common output size (default 1280:720).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoConcat({ ...args, outputDir: settings.outputDir })
     },
   })))
 

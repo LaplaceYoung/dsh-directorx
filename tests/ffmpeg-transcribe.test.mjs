@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
+import { videoConcat, videoProcess } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -20,6 +21,29 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('videoProcess trims and speeds up; videoConcat joins with xfade', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-vp-'))
+  try {
+    const makeClip = (name, seconds) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', `testsrc2=size=320x180:rate=24:duration=${seconds}`, '-f', 'lavfi', '-i', 'sine=frequency=440:duration=' + seconds, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('clip gen failed: ' + (result.stderr ?? '').slice(-300))
+      return path
+    }
+    const a = makeClip('a.mp4', 2)
+    const b = makeClip('b.mp4', 2)
+    const processed = await videoProcess({ source: a, outputDir: dir, start: 0.2, end: 1.4, speed: 2, mute: true, scale: '160:90' })
+    assert.ok(existsSync(processed.path), 'processed file exists')
+    assert.equal(processed.probe.format, 'mov,mp4,m4a,3gp,3g2,mj2')
+    assert.ok(processed.probe.durationSec < 0.8 && processed.probe.durationSec > 0.3, `trimmed+sped duration ~0.6s, got ${processed.probe.durationSec}`)
+    const concat = await videoConcat({ files: [a, b], outputDir: dir, transition: 'fade', fadeSec: 0.4 })
+    assert.ok(existsSync(concat.path), 'concat file exists')
+    assert.ok(concat.probe.durationSec > 3.0 && concat.probe.durationSec < 4.0, `fade concat duration ~3.6s, got ${concat.probe.durationSec}`)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('probeMedia reports format, duration, and video stream', { skip: !hasFfmpeg }, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-ffmpeg-'))
