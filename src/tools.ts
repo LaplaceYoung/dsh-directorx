@@ -541,6 +541,27 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           negative: 'bright even lighting, saturated cheerful colors, high-key comedy lighting, modern clean interiors',
           source: 'corpus 265 genre iconography + noir research grammar',
         },
+        documentary: {
+          anchor: 'observational documentary realism, natural available light, handheld authenticity',
+          palette: 'natural ungraded tones, neutral white balance, muted earth colors',
+          motion: 'handheld follow with gentle sway, slow zooms for emphasis, locked-off interview frames',
+          negative: 'cinematic color grading, studio lighting, smooth gimbal motion, stylized slow motion',
+          source: 'corpus documentary preset + Ken Burns narration discipline (rule 5.2)',
+        },
+        commercial: {
+          anchor: 'high-end commercial product cinematography, clean studio environment',
+          palette: 'teal and orange commercial grade, crisp whites, product-color accent lighting',
+          motion: 'slow dolly and orbit around the product, macro inserts, light leak transitions',
+          negative: 'grainy footage, dirty surfaces, cluttered background, amateur handheld shake',
+          source: 'corpus commercial preset + teal-orange research (rule 4.6)',
+        },
+        ghibli: {
+          anchor: 'hand-painted Studio Ghibli-inspired animation, watercolor backgrounds, soft character design',
+          palette: 'pastel watercolor washes, warm sunlight greens, sky blues with painted clouds',
+          motion: 'gentle parallax pans, floating dust motes, wind through grass and hair',
+          negative: 'photorealistic, 3D render, live action, sharp digital lines, harsh shadows',
+          source: 'corpus ghibli preset + style-side locking (rule 27)',
+        },
       }
       const grammar = GRAMMARS[style.toLowerCase()]
       if (grammar !== undefined) {
