@@ -58,6 +58,14 @@ const audioLane: CSSProperties = { marginTop: 12, border: '1px solid rgba(255,25
 const audioLabel: CSSProperties = { fontSize: 11.5, opacity: .8, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
 const trimHandleCss = '.dx-trim-handle:hover { opacity: 1 !important; background: linear-gradient(to right, rgba(245,245,245,.6), transparent) !important; }'
 
+/** 标尺刻度间隔：随 px/s 自适应（大刻度密度，避免拥挤）。 */
+function rulerInterval(scale: number): { major: number; minor: number } {
+  if (scale >= 60) return { major: 1, minor: 0.5 }
+  if (scale >= 20) return { major: 5, minor: 1 }
+  if (scale >= 8) return { major: 10, minor: 5 }
+  return { major: 30, minor: 10 }
+}
+
 function fmt(us: number): string {
   const total = us / 1e6
   const minutes = Math.floor(total / 60)
@@ -389,21 +397,37 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             <span style={{ fontSize: 11, opacity: .5 }}>空格播放/暂停 · 拖动片段边缘裁剪（自动吸附边界/播放头）</span>
           </div>
           <div
-            style={{ ...lane, position: 'relative', minHeight: 56 }}
+            style={{ ...lane, position: 'relative', minHeight: 96, display: 'block', overflowX: 'auto' }}
             onClick={event => {
               // 点击时间线空白处：预览跳转到该时间点（播放头三态单向同步）。
               const target = event.target as HTMLElement
               if (target.closest('[data-segment]') !== null) return
               const laneEl = event.currentTarget as HTMLElement
-              const scroll = laneEl.querySelector('[data-lane-scroll]') as HTMLElement | null
-              const x = event.clientX - laneEl.getBoundingClientRect().left + (scroll?.scrollLeft ?? 0)
+              const x = event.clientX - laneEl.getBoundingClientRect().left + laneEl.scrollLeft
               const video = videoRef.current
               if (video === null || meta === undefined) return
               video.currentTime = Math.min(meta.durationUs / 1e6, Math.max(0, x / scale))
               setCurrentTime(video.currentTime)
             }}
           >
-            <div data-lane-scroll style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', gap: 2, overflowX: 'auto', paddingBottom: 4, alignItems: 'stretch' }}>
+            <div style={{ position: 'relative', width: (meta.durationUs / 1e6) * scale + 8, minWidth: '100%' }}>
+              <div style={{ position: 'relative', height: 20, borderBottom: '1px solid rgba(255,255,255,.12)' }}>
+                {(() => {
+                  const { major, minor } = rulerInterval(scale)
+                  const ticks: React.ReactNode[] = []
+                  const durationSec = meta.durationUs / 1e6
+                  for (let t = 0; t <= durationSec; t += minor) {
+                    const isMajor = Math.abs(t % major) < 0.001
+                    ticks.push(
+                      <div key={`tick-${t}`} style={{ position: 'absolute', left: t * scale, bottom: 0, width: 1, height: isMajor ? 10 : 5, background: 'rgba(255,255,255,.35)' }}>
+                        {isMajor ? <span style={{ position: 'absolute', left: 3, top: 0, fontSize: 9, color: 'rgba(255,255,255,.55)', fontVariantNumeric: 'tabular-nums' }}>{fmt(t * 1e6).replace(/\\.0$/, '')}</span> : null}
+                      </div>,
+                    )
+                  }
+                  return ticks
+                })()}
+              </div>
+              <div style={{ position: 'relative', display: 'flex', gap: 2, paddingBottom: 4, alignItems: 'stretch', height: 52 }}>
             <div style={{ position: 'absolute', left: Math.min(Math.max(currentTime * scale, 0), (meta.durationUs / 1e6) * scale), top: 0, bottom: 0, width: 1, background: 'rgba(245,245,245,.75)', pointerEvents: 'none', zIndex: 2, boxShadow: '0 0 4px rgba(0,0,0,.6)' }} title="播放头" />
             {segments.map(segment => {
               const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
@@ -443,6 +467,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
               )
             })}
             </div>
+          </div>
           </div>
           {trimPreview !== undefined ? (
             <div style={{ position: 'fixed', left: '50%', bottom: 24, transform: 'translateX(-50%)', zIndex: 30, fontSize: 12, fontVariantNumeric: 'tabular-nums', padding: '5px 12px', borderRadius: 999, background: 'rgba(18,18,18,.92)', border: '1px solid rgba(255,255,255,.18)', color: '#f5f5f5', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}>{trimPreview}</div>
