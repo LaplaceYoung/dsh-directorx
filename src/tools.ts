@@ -1174,7 +1174,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_orchestrate',
-    description: 'Derive a placeholder-first production from any complex request: infer shape (promo / literary adaptation / remake-swap / narrative), research the craft, ask for confirmation, and queue fully-specified placeholders (prompt + recommended model + spec) via directorx_propose. Does not generate media. Use for multi-unit work instead of calling generate_*.',
+    description: 'Optional helper: draft a placeholder-first production plan (research + confirm questions + prompt/model/spec units) without generating. The agent can also do this itself with brief, knowledge_search, recipe_read, and directorx_propose.',
     parameters: {
       request: { type: 'string', required: true, description: 'The user\'s production request, any brand / source work / remake subject.' },
       materials: { type: 'array', items: { type: 'string' }, description: 'Optional local material paths.' },
@@ -1587,7 +1587,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       `Enabled capabilities: ${enabled.length === 0 ? 'none (open Settings → DirectorX to enable)' : enabled.join(', ')}.`,
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
-      '- Complex multi-unit work (brand promo, literary adaptation, 拉片 remake, narrative) must call `directorx_orchestrate` first: it derives the shape from the request, researches, asks, and queues placeholders. Never special-case a title. Never call generate_* until the user confirms the placeholder batch.',
+      '- Multi-unit work: analyze → research (knowledge/skill) → confirm with the user → queue placeholders (`directorx_propose`) with a full prompt, recommended model, and spec. Do not generate until the batch is confirmed. Recipes are prior art, not a job catalog.',
       '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',

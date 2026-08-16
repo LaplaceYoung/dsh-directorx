@@ -22,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(orchestrate): derive placeholder productions from the request"
+  "message": "fix(orchestrate): keep the helper optional — agents compose the flow themselves"
 }

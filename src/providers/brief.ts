@@ -131,9 +131,9 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
   let suggestedFlow = '通用短片流水线（directorx-pipeline：剧本分镜 → 提示词 → 生成 → 质检 → 组装）'
   if (type === '口播/讲解') suggestedFlow = 'directorx-talking-video（脚本 → 配音 → 素材 → 字幕 → 成片）'
   if (type === '混剪/卡点') suggestedFlow = 'directorx-montage（素材盘点 → 节拍检测 → 卡点裁剪 → 拼接 → 混音）'
-  if (type === '广告/宣传') suggestedFlow = 'directorx_orchestrate（promo）→ 调研品牌 → 占位确认 → 用户执行'
-  if (type === '改编/长剧') suggestedFlow = 'directorx_orchestrate（literary）→ 原作调研 → 角色锚 → 时长切块占位'
-  if (type === '拉片/复刻') suggestedFlow = 'directorx_orchestrate（remake）→ 拉片表 → 主体替换占位'
+  if (type === '广告/宣传') suggestedFlow = 'promo-video：调研基准 → 脚本确认 → 分镜 → propose 占位 → 用户执行'
+  if (type === '改编/长剧') suggestedFlow = 'novel-adaptation：读原作 → 问改编幅度 → 角色/大纲/美术/剧本门禁 → 单元占位'
+  if (type === '拉片/复刻') suggestedFlow = 'remake-subject：拉片 → 锁摄影换主体 → propose 占位 → 用户确认'
 
   // 标题变体：钩子公式库（数字悬念/反常识/利益点），运营方法论规则 70-71。
   const topic = request.replace(/[帮我做要搞|，。！？\s]/g, '').slice(0, 24)
