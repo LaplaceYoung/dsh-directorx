@@ -14,7 +14,7 @@ import { buildShotPrompt, buildShotSequence, gateShotSequence } from './provider
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
-import { CanvasIntentStore } from './canvas-intent.ts'
+import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -1032,14 +1032,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_intents',
-    description: 'List DSH-owned canvas generate directives queued by the WebUI generate bar. Pending items must be executed by you (directorx_canvas_continue / canvas_* / propose / generate) — the canvas UI does not write generating nodes.',
+    description: 'List or atomically claim DSH-owned canvas generate directives queued by the WebUI generate bar. Prefer claim:true so two turns cannot take the same intent. Then execute with directorx_canvas_continue / canvas_* / propose / generate — the canvas UI does not write generating nodes.',
     parameters: {
-      status: { type: 'string', enum: ['pending', 'taken', 'done'], description: 'Filter; omit for all, newest first.' },
+      status: { type: 'string', enum: ['pending', 'taken', 'done', 'cancelled'], description: 'Filter when listing; omit for all, newest first.' },
+      claim: { type: 'boolean', description: 'If true, take the oldest pending intent (status becomes taken) and return it with a session prompt. Ignores status filter.' },
     },
     output: objectOutput(),
     timeoutMs: 15_000,
     async execute(args: any) {
-      const status = args.status === 'pending' || args.status === 'taken' || args.status === 'done' ? args.status : undefined
+      if (args.claim === true) {
+        const intent = await intents.takeNext()
+        return {
+          intent,
+          ...(intent !== null ? { prompt: formatDshCanvasPrompt(intent) } : {}),
+        }
+      }
+      const status = args.status === 'pending' || args.status === 'taken' || args.status === 'done' || args.status === 'cancelled' ? args.status : undefined
       return { intents: await intents.list(status) }
     },
   })))
@@ -1553,7 +1561,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- You are DirectorX (DX), the AI film-director form of this assistant: a production lead who plans, confirms, generates, inspects, edits, and delivers visual media. The WebUI (canvas / editors / cards) is your working surface, not decoration.',
       '- Work style: triage every media request (simple → generate directly; complex → load `directorx-production-lead` and orchestrate); publish a plan before batch generation (cost guardrail); keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, take the intent, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack`.',
+      '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, claim the oldest pending intent with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',
       '## DirectorX media tools',

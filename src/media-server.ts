@@ -605,13 +605,23 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
         return
       }
       const body = await readBodyLocal(request, 64 * 1024)
+      if (body.claim === true) {
+        const intent = await store.takeNext()
+        sendJsonLocal(response, 200, {
+          ok: true,
+          intent,
+          ...(intent !== null ? { prompt: formatDshCanvasPrompt(intent) } : {}),
+        })
+        return
+      }
       const ackStatus = body.status
       if (typeof body.id === 'string' && body.id !== '' && (ackStatus === 'taken' || ackStatus === 'done' || ackStatus === 'cancelled')) {
         try {
           const intent = await store.ack(body.id, ackStatus)
           sendJsonLocal(response, 200, { ok: true, intent })
         } catch (cause) {
-          sendJsonLocal(response, 404, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+          const message = cause instanceof Error ? cause.message : String(cause)
+          sendJsonLocal(response, /cannot move/.test(message) ? 409 : 404, { ok: false, message })
         }
         return
       }

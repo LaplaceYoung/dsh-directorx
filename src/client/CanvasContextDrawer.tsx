@@ -162,7 +162,7 @@ export function CanvasContextDrawer({
           <div style={sectionLabel}>待 DSH 领取的画布指令</div>
           {intents.length === 0 ? (
             <div style={{ fontSize: 11.5, color: '#8a8a8a', lineHeight: 1.6 }}>
-              底部生成条只入队指令。DSH 用 directorx_canvas_intents 领取后再改画布。
+              底部生成条只入队指令。DSH 用 directorx_canvas_intents（claim: true）领取后再改画布。
             </div>
           ) : intents.slice(0, 12).map(intent => (
             <div key={intent.id} style={intentCard}>
@@ -233,7 +233,7 @@ export function CanvasContextDrawer({
         </section>
 
         <div style={{ fontSize: 11, color: '#9b9b9b', lineHeight: 1.7, border: '1px solid rgba(79,157,255,.25)', background: 'rgba(79,157,255,.06)', borderRadius: 12, padding: 10 }}>
-          画布由 DSH 掌管：生成条只入队 directorx_canvas_intents。DSH 用画布工具改写分镜，这里只显示进度与引用。
+          画布由 DSH 掌管：生成条只入队 directorx_canvas_intents。DSH 用 claim 领取后再改分镜，这里只显示进度与引用。
         </div>
       </div>
     </div>

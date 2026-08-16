@@ -21,5 +21,5 @@
     ".env",
     "configs/"
   ],
-  "message": "fix(loop): run the shipped suite against the staged increment only"
+  "message": "feat(canvas): atomically claim the oldest pending DSH generate intent"
 }

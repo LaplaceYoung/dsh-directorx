@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 
 /**
@@ -56,6 +56,10 @@ export function scopedPaths(cwd, allow, deny) {
   return listPorcelain(cwd).map((entry) => entry.path).filter((path) => pathAllowed(path, allow, deny))
 }
 
+export function leftoverPaths(cwd, allow, deny) {
+  return listPorcelain(cwd).map((entry) => entry.path).filter((path) => !pathAllowed(path, allow, deny))
+}
+
 export function snapshotTree(cwd) {
   const head = git(cwd, ['rev-parse', 'HEAD'])
   return {
@@ -93,10 +97,81 @@ export function assertNotPeer(cwd, peer) {
   }
 }
 
+export function loopGateStashes(cwd) {
+  const listed = git(cwd, ['stash', 'list'])
+  if (listed.status !== 0) {
+    throw new Error(`git stash list failed in ${cwd}: ${listed.stderr}`)
+  }
+  return (listed.stdout || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.includes('directorx-loop-gate'))
+}
+
+function gitDir(cwd) {
+  const result = git(cwd, ['rev-parse', '--git-dir'])
+  const dir = (result.stdout || '').trim()
+  if (dir === '') throw new Error(`git-dir missing in ${cwd}: ${result.stderr}`)
+  return dir.startsWith('/') ? dir : resolve(cwd, dir)
+}
+
+export function hideLeftover(cwd, leftover, env = {}) {
+  if (leftover.length === 0) return { stashed: false }
+  const spec = join(gitDir(cwd), 'directorx-loop-gate.pathspec')
+  writeFileSync(spec, `${leftover.join('\0')}\0`)
+  try {
+    const result = git(cwd, [
+      'stash',
+      'push',
+      '--include-untracked',
+      '--pathspec-from-file',
+      spec,
+      '--pathspec-file-nul',
+      '-m',
+      'directorx-loop-gate',
+    ], env)
+    const out = `${result.stdout || ''}\n${result.stderr || ''}`
+    if (result.status !== 0) {
+      return { stashed: false, status: result.status, error: out.slice(0, 4000) }
+    }
+    if (/No local changes to save/i.test(out)) {
+      return { stashed: false }
+    }
+    const stillDirty = new Set(listPorcelain(cwd).map((entry) => entry.path))
+    const visible = leftover.filter((path) => stillDirty.has(path))
+    if (visible.length > 0) {
+      return {
+        stashed: loopGateStashes(cwd).length > 0,
+        error: `leftover still visible after stash: ${visible.join(', ')}`.slice(0, 4000),
+      }
+    }
+    return { stashed: true }
+  } finally {
+    try { unlinkSync(spec) } catch { /* pathspec is a helper; leftover lives in the stash */ }
+  }
+}
+
+export function restoreLeftover(cwd, env = {}) {
+  const before = loopGateStashes(cwd)
+  if (before.length === 0) {
+    return { ok: false, error: 'expected directorx-loop-gate stash to restore leftover dirt' }
+  }
+  const result = git(cwd, ['stash', 'pop'], env)
+  const out = `${result.stdout || ''}\n${result.stderr || ''}`
+  if (result.status !== 0) {
+    return { ok: false, status: result.status, error: out.slice(0, 4000) }
+  }
+  const after = loopGateStashes(cwd)
+  if (after.length >= before.length) {
+    return { ok: false, error: `loop-gate stash remains after pop:\n${after.join('\n')}` }
+  }
+  return { ok: true }
+}
+
 /**
- * Stage the allowlisted increment, hide everything else, run the shipped
+ * Stage the allowlisted increment, hide only leftover dirt, run the shipped
  * suite against that index, then commit. Green tests must describe the
- * commit, not leftover dirty files.
+ * commit, not leftover dirty files. tests_red must restore leftover or abort.
  */
 export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   assertNotPeer(tree, peer)
@@ -105,6 +180,7 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   const before = snapshotTree(tree)
   const peerBefore = peer && existsSync(join(peer, '.git')) ? snapshotTree(peer) : null
   const scoped = scopedPaths(tree, increment.allow, increment.deny)
+  const leftover = leftoverPaths(tree, increment.allow, increment.deny)
   const env = authorEnv(tree)
   const record = {
     name: increment.name,
@@ -114,6 +190,7 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
     testsOk: false,
     testStatus: null,
     scoped,
+    leftover,
     startHead: before.head,
     commit: null,
     push: null,
@@ -126,45 +203,65 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
     record.testsOk = true
     record.testStatus = 0
   } else {
-    const add = git(tree, ['add', '--', ...scoped], env)
-    if (add.status !== 0) {
-      record.skip = 'git_add_failed'
-      record.addError = (add.stderr || add.stdout).slice(0, 2000)
+    // Hide leftover first so the stash never snapshots the increment index.
+    // `git add` then `stash` records the whole index; tests_red unstage + pop
+    // then collides with the new increment files.
+    const hide = hideLeftover(tree, leftover, env)
+    if (hide.error) {
+      record.skip = 'stash_hide_failed'
+      record.stashHideError = hide.error
+      if (hide.stashed) restoreLeftover(tree, env)
     } else {
-      const stash = git(tree, ['stash', 'push', '--keep-index', '--include-untracked', '-m', 'directorx-loop-gate'], env)
-      const stashOut = `${stash.stdout || ''}\n${stash.stderr || ''}`
-      const stashed = stash.status === 0 && !/No local changes to save/i.test(stashOut)
-      try {
-        testRun = runInTree(tree, increment.test, env)
-        record.testStatus = testRun.status
-        record.testsOk = testRun.status === 0
-        if (!record.testsOk) {
-          record.skip = 'tests_red'
-          git(tree, ['restore', '--staged', '.'], env)
-        } else {
-          const commit = git(tree, ['commit', '-m', increment.message], env)
-          if (commit.status !== 0) {
-            record.skip = 'git_commit_failed'
-            record.commitError = (commit.stderr || commit.stdout).slice(0, 2000)
+      const add = git(tree, ['add', '--', ...scoped], env)
+      if (add.status !== 0) {
+        record.skip = 'git_add_failed'
+        record.addError = (add.stderr || add.stdout).slice(0, 2000)
+        if (hide.stashed) {
+          const restored = restoreLeftover(tree, env)
+          if (!restored.ok) {
+            record.skip = 'stash_restore_failed'
+            record.stashRestoreError = restored.error
+          }
+        }
+      } else {
+        try {
+          testRun = runInTree(tree, increment.test, env)
+          record.testStatus = testRun.status
+          record.testsOk = testRun.status === 0
+          if (!record.testsOk) {
+            record.skip = 'tests_red'
             git(tree, ['restore', '--staged', '.'], env)
           } else {
-            record.commit = (git(tree, ['rev-parse', 'HEAD']).stdout || '').trim()
-            if (skipPush) {
-              record.push = { skipped: 'skip_push_flag' }
+            const commit = git(tree, ['commit', '-m', increment.message], env)
+            if (commit.status !== 0) {
+              record.skip = 'git_commit_failed'
+              record.commitError = (commit.stderr || commit.stdout).slice(0, 2000)
+              git(tree, ['restore', '--staged', '.'], env)
             } else {
-              const pushed = git(tree, ['push', 'origin', 'HEAD'], env)
-              record.push = {
-                attempted: true,
-                ok: pushed.status === 0,
-                status: pushed.status,
-                stdout: (pushed.stdout || '').slice(0, 4000),
-                stderr: (pushed.stderr || '').slice(0, 4000),
+              record.commit = (git(tree, ['rev-parse', 'HEAD']).stdout || '').trim()
+              if (skipPush) {
+                record.push = { skipped: 'skip_push_flag' }
+              } else {
+                const pushed = git(tree, ['push', 'origin', 'HEAD'], env)
+                record.push = {
+                  attempted: true,
+                  ok: pushed.status === 0,
+                  status: pushed.status,
+                  stdout: (pushed.stdout || '').slice(0, 4000),
+                  stderr: (pushed.stderr || '').slice(0, 4000),
+                }
               }
             }
           }
+        } finally {
+          if (hide.stashed) {
+            const restored = restoreLeftover(tree, env)
+            if (!restored.ok) {
+              record.skip = 'stash_restore_failed'
+              record.stashRestoreError = restored.error
+            }
+          }
         }
-      } finally {
-        if (stashed) git(tree, ['stash', 'pop'], env)
       }
     }
   }

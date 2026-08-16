@@ -31,7 +31,7 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
     : '（无，从空白开新节点）'
   return [
     '[DirectorX 画布指令]',
-    '请由你掌管画布：用 directorx_canvas_intents 领取本条，再用 directorx_canvas_* / directorx_canvas_continue / directorx_propose / 生成工具执行。不要让画布 UI 自己写 generating 节点或 canvas.json。',
+    '请由你掌管画布：用 directorx_canvas_intents（claim: true）领取本条，再用 directorx_canvas_* / directorx_canvas_continue / directorx_propose / 生成工具执行。不要让画布 UI 自己写 generating 节点或 canvas.json。',
     `- 意图 id: ${intent.id}`,
     `- 类型: ${intent.kind}`,
     `- 提示词: ${intent.prompt}`,
@@ -101,12 +101,40 @@ export class CanvasIntentStore {
     return filtered.slice().reverse()
   }
 
+  /**
+   * Claim the oldest pending intent. Two DSH turns cannot take the same
+   * directive: the first call marks it taken, the next call gets the next one.
+   */
+  async takeNext(): Promise<CanvasIntent | null> {
+    const ledger = await this.read()
+    const pending = ledger.intents
+      .filter(item => item.status === 'pending')
+      .slice()
+      .sort((a, b) => a.at - b.at)
+    const intent = pending[0]
+    if (intent === undefined) return null
+    intent.status = 'taken'
+    await this.write(ledger)
+    return intent
+  }
+
   async ack(id: string, status: 'taken' | 'done' | 'cancelled'): Promise<CanvasIntent> {
     const ledger = await this.read()
     const intent = ledger.intents.find(item => item.id === id)
     if (intent === undefined) throw new Error(`canvas intent "${id}" not found`)
+    const allowed = TRANSITIONS[intent.status]
+    if (!allowed.includes(status)) {
+      throw new Error(`canvas intent "${id}" cannot move ${intent.status} → ${status}`)
+    }
     intent.status = status
     await this.write(ledger)
     return intent
   }
+}
+
+const TRANSITIONS: Record<CanvasIntent['status'], ReadonlyArray<CanvasIntent['status']>> = {
+  pending: ['taken', 'done', 'cancelled'],
+  taken: ['done', 'cancelled'],
+  done: [],
+  cancelled: [],
 }

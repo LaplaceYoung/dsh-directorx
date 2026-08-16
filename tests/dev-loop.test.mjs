@@ -13,6 +13,7 @@ import {
   runTreeJob,
   git,
   assertNotPeer,
+  loopGateStashes,
 } from '../scripts/parallel-loop-lib.mjs'
 
 function initRepo(dir, name) {
@@ -116,9 +117,39 @@ test('runTreeJob gates on the staged increment, not leftover dirty files', async
   assert.equal(record.testsOk, true, 'poison.js must be hidden while tests run')
   assert.ok(record.commit)
   assert.equal(existsSync(join(plugin, 'poison.js')), true, 'unscoped dirt is restored after the gate')
+  assert.deepEqual(loopGateStashes(plugin), [], 'green cycle must not leave a loop-gate stash')
   const show = git(plugin, ['show', '--name-only', '--pretty=format:', record.commit])
   assert.match(show.stdout, /src\/good\.js/)
   assert.doesNotMatch(show.stdout, /poison/)
+})
+
+test('tests_red restores unscoped dirt and leaves no loop-gate stash', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'loop-red-restore-'))
+  const plugin = join(root, 'plugin')
+  const agent = join(root, 'agent')
+  initRepo(plugin, 'plugin')
+  initRepo(agent, 'agent')
+  mkdirSync(join(plugin, 'src'), { recursive: true })
+  writeFileSync(join(plugin, 'src', 'broken.js'), 'throw 1\n')
+  writeFileSync(join(plugin, 'leftover.txt'), 'keep this dirt\n')
+  writeFileSync(join(plugin, 'README.md'), 'plugin\ntracked leftover edit\n')
+  writeFileSync(join(plugin, 'scripts', 'loop-increment.json'), JSON.stringify({
+    name: 'plugin',
+    test: ['node', '-e', 'process.exit(2)'],
+    allow: ['src/'],
+    deny: [],
+    message: 'should not land',
+  }))
+  const before = snapshotTree(plugin)
+  const record = runTreeJob({ tree: plugin, peer: agent, recordDir: join(root, 'record'), skipPush: true })
+  assert.equal(record.testsOk, false)
+  assert.equal(record.skip, 'tests_red')
+  assert.equal(record.commit, null)
+  assert.equal(snapshotTree(plugin).head, before.head)
+  assert.equal(readFileSync(join(plugin, 'leftover.txt'), 'utf8'), 'keep this dirt\n')
+  assert.equal(readFileSync(join(plugin, 'README.md'), 'utf8'), 'plugin\ntracked leftover edit\n')
+  assert.equal(existsSync(join(plugin, 'src', 'broken.js')), true)
+  assert.deepEqual(loopGateStashes(plugin), [], 'tests_red must not leave a loop-gate stash')
 })
 
 test('scopedPaths reads the real git status of the tree under test', async () => {

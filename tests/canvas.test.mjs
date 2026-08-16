@@ -755,6 +755,26 @@ test('canvas intents are DSH-owned: enqueue does not write canvas nodes', async 
     assert.equal(taken.status, 'taken')
     const done = await store.ack(intent.id, 'done')
     assert.equal(done.status, 'done')
+    await assert.rejects(() => store.ack(intent.id, 'taken'), /cannot move done/)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('takeNext claims the oldest pending intent and never double-takes', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-claim-'))
+  try {
+    const store = new CanvasIntentStore(dir)
+    const first = await store.enqueue({ kind: 'image', prompt: '旧指令' })
+    const second = await store.enqueue({ kind: 'video', prompt: '新指令' })
+    const claimed = await store.takeNext()
+    assert.equal(claimed?.id, first.id)
+    assert.equal(claimed?.status, 'taken')
+    const claimedAgain = await store.takeNext()
+    assert.equal(claimedAgain?.id, second.id)
+    assert.equal(await store.takeNext(), null)
+    const listed = await store.list('taken')
+    assert.equal(listed.length, 2)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
@@ -814,6 +834,44 @@ test('POST /directorx/canvas/intent queues a directive without mutating the boar
     assert.equal(cancelled.status, 200)
     const afterCancel = await cancelled.json()
     assert.equal(afterCancel.intent.status, 'cancelled')
+
+    await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'video', prompt: '先入队旧的' }),
+    })
+    await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'image', prompt: '后入队新的' }),
+    })
+    const claimed = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ claim: true }),
+    }).then(r => r.json())
+    assert.equal(claimed.ok, true)
+    assert.equal(claimed.intent.prompt, '先入队旧的')
+    assert.equal(claimed.intent.status, 'taken')
+    assert.match(claimed.prompt, /claim: true/)
+    const claimedAgain = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ claim: true }),
+    }).then(r => r.json())
+    assert.equal(claimedAgain.intent.prompt, '后入队新的')
+    const empty = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ claim: true }),
+    }).then(r => r.json())
+    assert.equal(empty.intent, null)
+    const replay = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: claimed.intent.id, status: 'taken' }),
+    })
+    assert.equal(replay.status, 409)
   } finally {
     server.close()
     await rm(dir, { recursive: true, force: true })

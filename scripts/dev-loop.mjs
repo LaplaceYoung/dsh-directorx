@@ -26,7 +26,14 @@ const record = runTreeJob({
   skipPush: args.includes('--skip-push'),
 })
 process.stdout.write(`${JSON.stringify(record, null, 2)}\n`)
-process.exit(record.testsOk && record.skip !== 'peer_mutated' ? 0 : 1)
+const fatalSkip = new Set([
+  'stash_restore_failed',
+  'stash_hide_failed',
+  'peer_mutated',
+  'git_add_failed',
+  'git_commit_failed',
+])
+process.exit(record.testsOk && !fatalSkip.has(record.skip) ? 0 : 1)
 
 function joinDefaultRecord(root) {
   return resolve(root, '.loop-record')
