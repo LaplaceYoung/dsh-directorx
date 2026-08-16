@@ -136,3 +136,24 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
     ①手机实拍 10s 动作当参考视频 ②手绘构图草图喂给生成 ③检查角色卡
     源头面板修错因（负面只抑制、卡图纠根）。接触镜头（抱人/持物）最易崩，
     直接上草图参考。
+
+## 镜头语言提示词细则（2026 调研沉淀）
+
+29. **五轴装配顺序**（每条镜头提示词固定顺序，防要素丢失）：
+    景别（ECU/CU/MCU/MS/WS）→ 镜头感+画幅（lens/aspect）→ 光源
+    （命名+比例）→ 色板 → 构图 → 氛围 → 情绪基调 → 摄影风格归属 →
+    负面提示。每镜自足：模型没有正反打/轴线概念，不跨镜假设连续性。
+30. **运镜一动词 + 地理写法**：「slow dolly in」「tracking shot left to
+    right keeping subject centered」「handheld follow, slight sway」
+    「rack focus from foreground prop to face」；whip pan 不可靠；
+    跨镜头连续运动：用参考视频续接（上一镜尾帧）保持运镜动量。
+31. **镜头感点名光学、不点氛围**：「anamorphic, 2.40:1, oval bokeh,
+    horizontal flares」/「spherical 35mm, circular bokeh」/「85mm portrait
+    compression, shallow DOF」；光线写光源与比例：「Rembrandt key from
+    screen-left lamp, no fill, 85:15 dark-to-light」——泛写「warm
+    lighting」必漂。
+32. **表演写可观察行为、不写意图**：模型不会「演情绪」——把潜台词转成
+    可观察动作：「holds the look two beats longer, mouth slightly parts,
+    hand stops mid-reach」而非「more longing」。微表情/呼吸/姿态/视线
+    方向可翻译，情绪动词不可翻译。接触镜头（抱人/持物）最易崩，直接
+    上草图参考。
