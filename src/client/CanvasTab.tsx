@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi, SelectionMode, useViewport,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStore, useStoreApi, SelectionMode, useViewport,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -117,6 +117,8 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
   const selected = props.selected === true
   const [playing, setPlaying] = useState(false)
   const [hovered, setHovered] = useState(false)
+  // 缩放 LOD：低缩放下隐藏对象工具与标签，只保留媒体主体（报告 14.3）。
+  const zoom = useStore(store => store.transform[2])
   const [progress, setProgress] = useState({ t: 0, d: 0 })
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const barRef = useRef<HTMLDivElement | null>(null)
@@ -142,7 +144,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       onMouseLeave={() => setHovered(false)}
     >
       <NodeResizer isVisible={selected} minWidth={120} minHeight={80} color="rgba(245,245,245,.85)" />
-      {hovered || selected ? (
+      {(hovered || selected) && zoom >= 0.7 ? (
         <NodeActions actions={[
           { label: '编辑', hint: '打开右侧编辑器（图片：抠图/翻转；视频：时间线剪辑）', run: () => openEditor(data.kind, data.path) },
           { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
@@ -151,6 +153,11 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       ) : null}
       <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       <span style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, fontSize: 9.5, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(0,0,0,.6)', color: '#dcdcdc', letterSpacing: .5 }}>{data.kind === 'video' ? '视频' : '图像'}</span>
+      {data.locked === true ? (
+        <span title="已锁定（定妆）——右键解锁" style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, background: 'rgba(0,0,0,.6)', color: '#f5f5f5' }}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+      ) : null}
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : <video
@@ -194,7 +201,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
           <span style={{ fontSize: 9, color: '#d8d8d8', flexShrink: 0 }}>{fmtTime(progress.t)}/{fmtTime(progress.d)}</span>
         </div>
       ) : null}
-      <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} />
+      {zoom >= 0.6 ? <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} /> : null}
       <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {selected ? (
         <button
@@ -213,6 +220,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as TextNodeData
   const selected = props.selected === true
   const [hovered, setHovered] = useState(false)
+  const zoom = useStore(store => store.transform[2])
   return (
     <div
       style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered && !selected ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
@@ -220,14 +228,14 @@ function TextNodeComponent(props: NodeProps): ReactNode {
       onMouseLeave={() => setHovered(false)}
     >
       <NodeResizer isVisible={selected} minWidth={100} minHeight={40} color="rgba(245,245,245,.85)" />
-      {hovered ? (
+      {hovered && zoom >= 0.7 ? (
         <NodeActions actions={[
           { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
       ) : null}
       <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
-      <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} />
+      {zoom >= 0.6 ? <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} /> : <span style={{ fontSize: 12.5, lineHeight: 1.5, color: '#ececec' }}>·</span>}
       <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {selected ? (
         <button
@@ -371,6 +379,7 @@ function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): C
     return {
       id: node.id,
       type: isGroup ? 'group' : isMedia ? 'media' : 'text',
+      draggable: node.locked !== true,
       position,
       style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
       ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
@@ -2230,8 +2239,13 @@ function CanvasTabInner(): ReactNode {
             const isMedia = target?.type === 'media'
             const items: Array<{ label: string; run: () => void }> = []
             if (target !== undefined) {
-              items.push({ label: '编辑', run: () => { if (isMedia) openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) } })
+              if (isMedia) items.push({ label: '编辑', run: () => openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) })
               items.push({ label: '复制', run: () => duplicateNode(target.id) })
+              const locked = (target.data as { locked?: boolean } | undefined)?.locked === true
+              items.push({ label: locked ? '解锁（允许编辑）' : '锁定（定妆）', run: () => {
+                setNodes(list => list.map(node => node.id === target.id ? { ...node, data: { ...node.data, locked: !locked } } : node))
+                scheduleSave()
+              } })
               items.push({ label: '删除', run: () => deleteNode(target.id) })
             }
             return items.map(item => (
