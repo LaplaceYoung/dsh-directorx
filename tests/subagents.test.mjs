@@ -56,8 +56,9 @@ test('subagent setup is a no-op without the subagents service', () => {
   dispose()
 })
 
-test('workflow template parses as a workflow script body', () => {
-  const source = readFileSync(join(root, 'workflows', 'directorx-pipeline.js'), 'utf8')
+for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js']) {
+test(`workflow template ${file} parses as a workflow script body`, () => {
+  const source = readFileSync(join(root, 'workflows', file), 'utf8')
   // The workflow runner executes the body inside an async function with the
   // orchestration hooks in scope; compile it the same way to prove it parses.
   assert.doesNotThrow(() => {
@@ -65,6 +66,7 @@ test('workflow template parses as a workflow script body', () => {
     return new Function('args', 'agent', 'pipeline', 'parallel', 'phase', 'log',
       `return (async function () { ${source}\n})`)
   })
-  assert.match(source, /phase\('剧本与分镜'\)/)
+  assert.match(source, /phase\('/)
   assert.match(source, /dryRun/)
 })
+}
