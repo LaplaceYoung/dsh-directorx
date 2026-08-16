@@ -15,7 +15,7 @@ import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
-import { PRODUCTION_CASE_IDS, runProductionCase } from './cases/run.ts'
+import { orchestrateProduction } from './orchestrate/run.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -1173,19 +1173,19 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
-    name: 'directorx_case_run',
-    description: 'Run one of the three DirectorX production cases end-to-end WITHOUT generating media: Mossland promo, Lu Xun 祝福 30-min series, or Kimi-K3 promo remake as Moss智能. Returns thinking stages, knowledge research, confirmation questions, and fully-specified placeholders (prompt + recommended model + spec) queued via directorx_propose.',
+    name: 'directorx_orchestrate',
+    description: 'Derive a placeholder-first production from any complex request: infer shape (promo / literary adaptation / remake-swap / narrative), research the craft, ask for confirmation, and queue fully-specified placeholders (prompt + recommended model + spec) via directorx_propose. Does not generate media. Use for multi-unit work instead of calling generate_*.',
     parameters: {
-      request: { type: 'string', required: true, description: 'User request, e.g. 为上海模思的mossland制作宣传片.' },
-      case_id: { type: 'string', enum: ['mossland-promo', 'luxun-zhufu', 'kimi-k3-remake'], description: 'Optional explicit case id. When omitted the request is matched by keywords.' },
+      request: { type: 'string', required: true, description: 'The user\'s production request, any brand / source work / remake subject.' },
+      materials: { type: 'array', items: { type: 'string' }, description: 'Optional local material paths.' },
     },
     output: objectOutput(),
     timeoutMs: 60_000,
     async execute(args: any) {
-      return runProductionCase({
+      return orchestrateProduction({
         request: String(args.request),
         outputDir: settings.outputDir,
-        ...(args.case_id === 'mossland-promo' || args.case_id === 'luxun-zhufu' || args.case_id === 'kimi-k3-remake' ? { caseId: args.case_id } : {}),
+        materials: Array.isArray(args.materials) ? args.materials.map(String) : [],
       })
     },
   })))
@@ -1587,8 +1587,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       `Enabled capabilities: ${enabled.length === 0 ? 'none (open Settings → DirectorX to enable)' : enabled.join(', ')}.`,
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
-      '- Production cases (must call `directorx_case_run`, never generate_*): 「为上海模思的mossland制作宣传片」; 「改编鲁迅的小说祝福为半小时ai电视剧」; 「拉片分析kimi-k3的宣传片并且把宣传的主体替换为moss智能进行复刻宣传片」。The tool returns thinking, research, confirm questions, and placeholders only.',
-      `- Case ids: ${PRODUCTION_CASE_IDS.join(', ')}. Keyword match via the request text; pass case_id when the user names the case.`,
+      '- Complex multi-unit work (brand promo, literary adaptation, 拉片 remake, narrative) must call `directorx_orchestrate` first: it derives the shape from the request, researches, asks, and queues placeholders. Never special-case a title. Never call generate_* until the user confirms the placeholder batch.',
       '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',

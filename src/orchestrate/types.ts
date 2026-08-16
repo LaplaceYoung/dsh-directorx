@@ -1,21 +1,28 @@
 import type { BriefOutput } from '../providers/brief.ts'
 
-export type ProductionCaseId = 'mossland-promo' | 'luxun-zhufu' | 'kimi-k3-remake'
+/** Derived production shape — not a catalog of named jobs. */
+export type ProductionKind = 'promo' | 'literary' | 'remake' | 'narrative'
 
-export interface CaseResearchNote {
-  query: string
-  source: string
-  finding: string
+export interface ProductionEntities {
+  brand?: string
+  product?: string
+  author?: string
+  sourceTitle?: string
+  sourceClip?: string
+  replaceSubject?: string
+  format?: string
+  targetSeconds: number
+  aspectRatio: string
 }
 
-export interface CaseConfirm {
+export interface ProductionConfirm {
   id: string
   question: string
   options: string[]
   recommended: number
 }
 
-export interface CasePlaceholder {
+export interface ProductionPlaceholder {
   id: string
   kind: 'image' | 'video' | 'audio'
   task: string
@@ -29,19 +36,25 @@ export interface CasePlaceholder {
   proposalId?: string
 }
 
-export interface CaseToolCall {
+export interface ProductionResearchNote {
+  query: string
+  source: string
+  finding: string
+}
+
+export interface ProductionToolCall {
   name: string
   input: Record<string, unknown>
   output: unknown
 }
 
-export interface CaseStage {
+export interface ProductionStage {
   name: string
   thinking: string
-  tools: CaseToolCall[]
+  tools: ProductionToolCall[]
 }
 
-export interface CaseShotPlan {
+export interface ShotDraft {
   id: string
   kind: 'image' | 'video' | 'audio'
   task: string
@@ -62,31 +75,30 @@ export interface CaseShotPlan {
   note: string
 }
 
-export interface ProductionCaseDefinition {
-  id: ProductionCaseId
+export interface ProductionPlan {
+  kind: ProductionKind
   title: string
-  request: string
-  keywords: string[]
   workflow: string[]
+  entities: ProductionEntities
   researchQueries: string[]
-  researchPack: CaseResearchNote[]
   characters: Array<{ name: string; description: string; slug: string }>
-  confirms: CaseConfirm[]
-  shots: CaseShotPlan[]
+  confirms: ProductionConfirm[]
+  shots: ShotDraft[]
   durationBudget: Array<{ block: string; seconds: number; purpose: string }>
 }
 
-export interface ProductionCaseRun {
-  id: ProductionCaseId
+export interface ProductionRun {
+  kind: ProductionKind
   title: string
   request: string
   generated: false
   workflow: string[]
-  stages: CaseStage[]
+  entities: ProductionEntities
+  stages: ProductionStage[]
   brief: BriefOutput
-  research: CaseResearchNote[]
-  confirms: CaseConfirm[]
-  placeholders: CasePlaceholder[]
-  durationBudget: ProductionCaseDefinition['durationBudget']
+  research: ProductionResearchNote[]
+  confirms: ProductionConfirm[]
+  placeholders: ProductionPlaceholder[]
+  durationBudget: ProductionPlan['durationBudget']
   reportPath: string
 }

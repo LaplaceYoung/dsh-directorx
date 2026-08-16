@@ -83,7 +83,7 @@ test('brief infers type/platform/duration and asks one-shot clarifications', asy
   assert.ok(out.brief.styleHints.includes('cyberpunk'), 'style hint mapped to preset slug')
   assert.equal(out.brief.materials[0].kind, 'video')
   assert.ok(out.questions.length >= 3, 'clarification questions generated')
-  assert.ok(out.suggestedFlow.includes('preflight'), 'ad flow suggests cost gates')
+  assert.ok(out.suggestedFlow.includes('orchestrate'), 'ad flow derives via orchestrate')
   assert.ok(out.titles.length === 3, 'three hook-formula title variants')
   assert.ok(out.platformCard !== null && out.platformCard.titleCap === 55, 'platform card with douyin title cap')
   assert.ok(out.platformCard.coverSpec.includes('首帧即封面'), 'cover spec matches platform rules')

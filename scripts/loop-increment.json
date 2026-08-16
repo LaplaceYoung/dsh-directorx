@@ -22,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(cases): three production cases run to confirmable placeholders"
+  "message": "feat(orchestrate): derive placeholder productions from the request"
 }

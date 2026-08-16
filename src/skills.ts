@@ -182,7 +182,7 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       '# DirectorX Recipes',
       '',
       'Recipes are step plans, not agents. DSH owns planning and execution; treat recipes as checklists and stage contracts.',
-      'Recipe files ship in the plugin `recipes/` directory. Read the matching markdown file when a production format matches (e.g. `recipes/ad-video.md`, `recipes/mossland-promo.md`, `recipes/luxun-zhufu.md`, `recipes/kimi-k3-remake.md`). The three named production cases must go through `directorx_case_run` (placeholders only).',
+      'Recipe files ship in the plugin `recipes/` directory as prior art, not a job catalog. Derive the flow with `directorx_orchestrate` from the actual request (promo / literary / remake / narrative), then adapt `recipes/promo-video.md`, `recipes/novel-adaptation.md`, or `recipes/remake-subject.md`.',
       'Every recipe assumes the DirectorX generation tools are configured in Settings; before queuing media, verify the matching capability is enabled and its Base URL / API Key / model are set.',
     ].join('\n'),
     source: 'runtime',
