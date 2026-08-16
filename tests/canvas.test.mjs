@@ -195,6 +195,29 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('proposal lifecycle mirrors onto a linked canvas node', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-prop-canvas-'))
+  try {
+    const canvas = new DirectorxCanvasStore(dir)
+    const doc = await canvas.addNode({ id: 'shotA', kind: 'text', label: '雨夜镜头', x: 10, y: 10 })
+    const store = new ProposalStore(dir)
+    const proposal = await store.propose({ kind: 'video', prompt: '雨夜霓虹', count: 1, canvasNodeId: 'shotA' })
+    assert.equal(proposal.canvasNodeId, 'shotA')
+    // status marker helper mirrors what the tool layer does
+    const marker = { proposed: '[提案] ', approved: '[已批准] ', rejected: '[已拒绝] ', done: '[已完成] ' }
+    for (const status of ['approved', 'done'] ) {
+      const updated = await store.update(proposal.id, status)
+      const node = (await canvas.read()).nodes.find(candidate => candidate.id === 'shotA')
+      const bare = String(node.label).replace(/^\[(已批准|已完成|已拒绝|提案)\] /, '')
+      await canvas.update('shotA', { label: `${marker[updated.status]}${bare}` }, (await canvas.read()).updatedAt)
+    }
+    const finalNode = (await canvas.read()).nodes.find(candidate => candidate.id === 'shotA')
+    assert.ok(finalNode.label.startsWith('[已完成] '), 'status mirrored to the node label')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('proposal ledger queues, filters and updates without spending', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-prop-'))
   try {

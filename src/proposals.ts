@@ -20,6 +20,8 @@ export interface GenerationProposal {
   /** Honest cost note: the plugin ships no price table. */
   estimatedCost?: string
   note?: string
+  /** Optional canvas node id the proposal mirrors onto (state visible on the board). */
+  canvasNodeId?: string
   status: 'proposed' | 'approved' | 'rejected' | 'done'
   at: number
 }
