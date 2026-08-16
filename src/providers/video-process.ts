@@ -62,6 +62,18 @@ export interface VideoProcessInput {
   filters?: Array<{ name: string; value: string }>
   /** 只导出音频轨（.m4a，跳过视频编码）。 */
   extractAudio?: boolean
+  /** 文字层：样式化文字叠加（drawtext）。CJK 需 fontFile 指定字体文件路径。 */
+  textOverlays?: Array<{
+    text: string
+    x?: string
+    y?: string
+    fontSize?: number
+    color?: string
+    borderColor?: string
+    borderWidth?: number
+    backgroundColor?: string
+    fontFile?: string
+  }>
 }
 
 export interface VideoConcatInput {
@@ -170,6 +182,29 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
   if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
   if (input.mute === true) args.push('-an')
+  if (input.textOverlays !== undefined && input.textOverlays.length > 0) {
+    for (const overlay of input.textOverlays) {
+      // drawtext 文本转义：反斜杠/冒号/逗号/百分号/单引号。
+      const escaped = overlay.text
+        .replace(/\\/g, '\\\\')
+        .replace(/:/g, '\\:')
+        .replace(/,/g, '\\,')
+        .replace(/%/g, '\\%')
+        .replace(/'/g, '\\\'')
+      const options = [
+        `text='${escaped}'`,
+        ...(overlay.x !== undefined && overlay.x !== '' ? [`x=${overlay.x}`] : []),
+        ...(overlay.y !== undefined && overlay.y !== '' ? [`y=${overlay.y}`] : []),
+        ...(overlay.fontSize !== undefined && overlay.fontSize > 0 ? [`fontsize=${overlay.fontSize}`] : []),
+        ...(overlay.color !== undefined && overlay.color !== '' ? [`fontcolor=${overlay.color}`] : []),
+        ...(overlay.borderColor !== undefined && overlay.borderColor !== '' ? [`bordercolor=${overlay.borderColor}`] : []),
+        ...(overlay.borderWidth !== undefined && overlay.borderWidth > 0 ? [`borderw=${overlay.borderWidth}`] : []),
+        ...(overlay.backgroundColor !== undefined && overlay.backgroundColor !== '' ? [`box=1:boxcolor=${overlay.backgroundColor}@0.6:boxborderw=8`] : []),
+        ...(overlay.fontFile !== undefined && overlay.fontFile !== '' ? [`fontfile=${overlay.fontFile}`] : []),
+      ]
+      videoFilters.push(`drawtext=${options.join(':')}`)
+    }
+  }
   if (input.extractAudio === true) {
     const audioOut = out.replace(/\.mp4$/, '.m4a')
     args.push('-vn', '-c:a', 'aac', audioOut)

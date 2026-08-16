@@ -117,6 +117,23 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
   }
 })
 
+test('videoProcess renders styled text overlays via drawtext', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-text-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const out = await videoProcess({
+      source: clip,
+      outputDir: dir,
+      textOverlays: [{ text: 'Hello: 100% \'quoted\'', x: '(w-text_w)/2', y: 'h-40', fontSize: 24, color: 'white', borderColor: 'black', borderWidth: 2, backgroundColor: 'black' }],
+    })
+    assert.ok(existsSync(out.path), 'text overlay render exists')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('freezeStart holds the first frame and per-pair transitions render', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fz-'))
   try {
