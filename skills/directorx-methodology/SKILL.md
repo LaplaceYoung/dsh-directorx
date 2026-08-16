@@ -119,3 +119,20 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 - 规则 7/16 角色一致性 → 文章 123 AI 长视频多镜一致性（场景卡/跨镜 QA）
 - 场面调度/构图 → 文章 07 导演技巧、94 场景调度深化、233 场面调度全要素
 - 叙事视点 → 文章 234 叙事视点（客观/主观/POV）
+
+## 负面提示词体系（2026-02 调研沉淀）
+
+26. **负面提示四类基底**（每镜必带的 copy-paste 底线）：
+    `blurry, low quality, pixelated, compression artifacts, watermark,
+    text overlay, subtitles, distorted limbs, extra fingers, deformed face,
+    flickering, jitter, strobing, duplicate subjects, morphing face`
+    四类：质量伪影 / 解剖错误 / 覆盖层（文字水印）/ 运动伪影。
+27. **风格污染与一致性负面**：风格选边——动画向显式阻断
+    `live action, photorealistic, 3D render`；实拍向阻断
+    `cartoon, anime, illustration, painting`；跨镜一致性负面：
+    `changing costume, morphing face, inconsistent hair color, prop
+    swapping`。负面只能抑制漂移，锁定靠角色卡（规则 7）+ 负面并用。
+28. **负面失效时的替代策略**：闭源模型负面权重弱——同一条负面反复翻车时：
+    ①手机实拍 10s 动作当参考视频 ②手绘构图草图喂给生成 ③检查角色卡
+    源头面板修错因（负面只抑制、卡图纠根）。接触镜头（抱人/持物）最易崩，
+    直接上草图参考。

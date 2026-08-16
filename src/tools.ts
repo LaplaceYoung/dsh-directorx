@@ -109,6 +109,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         last_frame_path: { type: 'string', description: 'Optional last frame image path/URL for frame-locked transition.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional reference image paths/URLs for character/appearance consistency.' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
+        negative_prompt: { type: 'string', description: 'Optional negative prompt (基线见 directorx-methodology 规则 26：模糊/解剖错误/水印/闪烁四类)。Provider 支持时透传（如 kling legacy）。' },
       },
       output: objectOutput(),
       timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * settings.maxPollAttempts),
@@ -126,6 +127,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           firstFramePath: args.first_frame_path,
           lastFramePath: args.last_frame_path,
           referenceImagePaths: refs,
+          negativePrompt: typeof args.negative_prompt === 'string' ? args.negative_prompt : undefined,
         })
       },
     })))

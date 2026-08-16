@@ -166,13 +166,13 @@ export async function modelverseVideo(
 export async function runVideo(
   ctx: ProviderContext,
   prompt: string,
-  options: { seconds?: number; size?: string; aspectRatio?: string; resolution?: string; firstFramePath?: string; lastFramePath?: string; referenceImagePaths?: string[] },
+  options: { seconds?: number; size?: string; aspectRatio?: string; resolution?: string; firstFramePath?: string; lastFramePath?: string; referenceImagePaths?: string[]; negativePrompt?: string },
 ): Promise<VideoResult> {
   try {
     if (ctx.capability.mode === 'mock') return mockVideo(ctx, prompt)
     if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size, { firstFramePath: options.firstFramePath })
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
-    if (ctx.capability.mode === 'kling') return klingVideo(ctx, prompt, options)
+    if (ctx.capability.mode === 'kling') return klingVideo(ctx, prompt, { ...options, negativePrompt: options.negativePrompt })
     if (ctx.capability.mode === 'runway') return runwayVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'minimax-h3') return minimaxH3Video(ctx, prompt, options)
     if (ctx.capability.mode === 'kling-v3') return klingV3Video(ctx, prompt, options)
