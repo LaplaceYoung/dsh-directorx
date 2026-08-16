@@ -2427,27 +2427,28 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {quickAdd !== undefined ? (
-        <div
-          className="dx-pop"
-          style={{ position: 'fixed', left: quickAdd.x, top: quickAdd.y, zIndex: 8, display: 'flex', gap: 4, padding: 6, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}
-          onClick={event => event.stopPropagation()}
-        >
-          {[
-            { label: '文字', run: quickAddText },
-            { label: '图片素材', run: () => quickAddMedia('image') },
-            { label: '视频素材', run: () => quickAddMedia('video') },
-            { label: '分组', run: quickAddGroup },
-            { label: '上传', run: () => { setQuickAdd(undefined); importMedia() } },
-          ].map(item => (
-            <button
-              key={item.label}
-              style={{ padding: '6px 12px', borderRadius: 9, border: 'none', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
-              onClick={item.run}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 30, background: 'rgba(0,0,0,.5)' }} onClick={() => setQuickAdd(undefined)} />
+          <div className="dx-pop" style={{ position: 'fixed', left: '50%', bottom: 0, transform: 'translateX(-50%)', zIndex: 31, width: 420, maxWidth: '100%', background: '#3f3f46', border: '1px solid rgba(255,255,255,.14)', borderBottom: 'none', borderRadius: '16px 16px 0 0', boxShadow: '0 -12px 40px rgba(0,0,0,.55)', padding: '10px 14px 18px' }} onClick={event => event.stopPropagation()}>
+            <div style={{ width: 100, height: 4, borderRadius: 9999, background: 'rgba(255,255,255,.2)', margin: '0 auto 12px' }} />
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f0f0f0', marginBottom: 10 }}>在双击处创建</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { label: '文字', hint: '脚本/方向/目标', run: quickAddText },
+                { label: '图片素材', hint: '媒体库或上传', run: () => quickAddMedia('image') },
+                { label: '视频素材', hint: '媒体库或上传', run: () => quickAddMedia('video') },
+                { label: '分组', hint: 'Shot 容器', run: quickAddGroup },
+                { label: '上传', hint: '本地文件', run: () => { setQuickAdd(undefined); importMedia() } },
+              ].map(item => (
+                <button key={item.label} onClick={item.run} style={{ flex: '1 1 40%', padding: '14px 10px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.06)', color: '#f0f0f0', fontSize: 13, cursor: 'pointer', textAlign: 'left' }}>
+                  <div>{item.label}</div>
+                  <div style={{ fontSize: 10, color: '#9b9b9b', marginTop: 2 }}>{item.hint}</div>
+                </button>
+              ))}
+            </div>
+            <div style={{ fontSize: 10.5, color: '#7a7a7a', marginTop: 10 }}>Esc 或点击遮罩关闭 · 右键空白也可创建</div>
+          </div>
+        </>
       ) : null}
       {nodeMenu !== undefined ? (
         <div className="dx-pop" style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
