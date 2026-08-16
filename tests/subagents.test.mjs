@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { brief, buildShotPrompt, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
+import { brief, buildShotPrompt, buildShotSequence, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -107,6 +107,19 @@ test('storyboard enforces the camera vocabulary and anti-monotony', () => {
   // storyBeat passthrough
   const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
   assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
+test('shot sequence wires carry-over variables and frame handoffs', () => {
+  const seq = buildShotSequence([
+    { id: 'a', description: '红衣女子走进雨巷。她停下脚步。', cameraMove: 'pan' },
+    { id: 'b', description: '她回头望向来路。', cameraMove: 'pan', handoff: true },
+    { id: 'c', description: '霓虹灯下她继续前行。', cameraMove: 'push_in' },
+  ])
+  assert.equal(seq.specs.length, 3)
+  assert.equal(seq.specs[1].carry.prevEnd, '她停下脚步', 'prev end state carried')
+  assert.equal(seq.specs[1].carry.nextStart, '霓虹灯下她继续前行', 'next start goal carried')
+  assert.equal(seq.specs[1].handoffFrom, 'a', 'handoff pins previous shot frame')
+  assert.ok(seq.issues.some(issue => issue.includes('反单调')), 'adjacent same move flagged')
 })
 
 test('shot builder translates directing craft into generation prompts', () => {

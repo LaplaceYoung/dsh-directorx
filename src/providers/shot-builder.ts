@@ -115,3 +115,76 @@ export function buildShotPrompt(input: ShotBuilderInput): ShotBuilderOutput {
     parts,
   }
 }
+
+export interface SequenceShotInput {
+  id?: string
+  description: string
+  shotSize?: ShotBuilderInput['shotSize']
+  cameraMove?: string
+  lighting?: ShotBuilderInput['lighting']
+  mood?: string
+  composition?: ShotBuilderInput['composition']
+  /** 本镜是否用上一镜末帧作首帧接力。 */
+  handoff?: boolean
+}
+
+export interface SequenceSpec {
+  id: string
+  prompt: string
+  negative: string
+  carry: { prevEnd: string | null; nextStart: string | null }
+  handoffFrom: string | null
+}
+
+export interface ShotSequenceOutput {
+  specs: SequenceSpec[]
+  issues: string[]
+}
+
+function tailSentence(text: string): string {
+  const parts = text.split(/[。！？；\n]+/).filter(part => part.trim() !== '')
+  return parts[parts.length - 1] ?? text
+}
+
+/**
+ * 分镜批量承接链：逐镜生成规格 + 承接变量（上镜 end_state / 下镜
+ * start_goal）+ 首尾帧接力计划（handoff 时本镜挂上一镜末帧）。
+ * 承接文本与运镜校验全部确定性，LLM 只负责描述本身。
+ */
+export function buildShotSequence(shots: SequenceShotInput[]): ShotSequenceOutput {
+  const specs: SequenceSpec[] = []
+  const issues: string[] = []
+  let previousMove: string | undefined
+  shots.forEach((shot, index) => {
+    const id = shot.id ?? `shot-${index + 1}`
+    const built = buildShotPrompt({
+      subject: shot.description,
+      shotSize: shot.shotSize,
+      cameraMove: shot.cameraMove,
+      lighting: shot.lighting,
+      mood: shot.mood,
+      composition: shot.composition,
+    })
+    const prev = shots[index - 1]
+    const next = shots[index + 1]
+    // 承接变量：上镜收于什么、下镜从什么开始——提示词必填（规则 3b）。
+    const prevEnd = prev !== undefined ? tailSentence(prev.description) : null
+    const nextStart = next !== undefined ? next.description.split(/[。！？；\n]+/)[0]?.trim() ?? next.description : null
+    const handoffFrom = shot.handoff === true && prev !== undefined ? prev.id ?? `shot-${index}` : null
+    if (shot.cameraMove !== undefined) {
+      const move = shot.cameraMove.toLowerCase()
+      if (previousMove !== undefined && previousMove === move && move !== 'static') {
+        issues.push(`镜头 ${id} 与上一镜运镜相同（反单调规则）`)
+      }
+      previousMove = move
+    }
+    specs.push({
+      id,
+      prompt: built.prompt,
+      negative: built.negative,
+      carry: { prevEnd, nextStart },
+      handoffFrom,
+    })
+  })
+  return { specs, issues }
+}

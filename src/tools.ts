@@ -9,7 +9,7 @@ import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
 import { routeModel } from './model-matrix.ts'
-import { buildShotPrompt } from './providers/shot-builder.ts'
+import { buildShotPrompt, buildShotSequence } from './providers/shot-builder.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
@@ -1342,6 +1342,19 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         composition: args.composition,
         durationSec: typeof args.durationSec === 'number' ? args.durationSec : undefined,
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_shot_sequence',
+    description: '分镜批量承接链：给一组镜头描述生成逐镜提示词规格 + 承接变量（上镜 end_state / 下镜 start_goal，规则 3b 必填项）+ 首尾帧接力计划（handoff 时本镜挂上一镜末帧）+ 反单调运镜校验。批量生成前的确定性装配层。',
+    parameters: {
+      shots: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: '[{id?, description, shotSize?, cameraMove?, lighting?, mood?, composition?, handoff?}]' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return buildShotSequence(Array.isArray(args.shots) ? args.shots as never[] : [])
     },
   })))
 
