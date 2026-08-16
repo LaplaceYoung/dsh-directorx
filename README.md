@@ -122,7 +122,6 @@ flowchart LR
   TOOLS --> FF["确定性 ffmpeg 工具链"]
   TOOLS --> GEN["模型适配层 8 协议"]
   TOOLS --> CANVAS["无限画布 分镜板简报质检卡"]
-  MCP["MCP 端点"] -.->|外部 AI 助手| TOOLS
   FF --> OUT["directorx_output/"]
   GEN --> OUT
 ```
@@ -165,8 +164,6 @@ dsh web
 
 **其余**：`view_image`、`generate_image/video/audio`、`video_process`（trim/speed/crop/rotate/flip/filters/reverse/freeze）、`video_concat`（硬切/淡入淡出/55 种逐对转场）、`audio_mix`（ducking/targetLufs/durationPolicy）、`video_subtitle`、`video_zoom`、`video_pip`、`audio_beat`、`transcribe_audio`、`probe_media`、`extract_frames`、`preflight`、`propose/proposals/proposal_next/proposal_update`、`task_status/cancel_task`、`edits`、`media_list`、`contact_sheet`、`knowledge_search/read`。
 
-外加 **`/directorx/mcp`**：JSON-RPC 2.0 端点——Claude Desktop / ChatGPT / Cursor 也能驱动这台制片机。
-
 <a id="knowledge"></a>
 ## 知识包
 
@@ -184,7 +181,7 @@ npm run build
 npm test
 ```
 
-**85/85 全绿**：8 种视频协议的本地服务器往返、确定性剪辑链真实 ffmpeg 往返、画布语义与类型矩阵、提案状态机、MCP 契约、错误码契约、黄金向量 fixtures。
+**86/86 全绿**：8 种视频协议的本地服务器往返、确定性剪辑链真实 ffmpeg 往返、画布语义与类型矩阵、提案状态机、错误码契约、黄金向量 fixtures。
 
 <a id="faq"></a>
 ## FAQ
