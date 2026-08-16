@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { DirectorxCanvasStore, registerCanvasRoute } from '../lib/testing.js'
+import { DirectorxCanvasStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -152,6 +152,23 @@ test('canvas search / batch / dissolve / title / hierarchy', async () => {
     assert.equal(dissolved.nodes.some(node => node.id === 'g1'), false)
     assert.equal(dissolved.nodes.find(node => node.id === 's1').parent, undefined)
     assert.equal(dissolved.edges.length, 1, 'member edge survives dissolution')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('proposal ledger queues, filters and updates without spending', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-prop-'))
+  try {
+    const store = new ProposalStore(dir)
+    const proposal = await store.propose({ kind: 'video', prompt: '雨夜霓虹镜头', count: 3, duration: 5 })
+    assert.equal(proposal.status, 'proposed')
+    const listed = await store.list()
+    assert.equal(listed.length, 1)
+    const approved = await store.update(proposal.id, 'approved')
+    assert.equal(approved.status, 'approved')
+    const pending = await store.list('proposed')
+    assert.equal(pending.length, 0)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

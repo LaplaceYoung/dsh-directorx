@@ -16,6 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
+import { ProposalStore } from './proposals.ts'
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -595,6 +596,55 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     isConcurrencySafe: () => true,
     async execute(args: any) {
       return audioBeats({ source: args.source, count: args.count, minGap: args.minGap })
+    },
+  })))
+
+  const proposals = new ProposalStore(settings.outputDir)
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_propose',
+    description: 'Queue a fully-specified generation unit as a PLACEHOLDER proposal (manual/interaction control mode): stores the plan in proposals.json and does NOT spend any API quota. The user reviews the proposal list and approves; only approved proposals get executed with the real generation tools.',
+    parameters: {
+      kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true, description: 'Generation kind.' },
+      prompt: { type: 'string', required: true, description: 'Full generation prompt.' },
+      model: { type: 'string', description: 'Model key, if chosen.' },
+      size: { type: 'string', description: 'Size/aspect.' },
+      duration: { type: 'number', description: 'Duration seconds (video/audio).' },
+      count: { type: 'number', description: 'Generation count (default 1).' },
+      estimatedCost: { type: 'string', description: 'Cost note (the plugin ships no price table — state the assumption).' },
+      note: { type: 'string', description: 'Free-form note (continuity/anchors/references).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return proposals.propose({ ...args, count: args.count ?? 1 })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_proposals',
+    description: 'List generation proposals (the placeholder queue). Omit status for the latest across states; filter by proposed/approved/rejected/done.',
+    parameters: {
+      status: { type: 'string', enum: ['proposed', 'approved', 'rejected', 'done'], description: 'Optional status filter.' },
+      limit: { type: 'number', description: 'Max entries (default 50).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return proposals.list(args.status, args.limit ?? 50)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_proposal_update',
+    description: 'Update a proposal status (proposed -> approved/rejected/done). Approving moves it to the execution queue; done marks it executed with its artifact.',
+    parameters: {
+      id: { type: 'string', required: true, description: 'Proposal id from directorx_proposals.' },
+      status: { type: 'string', enum: ['proposed', 'approved', 'rejected', 'done'], required: true, description: 'New status.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return proposals.update(String(args.id), args.status)
     },
   })))
 
