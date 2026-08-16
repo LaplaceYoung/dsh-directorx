@@ -1,12 +1,12 @@
 <div align="center">
 
-# dsh-directorx
+<h1>dsh-directorx</h1>
 
-**DirectorX · AI 视频导演插件**
-*AI Film Director Plugin for DeepSeek Harness*
+<p><b>DirectorX · AI 视频导演插件</b><br/>
+<i>AI Film Director Plugin for DeepSeek Harness</i></p>
 
-把 DeepSeek Harness 从「会写代码的同事」升级成「会拍片的导演」——
-视频生成、智能剪辑、成片质检、无限画布分镜、导演知识库，一个插件全搞定。
+<p>把 DeepSeek Harness 从「会写代码的同事」升级成「会拍片的导演」。<br/>
+视频生成 · 智能剪辑 · 成片质检 · 无限画布分镜 · 导演知识库 —— 一个插件全搞定。</p>
 
 <p>
   <a href="https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license"></a>
@@ -16,15 +16,13 @@
   <img src="https://img.shields.io/badge/methodology-99_rules-purple" alt="99 craft rules">
 </p>
 
-<table align="center">
-  <tr>
-    <td align="center"><b>50+</b><br/><sub>agent 工具</sub></td>
-    <td align="center"><b>8</b><br/><sub>视频模型协议</sub></td>
-    <td align="center"><b>99</b><br/><sub>制作方法论规则</sub></td>
-    <td align="center"><b>350+</b><br/><sub>导演知识库文章</sub></td>
-    <td align="center"><b>0 元</b><br/><sub>剪辑/质检 API 成本</sub></td>
-  </tr>
-</table>
+<table align="center"><tr>
+  <td align="center" width="110"><h3>50+</h3><sub>agent 工具</sub></td>
+  <td align="center" width="110"><h3>8</h3><sub>视频模型协议</sub></td>
+  <td align="center" width="110"><h3>99</h3><sub>方法论规则</sub></td>
+  <td align="center" width="110"><h3>350+</h3><sub>知识库文章</sub></td>
+  <td align="center" width="110"><h3>0 元</h3><sub>剪辑质检成本</sub></td>
+</tr></table>
 
 <sub>关键词：AI 视频生成 · 文生视频 · 图生视频 · 智能剪辑 · 视频 agent · text-to-video · video agent · storyboard</sub>
 
@@ -107,12 +105,9 @@
 ## 制作流水线
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#1e293b','primaryTextColor':'#f8fafc','primaryBorderColor':'#475569','lineColor':'#94a3b8','fontFamily':'system-ui, sans-serif','fontSize':'14px'}, 'flowchart': {'curve':'linear'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "fontFamily": "system-ui, sans-serif"}}}%%
 flowchart LR
-  B["意图分诊 brief"] --> P["分镜规划 storyboard"]
-  P --> G["闸门与提案 preflight + propose"]
-  G --> E["智能剪辑 smart_cut + timeline"]
-  E --> Q["成片质检 qa_report"]
+  B["意图分诊 brief"] --> P["分镜规划 storyboard"] --> G["闸门与提案 preflight propose"] --> E["智能剪辑 smart_cut timeline"] --> Q["成片质检 qa_report"]
   Q -->|fix| E
   Q -->|pass| D["画布成品板"]
 ```
@@ -121,13 +116,13 @@ flowchart LR
 ## 架构
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#1e293b','primaryTextColor':'#f8fafc','primaryBorderColor':'#475569','lineColor':'#94a3b8','fontFamily':'system-ui, sans-serif','fontSize':'14px'}, 'flowchart': {'curve':'linear'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "fontFamily": "system-ui, sans-serif"}}}%%
 flowchart LR
   LOOP["DSH Agent Loop"] --> TOOLS["50+ DirectorX tools"]
   TOOLS --> FF["确定性 ffmpeg 工具链"]
-  TOOLS --> GEN["模型适配层（8 协议）"]
-  TOOLS --> CANVAS["无限画布（分镜板/简报/质检卡）"]
-  MCP["MCP 端点"] -.外部 AI 助手.- TOOLS
+  TOOLS --> GEN["模型适配层 8 协议"]
+  TOOLS --> CANVAS["无限画布 分镜板简报质检卡"]
+  MCP["MCP 端点"] -.->|外部 AI 助手| TOOLS
   FF --> OUT["directorx_output/"]
   GEN --> OUT
 ```

@@ -195,6 +195,28 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('canvas prompt synthesis walks upstream with prompt-first blocks', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-prompt-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'char', kind: 'text', label: '红衣女子', prompt: '三十岁，黑发，红风衣' })
+    await store.addNode({ id: 'ref1', kind: 'image', label: '参考图A', path: '/tmp/a.png', x: 0, y: 0 })
+    await store.addNode({ id: 'dir', kind: 'text', label: '霓虹雨夜', prompt: '赛博朋克霓虹，雨夜小巷' })
+    await store.addNode({ id: 'shot', kind: 'video', label: '镜头1', x: 0, y: 0, prompt: '她转身回眸' })
+    await store.addEdge({ id: 'e1', from: 'char', to: 'ref1' })
+    await store.addEdge({ id: 'e2', from: 'ref1', to: 'shot' })
+    await store.addEdge({ id: 'e3', from: 'dir', to: 'shot' })
+    const synth = await store.promptFor('shot')
+    assert.equal(synth.ownPrompt, '她转身回眸', 'own prompt wins')
+    assert.equal(synth.blocks.references.length, 1, 'one reference')
+    assert.equal(synth.blocks.references[0].n, 1, 'ref_image_N slot numbering')
+    assert.equal(synth.blocks.subjects[0].id, 'char', 'grandparent character traced')
+    assert.ok(synth.blocks.directions.includes('赛博朋克霓虹，雨夜小巷'), 'direction collected')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('edge type matrix and deterministic shot ordering', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-order-'))
   try {

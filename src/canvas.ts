@@ -24,6 +24,8 @@ export interface CanvasNode {
   height?: number
   /** 存储身份的稳定镜号（确定性排片的唯一依据，不靠坐标/连线）。 */
   shotIndex?: number
+  /** 节点自带的生成提示词（prompt-first：压过自动合成）。 */
+  prompt?: string
 }
 
 export interface CanvasEdge {
@@ -69,6 +71,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(input.width !== undefined ? { width: Math.max(60, Math.min(1200, numberOr(input.width, 240))) } : {}),
     ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
     ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
+    ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
   }
   return node
 }
@@ -330,6 +333,58 @@ export class DirectorxCanvasStore {
       return 0
     })
     return shots
+  }
+
+  /**
+   * 自动合成 prompt 上下文：沿入边回溯上游节点（最多两层），按
+   * prompt-first 规则拼出分块提示上下文——主体 / 参考图（ref_image_N
+   * 槽位）/ 方向 / 标题。LLM 合成步骤由 agent 在此基础上完成。
+   */
+  async promptFor(targetId: string): Promise<{
+    targetId: string
+    ownPrompt: string | null
+    blocks: {
+      subjects: Array<{ id: string; label: string; prompt?: string }>
+      references: Array<{ n: number; id: string; path: string | null; label: string }>
+      directions: string[]
+      title: string | null
+    }
+  }> {
+    const doc = await this.read()
+    const target = doc.nodes.find(node => node.id === targetId)
+    if (target === undefined) throw new Error(`canvas node "${targetId}" not found`)
+    const upstreamIds = new Set(doc.edges.filter(edge => edge.to === targetId).map(edge => edge.from))
+    const subjects: Array<{ id: string; label: string; prompt?: string }> = []
+    const references: Array<{ n: number; id: string; path: string | null; label: string }> = []
+    const directions: string[] = []
+    let refN = 1
+    for (const id of upstreamIds) {
+      const node = doc.nodes.find(candidate => candidate.id === id)
+      if (node === undefined) continue
+      if (node.kind === 'text') {
+        if (node.prompt !== undefined && node.prompt !== '') directions.push(node.prompt)
+        else if (node.label !== '') directions.push(node.label)
+        continue
+      }
+      if (node.kind === 'image' || node.kind === 'video') {
+        const hasMedia = node.path !== undefined && node.path !== ''
+        // 祖父追踪：image 上游再追一层 character/text 作为主体锚。
+        const grandparents = doc.edges.filter(edge => edge.to === id).map(edge => edge.from)
+        for (const grandId of grandparents) {
+          const grand = doc.nodes.find(candidate => candidate.id === grandId)
+          if (grand !== undefined && grand.kind === 'text') {
+            subjects.push({ id: grand.id, label: grand.label, ...(grand.prompt !== undefined ? { prompt: grand.prompt } : {}) })
+          }
+        }
+        references.push({ n: refN, id, path: hasMedia ? node.path as string : null, label: node.label })
+        refN += 1
+      }
+    }
+    return {
+      targetId,
+      ownPrompt: target.prompt ?? null,
+      blocks: { subjects, references, directions, title: target.label !== '' ? target.label : null },
+    }
   }
 
   /**
