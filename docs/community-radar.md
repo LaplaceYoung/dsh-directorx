@@ -42,7 +42,7 @@
 | zundo（charkour） | 883 | MIT | zustand 撤销/重做中间件 | 已自研轻量历史栈（画布 50 步上限）；多 store 协同再评估 |
 | plyr | 29,951 | MIT | 全功能 HTML5 播放器 | 编辑器大预览/成片播放场景候选（节点内已自绘轻量控制条） |
 | react-player | 10,279 | MIT | React 多源播放器封装 | 编辑器/成片预览候选（YouTube 等外链源支持） |
-| transformers.js（HF） | 15,203 | Apache-2.0 | 浏览器内 WASM 推理（含 RMBG/背景移除模型） | **图片编辑器抠图按钮候选**（模型权重需另行核许可） |
+| transformers.js（HF） | 16,257 | Apache-2.0 | 浏览器内 WASM 推理（含 RMBG/背景移除模型） | **图片编辑器抠图按钮候选**（模型权重需另行核许可） |
 
 ## 已调研 · 弃用（附原因）
 
