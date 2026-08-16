@@ -1541,6 +1541,8 @@ function CanvasTabInner(): ReactNode {
   }, [selectedRects, setNodes, pushHistory])
 
   const batchDelete = useCallback(() => {
+    const count = nodesRef.current.filter(node => node.selected === true).length
+    if (count > 1 && !window.confirm(`删除选中的 ${count} 个节点及其连线？可撤销（⌘Z）。`)) return
     pushHistory()
     const removing = new Set(nodesRef.current.filter(node => node.selected === true).map(node => node.id))
     setNodes(current => current.filter(node => node.selected !== true))
