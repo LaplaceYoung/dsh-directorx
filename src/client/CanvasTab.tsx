@@ -2179,7 +2179,8 @@ function CanvasTabInner(): ReactNode {
             <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => setAgentOpen(true)}>打开上下文面板</button>
           </div>
           <div style={{ fontSize: 10.5, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.8 }}>
-            左键框选 · 中键/右键平移 · ⌘滚轮缩放 · 双击空白建节点 · 右键更多操作
+            左键框选 · 中键/右键平移 · ⌘滚轮缩放 · 双击空白建节点<br />
+            ⌘K 命令面板 · DSH 提交的生成提案会出现在右上角待你审批 · 版本历史随时回滚
           </div>
         </div>
       ) : null}
@@ -2345,8 +2346,10 @@ function CanvasTabInner(): ReactNode {
           <div>右键节点 = 锁定 / 状态 / 删除</div>
           <div>拖线到空白 = 新建并自动连线</div>
           <div>点击粗剪条 = 选中并定位镜头</div>
-          <div>⌘K 命令面板 · ⌘Z 撤销 · ⇧⌘Z 重做</div>
-          <div>⌘D 复制 · Esc 关闭浮层</div>
+          <div>⌘K 命令面板（19 条命令，可过滤）</div>
+          <div>右上角：提案审批 · 版本历史（检查点回滚）</div>
+          <div>⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制</div>
+          <div>? 打开本帮助 · Esc 关闭浮层</div>
         </div>
       ) : null}
       {shotListOpen ? (
