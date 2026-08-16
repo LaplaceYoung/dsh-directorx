@@ -1,7 +1,7 @@
 {
   "name": "dsh-directorx",
   "version": "0.1.0",
-  "description": "DirectorX as a DeepSeek Harness plugin: AI film-director knowledge, skills, recipes, and configurable vision/image/video/audio model tools for the DSH WebUI.",
+  "description": "DirectorX：给 DeepSeek Harness 装上 AI 视频导演能力——视频生成、智能剪辑、成片质检、无限画布分镜与 350+ 导演知识库。AI video director plugin for DeepSeek Harness: text-to-video, smart editing, QC, storyboard canvas.",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -36,16 +36,18 @@
     "pretest": "npm run typecheck && npm run build"
   },
   "keywords": [
-    "dsh",
-    "dsh-plugin",
     "deepseek-harness",
-    "directorx",
+    "dsh-plugin",
     "ai-video",
-    "ai-image",
+    "ai-video-generator",
     "text-to-video",
-    "text-to-image",
-    "vision",
-    "tts"
+    "image-to-video",
+    "video-agent",
+    "video-editing",
+    "storyboard",
+    "directorx",
+    "ffmpeg",
+    "ai-director"
   ],
   "dsh": {
     "bundle": {

@@ -1,86 +1,123 @@
 <p align="center">
-  <h1>🎬 dsh-directorx</h1>
-  <p>
+  <h1 align="center">🎬 dsh-directorx</h1>
+  <p align="center"><strong>DirectorX — AI 视频导演插件 | AI Film Director Plugin for DeepSeek Harness</strong></p>
+  <p align="center">
     把 DeepSeek Harness 从「会写代码的同事」升级成「会拍片的导演」。
     <br/>
-    视觉、图像、视频、音频模型，一插件全都有；片场知识库、原创制作手册与提示词弹药，开箱即用。
+    视频生成 · 智能剪辑 · 成片质检 · 无限画布分镜 · 导演知识库，一个插件全搞定。
   </p>
 </p>
 
 <p align="center">
-  <strong>dsh-plugin</strong> · <strong>deepseek-harness</strong> · <strong>ai-video</strong> · <strong>ai-image</strong> · <strong>text-to-video</strong> · <strong>directorx</strong>
+  <a href="https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="Apache-2.0"></a>
+  <a href="https://github.com/LaplaceYoung/dsh-directorx"><img src="https://img.shields.io/badge/dsh-plugin-v1-green" alt="dsh-plugin"></a>
+  <a href="https://github.com/LaplaceYoung/dsh-directorx"><img src="https://img.shields.io/badge/tests-72%2F72-brightgreen" alt="tests 72/72"></a>
+  <img src="https://img.shields.io/badge/tools-50%2B-orange" alt="50+ tools">
+  <img src="https://img.shields.io/badge/methodology-99_rules-purple" alt="99 craft rules">
+</p>
+
+<p align="center">
+  <strong>关键词 / Keywords</strong>：AI 视频生成 · 文生视频 · 图生视频 · 智能剪辑 · 视频 agent ·
+  text-to-video · AI video generator · video agent · storyboard · dsh-plugin · deepseek-harness · directorx
 </p>
 
 ---
 
-## 🤔 这到底是个啥
+## 🤔 这到底是个啥 / What is this
 
 一句话：**给 DSH 装上影视制作的四肢，而大脑还是 DSH 自己的。**
 
-`dsh-directorx` 是 DeepSeek Harness（DSH）插件。它不抢 agent loop，不塞第二套
-runtime；它只做四件事：
+`dsh-directorx` 是 DeepSeek Harness（DSH）插件。它不抢 agent loop，不塞第二套 runtime；
+它只做四件事，外加一座片场：
 
-- 👁️ **让 DSH 看得见** —— 调用视觉模型，读图、识图、看图说话。
-- 🎨 **让 DSH 画得出** —— 调用文生图模型，把分镜变成关键帧。
-- 🎥 **让 DSH 拍得了** —— 调用视频模型，支持首尾帧、参考图和异步任务。
-- 🔊 **让 DSH 说得出** —— 调用 TTS/音频模型，生成旁白、对白和音效底子。
+- 👁️ **分析视频** —— 分镜检测、逐镜描述、成片质检报告，全是确定性工具（ffmpeg 驱动，零幻觉）；
+- 🎨 **生成画面** —— 文生图 / 文生视频 / 图生视频 / 首尾帧 / 角色一致性锚点；
+- ✂️ **剪辑成片** —— 时间线渲染、智能精剪、卡点混剪、混音、字幕，免费且可重跑；
+- 🔊 **说出声音** —— TTS 旁白、音画同出、自动闪避混音；
+- 📚 **片场知识包** —— 350+ 篇影视知识库、99 条制作方法论、7 个风格语法预设、37 个技能、11 套 recipe。
 
-再附赠一个片场包：**350+ 篇影视知识库、37 个可直接调用的技能、11 套制作 recipe，
-以及一套插件自研的原创制作手册。**
+> 想找「AI 视频剪辑」？这里有。想找「AI 短视频成片流水线」？这里有。想找「视频 agent 编排」？
+> 这里也有——而且所有剪辑都是本地 ffmpeg 确定性执行，改计划 = 重渲染，永不重新生成、永不重复花钱。
 
 ---
 
-## ✨ 为什么你可能会喜欢它
+## ✨ 为什么你可能会喜欢它 / Why you'll like it
 
 | 痛点 | 装上之后 |
 |---|---|
 | 模型只会说「我无法生成视频」 | DSH 会先查知识库，再直接调用视频工具，产出文件路径 |
 | Base URL / API Key 藏在 YAML 深处 | 打开 DSH WebUI 设置页，像填外卖地址一样填完即用 |
-| 分镜写得像散文 | 内置技能会把提示词收紧成可生成、可复用的导演指令 |
-| 生图、生视频、配音要装三四个插件 | 一个插件，四类模型，按需开关 |
-| 想做专业项目却没有流程约束 | 原创制作手册提供闸门、检查点和降级顺序 |
+| 分镜写得像散文 | 内置 99 条方法论会把提示词收紧成可生成、可复用的导演指令 |
+| 生图、生视频、配音要装三四个插件 | 一个插件，四类能力，8 种视频模型协议，按需开关 |
+| 生成完就完事，质量靠玄学 | 成片质检门（时长/画幅/音轨/节奏/黑帧/白帧）+ 帧级 QA + 画布质检卡 |
+| 想做专业项目却没有流程约束 | brief 意图分诊 + 四道闸门 + 提案状态机，先方案后花钱 |
 
 ---
 
-## 🧠 架构一图流
+## 🎬 制作流水线 / Production Pipeline
+
+```mermaid
+flowchart TB
+  subgraph 意图["① 理解意图 directorx_brief"]
+    B1["类型/平台/时长/风格/锚点 推断"] --> B2["一次澄清协议 + 标题变体 + 封面提示词"]
+  end
+  subgraph 规划["② 规划 directorx_storyboard / canvas"]
+    B2 --> P1["分镜时长规划（模型钳制+目标分配）"]
+    P1 --> P2["画布分镜板镜像（节点=镜头，连线=承接）"]
+  end
+  subgraph 生成["③ 生成 generate_image/video/audio"]
+    P2 --> G1["preflight 四道闸门 → propose 占位 → 用户批准"]
+    G1 --> G2["并行生成（角色锚点注入 / 负面提示 / 风格语法）"]
+  end
+  subgraph 剪辑["④ 剪辑 timeline / smart_cut / audio_sync"]
+    G2 --> E1["智能精剪：脚本句 ↔ 字幕条目匹配组装"]
+    E1 --> E2["时间线渲染：裁剪/变速/拼接/混音/字幕"]
+  end
+  subgraph 质检["⑤ 质检 qa / qa_report"]
+    E2 --> Q1["七门质检（时长/画幅/音轨/镜头/节奏/黑帧/白帧）"]
+    Q1 --> Q2["质检卡镜像画布 → verdict pass/fix"]
+  end
+  Q2 -->|fix| E1
+  Q2 -->|pass| DONE["🎉 交付成片 + 画布成品板"]
+```
+
+---
+
+## 🧠 架构一图流 / Architecture
 
 ```mermaid
 flowchart LR
-  subgraph DSH["DeepSeek Harness"]
-    UI["WebUI Settings → DirectorX"] --> CFG["settings namespace: directorx"]
+  subgraph DSH["DeepSeek Harness（宿主 runtime）"]
     LOOP["DSH Agent Loop"]
+    UI["WebUI Settings → DirectorX"]
   end
 
-  CFG -->|live reload| TOOLS["DirectorX tools"]
+  subgraph Plugin["dsh-directorx 插件"]
+    TOOLS["50+ DirectorX tools"]
+    SKILLS["37 skills + directorx-methodology（99 条规则）"]
+    CANVAS["无限画布（分镜板/简报/质检卡）"]
+    MCP["MCP 端点 /directorx/mcp"]
+  end
+
   LOOP --> TOOLS
-  LOOP --> SKILLS["Runtime skills"]
+  LOOP --> SKILLS
+  TOOLS --> CANVAS
+  MCP -.外部 AI 助手（Claude/ChatGPT/Cursor）.- TOOLS
 
-  TOOLS --> VISION["directorx_view_image"]
-  TOOLS --> IMAGE["directorx_generate_image"]
-  TOOLS --> VIDEO["directorx_generate_video"]
-  TOOLS --> AUDIO["directorx_generate_audio"]
-  TOOLS --> SEARCH["directorx_knowledge_search"]
-  TOOLS --> READ["directorx_knowledge_read"]
-  TOOLS --> STATUS["directorx_task_status / cancel_task"]
-  STATUS --> LEDGER["tasks.jsonl 任务账本"]
+  TOOLS --> FF["确定性 ffmpeg 工具链<br/>analyze/process/concat/mix/subtitle/timeline"]
+  TOOLS --> GEN["模型适配层<br/>openai-videos · kling · kling-v3 · runway<br/>minimax-h3 · vidu · veo · modelverse-tasks"]
+  TOOLS --> CORPUS["知识库 350+ 文章 + 99 条方法论"]
 
-  VISION & IMAGE & VIDEO & AUDIO --> API["OpenAI-compatible / ModelVerse / mock"]
-  SEARCH & READ --> CORPUS["knowledge/ · skills/ · recipes/"]
-  SKILLS --> PLAYBOOK["directorx-playbook"]
-  PLAYBOOK --> NOTES["原创制作手册"]
-
-  IMAGE & VIDEO & AUDIO --> CARDS["WebUI 生成卡片"]
-  CARDS --> MEDIA["/directorx/media 流式路由"]
-  MEDIA --> OUT["cwd/directorx_output/"]
+  FF --> OUT["directorx_output/"]
+  GEN --> OUT
+  CORPUS --> SKILLS
 ```
 
-插件只负责「眼睛、画笔、摄影机、麦克风和片场百科」，调度、审批、会话、subagent 全由 DSH 自己管。
+插件只负责「眼睛、画笔、摄影机、麦克风、剪辑台和片场百科」，调度、审批、会话、subagent 全由 DSH 自己管。
 
 ---
 
-## 🚀 安装：三十秒上桌
-
-在插件源码目录中执行：
+## 🚀 安装：三十秒上桌 / Quick Start
 
 ```bash
 dsh plugin --profile web add .
@@ -89,130 +126,54 @@ dsh web
 
 没有构建仪式：`lib/` 已经提交进仓库，安装后直接加载。
 
----
-
-## 🎛️ WebUI 设置：把模型当成家电来配
-
-视频模式矩阵（8 个真实模式 + mock）：`kling`（可灵 legacy）· `kling-v3`（可灵 3.0 新标准）· `runway` · `minimax-h3` · `vidu`（多主体参考生）· `veo`（Google Veo 3.1）· `openai-videos`（Sora 2）· `modelverse-tasks`（豆包 Seedance 等）。协议全部官方文档一手核实，每个模式都有本地服务器往返测试。
-
-打开 DSH WebUI，左下角 **Settings → DirectorX**。四个能力各自独立：
+打开 DSH WebUI，**Settings → DirectorX**，四个能力各自独立配置：
 
 | 能力 | 工具 | 配置方式 | 模型示例 |
 |---|---|---|---|
 | 👁️ 视觉 | `directorx_view_image` | `openai-chat` / `mock` | `gpt-4o-mini`、任意兼容 VLM |
 | 🎨 图像 | `directorx_generate_image` | `openai-images` / `modelverse-tasks` / `mock` | `gpt-image-1`、`doubao-seedream-*` |
-| 🎥 视频 | `directorx_generate_video` | `openai-videos` / `modelverse-tasks` / `kling` / `runway` / `mock` | `sora-2`、`MiniMax-H3`、`kling-v2`、`gen4.5`/`gen4_turbo`/`hailuo3` |
-| 🔊 音频 | `directorx_generate_audio` | `openai-tts` / `mock` | `gpt-4o-mini-tts`、任意兼容 TTS |
+| 🎥 视频 | `directorx_generate_video` | `openai-videos` / `modelverse-tasks` / `kling` / `kling-v3` / `runway` / `minimax-h3` / `vidu` / `veo` / `mock` | `sora-2`、`kling-3.0`、`gen4.5`、`MiniMax-H3`、`viduq3`、`veo-3.1` |
+| 🔊 音频 | `directorx_generate_audio` | `openai-tts` / `mock` | `gpt-4o-mini-tts`（支持 instructions 表演指令） |
 
-每张卡片都能填：
-
-- **Base URL** —— 官方网关、聚合网关、本地 `http://localhost:11434/v1`，都可以；
-- **API Key** —— 以 secret 存进 DSH settings，不显示、不打印、不进入聊天记录；
-- **配置方式 / Mode** —— 决定走哪套协议，不用背文档；
-- **Resolution** —— 视频能力可填 `2K / 720p / 1080p` 等输出档位；
-- **能力开关** —— 关掉某个能力，对应工具直接不注册。
-
-保存即热更新，不用重启。没有 Key 也不要紧：切到 `mock` 模式，先跑通整个链路再上真模型。
+保存即热更新，不用重启。没有 Key？切 `mock` 模式，先跑通整条链路再上真模型。
 
 ---
 
-## 🖼️ WebUI 生成卡片：看得见，才叫拍片
+## 🧰 工具速查 / Tool Cheat Sheet
 
-生成工具在对话流里有专属卡片，跑完就能直接在聊天里看结果：
-
-- 🎨 **图像** —— 卡片内直接预览，点击可在新标签页打开原图；
-- 🎥 **视频** —— 内嵌播放器，支持进度拖拽（HTTP Range）；
-- 🔊 **音频** —— 内嵌播放器直接试听；
-- 👁️ **看图** —— 卡片显示问题、回答文本与可预览的源图；
-- 运行中显示提示词与「进行中…」，完成后显示模型 / 协议 / 文件数，失败显示错误摘要。
-
-本地文件由插件注册的 **`/directorx/media`** 路由以流式方式供给浏览器（仅限
-`directorx_output` 目录内、同源访问、带 Range 支持），不经过模型上下文；
-`https` URL 结果（如 `openai-images` 返回的图片链接）直接引用原地址。
-
-异步任务会写入 **`tasks.jsonl` 任务账本**：超时或会话中断后，DSH 可用
-`directorx_task_status` 找回任务与结果文件，用 `directorx_cancel_task` 中止。
-
----
-
-## ✂️ 右侧编辑面板与无限画布：生成之后，随手再修、随手编排
-
-对话流右侧是 **DirectorX 工作台**（悬浮把手随时可开，生成卡片上也有
-「编辑」按钮）：
-
-- 🖼️ **图片** → PS 式编辑器（tui.image-editor，MIT）：裁剪、旋转、翻转、
-  滤镜、画笔、文字、形状、缩放、撤销重做，一键导出 PNG；
-- 🎞️ **视频** → 时间线编辑器（WebAV，MIT，活跃维护）：播放头分割、片段
-  删除与重排、时长刻度、**音频轨（wavesurfer.js 波形 + 音量 + 混音导出）**，
-  浏览器内 WebCodecs 导出 MP4；
-- 🎨 **画布** → 无限画布（react-flow，libtv/tapnow 设计语言）：节点分组、
-  连线、框选、右键菜单、双击重命名/加节点、拖拽素材上画布、吸附对齐线、
-  撤销重做、导出 PNG 分镜板、画布标题；DSH 用 `directorx_canvas_*` 9 个工具
-  **完全掌控画布**——工作流编排的每个阶段都会镜像到画布，你在 WebUI 看到
-  与 agent 一致的生产视图；
-- 保存后写入 `directorx_output/edited/`，面板显示历史，DSH 可用
-  `directorx_edits` 工具引用这些二次编辑产物。
-
----
-
-## 🧰 工具速查
+**制作四支柱（新增）**：
 
 | 工具 | 一句话说明 | 典型用法 |
 |---|---|---|
-| `directorx_view_image` | 给 DSH 装上眼睛 | 读截图、读剧照、检查生成图有没有崩脸 |
-| `directorx_generate_image` | 生成关键帧/参考图 | 角色定妆照、场景概念图、首尾帧 |
-| `directorx_generate_video` | 生成视频片段 | 图生视频、首尾帧转场、动作镜头 |
-| `directorx_generate_audio` | 生成旁白/音频 | 广告口播、短剧对白、音效底子 |
-| `directorx_knowledge_search` | 搜片场百科 | 查运镜术语、模型参数、平台规格 |
-| `directorx_video_process` | 确定性剪辑：裁剪/变速/规格/音量 | 统一素材规格、抠节奏片段 |
-| `directorx_video_concat` | 多片段拼接（硬切/交叉淡化） | 多镜头成片、蒙太奇 |
-| `directorx_audio_mix` | 多轨混音 + 旁白闪避 | BGM + 旁白 + 音效合成 |
-| `directorx_video_subtitle` | 软字幕轨 / 硬烧字幕 | 成片加字幕（转写 srt 直用） |
-| `directorx_video_zoom` / `_pip` | Ken Burns 运镜 / 画中画 | 推拉镜头、贴纸角标 |
-| `directorx_audio_beat` | 节拍检测（ebur128） | 卡点混剪的切点依据 |
-| `directorx_style` | 风格/镜头语言注入（知识库实文） | 锁定黑色电影/赛博朋克等质感 |
-| `directorx_preflight` | 生成前四道闸门审计 | 批量生成前把关 |
-| `directorx_propose` / `_proposals` / `_proposal_update` | 占位提案状态机 | 先方案后生成，批准才花钱 |
-| `directorx_canvas_*`（14 个） | 画布完全掌控 | 分镜板上画布、连线、分组、布局 |
+| `directorx_brief` | 意图分诊 → 结构化简报 + 一次澄清 + 标题/封面/平台规格卡 | 每个需求的开局 |
+| `directorx_video_analyze` | 分镜检测 + 代表帧 + 响度摘要（确定性拉片） | 剪辑前判断节奏与结构 |
+| `directorx_qa` / `_qa_report` | 成片质检七门 + 一键质检卡上画布 | 交付前最后一道门 |
+| `directorx_smart_cut` | LLM 精剪：脚本句 ↔ 字幕条目匹配组装 | 口播精剪、素材定位 |
+| `directorx_clip_rank` | 候选片段评分排序（ESA 管线评分步） | 从长素材挑可用镜头 |
+| `directorx_timeline` | timeline.json 渲染中枢（裁剪/变速/拼接/混音/字幕） | 改计划=重渲染 |
+| `directorx_audio_sync` | 音画同出：旁白边界检测 + 自动混音 + 时间锚点 | 口播成片、卡点对齐 |
+| `directorx_storyboard` | 分镜时长规划 + 连续性锚点校验 | 生成前把计划做对 |
+| `directorx_character_register/list` | 角色一致性锚点库（参考图+描述注入） | 多镜头锁同一张脸 |
+| `directorx_style` | 风格注入：10 预设 slug + 7 个完整语法预设 | 王家卫/韦斯/赛博朋克一键锁风格 |
 
-| `directorx_knowledge_read` | 读完整词条 | 把搜索结果展开成可执行方法论 |
-| `directorx_task_status` | 查生成任务状态 | 超时/中断后找回 provider 任务、拿回结果文件 |
-| `directorx_cancel_task` | 取消进行中任务 | 停止卡住或不再需要的异步生成 |
-| `directorx_edits` | 列出 WebUI 编辑产物 | 引用用户在右侧面板里二次编辑保存的文件 |
-| `directorx_transcribe_audio` | 音频/视频转写 | 生成旁白字幕 SRT、素材整理，打通字幕链路 |
-| `directorx_probe_media` | 媒体元数据探测 | 校验生成物规格（时长/编码/分辨率/音轨） |
-| `directorx_extract_frames` | 视频抽帧 | 抽帧 PNG 配合 view_image 做 frame-qa 质检 |
+**画布（14 个）**：get/add/batch/connect/update/remove/arrange/replace/clear/search/branch/dissolve_group/title/layout_hierarchy —— 无限画布是分镜板、简报板、质检板，DSH 与你在 WebUI 看到同一张生产视图。
 
-支持的协议：
+**其余**：`view_image`、`generate_image/video/audio`、`video_process`（含 reverse/freezeEnd）、`video_concat`、`audio_mix`（含 targetLufs）、`video_subtitle`、`video_zoom`、`video_pip`、`audio_beat`、`transcribe_audio`、`probe_media`、`extract_frames`、`preflight`、`propose/proposals/proposal_update`、`task_status/cancel_task`、`edits`、`knowledge_search/read`。
 
-- `openai-chat` → `POST {baseURL}/chat/completions`
-- `openai-images` → `POST {baseURL}/images/generations`
-- `openai-videos` → `POST {baseURL}/videos` → 轮询 `GET /videos/{id}`
-- `modelverse-tasks` → `POST {baseURL}/tasks/submit` → 轮询 `GET /tasks/status`
-- `openai-tts` → `POST {baseURL}/audio/speech`
-- `mock` → 本地 SVG 图 / WAV 音 / ffmpeg 测试视频，零密钥联调
+外加 **`/directorx/mcp`**：JSON-RPC 2.0 端点，13 个工具——Claude Desktop / ChatGPT / Cursor 也能驱动这台制片机。
 
 ---
 
-## 📚 片场知识包
+## 📚 片场知识包 / Knowledge Pack
 
-- **350+ 篇影视/AI 生成知识库**：镜头语言、灯光色彩、视频提示词工程、模型矩阵、首尾帧控制、短剧工业化、平台交付规格……模型不知道的，它先查了再动手。
-- **37 个 runtime skills**：分镜、脚本、角色设定、视频提示词构建器、Seedance/Kling/GPT Image 提示词助手，以及 `directorx-playbook` 原创制作手册。
-- **8 大中文影像工坊**：导演风格致敬、动画与二次元、短剧与叙事、音乐 MV、广告与电商、纪录片、POV 与运动、特效与视觉实验。
-- **11 套 recipe**：广告片、短剧、教程片、纪录片、小说改编……DSH 读完流程就能开工。
-
-`directorx-playbook` 把插件自研的制作经验整合成四份清单：
-
-- 视频提示词通用原则；
-- 一致性与控制清单；
-- 制作闸门与检查点；
-- 模型能力路由。
-
-这些内容随插件加载为 DSH skill，模型可以在生成任务前直接调用。
+- **350+ 篇影视/AI 生成知识库**：镜头语言、灯光色彩、提示词工程、模型矩阵、首尾帧控制、短剧工业化、平台交付规格。
+- **`directorx-methodology`：99 条可执行规则 / 15 领域**——成片结构、提示词工程、镜头语言、导演技法、剪辑节奏、音频混音、字幕设计、叙事后期、VFX、平台运营、配音表演。每条附来源与工具落点，决策与质检引用规则编号。
+- **7 个风格语法预设**：wong-kar-wai / wes-anderson / cyberpunk / noir / documentary / commercial / ghibli —— 锚 + 色盘 + 运动语法 + 负面锁四件套，一次调用锁死质感。
+- **37 个 runtime skills + 11 套 recipe + 3 套 workflow 模板**（pipeline / talking-video / montage，dryRun 可零成本验证编排）。
 
 ---
 
-## 🧪 开发与测试
+## 🧪 开发与测试 / Development
 
 ```bash
 npm install
@@ -221,19 +182,9 @@ npm run build
 npm test
 ```
 
-测试覆盖知识库检索、四个模型适配器的 mock 链路、媒体路由（路径逃逸拦截、
-Range、同源校验）、任务账本（追加/取消/轮询中止）、modelverse-tasks 往返，
-以及本地 HTTP 假服务的 OpenAI-compatible 端到端 round-trip。
-当前：**18/18 全绿**。
+当前 **72/72 全绿**：模型适配器本地服务器往返测试（8 种视频协议）、确定性剪辑链真实 ffmpeg 往返、画布语义、提案状态机、MCP 契约、方法论校验器。
 
-想连 DSH 一起冒烟？
-
-```bash
-scripts/dsh-smoke.sh
-```
-
-它会创建临时 profile，让 DSH 真的调用 `directorx_knowledge_search/read`，
-跑完自动清理。完整验证记录见 [`docs/verification.md`](docs/verification.md)。
+想连 DSH 一起冒烟：`scripts/dsh-smoke.sh`。
 
 ---
 
@@ -242,17 +193,20 @@ scripts/dsh-smoke.sh
 **Q：没有 API Key 能用吗？**
 能。四个能力都切 `mock`，先让 DSH 把工具链跑起来；拿到 Key 后回设置页填上即可。
 
-**Q：支持哪些供应商？**
-凡是 OpenAI-compatible 的视觉、图像、视频、TTS 端点都行；视频还支持 ModelVerse tasks 协议。
+**Q：支持哪些视频模型？**
+Sora 2（openai-videos）、可灵（kling legacy + kling-v3 新标准）、Runway Gen-4.5、MiniMax H3、Vidu Q3（多主体参考生）、Google Veo 3.1、豆包 Seedance（modelverse-tasks）——协议全部官方文档一手核实。
+
+**Q：AI 视频怎么保证多镜头一致性？**
+`directorx_character_register` 注册角色锚点 → 生成时自动注入参考图与身份描述；配方法论规则 7（角色绑定三件套）与规则 63（参考池每 6-8 镜刷新）。
+
+**Q：剪辑会花 API 钱吗？**
+不会。所有剪辑/混音/字幕/质检都是本地 ffmpeg 确定性执行，免费、精确、可无限重跑——改计划就是重渲染。
 
 **Q：API Key 会泄漏给模型吗？**
-不会。Key 以 secret role 存储，工具只把它放进 HTTP Authorization 头，不会写进返回内容。
+不会。Key 以 secret role 存储，工具只把它放进 HTTP Authorization 头。
 
 **Q：为什么我的模型不听话？**
-先让 DSH 调用 `directorx_knowledge_search` 查一下该模型的提示词规格，再检查 Settings → DirectorX 里的 mode 是否选对。模型不是不听，是嫌提示词不够导演。
-
-**Q：可以只启用一部分能力吗？**
-当然。设置页里每个能力都有独立开关，关掉即卸载对应工具。
+先让 DSH 查 `directorx-methodology`（99 条规则）与知识库，再检查 mode 是否选对。模型不是不听，是嫌提示词不够导演。
 
 ---
 
