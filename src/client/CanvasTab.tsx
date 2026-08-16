@@ -521,6 +521,7 @@ function CanvasTabInner(): ReactNode {
   const [alignMenu, setAlignMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [compareGroup, setCompareGroup] = useState<CanvasFlowNode | undefined>(undefined)
   const [flowWidth, setFlowWidth] = useState(1200)
+  const [stripOpen, setStripOpen] = useState(false)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -772,7 +773,11 @@ function CanvasTabInner(): ReactNode {
 
   const flowInstance = useReactFlow()
   const storeApi = useStoreApi()
-  const { screenToFlowPosition, fitView, zoomIn, zoomOut, setViewport } = flowInstance
+  const { screenToFlowPosition, fitView, zoomIn, zoomOut, setViewport, setCenter } = flowInstance
+  // 粗剪条：按 shotIndex 排序的媒体镜头（与确定性排片同一口径）。
+  const orderedShots = useMemo(() => nodes
+    .filter(node => node.type === 'media' && (node.data as { shotIndex?: number } | undefined)?.shotIndex !== undefined)
+    .sort((a, b) => ((a.data as { shotIndex: number }).shotIndex) - ((b.data as { shotIndex: number }).shotIndex)), [nodes])
   const { zoom } = useViewport()
   // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
   // deletes selected nodes (via onNodesChange) or the selected edge, Escape
@@ -1878,7 +1883,8 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={openCompare} title="对比分支版本"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="8" height="12" rx="1.5"/><rect x="13" y="6" width="8" height="12" rx="1.5"/><path d="M7 10v4M17 10v4"/></svg></button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={openCompare} title="对比分支版本"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="8" height="12" rx="1.5"/><rect x="13" y="6" width="8" height="12" rx="1.5"/><path d="M7 10v4M17 10v4"/></svg></button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
@@ -1902,6 +1908,33 @@ function CanvasTabInner(): ReactNode {
           {Math.round(zoom * 100)}%
         </button>
       </div>
+      {stripOpen ? (
+        <div style={{ position: 'absolute', bottom: 60, left: 12, right: 12, zIndex: 9, display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', padding: '8px 10px', borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.92)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.5)' }}>
+          {orderedShots.length === 0 ? (
+            <span style={{ fontSize: 11.5, color: '#9b9b9b', padding: '4px 6px' }}>粗剪条：给媒体节点设 shotIndex 即按序入镜（agent 可用 directorx_canvas_update 写入）。</span>
+          ) : orderedShots.map(shot => {
+            const data = shot.data as { kind: 'image' | 'video'; label: string; path: string; shotIndex: number; shotStatus?: string }
+            return (
+              <button
+                key={shot.id}
+                title={`#${data.shotIndex} ${data.label}（点击定位到画布）`}
+                onClick={() => {
+                  const m = nodeMetrics(shot)
+                  setCenter(shot.position.x + m.width / 2, shot.position.y + m.height / 2, { zoom: 1.2, duration: 260 })
+                }}
+                onDoubleClick={() => {
+                  setNodes(list => list.map(node => node.id === shot.id ? { ...node, selected: true } : { ...node, selected: false }))
+                }}
+                style={{ position: 'relative', flexShrink: 0, width: 96, height: 54, padding: 0, border: '1px solid rgba(255,255,255,.18)', borderRadius: 10, overflow: 'hidden', background: '#000', cursor: 'pointer' }}
+              >
+                <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} draggable={false} />
+                <span style={{ position: 'absolute', top: 4, left: 4, fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 5, background: 'rgba(0,0,0,.7)', color: '#f5f5f5' }}>#{data.shotIndex}</span>
+                {data.shotStatus !== undefined ? <span style={{ position: 'absolute', top: 4, right: 4, width: 6, height: 6, borderRadius: 9999, background: SHOT_STATUS_COLORS[data.shotStatus] ?? '#8a8a8a' }} /> : null}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
       <div style={{ position: 'absolute', bottom: 14, left: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
         <span style={saveChip}>{saveState}</span>
         {agentEditFlash ? (
