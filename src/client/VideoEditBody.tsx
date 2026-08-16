@@ -557,7 +557,28 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             }}
           >
             <div style={{ position: 'relative', width: (meta.durationUs / 1e6) * scale + 8, minWidth: '100%' }}>
-              <div style={{ position: 'relative', height: 20, borderBottom: '1px solid rgba(255,255,255,.12)' }}>
+              <div
+                style={{ position: 'relative', height: 20, borderBottom: '1px solid rgba(255,255,255,.12)', cursor: 'ew-resize' }}
+                title="拖动标尺：预览寻位"
+                onPointerDown={event => {
+                  const el = event.currentTarget
+                  const move = (moveEvent: PointerEvent) => {
+                    const rect = el.getBoundingClientRect()
+                    const x = moveEvent.clientX - rect.left
+                    const video = videoRef.current
+                    if (video === null || meta === undefined) return
+                    video.currentTime = Math.min(meta.durationUs / 1e6, Math.max(0, x / scale))
+                    setCurrentTime(video.currentTime)
+                  }
+                  const up = () => {
+                    window.removeEventListener('pointermove', move)
+                    window.removeEventListener('pointerup', up)
+                  }
+                  move(event.nativeEvent)
+                  window.addEventListener('pointermove', move)
+                  window.addEventListener('pointerup', up)
+                }}
+              >
                 {(() => {
                   const { major, minor } = rulerInterval(scale)
                   const ticks: React.ReactNode[] = []
