@@ -148,7 +148,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
       ) : null}
-      <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
+      <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : <video
@@ -193,7 +193,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
         </div>
       ) : null}
       <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} />
-      <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
+      <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
     </div>
   )
 }
@@ -215,9 +215,9 @@ function TextNodeComponent(props: NodeProps): ReactNode {
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
       ) : null}
-      <Handle id="in" type="target" position={Position.Left} style={flowStyles.handle} />
+      <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} />
-      <Handle id="out" type="source" position={Position.Right} style={flowStyles.handle} />
+      <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
     </div>
   )
 }
@@ -471,7 +471,9 @@ function CanvasTabInner(): ReactNode {
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('')
+  const [paletteIndex, setPaletteIndex] = useState(0)
   const paletteInputRef = useRef<HTMLInputElement | null>(null)
+  const arrowGestureRef = useRef<{ active: boolean; timer: number | undefined }>({ active: false, timer: undefined })
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
@@ -703,6 +705,25 @@ function CanvasTabInner(): ReactNode {
       const target = event.target as HTMLElement | null
       const typing = target !== null && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       if (typing) return
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        const selected = nodesRef.current.filter(node => node.selected === true)
+        if (selected.length === 0) return
+        event.preventDefault()
+        const step = event.shiftKey ? 10 : 1
+        const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
+        const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
+        if (!arrowGestureRef.current.active) {
+          pushHistory()
+          arrowGestureRef.current.active = true
+        }
+        if (arrowGestureRef.current.timer !== undefined) window.clearTimeout(arrowGestureRef.current.timer)
+        arrowGestureRef.current.timer = window.setTimeout(() => { arrowGestureRef.current.active = false }, 500)
+        setNodes(current => current.map(node => node.selected === true
+          ? { ...node, position: { x: node.position.x + dx, y: node.position.y + dy } }
+          : node))
+        saveRef.current()
+        return
+      }
       if (event.key === 'Escape') {
         setContextMenu(undefined)
         setConnectMenu(undefined)
@@ -753,6 +774,25 @@ function CanvasTabInner(): ReactNode {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
         if (selected.length > 0) void fitView({ nodes: selected, padding: 0.3, duration: 300 })
+        return
+      }
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        const selected = nodesRef.current.filter(node => node.selected === true)
+        if (selected.length === 0) return
+        event.preventDefault()
+        const step = event.shiftKey ? 10 : 1
+        const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
+        const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
+        if (!arrowGestureRef.current.active) {
+          pushHistory()
+          arrowGestureRef.current.active = true
+        }
+        if (arrowGestureRef.current.timer !== undefined) window.clearTimeout(arrowGestureRef.current.timer)
+        arrowGestureRef.current.timer = window.setTimeout(() => { arrowGestureRef.current.active = false }, 500)
+        setNodes(current => current.map(node => node.selected === true
+          ? { ...node, position: { x: node.position.x + dx, y: node.position.y + dy } }
+          : node))
+        saveRef.current()
         return
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -1516,6 +1556,16 @@ function CanvasTabInner(): ReactNode {
     }
   }, [addTextNode, addGroup, openPicker, importMedia, arrangeGrid, exportPng, undo, redo, fitView, setNodes])
 
+  const fuzzyMatch = useCallback((query: string, label: string): boolean => {
+    const q = query.toLowerCase().replace(/\s+/g, '')
+    const target = label.toLowerCase()
+    let qIndex = 0
+    for (const char of target) {
+      if (qIndex < q.length && char === q[qIndex]) qIndex += 1
+    }
+    return qIndex === q.length
+  }, [])
+
   const COMMANDS: Array<{ id: string; label: string; hint: string }> = [
     { id: 'text', label: '添加文字', hint: '新建文字节点' },
     { id: 'group', label: '新建分组', hint: '分组容器节点' },
@@ -1658,20 +1708,29 @@ function CanvasTabInner(): ReactNode {
             value={paletteQuery}
             placeholder="输入命令…（⌘K 打开）"
             style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.05)', color: '#f5f5f5', fontSize: 13, marginBottom: 6 }}
-            onChange={event => setPaletteQuery(event.target.value)}
+            onChange={event => { setPaletteQuery(event.target.value); setPaletteIndex(0) }}
             onKeyDown={event => {
-              if (event.key === 'Enter') {
-                const match = COMMANDS.filter(cmd => cmd.label.includes(paletteQuery.trim()) || paletteQuery.trim() === '')[0]
+              const matches = COMMANDS.filter(cmd => paletteQuery.trim() === '' || fuzzyMatch(paletteQuery, cmd.label))
+              if (event.key === 'ArrowDown' && matches.length > 0) {
+                event.preventDefault()
+                setPaletteIndex(index => (index + 1) % matches.length)
+              } else if (event.key === 'ArrowUp' && matches.length > 0) {
+                event.preventDefault()
+                setPaletteIndex(index => (index - 1 + matches.length) % matches.length)
+              } else if (event.key === 'Enter') {
+                const match = matches[paletteIndex] ?? matches[0]
                 if (match !== undefined) runCommand(match.id)
+              } else if (event.key === 'Escape') {
+                setPaletteOpen(false)
               }
-              if (event.key === 'Escape') setPaletteOpen(false)
             }}
           />
           <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-            {COMMANDS.filter(cmd => paletteQuery.trim() === '' || cmd.label.includes(paletteQuery.trim())).map(cmd => (
+            {COMMANDS.filter(cmd => paletteQuery.trim() === '' || fuzzyMatch(paletteQuery, cmd.label)).map((cmd, index) => (
               <button
                 key={cmd.id}
-                style={{ display: 'flex', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+                style={{ display: 'flex', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: index === paletteIndex ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+                onMouseEnter={() => setPaletteIndex(index)}
                 onClick={() => runCommand(cmd.id)}
               >
                 <span>{cmd.label}</span>
