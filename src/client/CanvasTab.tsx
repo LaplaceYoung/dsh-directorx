@@ -2327,7 +2327,7 @@ function CanvasTabInner(): ReactNode {
           </span>
         ) : null}
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
-        <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.4)' }}>⌘K 命令 · ⌘+/- 缩放 · Esc 清除</span>
+        <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.4)' }}>{selectedCount > 0 ? `已选 ${selectedCount} 个节点 · ` : ''}⌘K 命令 · ⌘+/- 缩放 · Esc 清除</span>
       </div>
       {connectMenu !== undefined ? (
         <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
