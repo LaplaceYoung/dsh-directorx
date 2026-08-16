@@ -467,6 +467,7 @@ function CanvasTabInner(): ReactNode {
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string; label: string } | undefined>(undefined)
+  const [alignMenu, setAlignMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('')
@@ -690,6 +691,9 @@ function CanvasTabInner(): ReactNode {
     }
   }, [applyDoc])
 
+  const flowInstance = useReactFlow()
+  const storeApi = useStoreApi()
+  const { screenToFlowPosition, fitView, zoomIn, zoomOut } = flowInstance
   // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
   // deletes selected nodes (via onNodesChange) or the selected edge, Escape
   // closes the floating menus.
@@ -729,6 +733,27 @@ function CanvasTabInner(): ReactNode {
         redo()
         return
       }
+      if ((event.metaKey || event.ctrlKey) && (event.key === '=' || event.key === '+')) {
+        event.preventDefault()
+        void zoomIn()
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === '-') {
+        event.preventDefault()
+        void zoomOut()
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === '0') {
+        event.preventDefault()
+        void fitView({ padding: 0.15, duration: 300 })
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === '2') {
+        event.preventDefault()
+        const selected = nodesRef.current.filter(node => node.selected === true)
+        if (selected.length > 0) void fitView({ nodes: selected, padding: 0.3, duration: 300 })
+        return
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
         setPaletteOpen(open => !open)
@@ -755,7 +780,7 @@ function CanvasTabInner(): ReactNode {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedEdge, setEdges, scheduleSave, undo, redo])
+  }, [selectedEdge, setEdges, scheduleSave, undo, redo, zoomIn, zoomOut, fitView])
 
   // Flush a pending debounced save when the tab unmounts, so closing the dock
   // never loses the last drag/edit.
@@ -997,9 +1022,7 @@ function CanvasTabInner(): ReactNode {
     setSelectedCount(params.nodes.length)
   }, [])
 
-  const flowInstance = useReactFlow()
-  const storeApi = useStoreApi()
-  const { screenToFlowPosition, fitView } = flowInstance
+
   useEffect(() => {
     ;(window as unknown as Record<string, unknown>).__dxFlowDebug = {
       storeEdges: () => flowInstance.getEdges().length,
@@ -1162,6 +1185,76 @@ function CanvasTabInner(): ReactNode {
     closeContextMenu()
     action()
   }, [closeContextMenu])
+
+  const selectedRects = useCallback(() => nodesRef.current
+    .filter(node => node.selected === true && node.type !== 'group')
+    .map(node => {
+      const m = nodeMetrics(node)
+      return { node, left: node.position.x, top: node.position.y, right: node.position.x + m.width, bottom: node.position.y + m.height, width: m.width, height: m.height, cx: node.position.x + m.width / 2, cy: node.position.y + m.height / 2 }
+    }), [])
+
+  const applyAlign = useCallback((kind: 'left' | 'centerX' | 'right' | 'top' | 'centerY' | 'bottom' | 'distX' | 'distY') => {
+    const rects = selectedRects()
+    if (rects.length < 2) return
+    pushHistory()
+    const bounds = {
+      left: Math.min(...rects.map(rect => rect.left)),
+      right: Math.max(...rects.map(rect => rect.right)),
+      top: Math.min(...rects.map(rect => rect.top)),
+      bottom: Math.max(...rects.map(rect => rect.bottom)),
+      cx: (Math.min(...rects.map(rect => rect.left)) + Math.max(...rects.map(rect => rect.right))) / 2,
+      cy: (Math.min(...rects.map(rect => rect.top)) + Math.max(...rects.map(rect => rect.bottom))) / 2,
+    }
+    const horizontal = kind === 'left' || kind === 'centerX' || kind === 'right' || kind === 'distX'
+    if (kind === 'left' || kind === 'centerX' || kind === 'right') {
+      const targetX = kind === 'left' ? bounds.left : kind === 'right' ? bounds.right - 0 : bounds.cx
+      setNodes(current => current.map(candidate => {
+        if (candidate.selected !== true || candidate.type === 'group') return candidate
+        const rect = rects.find(item => item.node.id === candidate.id)
+        if (rect === undefined) return candidate
+        const offset = kind === 'left' ? 0 : kind === 'right' ? rect.width : rect.width / 2
+        return { ...candidate, position: { x: targetX - offset, y: candidate.position.y } }
+      }))
+    }
+    if (kind === 'top' || kind === 'centerY' || kind === 'bottom') {
+      const targetY = kind === 'top' ? bounds.top : kind === 'bottom' ? bounds.bottom : bounds.cy
+      setNodes(current => current.map(candidate => {
+        if (candidate.selected !== true || candidate.type === 'group') return candidate
+        const rect = rects.find(item => item.node.id === candidate.id)
+        if (rect === undefined) return candidate
+        const offset = kind === 'top' ? 0 : kind === 'bottom' ? rect.height : rect.height / 2
+        return { ...candidate, position: { x: candidate.position.x, y: targetY - offset } }
+      }))
+    }
+    if (kind === 'distX') {
+      const sorted = [...rects].sort((a, b) => a.left - b.left)
+      const span = bounds.right - bounds.left - sorted.reduce((sum, rect) => sum + rect.width, 0)
+      const step = span / (sorted.length - 1)
+      let cursorX = bounds.left
+      setNodes(current => current.map(candidate => {
+        const rect = sorted.find(item => item.node.id === candidate.id)
+        if (rect === undefined) return candidate
+        const next = { ...candidate, position: { x: cursorX, y: candidate.position.y } }
+        cursorX += rect.width + step
+        return next
+      }))
+    }
+    if (kind === 'distY') {
+      const sorted = [...rects].sort((a, b) => a.top - b.top)
+      const span = bounds.bottom - bounds.top - sorted.reduce((sum, rect) => sum + rect.height, 0)
+      const step = span / (sorted.length - 1)
+      let cursorY = bounds.top
+      setNodes(current => current.map(candidate => {
+        const rect = sorted.find(item => item.node.id === candidate.id)
+        if (rect === undefined) return candidate
+        const next = { ...candidate, position: { x: candidate.position.x, y: cursorY } }
+        cursorY += rect.height + step
+        return next
+      }))
+    }
+    void horizontal
+    saveRef.current()
+  }, [selectedRects, setNodes, pushHistory])
 
   const batchDelete = useCallback(() => {
     pushHistory()
@@ -1428,6 +1521,11 @@ function CanvasTabInner(): ReactNode {
           if (nodesRef.current.length === 0) setQuickAdd({ x: event.clientX, y: event.clientY })
         }}
         onNodeContextMenu={onNodeContextMenu}
+        onSelectionContextMenu={(event) => {
+          event.preventDefault()
+          const selected = nodesRef.current.filter(node => node.selected === true).length
+          if (selected >= 2) setAlignMenu({ x: event.clientX, y: event.clientY })
+        }}
         onDoubleClick={onPaneDoubleClick}
         onDragOver={onPaneDragOver}
         onDrop={onPaneDrop}
@@ -1474,10 +1572,11 @@ function CanvasTabInner(): ReactNode {
         <button style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
         <button style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
         <button style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
+        {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
-        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘D 复制 · ⌫ 删除 · Esc 清除'}</span>
+        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘+/- 缩放 · ⌘0 适配 · ⌘2 适配选中 · ⌘D 复制 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
         {conflict !== undefined ? (
           <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -1590,6 +1689,28 @@ function CanvasTabInner(): ReactNode {
             <button style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(255,255,255,.08)', color: '#f5f5f5', fontSize: 12, cursor: 'pointer' }} onClick={saveEdgeLabel}>保存标签</button>
             <button style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { deleteSelectedEdgeById(edgeMenu.edgeId); setEdgeMenu(undefined) }}>删除连线</button>
           </div>
+        </div>
+      ) : null}
+      {alignMenu !== undefined ? (
+        <div style={{ position: 'fixed', left: alignMenu.x, top: alignMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
+          onClick={event => event.stopPropagation()}
+        >
+          {[
+            { label: '左对齐', run: () => applyAlign('left') },
+            { label: '水平居中', run: () => applyAlign('centerX') },
+            { label: '右对齐', run: () => applyAlign('right') },
+            { label: '顶对齐', run: () => applyAlign('top') },
+            { label: '垂直居中', run: () => applyAlign('centerY') },
+            { label: '底对齐', run: () => applyAlign('bottom') },
+            { label: '水平分布', run: () => applyAlign('distX') },
+            { label: '垂直分布', run: () => applyAlign('distY') },
+            { label: '批量删除', run: batchDelete },
+          ].map(item => (
+            <button key={item.label} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+              onClick={() => { setAlignMenu(undefined); item.run() }}>
+              {item.label}
+            </button>
+          ))}
         </div>
       ) : null}
       {contextMenu !== undefined ? (
