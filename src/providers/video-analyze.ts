@@ -41,6 +41,10 @@ export interface VideoAnalyzeOutput {
   edgeSharpness: number
   /** 冻结事件：freezedetect 检出画面静止段数（AI 视频卡帧伪影）。 */
   freezeCount: number
+  /** 冻结总秒数（分级门用）。 */
+  freezeSeconds: number
+  /** 跳变帧数：非切点亮度尖峰（>2×中位差）——形态突变/模型跳帧。 */
+  jumpCount: number
   /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
   whiteFrameCount: number
   /** blackdetect 黑场区间（d=0.25, pix=0.10 参数口径）。 */
@@ -73,8 +77,12 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     '-vf', 'freezedetect=n=-60dB:d=0.5',
     '-an', '-f', 'null', '-',
   ], { encoding: 'utf8' })
-  const freezeMatches = (freezeResult.stderr ?? '').match(/freeze_start/g)
+  const freezeStderr = freezeResult.stderr ?? ''
+  const freezeMatches = freezeStderr.match(/freeze_start/g)
   const freezeCount = freezeMatches !== null ? freezeMatches.length : 0
+  const freezeDurations: number[] = []
+  for (const match of freezeStderr.matchAll(/freeze_duration: ([\d.]+)/g)) freezeDurations.push(Number(match[1]))
+  const freezeSeconds = Number(freezeDurations.reduce((sum, value) => sum + value, 0).toFixed(2))
 
   // 锐度代理：sobel 边缘能量均值（第二趟扫描，与 YAVG 同成本）。
   const sobelResult = spawnSync('ffmpeg', [
@@ -100,6 +108,11 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
   const frameRate = (fps?.fps as number | undefined) ?? 24
   const frameSec = 1 / frameRate
 
+  const deltas: number[] = []
+  for (let index = 1; index < yavg.length; index += 1) deltas.push(Math.abs(yavg[index] - yavg[index - 1]))
+  const sortedDeltas = [...deltas].sort((a, b) => a - b)
+  const medianDelta = sortedDeltas.length > 0 ? sortedDeltas[Math.floor(sortedDeltas.length / 2)] : 0
+
   const cutFrames: number[] = [0]
   for (let index = 1; index < yavg.length; index += 1) {
     const delta = Math.abs(yavg[index] - yavg[index - 1])
@@ -108,6 +121,14 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     }
   }
   cutFrames.push(yavg.length)
+
+  // 跳变：非切点帧的亮度尖峰（>2× 中位差且 >20）——形态突变/模型跳帧。
+  const cutSet = new Set(cutFrames)
+  let jumpCount = 0
+  for (let index = 1; index < yavg.length; index += 1) {
+    const delta = Math.abs(yavg[index] - yavg[index - 1])
+    if (!cutSet.has(index) && delta > Math.max(2 * medianDelta, 20)) jumpCount += 1
+  }
 
   const shots: ShotSegment[] = []
   for (let index = 0; index < cutFrames.length - 1; index += 1) {
@@ -190,6 +211,8 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     flickerCount,
     edgeSharpness,
     freezeCount,
+    freezeSeconds,
+    jumpCount,
     whiteFrameCount: yavg.filter(value => value > 240).length,
     ...(blackSegments.length > 0 ? { blackSegments } : {}),
     ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
@@ -259,7 +282,9 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
   checks.push({ name: '闪烁', pass: analysis.flickerCount <= Math.max(3, Math.round((analysis.probe.durationSec ?? 0) * 2)), detail: analysis.flickerCount > 0 ? `检出 ${analysis.flickerCount} 次亮度符号交替（AI 视频常见闪烁伪影）` : '无闪烁' })
   checks.push({ name: '锐度', pass: analysis.edgeSharpness >= 15, detail: analysis.edgeSharpness > 0 ? `边缘能量均值 ${analysis.edgeSharpness}${analysis.edgeSharpness < 15 ? '（疑似整体模糊）' : '（清晰）'}` : '无法测量' })
-  checks.push({ name: '冻结', pass: analysis.freezeCount === 0, detail: analysis.freezeCount > 0 ? `检出 ${analysis.freezeCount} 处画面静止段（≥0.5s，卡帧伪影）` : '无冻结段' })
+  checks.push({ name: '冻结', pass: analysis.freezeSeconds <= 1, detail: analysis.freezeCount > 0 ? `检出 ${analysis.freezeCount} 处静止段共 ${analysis.freezeSeconds}s${analysis.freezeSeconds > 1 ? '（>1s，疑似卡帧）' : '（轻微）'}` : '无冻结段' })
+  checks.push({ name: '跳变', pass: analysis.jumpCount === 0, detail: analysis.jumpCount > 0 ? `检出 ${analysis.jumpCount} 帧非切点亮度尖峰（形态突变/模型跳帧）` : '无跳变' })
+  checks.push({ name: '黑场占比', pass: (analysis.blackSegments ?? []).reduce((sum, segment) => sum + segment.durationSec, 0) <= (analysis.probe.durationSec ?? 0) * 0.02, detail: (analysis.blackSegments ?? []).length > 0 ? `黑场共 ${(analysis.blackSegments ?? []).reduce((sum, segment) => sum + segment.durationSec, 0).toFixed(1)}s` : '无黑场' })
   if (analysis.blackSegments !== undefined && analysis.blackSegments.length > 0) {
     const total = analysis.blackSegments.reduce((sum, segment) => sum + segment.durationSec, 0)
     checks.push({ name: '黑场段', pass: false, detail: `${analysis.blackSegments.length} 段黑场共 ${total.toFixed(2)}s（blackdetect d=0.25）` })
