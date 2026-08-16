@@ -138,3 +138,45 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   runFfmpeg(args, 'video concat (fade)')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }
+
+export interface AudioMixInput {
+  /** Video (or audio) file the tracks are mixed onto. */
+  video: string
+  outputDir: string
+  /** Extra tracks, in order: first listed track sits on top (e.g. narration first). */
+  tracks: Array<{ path: string; volume?: number }>
+  /** Duck the later tracks under this track index (0-based into tracks, typically the narration). */
+  duckUnder?: number
+}
+
+export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
+  if (input.tracks.length === 0) throw new Error('audioMix needs at least one track')
+  const out = outputPath(input.outputDir, 'mixed', 'mp4')
+  const args: string[] = ['-i', input.video]
+  for (const track of input.tracks) args.push('-i', track.path)
+  const parts: string[] = []
+  const trackLabels: string[] = []
+  input.tracks.forEach((track, index) => {
+    const vol = track.volume ?? 1
+    parts.push(`[${index + 1}:a]volume=${vol},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[trk${index}]`)
+    trackLabels.push(`[trk${index}]`)
+  })
+  let mixInputs = trackLabels.join('')
+  if (input.duckUnder !== undefined && input.duckUnder >= 0 && input.duckUnder < input.tracks.length) {
+    const voice = `[trk${input.duckUnder}]`
+    const bgm = input.duckUnder === 0
+      ? trackLabels.slice(1).join('') === '' ? null : trackLabels.slice(1)
+      : [trackLabels[0]]
+    if (bgm !== null && bgm.length > 0) {
+      const ducked = bgm.map(label => `${label}${voice}sidechaincompress=threshold=0.03:ratio=8:attack=60:release=400:makeup=1[duck${bgm.indexOf(label)}]`).join(';')
+      parts.push(ducked)
+      const duckLabels = bgm.map((_, index) => `[duck${index}]`)
+      const all = input.duckUnder === 0 ? [voice, ...duckLabels] : [...duckLabels, voice]
+      mixInputs = all.join('')
+    }
+  }
+  parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed]`)
+  args.push('-filter_complex', parts.join(';'), '-map', '0:v', '-map', '[mixed]', '-c:v', 'copy', '-c:a', 'aac', '-shortest', out)
+  runFfmpeg(args, 'audio mix')
+  return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+}

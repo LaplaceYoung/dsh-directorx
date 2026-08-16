@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { videoConcat, videoProcess } from '../lib/testing.js'
+import { audioMix, videoConcat, videoProcess } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,26 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('audioMix overlays BGM onto a video with ducking', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-mix-'))
+  try {
+    const make = (name, freq, seconds) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=160x90:rate=12', '-f', 'lavfi', '-i', `sine=frequency=${freq}:duration=${seconds}`, '-c:v', 'libx264', '-c:a', 'aac', '-shortest', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('clip gen failed: ' + (result.stderr ?? '').slice(-300))
+      return path
+    }
+    const video = make('v.mp4', 220, 2)
+    const bgm = make('bgm.mp4', 440, 2)
+    const voice = make('voice.mp4', 880, 2)
+    const mixed = await audioMix({ video, outputDir: dir, tracks: [{ path: voice, volume: 1 }, { path: bgm, volume: 0.4 }], duckUnder: 0 })
+    assert.ok(existsSync(mixed.path), 'mixed file exists')
+    assert.ok(mixed.probe.streams.some(stream => stream.type === 'audio'), 'audio stream present')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('videoProcess trims and speeds up; videoConcat joins with xfade', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-vp-'))

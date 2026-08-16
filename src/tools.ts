@@ -14,7 +14,7 @@ import { runImage } from './providers/image.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
-import { videoConcat, videoProcess } from './providers/video-process.ts'
+import { audioMix, videoConcat, videoProcess } from './providers/video-process.ts'
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -489,6 +489,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         guidance: article.content.slice(0, 3500),
         usage: '把 guidance 的关键词/句式并入生成提示词；可继续 directorx_knowledge_read 读全文。',
       }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_audio_mix',
+    description: 'Mix extra audio tracks (BGM / narration / SFX) onto a video with ffmpeg: per-track volume, optional sidechain ducking (music dips under the narration), normalized amix. Deterministic and free. Output lands in the output dir.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the video (or audio) to mix onto.' },
+      tracks: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Extra tracks in order, e.g. [{path, volume?}]; first track sits on top.' },
+      duckUnder: { type: 'number', description: 'Duck later tracks under this track index (0-based; typically the narration).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return audioMix({ ...args, outputDir: settings.outputDir })
     },
   })))
 
