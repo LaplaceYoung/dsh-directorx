@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore, Component, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, Component, type CSSProperties, type ReactNode } from 'react'
 import { closeEditor, editorSnapshot, setEditorTab, subscribeEditor, type EditorTab } from './editor.ts'
 import { CanvasTab } from './CanvasTab.tsx'
 import { ImageEditBody } from './ImageEditBody.tsx'
@@ -144,6 +144,25 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
   const [sourceUrl, setSourceUrl] = useState<string | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | undefined>(undefined)
   const [saved, setSaved] = useState<EditRecord | undefined>(undefined)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+
+  // 默认面板宽度：约浏览器窗口的 1/3（下限 480px），用户手动拖拽后尊重其调整；
+  // 窗口尺寸变化时按比例跟随。
+  useEffect(() => {
+    const applyDefaultWidth = () => {
+      const root = rootRef.current
+      if (root === null) return
+      const col = root.closest('[class*="detailsCol"]') as HTMLElement | null
+      if (col === null) return
+      const target = Math.max(480, Math.round(window.innerWidth / 3))
+      if (col.clientWidth === 0 || col.clientWidth < target) {
+        col.style.width = `${target}px`
+      }
+    }
+    const timer = window.setTimeout(applyDefaultWidth, 60)
+    window.addEventListener('resize', applyDefaultWidth)
+    return () => { window.clearTimeout(timer); window.removeEventListener('resize', applyDefaultWidth) }
+  }, [])
 
   useEffect(() => {
     let live = true
@@ -177,7 +196,7 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
   const title = snapshot.tab === 'canvas' ? 'DirectorX 画布' : snapshot.tab === 'video' ? '视频时间线编辑' : '图片编辑'
 
   return (
-    <div style={column}>
+    <div ref={rootRef} style={column}>
       <div style={headerBar}>
         <strong style={{ fontSize: 13 }}>{title}</strong>
         <button onClick={close} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(128,140,160,.4)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>关闭</button>
