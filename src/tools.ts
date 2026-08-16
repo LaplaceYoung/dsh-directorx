@@ -728,7 +728,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     name: 'directorx_timeline',
     description: 'Render a timeline JSON into a finished cut (OTIO-inspired subset — the editing agent\'s central format): scenes with per-scene trims, cross-fade/hard-cut concat, optional audio mixing with ducking, and subtitle muxing. Deterministic and re-renderable: change the plan, re-render, never re-generate. timeline = { scenes: [{source, trim?, transition?}], subtitle?, audio? [{path, volume?, duckUnder?}], scale? }.',
     parameters: {
-      timeline: { type: 'object', required: true, description: 'Timeline spec: scenes array + optional subtitle srt path, audio tracks, scale.' },
+      timeline: { type: 'object', additionalProperties: true, required: true, description: 'Timeline spec: scenes array + optional subtitle srt path, audio tracks, scale.' },
     },
     output: objectOutput(),
     timeoutMs: 1800_000,
