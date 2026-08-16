@@ -488,9 +488,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_style',
-    description: 'Style / camera-language injector grounded in the bundled film knowledge corpus. Give a style name or craft need (e.g. "赛博朋克", "黑色电影", "推镜头 霓虹光", "韦斯·安德森") and get the matching craft article condensed for prompt injection — append it to generation prompts to lock the look. Never fabricates: returns real corpus text.',
+    description: 'Style / camera-language injector grounded in the bundled film knowledge corpus plus research-derived style grammars. Give a style name or craft need (e.g. "赛博朋克", "黑色电影", "推镜头 霓虹光", "韦斯·安德森", "wong-kar-wai") and get the matching craft article condensed for prompt injection — append it to generation prompts to lock the look. Never fabricates: returns real corpus text or cited research grammars.',
     parameters: {
-      style: { type: 'string', required: true, description: 'Style name or craft need (Chinese or English). Preset slugs: noir/film-noir, cyberpunk, ghibli, wes-anderson, documentary, commercial, retro-80s, horror, cinematic.' },
+      style: { type: 'string', required: true, description: 'Style name or craft need (Chinese or English). Preset slugs: noir/film-noir, cyberpunk, ghibli, wes-anderson, documentary, commercial, retro-80s, horror, cinematic + research grammars wong-kar-wai / wes-anderson.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
@@ -509,6 +509,34 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         'retro-80s': '80年代 复古 胶片颗粒',
         horror: '恐怖片 黑暗 悬疑',
         cinematic: '电影感 运镜 浅景深',
+      }
+      // Research-derived style grammars (2026 research wave, cited sources):
+      // anchor + palette + motion syntax + negative boundary in one block.
+      const GRAMMARS: Record<string, { anchor: string; palette: string; motion: string; negative: string; source: string }> = {
+        'wong-kar-wai': {
+          anchor: 'in the visual language of Wong Kar-wai, shot by Christopher Doyle; 1970s-90s Hong Kong cinema nostalgia',
+          palette: 'split-toned amber and emerald, sodium-yellow key from streetlamps, electric green spill from signage, cyan haze in mid-ground',
+          motion: 'step-printed motion, low-frame-rate stutter, slow-shutter smear, speed-ramping, handheld micro-sway',
+          negative: 'clean digital sharpness, even daylight, wide establishing shot, anamorphic flares, plastic skin, over-stabilized camera, symmetrical composition',
+          source: 'invideo.io WKW style guide + OpenAI Cookbook',
+        },
+        'wes-anderson': {
+          anchor: 'perfectly symmetrical Wes Anderson composition, pastel color palette, flat depth of field, soft light without hard shadows',
+          palette: 'pastel macaron tones (powder blue, mint, cream, dusty pink), saturated accent colors',
+          motion: 'Static camera, no movement; whip pans only for transitions; centered framing',
+          negative: 'handheld shake, dutch angles, high contrast harsh shadows, dark moody lighting',
+          source: 'VePrompts Wes Anderson template (Veo 3)',
+        },
+      }
+      const grammar = GRAMMARS[style.toLowerCase()]
+      if (grammar !== undefined) {
+        return {
+          style,
+          found: true,
+          grammar,
+          guidance: `${grammar.anchor}；palette: ${grammar.palette}；motion: ${grammar.motion}；negative: ${grammar.negative}`,
+          usage: '把 guidance 整段并入提示词（风格锚+色调+运动语法+负面锁四件套）；来源已注明。',
+        }
       }
       const query = PRESETS[style.toLowerCase()] ?? style
       const hits = await corpus.search(query, 3)
