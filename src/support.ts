@@ -118,7 +118,7 @@ export function parseMediaQuery(url: string | undefined): string | undefined {
 }
 
 export function apiKeyOf(configApiKey: string, envNames: string[], baseURL: string): string {
-  const candidates = [...envNames, 'AIGW_API_KEY', 'OPENAI_API_KEY']
+  const candidates = [...envNames, 'MODELVERSE_API_KEY', 'AIGW_API_KEY', 'OPENAI_API_KEY']
   const fromEnv = candidates.map(name => process.env[name]).find(value => value !== undefined && value !== '')
   const key = configApiKey !== '' ? configApiKey : fromEnv ?? ''
   if (key === '' && !isLocalBaseUrl(baseURL)) {

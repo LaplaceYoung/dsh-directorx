@@ -419,6 +419,7 @@ function CanvasTabInner(): ReactNode {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
+  const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
@@ -634,6 +635,7 @@ function CanvasTabInner(): ReactNode {
       if (event.key === 'Escape') {
         setContextMenu(undefined)
         setConnectMenu(undefined)
+        setQuickAdd(undefined)
         setPickerOpen(false)
         setSelectedEdge(undefined)
         return
@@ -942,6 +944,32 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setEdges, scheduleSave])
 
+  const quickAddAt = useCallback((factory: (flowPos: { x: number; y: number }) => void) => {
+    const point = quickAdd
+    setQuickAdd(undefined)
+    if (point === undefined) return
+    const flowPos = screenToFlowPosition({ x: point.x, y: point.y })
+    factory(flowPos)
+  }, [quickAdd, screenToFlowPosition])
+
+  const quickAddText = useCallback(() => {
+    quickAddAt(flowPos => {
+      addNodeAt({ id: newLocalId('text'), type: 'text', position: flowPos, data: { label: '文本节点' } })
+    })
+  }, [quickAddAt, addNodeAt])
+
+  const quickAddGroup = useCallback(() => {
+    quickAddAt(flowPos => {
+      addNodeAt({ id: newLocalId('group'), type: 'group', position: flowPos, style: { width: 520, height: 380 }, data: { label: '分组' } })
+    })
+  }, [quickAddAt, addNodeAt])
+
+  const quickAddMedia = useCallback((kind: 'image' | 'video') => {
+    setQuickAdd(undefined)
+    setMediaQuery(kind)
+    void openPicker()
+  }, [openPicker])
+
   const connectAddText = useCallback(() => {
     connectCreate(() => {
       const id = newLocalId('text')
@@ -969,7 +997,10 @@ function CanvasTabInner(): ReactNode {
     setContextMenu({ x: event.clientX, y: event.clientY })
   }, [])
 
-  const closeContextMenu = useCallback(() => setContextMenu(undefined), [])
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(undefined)
+    setQuickAdd(undefined)
+  }, [])
 
   const contextAction = useCallback((action: () => void) => {
     closeContextMenu()
@@ -1266,6 +1297,27 @@ function CanvasTabInner(): ReactNode {
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setConnectMenu(undefined); void openPicker() }}>媒体库…</button>
+        </div>
+      ) : null}
+      {quickAdd !== undefined ? (
+        <div
+          style={{ position: 'fixed', left: quickAdd.x, top: quickAdd.y, zIndex: 8, display: 'flex', gap: 4, padding: 6, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}
+          onClick={event => event.stopPropagation()}
+        >
+          {[
+            { label: '文字', run: quickAddText },
+            { label: '图片素材', run: () => quickAddMedia('image') },
+            { label: '视频素材', run: () => quickAddMedia('video') },
+            { label: '分组', run: quickAddGroup },
+          ].map(item => (
+            <button
+              key={item.label}
+              style={{ padding: '6px 12px', borderRadius: 9, border: 'none', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+              onClick={item.run}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       ) : null}
       {nodeMenu !== undefined ? (
