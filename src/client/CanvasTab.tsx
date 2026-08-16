@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi, SelectionMode,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi, SelectionMode, useViewport,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -700,7 +700,8 @@ function CanvasTabInner(): ReactNode {
 
   const flowInstance = useReactFlow()
   const storeApi = useStoreApi()
-  const { screenToFlowPosition, fitView, zoomIn, zoomOut } = flowInstance
+  const { screenToFlowPosition, fitView, zoomIn, zoomOut, setViewport } = flowInstance
+  const { zoom } = useViewport()
   // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
   // deletes selected nodes (via onNodesChange) or the selected edge, Escape
   // closes the floating menus.
@@ -1155,10 +1156,15 @@ function CanvasTabInner(): ReactNode {
 
   const onPaneDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault()
+    const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+    // OS files dragged in (A6) upload and land at the drop point.
+    if (event.dataTransfer.files.length > 0) {
+      void uploadFilesAt(Array.from(event.dataTransfer.files), flowPos)
+      return
+    }
     const path = event.dataTransfer.getData('text/plain')
     const file = mediaByPath.get(path)
     if (file === undefined) return
-    const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY })
     const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
     setNodes(current => [...current, {
       id: newLocalId(kind), type: 'media', position: flowPos,
@@ -1407,12 +1413,12 @@ function CanvasTabInner(): ReactNode {
     uploadInputRef.current?.click()
   }, [])
 
-  const onUploadFiles = useCallback(async (files: FileList | null) => {
-    if (files === null || files.length === 0) return
+  const uploadFilesAt = useCallback(async (files: File[], flowPos?: { x: number; y: number }) => {
+    if (files.length === 0) return
     setUploading(true)
-    const added: Array<{ name: string; path: string }> = []
+    const added: Array<{ name: string; path: string; mediaType: string }> = []
     let firstError: string | undefined
-    for (const file of Array.from(files).slice(0, 12)) {
+    for (const file of files.slice(0, 12)) {
       try {
         const response = await fetch('/directorx/media', {
           method: 'POST',
@@ -1427,18 +1433,33 @@ function CanvasTabInner(): ReactNode {
           throw new Error(`HTTP ${response.status} ${text.slice(0, 120)}`)
         }
         const record = await response.json() as { path: string }
-        added.push({ name: file.name, path: record.path })
+        const mediaType = file.type !== '' ? file.type : (file.name.endsWith('.mp4') || file.name.endsWith('.mov') || file.name.endsWith('.webm') ? 'video/mp4' : 'image/png')
+        added.push({ name: file.name, path: record.path, mediaType })
       } catch (cause) {
         firstError = cause instanceof Error ? cause.message : String(cause)
       }
     }
-    for (const item of added) {
-      addMedia({ path: item.path, name: item.name, mediaType: item.name.endsWith('.mp4') || item.name.endsWith('.mov') || item.name.endsWith('.webm') ? 'video/mp4' : 'image/png', size: 0 })
+    if (added.length > 0) {
+      pushHistory()
+      const offset = flowPos ?? centerFlowPos()
+      setNodes(current => [...current, ...added.map((item, index) => {
+        const kind: 'image' | 'video' = item.mediaType.startsWith('video/') ? 'video' : 'image'
+        return {
+          id: newLocalId(kind), type: 'media' as const,
+          position: { x: offset.x + index * 40, y: offset.y + index * 40 },
+          data: { kind, label: item.name, path: item.path, ...nodeCallbacks },
+        }
+      })])
+      saveRef.current()
     }
     if (firstError !== undefined) setError(firstError)
     setUploading(false)
-    scheduleSave()
-  }, [addMedia, scheduleSave])
+  }, [setNodes, nodeCallbacks, centerFlowPos, pushHistory])
+
+  const onUploadFiles = useCallback(async (files: FileList | null) => {
+    if (files === null || files.length === 0) return
+    await uploadFilesAt(Array.from(files))
+  }, [uploadFilesAt])
 
   const exportPng = useCallback(async () => {
     const ns = nodesRef.current
@@ -1655,7 +1676,7 @@ function CanvasTabInner(): ReactNode {
         selectionOnDrag
         selectionMode={SelectionMode.Partial}
         multiSelectionKeyCode="Shift"
-        panOnDrag={false}
+        panOnDrag={[1]}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
         defaultEdgeOptions={defaultEdgeOptions}
@@ -1707,6 +1728,13 @@ function CanvasTabInner(): ReactNode {
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘+/- 缩放 · ⌘0 适配 · ⌘2 适配选中 · ⌘D 复制 · Esc 清除'}</span>
+        <button
+          style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer' }}
+          title="点击复位 100%"
+          onClick={() => setViewport({ zoom: 1, x: 0, y: 0 })}
+        >
+          {Math.round(zoom * 100)}%
+        </button>
         <span style={saveChip}>{saveState}</span>
         {agentEditFlash ? (
           <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,245,245,.14)', color: '#f5f5f5' }}>
