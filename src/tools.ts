@@ -16,6 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
+import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 
 function renderJson(_args: unknown, value: unknown) {
@@ -659,6 +660,28 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return proposals.update(String(args.id), args.status)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_understand',
+    description: 'Understand a local video shot-by-shot: samples N frames (default 6), describes each through the configured vision capability, and returns probe metadata + per-frame descriptions. Degrades to frame paths + metadata when vision is unavailable (the agent can still reason over frames itself). Use for 拉片/复盘/素材理解 before editing.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      frames: { type: 'number', description: 'Frame sample count (default 6, max 12).' },
+      question: { type: 'string', description: 'Optional per-frame question override.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    async execute(args: any) {
+      return videoUnderstand({
+        source: String(args.source),
+        outputDir: settings.outputDir,
+        settings,
+        vision: settings.vision,
+        frames: args.frames,
+        question: args.question,
+      })
     },
   })))
 

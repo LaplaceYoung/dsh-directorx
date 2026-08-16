@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -31,6 +31,22 @@ test('audioBeats detects energy peaks in a music-like tone', async () => {
     const beats = audioBeats({ source: audio, count: 8, minGap: 0.3 })
     assert.ok(beats.length >= 2, `expects several peaks, got ${beats.length}`)
     assert.ok(beats.every(point => point.t >= 0 && point.t <= 4.2), 'timestamps inside the clip')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('videoUnderstand samples frames and degrades without vision', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-vu-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=3', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const mockSettings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: 'mock' }, image: {}, video: {}, audio: {}, openlib: {} }
+    const out = await videoUnderstand({ source: clip, outputDir: dir, settings: mockSettings, vision: mockSettings.vision, frames: 4 })
+    assert.equal(out.frames.length, 4)
+    assert.ok(out.frames.every(frame => frame.path !== '' && frame.path.includes('frames/')), 'frame paths present')
+    assert.ok(out.note !== undefined, 'degradation note present')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

@@ -83,3 +83,17 @@
   （commit 9987be4，目录校验通过）——可向上游（Alex-Yanggg）提 PR。
 - 目录中可借鉴的插件模式：dsh-at-file 的 @file 提及（可迁移为画布/媒体
   引用）、dsh-custom-tool 的沙箱工具管理（可作为 DirectorX 设置页增强参考）。
+
+
+## 商业平台视频 agent 能力调研（2026-08-16，联网调研沉淀）
+
+**覆盖平台**：Runway（Agent/Agent 2.0/MCP）、可灵、剪映/即梦、Vidu、Sora 2、Veo/Flow、Pika、Luma、HeyGen、海螺及国内成片 Agent。
+
+**行业共识的 11 项 agentic 能力**：
+1. 一句话成片（goal→完整影片） 2. 剧本→分镜自动生成 3. 主体一致性锚点/角色库 4. 音画同出（配音+BGM 自动） 5. 帧级 QA 6. MCP 开放给外部 agent（Runway MCP） 7. 多镜头连贯生成（首尾帧/参考图） 8. 对话式导演（聊天即生产） 9. 多版本对比/择优 10. 智能剪辑（按脚本自动剪） 11. 多模态画布工作台。
+
+**Top-8 借鉴映射（对照 DSH agent + 无限画布 + 确定性 ffmpeg + 知识库）**：
+- 已具备：一键成片流水线（3 模板+proposals+自定义推导）、分镜生成（workflow+画布）、对话式导演（persona+会话）、帧级 QA（frame-qa+preflight）、MCP（/directorx/mcp 13 工具）、多版本重剪（确定性工具链免费可重跑）。
+- **缺口**：①主体一致性锚点/角色库（注册参考图→生成时自动注入）②音画同出的自动化串联（tts+BGM 与画面时序对齐）③多版本对比的 WebUI 呈现（compare 面板）。
+
+**主线程同步发现**：Runway MCP 把工作室暴露给 Claude/ChatGPT/Cursor——已对齐实现（directorx/mcp）；剪映侧实战流水线 daihuo-fanpai（反推爆款→即梦/Seedance 重生成→剪映草稿交付）。
