@@ -378,7 +378,16 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return canvas.search({ label: args.label, kind: args.kind, parent: args.parent })
+      // Defensive normalization: tolerate string shorthand (label-only) and
+      // invalid kind values instead of failing the whole call.
+      if (typeof args === 'string') return canvas.search({ label: args })
+      const kind = args?.kind
+      const validKinds = ['image', 'video', 'text', 'group']
+      return canvas.search({
+        label: typeof args?.label === 'string' ? args.label : undefined,
+        kind: validKinds.includes(kind) ? kind : undefined,
+        parent: typeof args?.parent === 'string' ? args.parent : undefined,
+      })
     },
   })))
 
