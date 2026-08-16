@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
-  ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
+  ReactFlow, Background, BackgroundVariant, Controls, MiniMap, NodeToolbar,
   addEdge, applyEdgeChanges, applyNodeChanges,
   Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStore, useStoreApi, SelectionMode, useViewport,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
@@ -850,6 +850,7 @@ function CanvasTabInner(): ReactNode {
     .filter(node => node.type === 'media' && (node.data as { shotIndex?: number } | undefined)?.shotIndex !== undefined)
     .sort((a, b) => ((a.data as { shotIndex: number }).shotIndex) - ((b.data as { shotIndex: number }).shotIndex)), [nodes])
   const { zoom } = useViewport()
+  const selectedNodeIds = useMemo(() => nodes.filter(node => node.selected === true).map(node => node.id), [nodes])
   // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
   // deletes selected nodes (via onNodesChange) or the selected edge, Escape
   // closes the floating menus.
@@ -1989,6 +1990,14 @@ function CanvasTabInner(): ReactNode {
         deleteKeyCode={['Backspace', 'Delete']}
         onlyRenderVisibleElements={nodes.length > 100}
       >
+        <NodeToolbar nodeId={selectedNodeIds} isVisible={selectedCount >= 2} position={Position.Top} align="center" offset={10}>
+          <div className="dx-pop" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
+            <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button>
+            <button style={toolBtn} onClick={batchGroup}>归入新分组</button>
+            <button style={toolBtn} onClick={batchBranch}>创建共同下游</button>
+            <button style={toolBtn} onClick={batchDelete}>批量删除</button>
+          </div>
+        </NodeToolbar>
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
         <DirectorxEdges nodes={nodes} edges={(() => {
           const hiddenIds = new Set<string>()
@@ -2111,13 +2120,9 @@ function CanvasTabInner(): ReactNode {
           </>
         ) : null}
       </div>
-      {selectedCount >= 2 || selectedEdge !== undefined ? (
-        <div style={{ position: 'absolute', bottom: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 14, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(20,20,20,.92)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
-          {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
-          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
-          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchBranch}>创建共同下游</button> : null}
-          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
-          {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
+      {selectedEdge !== undefined ? (
+        <div style={{ position: 'absolute', bottom: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 14, border: '1px solid rgba(255,255,255,.12)', background: '#3f3f46', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
+          <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button>
         </div>
       ) : null}
       {agentOpen ? (
