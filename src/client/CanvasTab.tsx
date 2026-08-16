@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -315,7 +315,7 @@ function toFlowEdges(doc: CanvasDocument): Edge[] {
   return doc.edges.map(edge => ({
     id: edge.id, source: edge.from, target: edge.to,
     sourceHandle: 'out', targetHandle: 'in',
-    label: edge.label, type: 'bezier',
+    label: edge.label,
   }))
 }
 
@@ -336,39 +336,82 @@ function nodeMetrics(node: CanvasFlowNode): { width: number; height: number } {
  * this environment); positions derive from the live nodes state. Paths are
  * clickable to select (stroke hit area), enabling UI deletion.
  */
-function DirectorxEdges({ nodes, edges, selectedId, onSelect }: {
+function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onReconnect }: {
   nodes: CanvasFlowNode[]
   edges: Edge[]
   selectedId: string | undefined
   onSelect: (id: string | undefined) => void
+  onContext: (edgeId: string, x: number, y: number) => void
+  onReconnect: (edgeId: string, side: 'source' | 'target', endpointId: string) => void
 }): ReactNode {
   const lookup = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes])
+  const [hoveredId, setHoveredId] = useState<string | undefined>(undefined)
+  const { screenToFlowPosition } = useReactFlow()
+
+  const dragEndpoint = (edge: Edge, side: 'source' | 'target') => (event: React.PointerEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+    const move = (moveEvent: PointerEvent) => {
+      // Visual feedback while dragging: nothing needed — the pointer affordance suffices.
+      void moveEvent
+    }
+    const up = (upEvent: PointerEvent) => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      const flowPos = screenToFlowPosition({ x: upEvent.clientX, y: upEvent.clientY })
+      const hit = nodes.find(node => {
+        const m = nodeMetrics(node)
+        return flowPos.x >= node.position.x && flowPos.x <= node.position.x + m.width
+          && flowPos.y >= node.position.y && flowPos.y <= node.position.y + m.height
+      })
+      if (hit !== undefined && hit.id !== edge.id && !(side === 'source' ? hit.id === edge.target : hit.id === edge.source)) {
+        onReconnect(edge.id, side, hit.id)
+      }
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
   const paths = edges.map(edge => {
     const source = lookup.get(edge.source)
     const target = lookup.get(edge.target)
     if (source === undefined || target === undefined) return null
     const sm = nodeMetrics(source)
     const tm = nodeMetrics(target)
+    const sourceX = source.position.x + sm.width
+    const sourceY = source.position.y + sm.height / 2
+    const targetX = target.position.x
+    const targetY = target.position.y + tm.height / 2
     const [path] = getBezierPath({
-      sourceX: source.position.x + sm.width,
-      sourceY: source.position.y + sm.height / 2,
-      sourcePosition: Position.Right,
-      targetX: target.position.x,
-      targetY: target.position.y + tm.height / 2,
-      targetPosition: Position.Left,
+      sourceX, sourceY, sourcePosition: Position.Right,
+      targetX, targetY, targetPosition: Position.Left,
       curvature: 0.32,
     })
     const selected = edge.id === selectedId
+    const hovered = edge.id === hoveredId
     return (
       <g key={edge.id}>
         <path
           d={path} fill="none"
-          stroke={selected ? 'rgba(255,255,255,.85)' : 'rgba(255,255,255,.3)'}
-          strokeWidth={selected ? 2.2 : 1.4}
+          stroke={selected ? 'rgba(255,255,255,.85)' : hovered ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)'}
+          strokeWidth={selected ? 2.2 : hovered ? 1.8 : 1.4}
           markerEnd="url(#dx-arrow)"
           pointerEvents="stroke"
           style={{ cursor: 'pointer' }}
           onClick={event => { event.stopPropagation(); onSelect(selected ? undefined : edge.id) }}
+          onContextMenu={event => { event.preventDefault(); event.stopPropagation(); onContext(edge.id, event.clientX, event.clientY) }}
+          onPointerEnter={() => setHoveredId(edge.id)}
+          onPointerLeave={() => setHoveredId(current => current === edge.id ? undefined : current)}
+        />
+        <circle
+          cx={sourceX} cy={sourceY} r={4.5} fill="#f5f5f5" opacity={hovered || selected ? 0.9 : 0}
+          style={{ cursor: 'crosshair' }} pointerEvents="all"
+          onPointerDown={dragEndpoint(edge, 'source')}
+        />
+        <circle
+          cx={targetX} cy={targetY} r={4.5} fill="#f5f5f5" opacity={hovered || selected ? 0.9 : 0}
+          style={{ cursor: 'crosshair' }} pointerEvents="all"
+          onPointerDown={dragEndpoint(edge, 'target')}
         />
         {typeof edge.label === 'string' && edge.label !== '' ? (
           <text fontSize={10} fill="rgba(247,247,247,.65)" dy={-4} pointerEvents="none">
@@ -419,6 +462,7 @@ function CanvasTabInner(): ReactNode {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
+  const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string; label: string } | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('')
@@ -898,7 +942,26 @@ function CanvasTabInner(): ReactNode {
     setSelectedCount(params.nodes.length)
   }, [])
 
-  const { screenToFlowPosition, fitView } = useReactFlow()
+  const flowInstance = useReactFlow()
+  const storeApi = useStoreApi()
+  const { screenToFlowPosition, fitView } = flowInstance
+  useEffect(() => {
+    ;(window as unknown as Record<string, unknown>).__dxFlowDebug = {
+      storeEdges: () => flowInstance.getEdges().length,
+      storeNodes: () => flowInstance.getNodes().length,
+      sampleEdge: () => flowInstance.getEdges()[0] ?? null,
+      rawState: () => {
+        const state = storeApi.getState() as Record<string, unknown>
+        return {
+          stateEdges: (state.edges as unknown[] | undefined)?.length ?? null,
+          lookupEdges: (state.edgeLookup as Map<string, unknown> | undefined)?.size ?? null,
+          nodeLookupSize: (state.nodeLookup as Map<string, unknown> | undefined)?.size ?? null,
+          nodeLookupKeys: [...((state.nodeLookup as Map<string, unknown> | undefined)?.keys() ?? [])].slice(0, 14),
+          width: state.width, height: state.height,
+        }
+      },
+    }
+  }, [flowInstance])
 
   const mediaByPath = useMemo(() => new Map(mediaFiles.map(file => [file.path, file])), [mediaFiles])
 
@@ -1008,6 +1071,27 @@ function CanvasTabInner(): ReactNode {
     event.stopPropagation()
     setNodeMenu({ x: event.clientX, y: event.clientY, nodeId: node.id })
   }, [])
+
+  const onEdgeContext = useCallback((edgeId: string, x: number, y: number) => {
+    const edge = edgesRef.current.find(candidate => candidate.id === edgeId)
+    setEdgeMenu({ x, y, edgeId, label: typeof edge?.label === 'string' ? edge.label : '' })
+  }, [])
+
+  const onEdgeReconnect = useCallback((edgeId: string, side: 'source' | 'target', endpointId: string) => {
+    pushHistory()
+    setEdges(current => current.map(edge => edge.id === edgeId
+      ? side === 'source' ? { ...edge, source: endpointId } : { ...edge, target: endpointId }
+      : edge))
+    scheduleSave()
+  }, [setEdges, scheduleSave, pushHistory])
+
+  const saveEdgeLabel = useCallback(() => {
+    if (edgeMenu === undefined) return
+    const label = edgeMenu.label.trim()
+    setEdges(current => current.map(edge => edge.id === edgeMenu.edgeId ? { ...edge, label } : edge))
+    setEdgeMenu(undefined)
+    scheduleSave()
+  }, [edgeMenu, setEdges, scheduleSave])
 
   const onPaneContextMenu = useCallback((event: React.MouseEvent | MouseEvent) => {
     event.preventDefault()
@@ -1163,13 +1247,17 @@ function CanvasTabInner(): ReactNode {
     image.src = blobUrl
   }, [])
 
-  const deleteSelectedEdge = useCallback(() => {
-    if (selectedEdge === undefined) return
+  const deleteSelectedEdgeById = useCallback((id: string) => {
     pushHistory()
-    setEdges(current => current.filter(edge => edge.id !== selectedEdge))
+    setEdges(current => current.filter(edge => edge.id !== id))
     setSelectedEdge(undefined)
     scheduleSave()
-  }, [selectedEdge, setEdges, scheduleSave, undo, redo])
+  }, [setEdges, scheduleSave, pushHistory])
+
+  const deleteSelectedEdge = useCallback(() => {
+    if (selectedEdge === undefined) return
+    deleteSelectedEdgeById(selectedEdge)
+  }, [selectedEdge, deleteSelectedEdgeById])
 
   const arrangeGrid = useCallback(() => {
     pushHistory()
@@ -1290,7 +1378,6 @@ function CanvasTabInner(): ReactNode {
         onDrop={onPaneDrop}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
-        onlyRenderVisibleElements
         panOnDrag={false}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
@@ -1304,7 +1391,7 @@ function CanvasTabInner(): ReactNode {
         deleteKeyCode={['Backspace', 'Delete']}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
-        <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} />
+        <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} onContext={onEdgeContext} onReconnect={onEdgeReconnect} />
         {(guides.vertical.length > 0 || guides.horizontal.length > 0) ? (
           <svg className="directorx-guides" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
             {guides.vertical.map(x => <line key={`v${x}`} x1={x} y1={-5000} x2={x} y2={5000} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
@@ -1429,6 +1516,25 @@ function CanvasTabInner(): ReactNode {
               </button>
             ))
           })()}
+        </div>
+      ) : null}
+      {edgeMenu !== undefined ? (
+        <div style={{ position: 'fixed', left: edgeMenu.x, top: edgeMenu.y, zIndex: 8, minWidth: 200, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 8 }}
+          onClick={event => event.stopPropagation()}
+        >
+          <div style={{ fontSize: 11, color: '#919191', marginBottom: 6 }}>连线操作</div>
+          <input
+            autoFocus
+            value={edgeMenu.label}
+            placeholder="标签（可留空）"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '6px 9px', borderRadius: 8, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.05)', color: '#f5f5f5', fontSize: 12, marginBottom: 8 }}
+            onChange={event => setEdgeMenu({ ...edgeMenu, label: event.target.value })}
+            onKeyDown={event => { if (event.key === 'Enter') saveEdgeLabel() }}
+          />
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(255,255,255,.08)', color: '#f5f5f5', fontSize: 12, cursor: 'pointer' }} onClick={saveEdgeLabel}>保存标签</button>
+            <button style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { deleteSelectedEdgeById(edgeMenu.edgeId); setEdgeMenu(undefined) }}>删除连线</button>
+          </div>
         </div>
       ) : null}
       {contextMenu !== undefined ? (
