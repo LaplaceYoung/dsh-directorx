@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { mkdir } from 'node:fs/promises'
-import { renameSync, rmSync } from 'node:fs'
+import { existsSync, renameSync, rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { slugify } from '../support.ts'
 import { probeMedia, type MediaProbe } from './ffmpeg.ts'
@@ -64,6 +64,8 @@ export interface VideoProcessInput {
   extractAudio?: boolean
   /** 电影感调色预设：teal-orange 青橙 / film-fade 褪色胶片 / bw-contrast 黑白高对比。 */
   grade?: 'teal-orange' | 'film-fade' | 'bw-contrast'
+  /** 3D LUT 调色（.cube 文件绝对路径；lut3d 滤镜）。 */
+  lut3d?: string
   /** 文字层：样式化文字叠加（drawtext）。CJK 需 fontFile 指定字体文件路径。 */
   textOverlays?: Array<{
     text: string
@@ -184,6 +186,10 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
   if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
   if (input.mute === true) args.push('-an')
+  if (input.lut3d !== undefined && input.lut3d !== '') {
+    if (!existsSync(input.lut3d)) throw new Error(`LUT 文件不存在：${input.lut3d}`)
+    videoFilters.push(`lut3d=file=${input.lut3d.replace(/[,;\\]/g, '')}`)
+  }
   if (input.grade !== undefined) {
     if (input.grade === 'teal-orange') {
       videoFilters.push('colorbalance=rs=.08:gs=.02:bs=-.08:rm=.06:bm=-.06,colorchannelmixer=rr=.95:bb=1.05,eq=saturation=1.12:contrast=1.06')
