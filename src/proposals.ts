@@ -24,6 +24,15 @@ export interface GenerationProposal {
   canvasNodeId?: string
   status: 'proposed' | 'approved' | 'rejected' | 'done'
   at: number
+  /** 生产阶段（阶段门控：前一阶段未清，后一阶段不入执行队列）。 */
+  stage?: 'script' | 'character' | 'shot' | 'assembly'
+  /** 被拒原因（拒绝必填，回归生成可带备注）。 */
+  rejectReason?: string
+  /** 重生成来源（版本血统：rejected 后 regenerate 的新版本挂 parentId）。 */
+  parentId?: string
+  /** 提交后的 provider 任务标识（提交即检查点，凭它恢复而非盲重提）。 */
+  taskId?: string
+  attempts: number
 }
 
 export interface ProposalLedger {
@@ -31,6 +40,8 @@ export interface ProposalLedger {
 }
 
 const MAX_PROPOSALS = 200
+
+const STAGE_ORDER = ['script', 'character', 'shot', 'assembly'] as const
 
 export class ProposalStore {
   constructor(private readonly outputDir: string) {}
@@ -55,10 +66,23 @@ export class ProposalStore {
     return ledger
   }
 
-  async propose(input: Omit<GenerationProposal, 'id' | 'at' | 'status'>): Promise<GenerationProposal> {
+  /** 预检：提交即校验基础参数（模型目录预检的前置层）。 */
+  private precheck(input: Omit<GenerationProposal, 'id' | 'at' | 'status' | 'attempts'>): string | null {
+    if (input.prompt.trim() === '') return 'prompt 不能为空'
+    if (input.kind !== 'image' && input.kind !== 'video' && input.kind !== 'audio') return 'kind 必须是 image/video/audio'
+    if (input.duration !== undefined && (input.duration < 1 || input.duration > 300)) return 'duration 超出 1-300s 支持范围'
+    if (input.count < 1 || input.count > 50) return 'count 超出 1-50 支持范围'
+    if (input.size !== undefined && !/^\d{3,4}[x:]\d{3,4}$|^\d+:\d+$/.test(input.size)) return 'size 格式应为 1280x720 或 16:9 类'
+    return null
+  }
+
+  async propose(input: Omit<GenerationProposal, 'id' | 'at' | 'status' | 'attempts'>): Promise<GenerationProposal> {
+    const invalid = this.precheck(input)
+    if (invalid !== null) throw new Error(`提案预检未通过：${invalid}`)
     const ledger = await this.read()
     const proposal: GenerationProposal = {
       ...input,
+      attempts: 0,
       id: `proposal-${Date.now().toString(36)}`,
       status: 'proposed',
       at: Date.now(),
@@ -75,7 +99,11 @@ export class ProposalStore {
     const proposed = ledger.proposals
       .filter(proposal => proposal.status === 'proposed')
       .sort((a, b) => a.at - b.at)
-    return proposed[0] ?? null
+    if (proposed.length === 0) return null
+    // 阶段门控：更早阶段仍有待批提案时，后一阶段不入执行队列。
+    const earliestOpenStage = Math.min(...proposed.map(proposal => STAGE_ORDER.indexOf(proposal.stage ?? 'shot')))
+    const executable = proposed.find(proposal => STAGE_ORDER.indexOf(proposal.stage ?? 'shot') === earliestOpenStage)
+    return executable ?? null
   }
 
   async list(status?: GenerationProposal['status'], limit = 50): Promise<GenerationProposal[]> {
@@ -84,11 +112,36 @@ export class ProposalStore {
     return filtered.slice(-limit).reverse()
   }
 
-  async update(id: string, status: GenerationProposal['status']): Promise<GenerationProposal> {
+  async update(id: string, status: GenerationProposal['status'], fields: { rejectReason?: string; taskId?: string; attempts?: number } = {}): Promise<GenerationProposal> {
     const ledger = await this.read()
     const proposal = ledger.proposals.find(candidate => candidate.id === id)
     if (proposal === undefined) throw new Error(`proposal "${id}" not found`)
     proposal.status = status
+    if (status === 'rejected' && fields.rejectReason !== undefined && fields.rejectReason !== '') proposal.rejectReason = fields.rejectReason
+    if (fields.taskId !== undefined && fields.taskId !== '') proposal.taskId = fields.taskId
+    if (fields.attempts !== undefined) proposal.attempts = fields.attempts
+    await this.write(ledger)
+    return proposal
+  }
+
+  /** 版本血统：基于被拒提案生成新版本（parentId 链 + attempts 递增）。 */
+  async regenerate(id: string, patch: { prompt?: string; note?: string } = {}): Promise<GenerationProposal> {
+    const ledger = await this.read()
+    const parent = ledger.proposals.find(candidate => candidate.id === id)
+    if (parent === undefined) throw new Error(`proposal "${id}" not found`)
+    const proposal: GenerationProposal = {
+      ...parent,
+      id: `proposal-${Date.now().toString(36)}`,
+      ...(patch.prompt !== undefined ? { prompt: patch.prompt } : {}),
+      ...(patch.note !== undefined ? { note: patch.note } : {}),
+      parentId: parent.id,
+      status: 'proposed',
+      at: Date.now(),
+      attempts: parent.attempts + 1,
+      rejectReason: undefined,
+      taskId: undefined,
+    }
+    ledger.proposals.push(proposal)
     await this.write(ledger)
     return proposal
   }

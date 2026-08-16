@@ -212,6 +212,32 @@ test('style constants lock merges and persists across set calls', async () => {
   }
 })
 
+test('proposal stage gating, reject reasons, lineage and precheck', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-gate-'))
+  try {
+    const store = new ProposalStore(dir)
+    await store.propose({ kind: 'video', prompt: '分镜确认', count: 1, stage: 'shot' })
+    await store.propose({ kind: 'image', prompt: '角色定妆', count: 1, stage: 'character' })
+    const next = await store.next()
+    assert.equal(next.stage, 'character', 'earlier open stage wins the queue')
+    // precheck rejects bad input
+    await assert.rejects(() => store.propose({ kind: 'video', prompt: '', count: 1 }), /预检/)
+    await assert.rejects(() => store.propose({ kind: 'video', prompt: 'x', count: 1, duration: 999 }), /duration/)
+    // reject with reason + regenerate lineage
+    const rejected = await store.update(next.id, 'rejected', { rejectReason: '服装不符' })
+    assert.equal(rejected.rejectReason, '服装不符')
+    const child = await store.regenerate(rejected.id, { prompt: '角色定妆 v2' })
+    assert.equal(child.parentId, rejected.id)
+    assert.equal(child.attempts, 1)
+    assert.equal(child.status, 'proposed')
+    // taskId checkpoint
+    const checked = await store.update(child.id, 'approved', { taskId: 'task-42' })
+    assert.equal(checked.taskId, 'task-42')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('proposal next returns the oldest pending item for the approval loop', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-next-'))
   try {
