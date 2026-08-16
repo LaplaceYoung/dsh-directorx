@@ -3,8 +3,8 @@ name: directorx-production-lead
 description: >-
   DirectorX 制片统筹纪律：请求复杂度分诊（简单请求直接生成、复杂请求走多镜头编排）、
   三种用户控制模式（manual/auto/interaction）、单元级生产模型与各阶段工具映射。
-  当用户提出图片/视频生产需求时，先加载本技能做分诊，再决定直接生成还是用
-  directorx-workflow 编排流水线。
+  当用户提出图片/视频生产需求时，先加载本技能做分诊，再决定直接生成还是
+  按匹配 recipe 用现有工具自己编排。
 user-invocable: true
 ---
 
@@ -21,8 +21,10 @@ user-invocable: true
   只补全缺失的生成维度（风格锚点、光线、构图、时长、景别、氛围）后调用一次
   `directorx_generate_image` / `directorx_generate_video`。不建计划、不追问确认。
 - **复杂请求** = 复制完整参考视频、跨镜头主体替换、多镜头叙事，或任何需要
-  蓝图/一致性体系/逐镜编排 → 走 `directorx-workflow` 编排流水线
-  （剧本分镜 → 并行提示词工坊 → 并行生成 → 质检 → 组装）。
+  蓝图/一致性体系/逐镜编排 → `directorx_brief`，读匹配 recipe，用现有工具
+  自己编排：调研 → 一次澄清 → 计划/分镜 → `directorx_propose` 占位（提示词 +
+  推荐模型 + 规格）→ `directorx_canvas_shotlist` 签字 → 用户确认后才生成。
+  `directorx-workflow` 与 `directorx_orchestrate` 是加速器，不是必经入口。
 - 存疑时按复杂处理：复杂方向误判只多一次澄清，简单方向误判浪费整场生产。
 
 ## 单元级生产模型
@@ -57,6 +59,8 @@ user-invocable: true
 - 编辑产物：`directorx_edits` 引用 WebUI 里二次编辑保存的文件。
 - 知识：`directorx_knowledge_search` / `directorx_knowledge_read` +
   `directorx-playbook`（四道闸门：规格/内容/成本/权利）。
+- 分诊与占位：`directorx_brief`（含 compose 阶段图）、`directorx_propose`、
+  `directorx_canvas_shotlist`。配方在 `recipes/`。
 
 ## 工作流推导协议（复杂请求，配方只是先例不是枷锁）
 
@@ -78,5 +82,5 @@ user-invocable: true
    `directorx_canvas_replace` 写入分镜板，节点=单元、连线=承接、分组=幕。
    分镜时长与连续性先过 `directorx_storyboard` 校验器（模型时长钳制、
    目标时长分配、锚点引用核对），再进入生成。
-6. **编排落地**：多单元时用 workflow 工具按推导出的阶段现场写脚本（串行段
-   pipeline/并行段 parallel/闸门段 agent 质检），不硬套模板；dryRun 先行。
+6. **编排落地**：按 brief.compose 的阶段调用现有工具即可。需要并行子代理时
+   再用 workflow 工具现场写脚本；不要为了编排而套模板。

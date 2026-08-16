@@ -182,7 +182,7 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       '# DirectorX Recipes',
       '',
       'Recipes are step plans, not agents. DSH owns planning and execution; treat recipes as checklists and stage contracts.',
-      'Recipe files ship in the plugin `recipes/` directory as prior art. Adapt `recipes/promo-video.md`, `recipes/novel-adaptation.md`, `recipes/remake-subject.md`, or `recipes/unit-production.md` to the actual request. Queue generation as placeholders the user confirms.',
+      'Recipe files ship in the plugin `recipes/` directory as prior art. Adapt `recipes/promo-video.md`, `recipes/novel-adaptation.md`, `recipes/remake-subject.md`, or `recipes/unit-production.md` to the actual request. `directorx_brief.compose` names the matching recipe and the tool sequence. Queue generation as placeholders the user confirms. Do not route every job through directorx_orchestrate or a single workflow template.',
       'Every recipe assumes the DirectorX generation tools are configured in Settings; before queuing media, verify the matching capability is enabled and its Base URL / API Key / model are set.',
     ].join('\n'),
     source: 'runtime',
@@ -192,9 +192,11 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
 
   ctx.skills.register({
     name: 'directorx-workflow',
-    description: 'Orchestrate multi-shot DirectorX production with the workflow tool: script/storyboard → parallel prompt crafting → parallel generation → QA → assembly plan, run by fan-out subagents. Load when a project has more than one shot and should be produced as a pipeline instead of serial generation.',
+    description: 'Optional accelerator for multi-shot fan-out. Default path is compose existing tools against a matching recipe (brief → research → confirm → propose → shotlist). Load when you actually need parallel subagents, not for every production.',
     content: [
       '# DirectorX Workflow 编排（推导优先）',
+      '',
+      '默认不要套本 skill 的模板。先 `directorx_brief`，按返回的 `compose` 用现有工具走完（调研 → 澄清 → 占位 → 分镜表签字）。只有需要并行子代理时才写 workflow 脚本。',
       '',
       '**agentic 的含义是：根据目标自主推导并编排流程，而不是套固定模板。** 内置模板只是先例（prior art）——当目标、素材与模板不完全匹配时，自己推导阶段与并行度，现场写 workflow 脚本，而不是硬套模板。',
       '',

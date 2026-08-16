@@ -14,7 +14,8 @@
     "docs/architecture.md",
     "docs/community-radar.md",
     "recipes/",
-    "lib/"
+    "lib/",
+    "skills/directorx-production-lead/"
   ],
   "deny": [
     "node_modules/",
@@ -22,5 +23,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(canvas): export a numbered shot list for sign-off before spend"
+  "message": "feat(brief): compose a recipe-backed tool sequence without requiring orchestrate"
 }

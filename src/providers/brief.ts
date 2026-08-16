@@ -1,4 +1,5 @@
 import { CharacterStore } from '../characters.ts'
+import { composeProductionFlow, type ComposeFlow } from '../compose.ts'
 
 /**
  * Intent understanding (意图分诊): a deterministic layer that turns a raw
@@ -42,6 +43,8 @@ export interface BriefOutput {
   questions: Array<{ question: string; default: string }>
   /** Derived flow shape (maps to templates or a custom workflow). */
   suggestedFlow: string
+  /** Recipe + tool sequence. The agent composes these tools; orchestrate is optional. */
+  compose: ComposeFlow
 }
 
 const TYPE_RULES: Array<{ type: string; keywords: string[]; seconds: number }> = [
@@ -146,19 +149,15 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
       ]
   const coverPrompt = topic === '' ? null : `短视频封面：主题「${topic}」大字标题居中，${aspectRatio} 竖幅构图，风格 ${styleHints.length > 0 ? styleHints.join('、') : '干净高对比'}，标题文字区域留白，主体清晰，无杂乱背景`
 
-  const nextActions: string[] = []
-  if (materials.length > 0) {
-    nextActions.push('先 directorx_video_analyze / directorx_probe_media 理解素材（或画布盘点 directorx_canvas_get）')
-  }
+  const compose = composeProductionFlow({ type, request, materials: input.materials })
+  const nextActions = [...compose.nextActions]
   if (characters.length === 0 && (type === '剧情/短剧' || type === '分镜/成片' || type === 'MV/音乐')) {
-    nextActions.push('用 directorx_character_register 注册主体锚点（多镜头一致性前提）')
+    nextActions.splice(1, 0, '用 directorx_character_register 注册主体锚点（多镜头一致性前提）')
   }
-  nextActions.push(`用 directorx_preflight 做四道闸门审计 + directorx_propose 排队完整生成规格（先方案后生成）`)
-  nextActions.push(`加载 directorx-workflow，按推导流程 dryRun 验证编排（零成本），再执行`)
-  nextActions.push(`成片后 directorx_qa 过质检门（含节奏/黑帧/白帧检查），结论写回画布`)
 
   return {
     nextActions,
+    compose,
     titles,
     coverPrompt,
     platformCard,

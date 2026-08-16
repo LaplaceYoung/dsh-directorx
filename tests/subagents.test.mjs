@@ -89,6 +89,9 @@ test('brief infers type/platform/duration and asks one-shot clarifications', asy
   assert.ok(out.platformCard.coverSpec.includes('首帧即封面'), 'cover spec matches platform rules')
   assert.ok(out.coverPrompt !== null && out.coverPrompt.includes('封面'), 'cover prompt generated')
   assert.ok(out.nextActions.length >= 3, 'nextActions sequence present')
+  assert.equal(out.compose.kind, 'promo')
+  assert.ok(out.nextActions.some(line => line.includes('directorx_propose')))
+  assert.ok(out.nextActions.some(line => line.includes('directorx_canvas_shotlist')))
 })
 
 test('storyboard enforces the camera vocabulary and anti-monotony', () => {
