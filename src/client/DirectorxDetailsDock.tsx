@@ -31,7 +31,7 @@ async function loadBlobUrl(path: string): Promise<string> {
 async function addToCanvas(path: string, name: string, mediaType: string): Promise<void> {
   const kind = mediaType.startsWith('video/') ? 'video' : 'image'
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const current = await fetch('/directorx/canvas').then(r => r.json()) as { updatedAt: number; nodes: Array<{ id: string }> }
+    const current = await fetch('/directorx/canvas').then(r => r.json()) as { updatedAt: number; title?: string; nodes: Array<{ id: string }>; edges: Array<{ id: string; from: string; to: string }> }
     const node = {
       id: `edit-${Date.now().toString(36)}-${attempt}`,
       kind,
@@ -43,9 +43,16 @@ async function addToCanvas(path: string, name: string, mediaType: string): Promi
     const response = await fetch(`/directorx/canvas?expectedUpdatedAt=${current.updatedAt}`, {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ version: 1, updatedAt: 0, nodes: [...current.nodes, node], edges: [] }),
+      body: JSON.stringify({
+        version: 1,
+        updatedAt: 0,
+        ...(current.title !== undefined ? { title: current.title } : {}),
+        nodes: [...(Array.isArray(current.nodes) ? current.nodes : []), node],
+        edges: Array.isArray(current.edges) ? current.edges : [],
+      }),
     })
     if (response.status === 409) continue
+    if (!response.ok) throw new Error(`加入画布失败（HTTP ${response.status}）`)
     return
   }
 }

@@ -22,9 +22,9 @@ type NodeCallbacks = {
   onDelete?: (id: string) => void
   onDissolve?: (id: string) => void
 }
-type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string } & NodeCallbacks
-type TextNodeData = { label: string } & NodeCallbacks
-type GroupNodeData = { label: string; groupHover?: boolean } & NodeCallbacks
+type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string } & NodeCallbacks
+type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -32,17 +32,18 @@ interface MediaListFile { path: string; name: string; mediaType: string; size: n
 
 const flowStyles = {
   mediaCard: {
-    borderRadius: 16, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.04)',
-    boxShadow: '0 6px 18px rgba(0,0,0,.5)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
+    borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(24,24,28,.92)',
+    boxShadow: '0 4px 14px rgba(0,0,0,.45)', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
   } as CSSProperties,
-  selectedCard: { border: '1px solid rgba(245,245,245,.95)', boxShadow: '0 0 0 1px rgba(245,245,245,.35), 0 10px 28px rgba(0,0,0,.6)' } as CSSProperties,
+  selectedCard: { border: '1px solid #f5f5f5', boxShadow: '0 0 0 1px rgba(245,245,245,.4), 0 12px 30px rgba(0,0,0,.6)' } as CSSProperties,
   thumb: { width: 100 + '%', height: 96, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
-  label: { fontSize: 11.5, padding: '7px 10px', color: '#f7f7f7', wordBreak: 'break-word' as const, lineHeight: 1.4, borderTop: '1px solid rgba(255,255,255,.1)' },
+  label: { fontSize: 11, padding: '8px 10px', color: '#ededed', wordBreak: 'break-word' as const, lineHeight: 1.45, background: 'rgba(0,0,0,.32)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as 'vertical', overflow: 'hidden' },
   textCard: {
-    borderRadius: 16, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.04)',
-    padding: '10px 12px', fontSize: 12.5, minWidth: 120, maxWidth: 220, cursor: 'pointer', color: '#f7f7f7',
+    borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(24,24,28,.92)',
+    padding: '10px 12px', fontSize: 12, minWidth: 120, maxWidth: 240, cursor: 'pointer', color: '#ececec',
+    boxShadow: '0 3px 10px rgba(0,0,0,.35)',
   } as CSSProperties,
-  handle: { width: 8, height: 8, background: '#5a5a5a', border: '2px solid #1d1d1d' } as CSSProperties,
+  handle: { width: 7, height: 7, background: '#7a7a7a', border: '2px solid #17171a' } as CSSProperties,
 }
 
 function mediaUrl(path: string): string {
@@ -149,6 +150,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
         ]} />
       ) : null}
       <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
+      <span style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, fontSize: 9.5, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(0,0,0,.6)', color: '#dcdcdc', letterSpacing: .5 }}>{data.kind === 'video' ? '视频' : '图像'}</span>
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : <video
@@ -204,7 +206,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   const [hovered, setHovered] = useState(false)
   return (
     <div
-      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
+      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered && !selected ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -223,11 +225,12 @@ function TextNodeComponent(props: NodeProps): ReactNode {
 }
 
 const groupFrame: CSSProperties = {
-  borderRadius: 16, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.03)',
-  width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+  borderRadius: 14, border: '1px dashed rgba(255,255,255,.26)', background: 'rgba(255,255,255,.025)',
+  width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
 }
 const groupTitle: CSSProperties = {
-  fontSize: 12, color: '#f5f5f5', opacity: .9, padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,.1)',
+  fontSize: 12, fontWeight: 600, color: '#f5f5f5', padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,.12)',
+  background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
 }
 
 function GroupNodeComponent(props: NodeProps): ReactNode {
@@ -242,7 +245,12 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
       onMouseLeave={() => setHovered(false)}
     >
       <NodeResizer isVisible={selected} minWidth={260} minHeight={180} color="rgba(245,245,245,.85)" />
-      <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={groupTitle} />
+      <div style={groupTitle}>
+        <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={{ flex: 1, minWidth: 0 }} />
+        {data.memberCount !== undefined && data.memberCount > 0 ? (
+          <span style={{ fontSize: 10, color: '#9b9b9b', padding: '1px 8px', borderRadius: 8, background: 'rgba(255,255,255,.08)', flexShrink: 0 }}>{data.memberCount} 个节点</span>
+        ) : null}
+      </div>
       {hovered || selected ? (
         <div style={{ position: 'absolute', top: 8, right: 10, display: 'flex', gap: 4 }}>
           <button style={{ padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer' }} onClick={event => { event.stopPropagation(); (data as unknown as { onDissolve?: (id: string) => void }).onDissolve?.(props.id) }}>解散</button>
@@ -256,7 +264,9 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
 const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent }
 
 const toolbar: CSSProperties = {
-  position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
+  position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap',
+  border: '1px solid rgba(255,255,255,.12)', borderRadius: 14, background: 'rgba(24,24,28,.88)', backdropFilter: 'blur(14px)',
+  padding: '6px 8px', boxShadow: '0 8px 24px rgba(0,0,0,.5)',
 }
 const ICONS = {
   media: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>,
@@ -269,12 +279,12 @@ const ICONS = {
 }
 
 const toolBtn: CSSProperties = {
-  padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)',
-  color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer',
+  padding: '6px 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.05)',
+  color: '#ededed', fontSize: 12, cursor: 'pointer', transition: 'background .15s ease',
 }
 const iconBtn: CSSProperties = {
-  width: 38, height: 38, borderRadius: 10, border: '1px solid transparent', background: 'transparent',
-  color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  width: 34, height: 34, borderRadius: 9, border: '1px solid transparent', background: 'transparent',
+  color: '#e8e8e8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
 }
 const pillBtn: CSSProperties = {
   width: 40, height: 40, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
@@ -289,7 +299,7 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number }>; edges: Array<{ id: string; from: string; to: string; label?: string }> }
+interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
@@ -309,8 +319,10 @@ function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): C
       style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
       ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
       data: isMedia
-        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', onRename, onDuplicate, onDelete }
-        : { label: node.label, onRename, onDuplicate, onDelete },
+        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, onRename, onDuplicate, onDelete }
+        : isGroup
+          ? { label: node.label, memberCount: doc.nodes.filter(candidate => candidate.parent === node.id).length, locked: node.locked, onRename, onDuplicate, onDelete, onDissolve: callbacks?.onDissolve }
+          : { label: node.label, prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, onRename, onDuplicate, onDelete },
     }
   })
 }
@@ -320,6 +332,7 @@ function toFlowEdges(doc: CanvasDocument): Edge[] {
     id: edge.id, source: edge.from, target: edge.to,
     sourceHandle: 'out', targetHandle: 'in',
     label: edge.label,
+    ...(edge.sourceVariantIdx !== undefined ? { data: { sourceVariantIdx: edge.sourceVariantIdx } } : {}),
   }))
 }
 
@@ -609,18 +622,23 @@ function CanvasTabInner(): ReactNode {
           const absolute = node.parentId !== undefined && node.parentId !== ''
             ? { x: node.position.x + (parentPos.get(node.parentId)?.x ?? 0), y: node.position.y + (parentPos.get(node.parentId)?.y ?? 0) }
             : { x: node.position.x, y: node.position.y }
+          const data = node.data as (MediaNodeData & Partial<TextNodeData>)
           return {
             id: node.id,
             kind: node.type === 'media' ? (node.data as MediaNodeData).kind : node.type === 'group' ? 'group' : 'text',
             label: node.data.label,
             ...(node.type === 'media' ? { path: (node.data as MediaNodeData).path } : {}),
+            ...(data.prompt !== undefined ? { prompt: data.prompt } : {}),
+            ...(data.shotIndex !== undefined ? { shotIndex: data.shotIndex } : {}),
+            ...(data.locked === true ? { locked: true } : {}),
+            ...(data.aiBrief !== undefined ? { aiBrief: data.aiBrief } : {}),
             ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
             x: absolute.x, y: absolute.y,
             ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),
             ...(typeof node.style?.height === 'number' ? { height: node.style.height } : {}),
           }
         }),
-        edges: currentEdges.map(edge => ({ id: edge.id, from: edge.source, to: edge.target, label: typeof edge.label === 'string' ? edge.label : undefined })),
+        edges: currentEdges.map(edge => ({ id: edge.id, from: edge.source, to: edge.target, label: typeof edge.label === 'string' ? edge.label : undefined, ...((edge as unknown as { sourceVariantIdx?: number }).sourceVariantIdx !== undefined ? { sourceVariantIdx: (edge as unknown as { sourceVariantIdx: number }).sourceVariantIdx } : {}) })),
       }
       const response = await fetch(`/directorx/canvas?expectedUpdatedAt=${updatedAtRef.current}`, {
         method: 'PUT',
@@ -1646,7 +1664,7 @@ function CanvasTabInner(): ReactNode {
 
   const defaultEdgeOptions = useMemo(() => ({
     type: 'default' as const,
-    style: { stroke: 'rgba(128,160,255,.55)', strokeWidth: 1.5 },
+    style: { stroke: 'rgba(148,163,184,.65)', strokeWidth: 1.5 },
   }), [])
 
   // DEBUG probe: expose edge/nodes counts for browser verification.
@@ -1662,11 +1680,15 @@ function CanvasTabInner(): ReactNode {
     <div ref={flowRootRef} style={{ position: 'relative', height: '100%', minHeight: 480 }}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
       <style>{`
-        .react-flow__controls { background: transparent; box-shadow: none; border: 1px solid rgba(255,255,255,.16); border-radius: 10px; overflow: hidden; }
-        .react-flow__controls-button { width: 34px; height: 34px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); fill: #f5f5f5; color: #f5f5f5; }
+        .react-flow__controls { background: rgba(24,24,28,.9); box-shadow: 0 6px 18px rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; overflow: hidden; }
+        .react-flow__controls-button { width: 32px; height: 32px; background: transparent; border-bottom: 1px solid rgba(255,255,255,.07); fill: #e8e8e8; color: #e8e8e8; }
         .react-flow__controls-button:hover { background: rgba(255,255,255,.1); }
         .react-flow__controls-button:last-child { border-bottom: none; }
-        .react-flow__minimap { border: 1px solid rgba(255,255,255,.16); }
+        .react-flow__minimap { border: 1px solid rgba(255,255,255,.14); border-radius: 8px; overflow: hidden; }
+        .dx-tool-icon:hover { background: rgba(255,255,255,.1); }
+        .dx-tool-icon:active { background: rgba(255,255,255,.16); }
+        .dx-title-input { transition: border-color .15s ease, background .15s ease; }
+        .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
       `}</style>
       <ReactFlow
         nodes={nodes}
@@ -1731,22 +1753,23 @@ function CanvasTabInner(): ReactNode {
       <input
         value={title}
         placeholder="请输入标题"
-        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 5, background: 'transparent', border: '1px solid transparent', borderRadius: 8, color: '#f5f5f5', fontSize: 15, fontWeight: 600, textAlign: 'center', padding: '6px 12px', width: 260, outline: 'none' }}
+        className="dx-title-input"
+        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 5, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'center', padding: '7px 14px', width: 260, outline: 'none' }}
         onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
         onBlur={() => void saveNow()}
         title="画布标题（tapnow 式）"
       />
       <div style={toolbar}>
         <button style={pillBtn} onClick={() => void openPicker()} title="添加媒体（媒体库）">{ICONS.plus}</button>
-        <button style={iconBtn} onClick={() => void openPicker()} title="媒体库">{ICONS.media}</button>
-        <button style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
-        <button style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
-        <button style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
-        <button style={iconBtn} onClick={openCompare} title="对比分支版本"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="8" height="12" rx="1.5"/><rect x="13" y="6" width="8" height="12" rx="1.5"/><path d="M7 10v4M17 10v4"/></svg></button>
-        <button style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
-        <button style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
-        <button style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
-        <button style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={() => void openPicker()} title="媒体库">{ICONS.media}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={openCompare} title="对比分支版本"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="8" height="12" rx="1.5"/><rect x="13" y="6" width="8" height="12" rx="1.5"/><path d="M7 10v4M17 10v4"/></svg></button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
         {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
         {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
