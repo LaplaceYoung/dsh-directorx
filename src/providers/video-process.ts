@@ -178,7 +178,7 @@ export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
       ? trackLabels.slice(1).join('') === '' ? null : trackLabels.slice(1)
       : [trackLabels[0]]
     if (bgm !== null && bgm.length > 0) {
-      const ducked = bgm.map(label => `${label}${voice}sidechaincompress=threshold=0.015:ratio=8:attack=60:release=400:makeup=1[duck${bgm.indexOf(label)}]`).join(';')
+      const ducked = bgm.map(label => `${label}${voice}sidechaincompress=threshold=0.15:ratio=4:attack=20:release=400:makeup=1[duck${bgm.indexOf(label)}]`).join(';')
       parts.push(ducked)
       const duckLabels = bgm.map((_, index) => `[duck${index}]`)
       const all = input.duckUnder === 0 ? [voice, ...duckLabels] : [...duckLabels, voice]
