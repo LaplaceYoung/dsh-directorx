@@ -25,6 +25,8 @@ export interface TimelineScene {
   trim?: [number, number]
   /** Optional playback speed for this scene (0.5-8x) — speed-ramp building block. */
   speed?: number
+  /** Reverse playback for this scene. */
+  reverse?: boolean
   transition?: 'fade' | 'cut'
 }
 
@@ -75,6 +77,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
           start: scene.trim[0],
           end: scene.trim[1],
           ...(scene.speed !== undefined && scene.speed > 0 ? { speed: Math.min(8, Math.max(0.5, scene.speed)) } : {}),
+          ...(scene.reverse === true ? { reverse: true } : {}),
           ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
         })
         tempFiles.push(segment.path)
@@ -411,4 +414,124 @@ export async function clipRank(input: ClipRankInput): Promise<ClipRankOutput> {
     .sort((a, b) => b.score - a.score)
     .slice(0, input.topN ?? 10)
   return { ranked }
+}
+
+export interface EditCommand {
+  op: 'keep' | 'cut-head' | 'cut-tail' | 'speed' | 'reverse'
+  /** Window in seconds for keep/speed; seconds amount for cut-head/cut-tail. */
+  from?: number
+  to?: number
+  seconds?: number
+  speed?: number
+}
+
+/**
+ * 意图驱动剪辑：把自然语言剪辑指令解析成确定性时间轴操作。
+ * 支持的操作（中文口语化）：
+ *  - 「只保留 X 到 Y 秒」「去掉开头 N 秒」「去掉结尾 N 秒」
+ *  - 「X 到 Y 秒变速 Z 倍」「X-Y 秒放慢/加快 Z 倍」
+ *  - 「倒放」「整个倒放」「反向」
+ * 多个指令按顺序应用（cut list 语义）。
+ */
+export function parseEditInstructions(instructions: string[], duration: number): EditCommand[] {
+  const commands: EditCommand[] = []
+  const duration2 = Number.isFinite(duration) && duration > 0 ? duration : Number.MAX_SAFE_INTEGER
+  for (const raw of instructions) {
+    const text = raw.trim()
+    if (text === '') continue
+    const seconds = (value: string | undefined): number | undefined => {
+      if (value === undefined) return undefined
+      const parsed = Number(value)
+      return Number.isFinite(parsed) ? parsed : undefined
+    }
+    const rangeMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:到|至|-|~)\s*(\d+(?:\.\d+)?)\s*秒/)
+    if (/整个|全部.*倒放|倒放整个|反向播放/.test(text) && rangeMatch === null) {
+      commands.push({ op: 'reverse' })
+      continue
+    }
+    if (rangeMatch !== null) {
+      const from = seconds(rangeMatch[1])
+      const to = seconds(rangeMatch[2])
+      if (from !== undefined && to !== undefined && to > from) {
+        const speedMatch = text.match(/(\d+(?:\.\d+)?)\s*倍|速度\s*(\d+(?:\.\d+)?)|(放慢|加快|加速|减速)\s*(\d+(?:\.\d+)?)/)
+        const slower = /放慢|减速/.test(text)
+        if (speedMatch !== null) {
+          let speed = seconds(speedMatch[1] ?? speedMatch[2] ?? speedMatch[4])
+          if (speed !== undefined) {
+            if (slower && speed > 1) speed = 1 / speed
+            commands.push({ op: 'speed', from, to, speed })
+          }
+        } else {
+          commands.push({ op: 'keep', from, to })
+        }
+      }
+      continue
+    }
+    const headMatch = text.match(/开头|前面|前\s*(\d+(?:\.\d+)?)\s*秒.*(去掉|删除|剪掉|剪去|不要|删)/)
+    const headMatch2 = text.match(/(去掉|删除|剪掉|剪去|不要|删).*?(开头|前面|前)\s*(\d+(?:\.\d+)?)\s*秒/)
+    const head = headMatch ?? headMatch2
+    const headSeconds = seconds(headMatch?.[1] ?? headMatch2?.[3])
+    if (head !== null && headSeconds !== undefined && headSeconds > 0) {
+      commands.push({ op: 'cut-head', seconds: Math.min(headSeconds, duration2) })
+      continue
+    }
+    const tailMatch = text.match(/(结尾|末尾|最后|后面|后)\s*(\d+(?:\.\d+)?)\s*秒.*(去掉|删除|剪掉|剪去|不要|删)/)
+    const tailMatch2 = text.match(/(去掉|删除|剪掉|剪去|不要|删).*?(结尾|末尾|最后|后面|后)\s*(\d+(?:\.\d+)?)\s*秒/)
+    const tail = tailMatch ?? tailMatch2
+    const tailSeconds = seconds(tailMatch?.[2] ?? tailMatch2?.[3])
+    if (tail !== null && tailSeconds !== undefined && tailSeconds > 0) {
+      commands.push({ op: 'cut-tail', seconds: Math.min(tailSeconds, duration2) })
+      continue
+    }
+    const keepMatch = text.match(/(?:只保留|只留|保留|留下|取)\s*(\d+(?:\.\d+)?)\s*(?:到|至|-|~)\s*(\d+(?:\.\d+)?)\s*秒/)
+    if (keepMatch !== null) {
+      const from = seconds(keepMatch[1])
+      const to = seconds(keepMatch[2])
+      if (from !== undefined && to !== undefined && to > from) commands.push({ op: 'keep', from, to })
+      continue
+    }
+  }
+  return commands
+}
+
+/** 把剪辑指令变成 timeline scenes（cut list 语义，顺序应用）。 */
+export function editsToScenes(commands: EditCommand[], duration: number): Array<{ source: string; trim: [number, number]; speed?: number; reverse?: boolean }> {
+  if (commands.length === 0) return []
+  // Apply keep/cut commands to a working window list.
+  let windows: Array<[number, number]> = [[0, duration]]
+  for (const command of commands) {
+    if (command.op === 'keep' && command.from !== undefined && command.to !== undefined) {
+      windows = [[command.from, Math.min(command.to, duration)]]
+    } else if (command.op === 'cut-head' && command.seconds !== undefined) {
+      windows = windows
+        .map(([start, end]): Array<[number, number]> => {
+          const cut = Math.min(command.seconds as number, end - start)
+          return cut >= end - start ? [] : [[start + cut, end]]
+        })
+        .flat()
+    } else if (command.op === 'cut-tail' && command.seconds !== undefined) {
+      windows = windows
+        .map(([start, end]): Array<[number, number]> => {
+          const cut = Math.min(command.seconds as number, end - start)
+          return cut >= end - start ? [] : [[start, end - cut]]
+        })
+        .flat()
+    }
+  }
+  // Speed/reverse commands refine matching windows.
+  const scenes = windows.map(([start, end]) => ({ trim: [start, end] as [number, number], speed: undefined as number | undefined, reverse: false }))
+  for (const command of commands) {
+    if (command.op === 'speed' && command.from !== undefined && command.to !== undefined) {
+      for (const scene of scenes) {
+        if (command.from >= scene.trim[0] && command.to <= scene.trim[1]) {
+          scene.speed = command.speed
+        }
+      }
+    }
+    if (command.op === 'reverse') {
+      for (const scene of scenes) scene.reverse = true
+    }
+  }
+  return scenes
+    .map(scene => ({ source: '', trim: scene.trim, ...(scene.speed !== undefined ? { speed: scene.speed } : {}), ...(scene.reverse ? { reverse: true } : {}) }))
 }

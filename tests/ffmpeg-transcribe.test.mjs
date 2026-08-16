@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, clipRank, hasLibass, openaiTts, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, clipRank, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -106,6 +106,27 @@ test('videoProcess reverse and freezeEnd work', async () => {
     assert.ok(existsSync(reversed.path), 'reversed exists')
     const frozen = await videoProcess({ source: clip, outputDir: dir, freezeEnd: 1 })
     assert.ok(frozen.probe.durationSec > 2.8 && frozen.probe.durationSec < 3.2, `freeze holds 1s, got ${frozen.probe.durationSec}`)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('intent-driven edit parser turns natural language into a cut list', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-edit-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=10', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    // 去掉开头 2 秒 + 去掉结尾 3 秒 -> 5s; 2-4 秒放慢 2 倍 -> +2s -> ~7s.
+    const commands = parseEditInstructions(['去掉开头 2 秒', '去掉结尾 3 秒', '3 到 5 秒放慢 2 倍'], 10)
+    assert.equal(commands.length, 3, 'three commands parsed')
+    const scenes = editsToScenes(commands, 10)
+    assert.equal(scenes.length, 1, 'single remaining window')
+    assert.deepEqual(scenes[0].trim, [2, 7], 'head+tail cuts applied')
+    assert.equal(scenes[0].speed, 0.5, '放慢 2 倍 -> 0.5x')
+    // reverse only
+    const rev = editsToScenes(parseEditInstructions(['整个倒放'], 10), 10)
+    assert.equal(rev[0].reverse, true, 'reverse parsed')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

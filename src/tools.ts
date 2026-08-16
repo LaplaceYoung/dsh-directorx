@@ -19,7 +19,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, clipRank, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
+import { audioSync, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -810,6 +810,32 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute() {
       return new CharacterStore(settings.outputDir).list()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_edit',
+    description: '意图驱动剪辑：把自然语言剪辑指令（「去掉开头 2 秒」「只保留 3 到 10 秒」「5-8 秒放慢 2 倍」「整个倒放」）解析成确定性时间轴并渲染成片。多条指令按顺序应用（cut list 语义）。改指令=重渲染，零 API 成本。',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the source video.' },
+      edits: { type: 'array', items: { type: 'string' }, required: true, description: 'Natural-language edit instructions (or one string split by punctuation).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const source = String(args.video)
+      // Tolerate array or single-string edit payloads (schema-first, but
+      // the harness may deliver either shape).
+      const raw = Array.isArray(args.edits) ? args.edits.map(String) : typeof args.edits === 'string' && args.edits !== '' ? [args.edits] : []
+      const instructions = raw.length === 1 ? raw[0].split(/[；;。]+/).map((piece: string) => piece.trim()).filter((piece: string) => piece !== '') : raw
+      const probe = probeMedia(source)
+      const commands = parseEditInstructions(instructions, probe.durationSec)
+      const scenes = editsToScenes(commands, probe.durationSec).map(scene => ({ ...scene, source }))
+      if (commands.length === 0) throw new Error('没有解析出可执行的剪辑指令（支持：去掉开头/结尾 N 秒、只保留 X 到 Y 秒、X-Y 秒变速 Z 倍、整个倒放）')
+      if (scenes.length === 0) throw new Error(`剪辑窗口被裁剪为空（源时长 ${probe.durationSec}s，裁剪量超过可保留范围）——调整指令或换更长的素材`)
+      const rendered = await renderTimeline({ scenes }, settings.outputDir)
+      return { commands, timeline: scenes, path: rendered.path, steps: rendered.steps, probe: rendered.probe }
     },
   })))
 
