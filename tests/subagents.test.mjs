@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { brief, buildShotPrompt, buildShotSequence, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
+import { brief, buildShotPrompt, buildShotSequence, generationPreset, listPresets, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -107,6 +107,18 @@ test('storyboard enforces the camera vocabulary and anti-monotony', () => {
   // storyBeat passthrough
   const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
   assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
+test('generation presets pair parameters with the model router', () => {
+  const all = listPresets()
+  assert.ok(all.length >= 6, 'preset table populated')
+  const douyin = generationPreset('douyin-oral')
+  assert.equal(douyin.aspectRatio, '9:16')
+  assert.ok(douyin.durationRange[0] >= 3 && douyin.durationRange[1] <= 15)
+  assert.ok(douyin.cameraMoves.length >= 3, 'rotating move list for anti-monotony')
+  assert.ok(douyin.models.eligible.length > 0, 'router linked')
+  assert.ok(douyin.rules.some(rule => rule.includes('规则')), 'rule citations')
+  assert.equal(generationPreset('unknown-slug'), null, 'unknown slug -> null')
 })
 
 test('shot sequence wires carry-over variables and frame handoffs', () => {

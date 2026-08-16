@@ -9,6 +9,7 @@ import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
 import { routeModel } from './model-matrix.ts'
+import { generationPreset, listPresets } from './presets.ts'
 import { buildShotPrompt, buildShotSequence } from './providers/shot-builder.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
@@ -1355,6 +1356,20 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return buildShotSequence(Array.isArray(args.shots) ? args.shots as never[] : [])
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_preset',
+    description: '生成参数预设包：画幅 × 时长 × 运镜（轮换序防反单调）× 风格语法 slug 的最佳匹配表，并与模型能力路由联动（返回该参数组合下 eligible 模型）。slugs: douyin-oral / xiaohongshu-mix / bilibili-long / ads-vertical / drama-horizontal / mv；不传 slug 返回全部预设清单。',
+    parameters: {
+      slug: { type: 'string', description: 'Preset slug（不传则列出全部预设）。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      const slug = typeof args.slug === 'string' && args.slug !== '' ? args.slug : undefined
+      return slug === undefined ? listPresets() : generationPreset(slug)
     },
   })))
 
