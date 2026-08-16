@@ -1882,7 +1882,8 @@ function CanvasTabInner(): ReactNode {
         panOnDrag={[2]}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
-        zoomOnScroll={false}
+        zoomOnScroll
+        zoomActivationKeyCode="Meta"
         panOnScroll
         zoomOnPinch
         zoomOnDoubleClick={false}
