@@ -100,6 +100,12 @@ function fmtBytes(bytes: number): string {
 export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [meta, setMeta] = useState<Meta | undefined>(undefined)
   const [segments, setSegments] = useState<Segment[]>([])
+  const segmentsRef = useRef<Segment[]>([])
+  const setSegmentsWithHistory = (updater: React.SetStateAction<Segment[]>) => {
+    pushHistory()
+    setSegments(updater)
+  }
+  useEffect(() => { segmentsRef.current = segments }, [segments])
   const [selected, setSelected] = useState<number | undefined>(undefined)
   const [scale, setScale] = useState(30)
   const [audio, setAudio] = useState<AudioTrack | undefined>(undefined)
@@ -116,6 +122,20 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const waveInstanceRef = useRef<WaveSurfer | null>(null)
   const clipRef = useRef<MP4Clip | null>(null)
   const nextId = useRef(1)
+  const historyRef = useRef<Array<{ segments: Segment[]; audio: AudioTrack | undefined; volume: number }>>([])
+
+  const pushHistory = () => {
+    historyRef.current.push({ segments: segmentsRef.current, audio, volume })
+    if (historyRef.current.length > 60) historyRef.current.shift()
+  }
+
+  const undoHistory = () => {
+    const entry = historyRef.current.pop()
+    if (entry === undefined) return
+    setSegments(entry.segments)
+    setAudio(entry.audio)
+    setVolume(entry.volume)
+  }
 
   useEffect(() => {
     let live = true
@@ -178,6 +198,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     const video = videoRef.current
     if (video === null || meta === undefined) return
     const tUs = Math.round(video.currentTime * 1e6)
+    pushHistory()
     setSegments(previous => {
       const index = previous.findIndex(segment => tUs > segment.startUs && tUs < segment.endUs)
       if (index < 0) return previous
@@ -192,6 +213,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   }, [meta])
 
   const moveSegment = useCallback((direction: -1 | 1) => {
+    pushHistory()
     setSegments(previous => {
       if (selected === undefined) return previous
       const index = previous.findIndex(segment => segment.id === selected)
@@ -205,11 +227,13 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   }, [selected])
 
   const deleteSegment = useCallback(() => {
+    pushHistory()
     setSegments(previous => previous.filter(segment => segment.id !== selected))
     setSelected(undefined)
   }, [selected])
 
   const importAudio = useCallback((file: File | undefined) => {
+    pushHistory()
     if (file === undefined) return
     if (!file.type.startsWith('audio/')) {
       setError('请选择音频文件（mp3/wav 等）')
@@ -281,6 +305,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const beginTrim = (segment: Segment, edge: 'start' | 'end') => (event: React.PointerEvent) => {
     event.stopPropagation()
     event.preventDefault()
+    pushHistory()
     trimRef.current = { id: segment.id, edge, originX: event.clientX, originStart: segment.startUs, originEnd: segment.endUs }
     const move = (moveEvent: PointerEvent) => {
       const state = trimRef.current
@@ -370,13 +395,20 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
         case 'Escape':
           setSelected(undefined)
           break
+        case 'z':
+        case 'Z':
+          if (event.metaKey || event.ctrlKey) {
+            event.preventDefault()
+            undoHistory()
+          }
+          break
         default:
           break
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [meta, segments, splitAtPlayhead, deleteSegment])
+  }, [meta, segments, splitAtPlayhead, deleteSegment, undoHistory])
 
   return (
     <div style={{ padding: 12, fontSize: 13 }}>
@@ -401,6 +433,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
           />
           <div style={row}>
             <button style={btn} disabled={busy} onClick={splitAtPlayhead}>在播放头分割</button>
+            <button style={btn} onClick={undoHistory} title="撤销（⌘Z）">↶ 撤销</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(-1)}>前移</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(1)}>后移</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={deleteSegment}>删除片段</button>
@@ -526,7 +559,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
               {[0.5, 1, 1.5, 2].map(rate => (
                 <button
                   key={rate}
-                  onClick={() => setSegments(current => current.map(segment => segment.id === selected ? { ...segment, rate } : segment))}
+                  onClick={() => setSegmentsWithHistory(current => current.map(segment => segment.id === selected ? { ...segment, rate } : segment))}
                   style={{ padding: '4px 10px', borderRadius: 999, border: ((segments.find(segment => segment.id === selected)?.rate ?? 1) === rate) ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: ((segments.find(segment => segment.id === selected)?.rate ?? 1) === rate) ? 'rgba(255,255,255,.14)' : 'transparent', color: '#ececec', fontSize: 11.5, cursor: 'pointer' }}
                 >
                   {rate}x
@@ -536,7 +569,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                 type="range" min={0.1} max={4} step={0.1} value={segments.find(segment => segment.id === selected)?.rate ?? 1}
                 onChange={event => {
                   const value = Number(event.target.value)
-                  setSegments(current => current.map(segment => segment.id === selected ? { ...segment, rate: value } : segment))
+                  setSegmentsWithHistory(current => current.map(segment => segment.id === selected ? { ...segment, rate: value } : segment))
                 }}
                 style={{ flex: 1, minWidth: 100 }}
               />
