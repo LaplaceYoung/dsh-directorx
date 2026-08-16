@@ -11,6 +11,7 @@ export type CapabilityMode =
   | 'kling'
   | 'runway'
   | 'minimax-h3'
+  | 'kling-v3'
   | 'mock'
 
 export interface CapabilitySettings {
@@ -53,7 +54,7 @@ export interface DirectorxSettings {
 
 export const VISION_MODES = ['openai-chat', 'mock'] as const
 export const IMAGE_MODES = ['openai-images', 'modelverse-tasks', 'mock'] as const
-export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'runway', 'minimax-h3', 'mock'] as const
+export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'mock'] as const
 export const AUDIO_MODES = ['openai-tts', 'mock'] as const
 
 function modeAuth() {
