@@ -1956,11 +1956,6 @@ function CanvasTabInner(): ReactNode {
       <div style={toolbar}>
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}), position: 'relative' }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）">
           <span style={{ position: 'absolute', top: 6, right: 7, width: 6, height: 6, borderRadius: 9999, background: '#4f9dff', boxShadow: '0 0 0 2px #000' }} /><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
-        <button className="dx-tool-icon" style={{ ...iconBtn, ...(moreOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setMoreOpen(open => !open)} title="更多">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
-        </button>
         {moreOpen ? (
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setMoreOpen(false)} />
