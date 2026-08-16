@@ -642,6 +642,8 @@ function CanvasTabInner(): ReactNode {
         setPickerOpen(false)
         setSelectedEdge(undefined)
         setPaletteOpen(false)
+        setNodes(current => current.map(node => node.selected === true ? { ...node, selected: false } : node))
+        setSelectedCount(0)
         return
       }
       if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -674,6 +676,7 @@ function CanvasTabInner(): ReactNode {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
         if (selected.length === 0) return
+        pushHistory()
         setNodes(current => {
           const copies = selected.map(node => ({
             ...node,
@@ -981,20 +984,24 @@ function CanvasTabInner(): ReactNode {
   }, [openPicker])
 
   const connectAddText = useCallback(() => {
+    const point = connectMenu
     connectCreate(() => {
       const id = newLocalId('text')
-      addNodeAt({ id, type: 'text', position: { x: 180, y: 180 }, data: { label: '文本节点' } })
+      const flowPos = point !== undefined ? screenToFlowPosition({ x: point.x, y: point.y }) : { x: 180, y: 180 }
+      addNodeAt({ id, type: 'text', position: flowPos, data: { label: '文本节点' } })
       return id
     })
-  }, [connectCreate, addNodeAt])
+  }, [connectCreate, addNodeAt, connectMenu, screenToFlowPosition])
 
   const connectAddGroup = useCallback(() => {
+    const point = connectMenu
     connectCreate(() => {
       const id = newLocalId('group')
-      addNodeAt({ id, type: 'group', position: { x: 180, y: 180 }, style: { width: 520, height: 380 }, data: { label: '分组' } })
+      const flowPos = point !== undefined ? screenToFlowPosition({ x: point.x, y: point.y }) : { x: 180, y: 180 }
+      addNodeAt({ id, type: 'group', position: flowPos, style: { width: 520, height: 380 }, data: { label: '分组' } })
       return id
     })
-  }, [connectCreate, addNodeAt])
+  }, [connectCreate, addNodeAt, connectMenu, screenToFlowPosition])
 
   const onNodeContextMenu = useCallback((event: React.MouseEvent, node: CanvasFlowNode) => {
     event.preventDefault()
@@ -1019,10 +1026,12 @@ function CanvasTabInner(): ReactNode {
 
   const batchDelete = useCallback(() => {
     pushHistory()
+    const removing = new Set(nodesRef.current.filter(node => node.selected === true).map(node => node.id))
     setNodes(current => current.filter(node => node.selected !== true))
+    setEdges(current => current.filter(edge => !removing.has(edge.source) && !removing.has(edge.target)))
     setSelectedCount(0)
     scheduleSave()
-  }, [setNodes, scheduleSave])
+  }, [setNodes, setEdges, scheduleSave])
 
   const batchGroup = useCallback(() => {
     pushHistory()
@@ -1271,7 +1280,10 @@ function CanvasTabInner(): ReactNode {
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
         onPaneContextMenu={onPaneContextMenu}
-        onPaneClick={closeContextMenu}
+        onPaneClick={event => {
+          closeContextMenu()
+          if (nodesRef.current.length === 0) setQuickAdd({ x: event.clientX, y: event.clientY })
+        }}
         onNodeContextMenu={onNodeContextMenu}
         onDoubleClick={onPaneDoubleClick}
         onDragOver={onPaneDragOver}

@@ -1,5 +1,5 @@
 import { build } from 'esbuild'
-import { mkdir, readFile, rm, writeFile, appendFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, rm, writeFile, appendFile } from 'node:fs/promises'
 
 const HOST_EXTERNALS = [
   'cordis',
@@ -91,4 +91,12 @@ try {
   // No CSS emitted this build — nothing to inline.
 }
 
-console.log('dsh-directorx built: lib/index.js, lib/client.js')
+// Vendor runtime assets (transformers.js WASM stack) ship inside lib/ so the
+// installed package under ~/.dsh/profiles/*/node_modules stays self-contained.
+try {
+  await cp('vendor', 'lib/vendor', { recursive: true })
+} catch {
+  // No vendor directory — nothing to ship.
+}
+
+console.log('dsh-directorx built: lib/index.js, lib/client.js (+ lib/vendor)')

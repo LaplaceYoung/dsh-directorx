@@ -1,5 +1,6 @@
-import { createReadStream } from 'node:fs'
-import { mkdir, readdir, rm, stat } from 'node:fs/promises'
+import { createReadStream, existsSync } from 'node:fs'
+import { mkdir, readFile, readdir, rm, stat } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import { createWriteStream } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Transform } from 'node:stream'
@@ -383,6 +384,67 @@ export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): (
       }
     },
   })
+}
+
+/** Serve vendored WASM runtime assets (transformers.js) from the plugin itself,
+ * so the WebUI never depends on third-party CDNs (CSP-safe, offline-friendly).
+ */
+const VENDOR_FILES: Record<string, string> = {
+  'transformers.min.js': 'text/javascript',
+  'ort-wasm-simd-threaded.jsep.mjs': 'text/javascript',
+  'ort-wasm-simd-threaded.jsep.wasm': 'application/wasm',
+}
+
+export function registerVendorRoute(ctx: Context): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  // lib/vendor ships with the package; the repo-root vendor/ is a fallback
+  // for development installs that link the package directory directly.
+  const vendorDirs = [
+    fileURLToPath(new URL('./vendor/', import.meta.url)),
+    fileURLToPath(new URL('../vendor/', import.meta.url)),
+  ]
+  const serve = async (name: string, contentType: string, response: ServerResponse) => {
+    try {
+      const dir = vendorDirs.find(candidate => existsSync(join(candidate, name)))
+      if (dir === undefined) throw new Error(`vendor asset ${name} missing`)
+      const data = await readFile(join(dir, name))
+      response.writeHead(200, {
+        'content-type': contentType,
+        'cache-control': 'public, max-age=86400',
+        'cross-origin-resource-policy': 'same-origin',
+      })
+      response.end(data)
+    } catch (cause) {
+      response.writeHead(500, { 'content-type': 'text/plain' })
+      response.end(`vendor serve failed: ${cause instanceof Error ? cause.message : String(cause)}`)
+    }
+  }
+  const disposers: Array<() => void> = []
+  for (const [name, contentType] of Object.entries(VENDOR_FILES)) {
+    disposers.push(webServer.register({
+      kind: 'exact',
+      path: `/directorx/vendor/${name}`,
+      handler: async (request, response) => {
+        if (isCrossOrigin(request)) {
+          response.writeHead(403)
+          response.end('forbidden')
+          return
+        }
+        if (request.method !== 'GET' && request.method !== 'HEAD') {
+          response.writeHead(405)
+          response.end('method not allowed')
+          return
+        }
+        await serve(name, contentType, response)
+      },
+    }))
+  }
+  return () => {
+    for (const dispose of disposers) dispose()
+  }
 }
 
 /** POST /directorx/canvas/reset: clear the canvas after backing it up. */

@@ -25,9 +25,35 @@ const exportBtn: CSSProperties = {
   padding: '7px 14px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)',
   background: 'rgba(80,130,255,.22)', color: '#dfe6f5', fontSize: 12.5, cursor: 'pointer',
 }
+const matteBtn: CSSProperties = {
+  position: 'absolute', top: 10, right: 118, zIndex: 30,
+  padding: '7px 14px', borderRadius: 7, border: '1px solid rgba(255,255,255,.35)',
+  background: 'rgba(255,255,255,.1)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer',
+}
 const overlay: CSSProperties = {
   position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
   background: 'rgba(16,19,26,.9)', zIndex: 40, fontSize: 13, color: '#dfe6f5',
+}
+
+// Transformers.js (Apache-2.0) + Xenova/modnet (Apache-2.0): in-browser
+// background removal loaded on demand from the jsDelivr CDN so the plugin
+// bundle stays lean. The global is cached after the first load.
+const TF_GLOBAL = '__directorx_transformers'
+
+async function loadTransformers(): Promise<any> {
+  const cached = (window as unknown as Record<string, any>)[TF_GLOBAL]
+  if (cached !== undefined) return cached
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script')
+    script.type = 'module'
+    script.textContent = `import * as tf from '${window.location.origin}/directorx/vendor/transformers.min.js'; window.${TF_GLOBAL} = tf; window.dispatchEvent(new Event('${TF_GLOBAL}-ready'));`
+    const timer = window.setTimeout(() => reject(new Error('transformers.js 加载超时（网络受限？）')), 120_000)
+    const onReady = () => { window.clearTimeout(timer); resolve() }
+    window.addEventListener(`${TF_GLOBAL}-ready`, onReady, { once: true })
+    script.onerror = () => { window.clearTimeout(timer); reject(new Error('transformers.js 脚本加载失败')) }
+    document.head.appendChild(script)
+  })
+  return (window as unknown as Record<string, any>)[TF_GLOBAL]
 }
 
 export function ImageEditBody(props: EditBodyProps): ReactNode {
@@ -35,6 +61,9 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const editorRef = useRef<ImageEditor | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>(undefined)
+  const [matting, setMatting] = useState(false)
+  const [matteStatus, setMatteStatus] = useState<string | undefined>(undefined)
+  const [matte, setMatte] = useState<{ url: string } | undefined>(undefined)
 
   useEffect(() => {
     const container = containerRef.current
@@ -65,6 +94,60 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
     }
   }, [props.source, props.path])
 
+  const matteImage = async () => {
+    const editor = editorRef.current
+    if (editor === null || matting || busy) return
+    setMatting(true)
+    setError(undefined)
+    setMatte(undefined)
+    setMatteStatus('加载模型引擎…')
+    try {
+      const tf = await loadTransformers()
+      const segmenter = await tf.pipeline('image-segmentation', 'Xenova/modnet', {
+        progress_callback: (progress: { status: string; progress?: number }) => {
+          if (progress.status === 'progress') setMatteStatus(`下载模型 ${Math.round((progress.progress ?? 0))}%`)
+        },
+      })
+      setMatteStatus('抠图中…')
+      const dataUrl = editor.toDataURL({ format: 'png', quality: 1 })
+      const output = await segmenter(dataUrl)
+      const result = Array.isArray(output) ? output[0] : output
+      const mask = result.mask
+      const source = new Image()
+      source.src = dataUrl
+      await source.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = mask.width
+      canvas.height = mask.height
+      const context = canvas.getContext('2d')
+      if (context === null) throw new Error('canvas 2d context unavailable')
+      context.drawImage(source, 0, 0, canvas.width, canvas.height)
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height)
+      const maskCanvas = mask.toCanvas()
+      const maskContext = maskCanvas.getContext('2d')
+      if (maskContext === null) throw new Error('mask canvas unavailable')
+      const maskData = maskContext.getImageData(0, 0, canvas.width, canvas.height).data
+      for (let index = 0; index < pixels.data.length; index += 4) {
+        // MODNet mask: white = foreground. Use the mask luminance as alpha.
+        pixels.data[index + 3] = maskData[index]
+      }
+      context.putImageData(pixels, 0, 0)
+      setMatte({ url: canvas.toDataURL('image/png') })
+      setMatteStatus(undefined)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    } finally {
+      setMatting(false)
+    }
+  }
+
+  const saveMatte = async () => {
+    if (matte === undefined) return
+    const blob = await (await fetch(matte.url)).blob()
+    props.onExport(blob, 'image/png')
+    setMatte(undefined)
+  }
+
   const exportPng = () => {
     const editor = editorRef.current
     if (editor === null || busy) return
@@ -86,9 +169,24 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   return (
     <div style={wrapper}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
-      <button style={exportBtn} disabled={busy} onClick={exportPng}>
+      <button style={matteBtn} disabled={matting} onClick={() => void matteImage()}>
+        {matting ? '处理中…' : '智能抠图'}
+      </button>
+      <button style={exportBtn} disabled={busy || matting} onClick={exportPng}>
         {busy ? '导出中…' : '导出 PNG'}
       </button>
+      {matteStatus !== undefined ? (
+        <div style={{ ...overlay, background: 'rgba(16,19,26,.75)' }}>{matteStatus}</div>
+      ) : null}
+      {matte !== undefined ? (
+        <div style={{ ...overlay, flexDirection: 'column', gap: 10 }}>
+          <img src={matte.url} alt="抠图结果" style={{ maxWidth: '72%', maxHeight: '60%', borderRadius: 10, border: '1px solid rgba(255,255,255,.25)' }} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={exportBtn} onClick={() => void saveMatte()}>保存抠图</button>
+            <button style={matteBtn} onClick={() => setMatte(undefined)}>关闭</button>
+          </div>
+        </div>
+      ) : null}
       {error !== undefined ? <div style={overlay}>{error}</div> : null}
     </div>
   )
