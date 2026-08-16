@@ -1,9 +1,13 @@
 export type ComposeKind = 'promo' | 'literary' | 'remake' | 'narrative' | 'talk' | 'montage'
 
+export type ComposePhase = 'plan' | 'create' | 'refine'
+
 export interface ComposeStage {
   name: string
   purpose: string
   tools: string[]
+  /** Google Flow Plan / Create / Refine — compose existing tools, not one generate button. */
+  phase: ComposePhase
 }
 
 export interface ComposeFlow {
@@ -38,6 +42,7 @@ function commonSignoff(): ComposeStage {
     name: '位',
     purpose: '每个生成单元排队完整占位（提示词 + 推荐模型 + 规格），导出分镜表给用户签字；确认前不生成',
     tools: ['directorx_propose', 'directorx_canvas_shotlist'],
+    phase: 'refine',
   }
 }
 
@@ -50,23 +55,26 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
     tools: hasMaterials
       ? ['directorx_video_analyze', 'directorx_probe_media', 'directorx_canvas_get']
       : ['directorx_brief'],
+    phase: 'plan',
   }
   const research: ComposeStage = {
     name: '研',
     purpose: '工艺文献 + 外部事实；检索不到就问用户，不编造品牌/原作/源片',
     tools: ['directorx_knowledge_search', 'directorx_knowledge_read'],
+    phase: 'plan',
   }
   const ask: ComposeStage = {
     name: '问',
     purpose: '一次澄清真正的分叉（时长/画幅/改编幅度/替换范围），每项带推荐默认',
     tools: [],
+    phase: 'plan',
   }
   if (kind === 'promo') {
     return [
       inventory,
       { ...research, purpose: '好宣传片基准（结构/视觉/平台）+ 委托方公开定位，写入主题句' },
       ask,
-      { name: '案', purpose: '主题句 + 三幕 + 出镜契约 + 分镜表（含连续性）', tools: ['directorx_storyboard', 'directorx_character_register'] },
+      { name: '案', purpose: '主题句 + 三幕 + 出镜契约 + 分镜表（含连续性）', tools: ['directorx_storyboard', 'directorx_character_register'], phase: 'create' },
       commonSignoff(),
     ]
   }
@@ -75,11 +83,11 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
       inventory,
       { ...research, purpose: '读原作（用户材料或公开文本），判断题材/体量/改编风险' },
       { ...ask, purpose: '一次问清集数×单集时长、改编幅度、平台、画风' },
-      { name: '角色', purpose: 'cast.json 门禁过了再往下', tools: ['directorx_character_register'] },
-      { name: '大纲', purpose: '骨架拍板后才写分集；validate 不过不进下一层', tools: [] },
-      { name: '美术', purpose: '场景锚 + 光照变体，画风与角色同档', tools: [] },
-      { name: '剧本', purpose: '场次/节拍/台词本，时长预算 ±15%', tools: [] },
-      { name: '交接', purpose: '四份 JSON 交给单元化制作分镜，再占位', tools: ['directorx_storyboard'] },
+      { name: '角色', purpose: 'cast.json 门禁过了再往下', tools: ['directorx_character_register'], phase: 'create' },
+      { name: '大纲', purpose: '骨架拍板后才写分集；validate 不过不进下一层', tools: [], phase: 'create' },
+      { name: '美术', purpose: '场景锚 + 光照变体，画风与角色同档', tools: [], phase: 'create' },
+      { name: '剧本', purpose: '场次/节拍/台词本，时长预算 ±15%', tools: [], phase: 'create' },
+      { name: '交接', purpose: '四份 JSON 交给单元化制作分镜，再占位', tools: ['directorx_storyboard'], phase: 'create' },
       commonSignoff(),
     ]
   }
@@ -93,6 +101,7 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
         tools: hasMaterials
           ? ['directorx_video_analyze', 'directorx_extract_frames', 'directorx_view_image']
           : ['directorx_knowledge_search'],
+        phase: 'create',
       },
       { ...ask, purpose: '源片版本、替换范围（人/产品/endcard）、占位批次' },
       commonSignoff(),
@@ -103,7 +112,7 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
       inventory,
       research,
       ask,
-      { name: '案', purpose: '脚本 → 配音规格 → 画面占位', tools: ['directorx_speech_duration'] },
+      { name: '案', purpose: '脚本 → 配音规格 → 画面占位', tools: ['directorx_speech_duration'], phase: 'create' },
       commonSignoff(),
     ]
   }
@@ -112,7 +121,7 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
       inventory,
       research,
       ask,
-      { name: '案', purpose: '节拍检测 + 卡点裁剪计划，能剪就不生成', tools: ['directorx_audio_beat', 'directorx_video_analyze'] },
+      { name: '案', purpose: '节拍检测 + 卡点裁剪计划，能剪就不生成', tools: ['directorx_audio_beat', 'directorx_video_analyze'], phase: 'create' },
       commonSignoff(),
     ]
   }
@@ -120,7 +129,7 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
     inventory,
     research,
     ask,
-    { name: '案', purpose: '故事/角色契约/逐镜分镜表（含 continuity_in/out）', tools: ['directorx_storyboard', 'directorx_character_register'] },
+    { name: '案', purpose: '故事/角色契约/逐镜分镜表（含 continuity_in/out）', tools: ['directorx_storyboard', 'directorx_character_register'], phase: 'create' },
     commonSignoff(),
   ]
 }

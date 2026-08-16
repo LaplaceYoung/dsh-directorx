@@ -17,6 +17,7 @@ test('compose maps brief types to recipes without a single mandatory entry', () 
   assert.ok(promo.stages.some(stage => stage.tools.includes('directorx_canvas_shotlist')))
   assert.ok(promo.nextActions.some(line => line.includes('可选加速')))
   assert.ok(!promo.stages.flatMap(stage => stage.tools).includes('directorx_orchestrate'))
+  assert.deepEqual([...new Set(promo.stages.map(stage => stage.phase))].sort(), ['create', 'plan', 'refine'])
 })
 
 test('literary and remake compose different recipes from generic wording', () => {
