@@ -19,20 +19,23 @@ export interface EditBodyProps {
   onExport: (blob: Blob, mediaType: string) => void
 }
 
-const wrapper: CSSProperties = { position: 'relative', height: '100%', minHeight: 420, width: '100%' }
-const exportBtn: CSSProperties = {
-  position: 'absolute', top: 10, right: 12, zIndex: 30,
-  padding: '7px 14px', borderRadius: 7, border: '1px solid rgba(128,160,255,.55)',
-  background: 'rgba(80,130,255,.22)', color: '#dfe6f5', fontSize: 12.5, cursor: 'pointer',
+const wrapper: CSSProperties = { position: 'relative', height: '100%', minHeight: 420, width: '100%', background: '#0a0a0a', borderRadius: 12, overflow: 'hidden' }
+const toolChip: CSSProperties = {
+  padding: '7px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,.18)',
+  background: 'rgba(18,18,18,.85)', backdropFilter: 'blur(10px)', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer',
 }
-const matteBtn: CSSProperties = {
-  position: 'absolute', top: 10, right: 118, zIndex: 30,
-  padding: '7px 14px', borderRadius: 7, border: '1px solid rgba(255,255,255,.35)',
-  background: 'rgba(255,255,255,.1)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer',
+const exportBtn: CSSProperties = {
+  ...toolChip,
+  border: 'none', background: '#f5f5f5', color: '#171717', fontWeight: 600,
 }
 const overlay: CSSProperties = {
   position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-  background: 'rgba(16,19,26,.9)', zIndex: 40, fontSize: 13, color: '#dfe6f5',
+  background: 'rgba(10,10,10,.86)', backdropFilter: 'blur(4px)', zIndex: 40, fontSize: 13, color: '#ececec',
+}
+const overlayCard: CSSProperties = {
+  display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center',
+  background: 'rgba(18,18,18,.96)', border: '1px solid rgba(255,255,255,.14)', borderRadius: 16,
+  padding: 18, boxShadow: '0 12px 36px rgba(0,0,0,.6)', maxWidth: '86%',
 }
 
 // Transformers.js (Apache-2.0) + Xenova/modnet (Apache-2.0): in-browser
@@ -169,25 +172,32 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   return (
     <div style={wrapper}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
-      <button style={matteBtn} disabled={matting} onClick={() => void matteImage()}>
-        {matting ? '处理中…' : '智能抠图'}
-      </button>
-      <button style={exportBtn} disabled={busy || matting} onClick={exportPng}>
-        {busy ? '导出中…' : '导出 PNG'}
-      </button>
+      <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 30, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button style={toolChip} disabled={matting} onClick={() => void matteImage()}>
+          {matting ? '处理中…' : '智能抠图'}
+        </button>
+        <button style={exportBtn} disabled={busy || matting} onClick={exportPng}>
+          {busy ? '导出中…' : '导出 PNG'}
+        </button>
+      </div>
       {matteStatus !== undefined ? (
-        <div style={{ ...overlay, background: 'rgba(16,19,26,.75)' }}>{matteStatus}</div>
+        <div style={overlay}>
+          <div style={overlayCard}>{matteStatus}</div>
+        </div>
       ) : null}
       {matte !== undefined ? (
-        <div style={{ ...overlay, flexDirection: 'column', gap: 10 }}>
-          <img src={matte.url} alt="抠图结果" style={{ maxWidth: '72%', maxHeight: '60%', borderRadius: 10, border: '1px solid rgba(255,255,255,.25)' }} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button style={exportBtn} onClick={() => void saveMatte()}>保存抠图</button>
-            <button style={matteBtn} onClick={() => setMatte(undefined)}>关闭</button>
+        <div style={overlay}>
+          <div style={overlayCard}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f5f5f5' }}>抠图结果预览</div>
+            <img src={matte.url} alt="抠图结果" style={{ maxWidth: '100%', maxHeight: '52vh', borderRadius: 12, border: '1px solid rgba(255,255,255,.18)' }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={exportBtn} onClick={() => void saveMatte()}>保存抠图</button>
+              <button style={toolChip} onClick={() => setMatte(undefined)}>关闭</button>
+            </div>
           </div>
         </div>
       ) : null}
-      {error !== undefined ? <div style={overlay}>{error}</div> : null}
+      {error !== undefined ? <div style={{ ...overlay, zIndex: 50 }}><div style={overlayCard}>{error}</div></div> : null}
     </div>
   )
 }

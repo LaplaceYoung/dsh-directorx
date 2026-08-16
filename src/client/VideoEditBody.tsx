@@ -44,18 +44,18 @@ const MAX_SCALE = 140
 
 const lane: CSSProperties = { display: 'flex', gap: 2, marginTop: 10, overflowX: 'auto', paddingBottom: 4 }
 const segStyle: CSSProperties = {
-  padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(128,160,255,.55)',
-  background: 'rgba(80,130,255,.16)', fontSize: 12, whiteSpace: 'nowrap', cursor: 'pointer',
+  padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.18)',
+  background: 'rgba(255,255,255,.06)', fontSize: 11.5, whiteSpace: 'nowrap', cursor: 'pointer', color: '#ececec',
 }
-const segSelected: CSSProperties = { ...segStyle, background: 'rgba(80,130,255,.42)' }
+const segSelected: CSSProperties = { ...segStyle, border: '1px solid rgba(245,245,245,.9)', background: 'rgba(255,255,255,.14)' }
 const row: CSSProperties = { display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }
 const btn: CSSProperties = {
-  padding: '6px 12px', borderRadius: 7, border: '1px solid rgba(128,140,160,.4)',
-  background: 'rgba(255,255,255,.04)', color: 'inherit', fontSize: 12.5, cursor: 'pointer',
+  padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)',
+  background: 'rgba(255,255,255,.05)', color: '#ececec', fontSize: 12.5, cursor: 'pointer',
 }
-const primaryBtn: CSSProperties = { ...btn, border: '1px solid rgba(128,160,255,.55)', background: 'rgba(80,130,255,.18)' }
-const audioLane: CSSProperties = { marginTop: 12, border: '1px solid rgba(128,140,160,.25)', borderRadius: 8, padding: 8 }
-const audioLabel: CSSProperties = { fontSize: 11.5, opacity: .65, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
+const primaryBtn: CSSProperties = { ...btn, border: 'none', background: '#f5f5f5', color: '#171717', fontWeight: 600 }
+const audioLane: CSSProperties = { marginTop: 12, border: '1px solid rgba(255,255,255,.14)', borderRadius: 12, padding: 10, background: 'rgba(255,255,255,.03)' }
+const audioLabel: CSSProperties = { fontSize: 11.5, opacity: .8, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
 
 function fmt(us: number): string {
   const total = us / 1e6
@@ -122,8 +122,8 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
       container,
       url: audio.url,
       height: 48,
-      waveColor: 'rgba(128,160,255,.55)',
-      progressColor: 'rgba(128,160,255,.95)',
+      waveColor: 'rgba(255,255,255,.28)',
+      progressColor: 'rgba(245,245,245,.85)',
       cursorColor: '#8fdc9f',
       normalize: true,
     })
@@ -278,7 +278,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
       {error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12.5, marginBottom: 8 }}>{error}</div> : null}
       {meta !== undefined ? (
         <>
-          <video ref={videoRef} src={props.source} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 8, background: '#000' }} />
+          <video ref={videoRef} src={props.source} controls preload="metadata" style={{ width: '100%', maxHeight: 260, borderRadius: 12, background: '#000', border: '1px solid rgba(255,255,255,.1)' }} />
           <div style={row}>
             <button style={btn} disabled={busy} onClick={splitAtPlayhead}>在播放头分割</button>
             <button style={btn} disabled={busy || selected === undefined} onClick={() => moveSegment(-1)}>前移</button>
@@ -359,7 +359,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
           {exported !== undefined ? (
             <div style={{ marginTop: 10 }}>
               <div style={{ color: '#8fdc9f', marginBottom: 6 }}>导出完成（{fmtBytes(exported.blob.size)}）——点击下方保存到 DirectorX</div>
-              <video src={exported.url} controls style={{ width: '100%', maxHeight: 240, borderRadius: 8, background: '#000' }} />
+              <video src={exported.url} controls style={{ width: '100%', maxHeight: 240, borderRadius: 12, background: '#000', border: '1px solid rgba(255,255,255,.1)' }} />
               <div style={row}>
                 <button style={primaryBtn} onClick={() => props.onExport(exported.blob, 'video/mp4')}>保存到 DirectorX</button>
                 <button style={btn} onClick={() => setExported(undefined)}>返回时间线</button>
