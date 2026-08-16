@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { LIMITS } from './limits.ts'
 import { join, resolve } from 'node:path'
 
 /**
@@ -70,8 +71,8 @@ export class ProposalStore {
   private precheck(input: Omit<GenerationProposal, 'id' | 'at' | 'status' | 'attempts'>): string | null {
     if (input.prompt.trim() === '') return 'prompt 不能为空'
     if (input.kind !== 'image' && input.kind !== 'video' && input.kind !== 'audio') return 'kind 必须是 image/video/audio'
-    if (input.duration !== undefined && (input.duration < 1 || input.duration > 300)) return 'duration 超出 1-300s 支持范围'
-    if (input.count < 1 || input.count > 50) return 'count 超出 1-50 支持范围'
+    if (input.duration !== undefined && (input.duration < LIMITS.proposalDurationRange[0] || input.duration > LIMITS.proposalDurationRange[1])) return `duration 超出 ${LIMITS.proposalDurationRange[0]}-${LIMITS.proposalDurationRange[1]}s 支持范围`
+    if (input.count < LIMITS.proposalCountRange[0] || input.count > LIMITS.proposalCountRange[1]) return `count 超出 ${LIMITS.proposalCountRange[0]}-${LIMITS.proposalCountRange[1]} 支持范围`
     if (input.size !== undefined && !/^\d{3,4}[x:]\d{3,4}$|^\d+:\d+$/.test(input.size)) return 'size 格式应为 1280x720 或 16:9 类'
     return null
   }

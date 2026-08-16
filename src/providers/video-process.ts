@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { mkdir } from 'node:fs/promises'
+import { renameSync, rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { slugify } from '../support.ts'
 import { probeMedia, type MediaProbe } from './ffmpeg.ts'
@@ -13,9 +14,25 @@ import { probeMedia, type MediaProbe } from './ffmpeg.ts'
  */
 
 function runFfmpeg(args: string[], what: string): void {
-  const result = spawnSync('ffmpeg', ['-hide_banner', '-y', ...args], { encoding: 'utf8' })
+  // 原子输出：写临时文件再改名，避免半成品文件被读到。
+  let outputIndex = -1
+  for (let index = args.length - 1; index >= 0; index -= 1) {
+    const arg = args[index]
+    if (arg !== undefined && !arg.startsWith('-')) { outputIndex = index; break }
+  }
+  const finalArgs = [...args]
+  const dot = outputIndex >= 0 ? args[outputIndex].lastIndexOf('.') : -1
+  const tempPath = outputIndex >= 0 && dot > 0
+    ? `${args[outputIndex].slice(0, dot)}.tmp-${Date.now().toString(36)}${args[outputIndex].slice(dot)}`
+    : undefined
+  if (outputIndex >= 0 && tempPath !== undefined) finalArgs[outputIndex] = tempPath
+  const result = spawnSync('ffmpeg', ['-hide_banner', '-y', ...finalArgs], { encoding: 'utf8' })
   if (result.status !== 0) {
+    if (tempPath !== undefined) rmSync(tempPath, { force: true })
     throw new Error(`${what} failed: ${result.stderr?.slice(-600) || `exit ${result.status}`}`)
+  }
+  if (outputIndex >= 0 && tempPath !== undefined) {
+    renameSync(tempPath, args[outputIndex])
   }
 }
 
@@ -237,6 +254,8 @@ export interface AudioMixInput {
   duckUnder?: number
   /** Optional EBU R128 target (e.g. -14 for short video, -23 broadcast). */
   targetLufs?: number
+  /** 音频时长策略：keep_video（默认，视频时长为准）/ pad_audio（音频不足补静音）/ loop_audio / trim_audio / shortest。 */
+  durationPolicy?: 'keep_video' | 'pad_audio' | 'loop_audio' | 'trim_audio' | 'shortest'
 }
 
 export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
