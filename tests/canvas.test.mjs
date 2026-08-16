@@ -615,6 +615,18 @@ test('canvas client portals the custom wire layer into the xyflow viewport', asy
   assert.match(palette, /from 'cmdk'/)
   const drawer = await readFile(new URL('../src/client/CanvasContextDrawer.tsx', import.meta.url), 'utf8')
   assert.match(drawer, /\/directorx\/characters/)
+  const theme = await readFile(new URL('../src/client/canvas-theme.ts', import.meta.url), 'utf8')
+  assert.match(theme, /#141414/)
+  assert.match(theme, /Inter/)
+  assert.match(source, /from '.\/canvas-theme.ts'/)
+  assert.match(source, /交给 DSH/)
+  assert.doesNotMatch(source, /#3f3f46/)
+  assert.match(source, /submitGenerate/)
+  const submitAt = source.indexOf('const submitGenerate')
+  const submitSlice = source.slice(submitAt, submitAt + 1800)
+  assert.match(submitSlice, /\/directorx\/canvas\/intent/)
+  assert.match(submitSlice, /onAskDsh/)
+  assert.doesNotMatch(submitSlice, /setNodes/)
 })
 
 test('flowAbsolutePosition and edgeHandlePoints attach wires to grouped nodes', () => {

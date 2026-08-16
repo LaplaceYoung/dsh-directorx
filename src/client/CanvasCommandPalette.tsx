@@ -66,7 +66,7 @@ export function CanvasCommandPalette({
 
 const CMDK_CSS = `
 .dx-cmdk-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);backdrop-filter:blur(3px)}
-.dx-cmdk-dialog{position:fixed;left:50%;top:16%;transform:translateX(-50%);z-index:41;width:min(420px,calc(100% - 24px));overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:#3f3f46;box-shadow:0 18px 48px rgba(0,0,0,.6);font-family:inherit;color:#f0f0f0}
+.dx-cmdk-dialog{position:fixed;left:50%;top:16%;transform:translateX(-50%);z-index:41;width:min(420px,calc(100% - 24px));overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:#141414;box-shadow:0 18px 48px rgba(0,0,0,.6);font-family:"Inter","SF Pro Text","PingFang SC",system-ui,sans-serif;color:#f5f5f5}
 .dx-cmdk-dialog [cmdk-input]{width:100%;box-sizing:border-box;padding:12px 14px;border:none;border-bottom:1px solid rgba(255,255,255,.1);background:transparent;color:#f0f0f0;font-size:13.5px;outline:none}
 .dx-cmdk-dialog [cmdk-list]{max-height:320px;overflow-y:auto;padding:6px}
 .dx-cmdk-dialog [cmdk-group-heading]{padding:8px 10px 4px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#9b9b9b}

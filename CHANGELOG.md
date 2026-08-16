@@ -6,6 +6,8 @@
 
 ### Added
 
+- **画布 UI（libtv / tapnow）**：近黑 `#141414` 幽灵层、Inter、卡片内联操作、空态一颗白胶囊「交给 DSH 开拍」。生成条只入队 intent，不写 generating 节点。
+- **README**：按常见高星仓库结构重排（徽章、能力表、流程、对比、FAQ），数字与当前工具/语料对齐。
 - **可组合生产流程**：`directorx_brief.compose` 按类型给出配方 + 阶段 + 工具序列（调研 → 澄清 → 占位 → 分镜表签字）。agent 用现有工具自己编排；`directorx_orchestrate` 仍是可选加速。
 - **画布分镜表**：`directorx_canvas_shotlist` 按 `shotIndex` 导出编号分镜（时长/连续性/状态/时长预算），给用户签字后再花钱。形态来自 Storyboarder / Boords，不生成媒体。
 - **生成条角色锚点**：画布指令带上已注册角色名；`formatDshCanvasPrompt` 要求 DSH 生成时传 `characters`，UI 不再自己写节点。
