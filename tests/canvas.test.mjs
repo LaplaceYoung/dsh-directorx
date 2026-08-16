@@ -212,6 +212,25 @@ test('speech duration estimator and aiBrief idempotent cache', async () => {
   }
 })
 
+test('shot status lifecycle persists on nodes and rejects invalid values', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-shot-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'shot1', kind: 'group', label: '镜头1', x: 0, y: 0, shotStatus: 'idea' })
+    await store.update('shot1', { shotStatus: 'review' })
+    const doc = await store.read()
+    assert.equal(doc.nodes.find(node => node.id === 'shot1').shotStatus, 'review', 'valid status persisted')
+    await store.update('shot1', { shotStatus: 'bogus' })
+    const cleared = await store.read()
+    assert.equal(cleared.nodes.find(node => node.id === 'shot1').shotStatus, undefined, 'invalid status cleared')
+    await store.update('shot1', { shotStatus: 'locked' })
+    const locked = await store.read()
+    assert.equal(locked.nodes.find(node => node.id === 'shot1').shotStatus, 'locked', 'locked state persists')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('node lock guards content edits, deletes and inbound edges', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-lock-'))
   try {

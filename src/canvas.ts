@@ -30,6 +30,8 @@ export interface CanvasNode {
   locked?: boolean
   /** 幂等缓存的自动简介（vision 生成后落节点；有 prompt 时跳过）。 */
   aiBrief?: string
+  /** 镜头状态（Shot 一等容器语义）：idea/approved/generating/review/locked。 */
+  shotStatus?: 'idea' | 'approved' | 'generating' | 'review' | 'locked'
 }
 
 export interface CanvasEdge {
@@ -80,6 +82,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
     ...(input.locked === true ? { locked: true } : {}),
     ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
+    ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
   }
   return node
 }

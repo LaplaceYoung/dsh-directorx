@@ -24,7 +24,7 @@ type NodeCallbacks = {
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
-type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -242,6 +242,13 @@ function TextNodeComponent(props: NodeProps): ReactNode {
   )
 }
 
+const SHOT_STATUS_COLORS: Record<string, string> = {
+  idea: '#8a8a8a', approved: '#4f9dff', generating: '#4f9dff', review: '#e8b64f', locked: '#f5f5f5',
+}
+const SHOT_STATUS_LABELS: Record<string, string> = {
+  idea: '想法', approved: '已批准', generating: '生成中', review: '审阅', locked: '锁定',
+}
+
 const groupFrame: CSSProperties = {
   borderRadius: 16, border: '1px dashed rgba(255,255,255,.22)', background: 'rgba(255,255,255,.02)',
   width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -265,6 +272,14 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
       <NodeResizer isVisible={selected} minWidth={260} minHeight={180} color="rgba(245,245,245,.85)" />
       <div style={groupTitle}>
         <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={{ flex: 1, minWidth: 0 }} />
+        <button
+          title="镜头状态（点击循环：idea→approved→generating→review→locked）"
+          onClick={event => { event.stopPropagation(); data.onCycleShotStatus?.(props.id) }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '1px 8px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8', fontSize: 10, cursor: 'pointer', flexShrink: 0 }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: 9999, background: SHOT_STATUS_COLORS[data.shotStatus ?? 'idea'] ?? '#8a8a8a', flexShrink: 0 }} />
+          {SHOT_STATUS_LABELS[data.shotStatus ?? 'idea'] ?? 'idea'}
+        </button>
         {data.memberCount !== undefined && data.memberCount > 0 ? (
           <span style={{ fontSize: 10, color: '#9b9b9b', padding: '1px 8px', borderRadius: 8, background: 'rgba(255,255,255,.08)', flexShrink: 0 }}>{data.memberCount} 个节点</span>
         ) : null}
@@ -316,7 +331,7 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
+interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
@@ -668,6 +683,7 @@ function CanvasTabInner(): ReactNode {
             ...(data.shotIndex !== undefined ? { shotIndex: data.shotIndex } : {}),
             ...(data.locked === true ? { locked: true } : {}),
             ...(data.aiBrief !== undefined ? { aiBrief: data.aiBrief } : {}),
+            ...((data as unknown as { shotStatus?: string }).shotStatus !== undefined ? { shotStatus: (data as unknown as { shotStatus: string }).shotStatus } : {}),
             ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
             x: absolute.x, y: absolute.y,
             ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),
