@@ -37,6 +37,10 @@ export interface VideoAnalyzeOutput {
   blackFrameCount: number
   /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
   whiteFrameCount: number
+  /** blackdetect 黑场区间（d=0.25, pix=0.10 参数口径）。 */
+  blackSegments?: Array<{ start: number; end: number; durationSec: number }>
+  /** volumedetect 的 mean/peak dBFS。 */
+  volumeDbfs?: { mean: number; peak: number }
   audioLoudness?: { meanLu: number; peakLu: number }
   note?: string
 }
@@ -99,6 +103,30 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     }
   }
 
+  // 黑场检测（blackdetect 参数口径 d=0.25:pix_th=0.10）。
+  const blackDetect = spawnSync('ffmpeg', [
+    '-hide_banner', '-i', input.source,
+    '-vf', 'blackdetect=d=0.25:pix_th=0.10',
+    '-an', '-f', 'null', '-',
+  ], { encoding: 'utf8' })
+  const blackSegments: Array<{ start: number; end: number; durationSec: number }> = []
+  for (const line of (blackDetect.stderr ?? '').split('\n')) {
+    const match = line.match(/black_start:([\d.]+).*?black_end:([\d.]+).*?black_duration:([\d.]+)/)
+    if (match !== null) {
+      blackSegments.push({ start: Number(match[1]), end: Number(match[2]), durationSec: Number(match[3]) })
+    }
+  }
+  // 音量检测（volumedetect mean/peak dBFS 单趟）。
+  const volumeDetect = spawnSync('ffmpeg', [
+    '-hide_banner', '-i', input.source,
+    '-af', 'volumedetect',
+    '-vn', '-f', 'null', '-',
+  ], { encoding: 'utf8' })
+  let volumeDbfs: { mean: number; peak: number } | undefined
+  const meanMatch = (volumeDetect.stderr ?? '').match(/mean_volume:\s*(-?[\d.]+)\s*dB/)
+  const peakMatch = (volumeDetect.stderr ?? '').match(/max_volume:\s*(-?[\d.]+)\s*dB/)
+  if (meanMatch !== null && peakMatch !== null) volumeDbfs = { mean: Number(meanMatch[1]), peak: Number(peakMatch[1]) }
+
   // Audio loudness summary.
   let audioLoudness: { meanLu: number; peakLu: number } | undefined
   const loud = spawnSync('ffmpeg', [
@@ -125,6 +153,8 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     shots,
     blackFrameCount: yavg.filter(value => value < 16).length,
     whiteFrameCount: yavg.filter(value => value > 240).length,
+    ...(blackSegments.length > 0 ? { blackSegments } : {}),
+    ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
     ...(audioLoudness !== undefined ? { audioLoudness } : {}),
     ...(visionAvailable ? {} : { note: 'vision 未配置：分镜描述为 null（帧路径可用），配置 DirectorX vision 后以 describe=true 重跑可获得逐镜描述。' }),
   }
@@ -189,6 +219,14 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   // Black/white frame sanity from the analysis output.
   checks.push({ name: '黑帧', pass: analysis.blackFrameCount === 0, detail: analysis.blackFrameCount > 0 ? `检出 ${analysis.blackFrameCount} 帧近黑（YAVG<16）` : '无近黑帧' })
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
+  if (analysis.blackSegments !== undefined && analysis.blackSegments.length > 0) {
+    const total = analysis.blackSegments.reduce((sum, segment) => sum + segment.durationSec, 0)
+    checks.push({ name: '黑场段', pass: false, detail: `${analysis.blackSegments.length} 段黑场共 ${total.toFixed(2)}s（blackdetect d=0.25）` })
+  }
+  if (analysis.volumeDbfs !== undefined) {
+    const ok = !(analysis.volumeDbfs.mean < -40 && analysis.volumeDbfs.peak < -25)
+    checks.push({ name: '音量', pass: ok, detail: `mean ${analysis.volumeDbfs.mean.toFixed(1)}dB, peak ${analysis.volumeDbfs.peak.toFixed(1)}dB（过静音或过低峰值会拦截）` })
+  }
   if (input.expect?.asl !== undefined && analysis.shots.length > 1) {
     const mean = analysis.shots.reduce((sum, shot) => sum + shot.durationSec, 0) / analysis.shots.length
     const [min, max] = input.expect.asl

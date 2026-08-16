@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, contactSheet, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -112,6 +112,25 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
     const audioOnly = await videoProcess({ source: clip, outputDir: dir, extractAudio: true })
     assert.ok(audioOnly.path.endsWith('.m4a'), 'audio extracted as m4a')
     assert.ok(audioOnly.probe.streams.every(stream => stream.type === 'audio'), 'audio-only stream')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('contact sheet tiles midpoint frames into one preview image', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-sheet-'))
+  try {
+    const clips = []
+    for (const name of ['a.mp4', 'b.mp4']) {
+      const path = join(dir, name)
+      const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', path], { encoding: 'utf8' })
+      if (make.status !== 0) throw new Error('clip gen failed')
+      clips.push(path)
+    }
+    const sheet = await contactSheet({ sources: clips, outputDir: dir, columns: 2 })
+    assert.ok(existsSync(sheet.path), 'sheet png exists')
+    assert.equal(sheet.frames.length, 2, 'one frame per clip')
+    assert.equal(sheet.columns, 2)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

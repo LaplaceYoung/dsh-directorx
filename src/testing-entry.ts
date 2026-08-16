@@ -28,4 +28,5 @@ export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH,
 export { MAX_MEDIA_BYTES, parseMediaQuery, parseRangeHeader, resolveMediaPath } from './support.ts'
 export { listMediaFiles } from './media-server.ts'
 export { ProjectStyleStore } from './style-constants.ts'
+export { contactSheet } from './providers/contact-sheet.ts'
 export { registerMcpRoute } from './mcp.ts'

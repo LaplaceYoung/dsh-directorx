@@ -6,6 +6,7 @@ import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
 import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
+import { contactSheet } from './providers/contact-sheet.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { DirectorxEditLedger } from './edits.ts'
@@ -1117,6 +1118,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute() {
       return new ProjectStyleStore(settings.outputDir).read()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_contact_sheet',
+    description: '接触表（素材盘点胶片带）：给一组片段各自抽中点帧，tile 成 N 列蒙太奇单图，一眼预览全部候选片段；产出可加入画布作为素材预览节点。',
+    parameters: {
+      sources: { type: 'array', items: { type: 'string' }, required: true, description: 'Absolute paths of the clips to preview.' },
+      columns: { type: 'number', description: 'Grid columns (default 4, max 8).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return contactSheet({ sources: Array.isArray(args.sources) ? args.sources.map(String) : [], outputDir: settings.outputDir, columns: args.columns })
     },
   })))
 
