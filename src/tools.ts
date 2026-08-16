@@ -18,6 +18,8 @@ import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitl
 import { preflight } from './providers/preflight.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
+import { CharacterStore } from './characters.ts'
+export {} // CharacterStore imported below
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -70,16 +72,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         size: { type: 'string', description: 'Size such as 1024x1024, 1536x1024, or 1024x1536. Optional; provider defaults apply.' },
         quality: { type: 'string', enum: ['auto', 'low', 'medium', 'high'], description: 'Quality hint for providers that support it.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
+        characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
       },
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       isConcurrencySafe: () => true,
       async execute(args: any, exec: any) {
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        return runImage(toolContext(settings, settings.image, signal), args.prompt, {
+        const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
+        const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
+        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}`).join('；')
+        const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
+        return runImage(toolContext(settings, settings.image, signal), prompt, {
           size: args.size,
           quality: args.quality,
-          referenceImagePaths: args.reference_image_paths,
+          referenceImagePaths: refs,
         })
       },
     })))
@@ -97,19 +104,24 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         first_frame_path: { type: 'string', description: 'Optional first frame image path/URL for frame-locked generation.' },
         last_frame_path: { type: 'string', description: 'Optional last frame image path/URL for frame-locked transition.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional reference image paths/URLs for character/appearance consistency.' },
+        characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
       },
       output: objectOutput(),
       timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * settings.maxPollAttempts),
       async execute(args: any, exec: any) {
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        return runVideo(toolContext(settings, settings.video, signal), args.prompt, {
+        const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
+        const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
+        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}`).join('；')
+        const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
+        return runVideo(toolContext(settings, settings.video, signal), prompt, {
           seconds: args.seconds,
           size: args.size,
           aspectRatio: args.aspect_ratio,
           resolution: settings.video.resolution,
           firstFramePath: args.first_frame_path,
           lastFramePath: args.last_frame_path,
-          referenceImagePaths: args.reference_image_paths,
+          referenceImagePaths: refs,
         })
       },
     })))
@@ -682,6 +694,32 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         frames: args.frames,
         question: args.question,
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_character_register',
+    description: 'Register a character/subject anchor: a reference image + description stored in characters.json. Later generation calls can pass the character name via the `characters` parameter and the reference + description are injected automatically — the subject-consistency pattern used across multi-shot productions (Runway Gen-4 / Kling 3.0 subject reference).',
+    parameters: {
+      name: { type: 'string', required: true, description: 'Character name (unique; re-registering overwrites).' },
+      description: { type: 'string', description: 'Appearance description (stable features only: hair/outfit/scars/props).' },
+      refPath: { type: 'string', required: true, description: 'Reference image path (local output-dir media or http(s) URL).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return new CharacterStore(settings.outputDir).register({ name: String(args.name), description: args.description, refPath: String(args.refPath) })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_character_list',
+    description: 'List registered character anchors (names + descriptions + reference paths).',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      return new CharacterStore(settings.outputDir).list()
     },
   })))
 

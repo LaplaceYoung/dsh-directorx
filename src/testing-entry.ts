@@ -11,6 +11,7 @@ export { audioMix, hasLibass, videoConcat, videoProcess, videoSubtitle } from '.
 export { preflight } from './providers/preflight.ts'
 export { videoUnderstand } from './providers/video-understand.ts'
 export { ProposalStore } from './proposals.ts'
+export { CharacterStore } from './characters.ts'
 export { audioBeats, videoPip, videoZoom } from './providers/video-process.ts'
 export { klingJwt, klingVideo, runwayVideo } from './providers/video-models.ts'
 export { DirectorxCanvasStore } from './canvas.ts'

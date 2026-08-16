@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { DirectorxCanvasStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
+import { CharacterStore, DirectorxCanvasStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -152,6 +152,26 @@ test('canvas search / batch / dissolve / title / hierarchy', async () => {
     assert.equal(dissolved.nodes.some(node => node.id === 'g1'), false)
     assert.equal(dissolved.nodes.find(node => node.id === 's1').parent, undefined)
     assert.equal(dissolved.edges.length, 1, 'member edge survives dissolution')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('character registry registers, lists and resolves anchors', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-char-'))
+  try {
+    const store = new CharacterStore(dir)
+    const card = await store.register({ name: '主角', description: '短发、红围巾、圆脸', refPath: '/tmp/anchor.png' })
+    assert.equal(card.name, '主角')
+    const listed = await store.list()
+    assert.equal(listed.length, 1)
+    const resolved = await store.get(['主角', '不存在'])
+    assert.equal(resolved.length, 1)
+    assert.equal(resolved[0].refPath, '/tmp/anchor.png')
+    // re-register overwrites
+    await store.register({ name: '主角', description: '短发、蓝围巾', refPath: '/tmp/anchor2.png' })
+    const again = await store.get(['主角'])
+    assert.equal(again[0].description, '短发、蓝围巾')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
