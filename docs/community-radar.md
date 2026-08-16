@@ -139,3 +139,16 @@
 | 风格语法产品化 | 上表 | directorx_style 语法预设：wong-kar-wai / wes-anderson / cyberpunk / noir（锚+色盘+运动+负面四件套） |
 
 口径声明：留存数据为平台方口径（需本地 A/B 验证）；Kling 相关结论建议补充官方核实。
+
+
+## 扩充调研波（2026-08-17，四方向沉淀为 directorx-methodology 规则 69-99 + 工具升级）
+
+| 方向 | 来源 | 沉淀 |
+|---|---|---|
+| 平台运营与分发 | YouTube 官方帮助中心、抖音电商规范、新榜/蝉妈妈/飞瓜、chinamarketing.ai | 规则 84-91 + brief 平台规格卡（封面规格/标题上限/发布窗口，口径分级标注） |
+| 配音与声音表演 | OpenAI TTS 指南/cookbook、ElevenLabs 官方 docs、张颂播音教材、语流音变 | 规则 92-99 + generate_audio instructions 参数（源码核实后的字段差距补齐） |
+| 视觉特效与剪辑特效 | StudioBinder、No Film School、MasterClass、Hailuo Field Notes、Kling 指南 | 规则 74-83 + videoProcess reverse/freezeEnd + timeline 场景级 speed |
+| 商业广告与教育类 | Sagum AIDA 2026、Animiz 微课、ClipMake | 规则 69-73 + brief 标题变体/封面提示词 |
+
+**本轮工具升级**：tts instructions · reverse/freezeEnd · scene speed · platformCard · titles/coverPrompt · canvas_search 容错 · 纯视频拼接（cut+fade 双路径）。
+**README**：SEO/GEO 重写（双语关键词 + FAQ + 双 mermaid 流程图），package.json keywords 扩充。
