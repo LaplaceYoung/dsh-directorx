@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, runVideo } from '../lib/testing.js'
+import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, runVideo, viduVideo } from '../lib/testing.js'
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -161,6 +161,56 @@ test('kling-v3 mode uses the new-standard protocol', async () => {
     assert.equal(createPayload.settings.audio, 'native')
     assert.equal(createPayload.settings.muti_shot, true)
     assert.ok(pollPath.includes('/tasks?task_ids=kv1'), 'GET /tasks polling')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.close()
+  }
+})
+
+test('vidu mode uses Token auth and subject references', async () => {
+  let createPayload = null
+  let authHeader = ''
+  const server = createServer(async (req, res) => {
+    const url = req.url ?? ''
+    if (url === '/ent/v2/reference2video' && req.method === 'POST') {
+      createPayload = await readJson(req)
+      authHeader = req.headers.authorization ?? ''
+      sendJson(res, 200, { task_id: 'v1', state: 'created' })
+      return
+    }
+    if (url === '/ent/v2/tasks/v1/creations') {
+      sendJson(res, 200, { id: 'v1', state: 'success', creations: [{ id: 'c1', url: `http://127.0.0.1:${server.address().port}/v.mp4` }] })
+      return
+    }
+    if (url === '/v.mp4') {
+      const bytes = Buffer.from('vidu-video')
+      res.writeHead(200, { 'content-type': 'video/mp4', 'content-length': bytes.length })
+      res.end(bytes)
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+  await new Promise(resolve => server.listen(0, resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-vidu-'))
+  try {
+    const ctx = {
+      capability: { mode: 'vidu', model: 'viduq3', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '720p', auth: {}, apiKey: 'vidu-token', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+      ledger: undefined,
+    }
+    const result = await viduVideo(ctx, '@主角 在雨夜转身', {
+      seconds: 8,
+      subjects: [{ name: '主角', images: ['https://example.com/anchor.png'] }],
+      generateAudio: true,
+    })
+    assert.equal(result.status, 'succeed')
+    assert.equal(authHeader, 'Token vidu-token')
+    assert.equal(createPayload.model, 'viduq3')
+    assert.equal(createPayload.subjects[0].name, '主角')
+    assert.equal(createPayload.audio, true)
+    assert.equal(createPayload.duration, 8)
   } finally {
     await rm(dir, { recursive: true, force: true })
     server.close()
