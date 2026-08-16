@@ -30,6 +30,10 @@ export interface TimelineScene {
   speed?: number
   /** Reverse playback for this scene. */
   reverse?: boolean
+  /** 身份锚图：口型重打/一致性补丁用的定妆参考（供对口型档位消费）。 */
+  identityRef?: string
+  /** 姿态参考（手势/表情迁移），可空。 */
+  poseRef?: string
   transition?: 'fade' | 'cut'
 }
 
