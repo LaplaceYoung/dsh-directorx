@@ -195,6 +195,23 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('speech duration estimator and aiBrief idempotent cache', async () => {
+  const { estimateSpeech } = await import('../lib/testing.js')
+  const estimate = estimateSpeech({ text: '这是一段测试旁白，用来验证语速预算。', lang: 'zh' }, 4)
+  assert.ok(estimate.seconds > 1 && estimate.seconds < 6, `zh rate estimate, got ${estimate.seconds}s`)
+  assert.equal(estimate.fits, false, 'over-window flags')
+  assert.ok(estimate.suggestion !== undefined && estimate.suggestion.includes('缩'), 'shrink suggestion')
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-brief-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'img', kind: 'image', label: '参考图', path: '/tmp/x.png', x: 0, y: 0, aiBrief: '缓存描述' })
+    const doc = await store.read()
+    assert.equal(doc.nodes.find(node => node.id === 'img').aiBrief, '缓存描述', 'aiBrief persists')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('node lock guards content edits, deletes and inbound edges', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-lock-'))
   try {

@@ -25,7 +25,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, cleanSpeechText, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, srtLint, srtNormalize, subtitleCut, weightedWidth } from './providers/timeline.ts'
+import { audioSync, cleanSpeechText, clipRank, editsToScenes, estimateSpeech, parseEditInstructions, renderTimeline, smartCut, srtLint, srtNormalize, subtitleCut, weightedWidth } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -383,6 +383,35 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute(args: any) {
       const current = await canvas.read()
       return canvas.write({ version: 1, updatedAt: 0, nodes: args.nodes ?? [], edges: args.edges ?? [] }, current.updatedAt)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_brief',
+    description: '节点自动简介（幂等缓存）：prompt-first——节点自带 prompt 直接返回；已有 aiBrief 返回缓存；否则若 vision 可用，对节点媒体调用 view_image 生成一句描述并缓存到节点 aiBrief；vision 不可用时确定性回退（label+路径元数据）。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: 'Target node id.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 120_000,
+    async execute(args: any) {
+      const doc = await canvas.read()
+      const node = doc.nodes.find(candidate => candidate.id === String(args.nodeId))
+      if (node === undefined) throw new Error(`canvas node "${args.nodeId}" not found`)
+      if (node.prompt !== undefined && node.prompt !== '') return { nodeId: node.id, brief: node.prompt, source: 'prompt' }
+      if (node.aiBrief !== undefined && node.aiBrief !== '') return { nodeId: node.id, brief: node.aiBrief, source: 'cache' }
+      if (node.path !== undefined && settings.vision.enabled && settings.vision.mode !== 'mock') {
+        try {
+          const result = await runVision(toolContext(settings, settings.vision, AbortSignal.timeout(60_000)), node.path, '用一句话描述这张图的主体、场景与风格（50 字内）。')
+          const brief = result.answer.slice(0, 500)
+          await canvas.update(node.id, { aiBrief: brief })
+          return { nodeId: node.id, brief, source: 'vision' }
+        } catch {
+          // fall through to deterministic fallback
+        }
+      }
+      const fallback = node.label !== '' ? node.label : (node.kind === 'video' ? '视频素材（未描述）' : '图像素材（未描述）')
+      return { nodeId: node.id, brief: fallback, source: 'fallback' }
     },
   })))
 
@@ -1266,6 +1295,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return { cleaned: cleanSpeechText(String(args.text)) }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_speech_duration',
+    description: '口播时长预估（确定性）：字数 ÷ 语言速率（zh 4.2/ja 4.0/ko 4.3/en 13.5 字每秒）+ 标点停顿罚时 → 秒数；传入 windowSec（字幕窗口）时给出 超窗/缩句建议。旁白与字幕窗口对齐的预算步骤。',
+    parameters: {
+      text: { type: 'string', required: true, description: 'The narration text.' },
+      lang: { type: 'string', description: 'ISO-639-1 language (default zh).' },
+      windowSec: { type: 'number', description: 'Optional subtitle window seconds to check against.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return estimateSpeech({ text: String(args.text), lang: typeof args.lang === 'string' ? args.lang : undefined }, typeof args.windowSec === 'number' ? args.windowSec : undefined)
     },
   })))
 

@@ -28,6 +28,8 @@ export interface CanvasNode {
   prompt?: string
   /** 节点锁：锁定后拒改提示词/删除/入边（定妆用途），出边引用放行。 */
   locked?: boolean
+  /** 幂等缓存的自动简介（vision 生成后落节点；有 prompt 时跳过）。 */
+  aiBrief?: string
 }
 
 export interface CanvasEdge {
@@ -77,6 +79,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
     ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
     ...(input.locked === true ? { locked: true } : {}),
+    ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
   }
   return node
 }

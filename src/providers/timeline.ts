@@ -724,3 +724,49 @@ function formatSrtTime(seconds: number): string {
   const rem = String(ms % 1000).padStart(3, '0')
   return `${h}:${m}:${s},${rem}`
 }
+
+export interface SpeechDurationInput {
+  text: string
+  /** ISO-639-1 语言（zh/ja/ko/en/de…），决定每秒字数系数。 */
+  lang?: string
+}
+
+export interface SpeechDurationOutput {
+  seconds: number
+  chars: number
+  ratePerSec: number
+  windowSec?: number
+  fits?: boolean
+  overflowSec?: number
+  suggestion?: string
+}
+
+/** 每语言口播速率（字数/秒，统计口径，随实测可在线校准）。 */
+const SPEECH_RATES: Record<string, number> = {
+  zh: 4.2, ja: 4.0, ko: 4.3, en: 13.5, de: 11.8, fr: 12.5, es: 12.8, ru: 10.5,
+}
+
+/**
+ * 口播时长预估：字数 ÷ 语言速率 + 标点停顿罚时——把文案长度换算成
+ * 秒数，与字幕窗口比对（超窗时给出缩句建议）。纯确定性，LLM 改写
+ * 在其上完成。
+ */
+export function estimateSpeech(input: SpeechDurationInput, windowSec?: number): SpeechDurationOutput {
+  const lang = (input.lang ?? 'zh').toLowerCase()
+  const rate = SPEECH_RATES[lang] ?? (lang === 'zh' ? 4.2 : 10)
+  const clean = cleanSpeechText(input.text)
+  const chars = clean.replace(/\\s/g, '').length
+  const punctuation = (clean.match(/[，。！？；：、,.!?;:]/g) ?? []).length
+  const seconds = Number((chars / rate + punctuation * 0.25).toFixed(2))
+  const output: SpeechDurationOutput = { seconds, chars, ratePerSec: rate }
+  if (windowSec !== undefined) {
+    output.windowSec = windowSec
+    output.fits = seconds <= windowSec
+    output.overflowSec = Number(Math.max(0, seconds - windowSec).toFixed(2))
+    if (!output.fits) {
+      const target = Math.floor(windowSec * rate * 0.92)
+      output.suggestion = `超窗 ${output.overflowSec}s：建议缩到约 ${target} 字（当前 ${chars} 字），或放宽字幕窗口`
+    }
+  }
+  return output
+}
