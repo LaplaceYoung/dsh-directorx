@@ -499,6 +499,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             <button style={primaryBtn} disabled={busy} onClick={() => void exportVideo()}>
               {busy ? `导出中…${progress !== undefined ? ` ${Math.round(progress * 100)}%` : ''}` : `导出 MP4（${fmt(totalUs)}）`}
             </button>
+            {segments.some(segment => (segment.rate ?? 1) !== 1) ? (
+              <span style={{ fontSize: 10.5, color: '#e8b64f' }}>提示：变速片段导出时音频会随之变调（浏览器引擎限制；保调方案待引擎发版）。</span>
+            ) : null}
           </div>
           <div style={{ marginTop: 8, fontSize: 11.5, opacity: .6 }}>
             {meta.width}×{meta.height} · 源时长 {fmt(meta.durationUs)} · 输出 {fmt(totalUs)} · 片段 {segments.length}
