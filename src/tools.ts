@@ -455,6 +455,30 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_snapshots',
+    description: '画布快照列表（撤销此批的检查点索引；提案批准时自动建立，上限 20）。',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      return canvas.readSnapshotsIndex()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_restore',
+    description: '恢复画布快照（撤销此批）：把画布整体回滚到某个检查点；已生成素材保留在素材库。',
+    parameters: {
+      snapshotId: { type: 'string', required: true, description: 'Snapshot id from directorx_canvas_snapshots.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.restoreSnapshot(String(args.snapshotId))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_shot_order',
     description: '确定性排片：按显式 shotIndex（存储身份）排序镜头节点，未标的排后。顺序不用 LLM 猜——本工具返回即权威（节点坐标与连线不代表顺序）。',
     parameters: {
@@ -871,7 +895,16 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return proposals.update(String(args.id), args.status)
+      const status = args.status
+      if (status === 'approved') {
+        // 撤销此批：批准即存画布检查点（执行前快照）。
+        try {
+          await canvas.snapshot(`proposal-${String(args.id)}`)
+        } catch {
+          // 快照失败不阻塞批准。
+        }
+      }
+      return proposals.update(String(args.id), status)
     },
   })))
 

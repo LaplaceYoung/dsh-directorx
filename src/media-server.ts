@@ -565,6 +565,14 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
       }
       const store = new ProposalStore(getOutputDir())
       const updated = await store.update(id, status, typeof body.reason === 'string' && body.reason !== '' ? { rejectReason: body.reason.slice(0, 200) } : {})
+      if (status === 'approved') {
+        try {
+          const canvas = new DirectorxCanvasStore(getOutputDir())
+          await canvas.snapshot(`proposal-${id}`)
+        } catch {
+          // 快照失败不阻塞批准。
+        }
+      }
       sendJsonLocal(response, 200, { ok: true, proposal: updated })
     },
   })

@@ -432,6 +432,44 @@ export class DirectorxCanvasStore {
     }
   }
 
+  /** 画布快照：提案执行前的可回滚检查点（撤销此批）。 */
+  private snapshotsPath(): string {
+    return join(resolve(process.cwd(), this.outputDir), '.canvas-snapshots')
+  }
+
+  private snapshotsFile(): string {
+    return join(this.snapshotsPath(), 'index.json')
+  }
+
+  async snapshot(label: string): Promise<{ id: string; at: number; label: string }> {
+    const doc = await this.read()
+    const id = `snap-${Date.now().toString(36)}`
+    const index = await this.readSnapshotsIndex()
+    index.unshift({ id, at: Date.now(), label: label.slice(0, 100) })
+    while (index.length > 20) index.pop()
+    await mkdir(this.snapshotsPath(), { recursive: true })
+    await writeFile(this.snapshotsFile(), JSON.stringify(index, null, 2), 'utf8')
+    await writeFile(join(this.snapshotsPath(), `${id}.json`), JSON.stringify(doc, null, 2), 'utf8')
+    return index[0]
+  }
+
+  async readSnapshotsIndex(): Promise<Array<{ id: string; at: number; label: string }>> {
+    try {
+      const parsed = JSON.parse(await readFile(this.snapshotsFile(), 'utf8')) as Array<{ id: string; at: number; label: string }>
+      return Array.isArray(parsed) ? parsed.slice(0, 20) : []
+    } catch {
+      return []
+    }
+  }
+
+  async restoreSnapshot(id: string): Promise<CanvasDocument> {
+    const raw = await readFile(join(this.snapshotsPath(), `${id}.json`), 'utf8')
+    const parsed = JSON.parse(raw) as { nodes?: unknown[]; edges?: unknown[]; title?: unknown }
+    const nodes = Array.isArray(parsed.nodes) ? parsed.nodes.map((input: unknown) => sanitizeNode(input as Record<string, unknown>)) : []
+    const edges = Array.isArray(parsed.edges) ? parsed.edges.map((input: unknown) => sanitizeEdge(input as Record<string, unknown>)) : []
+    return this.write({ version: 1, updatedAt: Date.now(), ...(typeof parsed.title === 'string' ? { title: parsed.title } : {}), nodes, edges })
+  }
+
   /**
    * 连续性规则注册表：汇总全部 Shot 组的 continuityRules；跨镜头重复
    * 出现的规则即「连续性锁」（报告 16.4：角色/服装/道具/光线/方位）。

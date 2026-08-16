@@ -411,6 +411,26 @@ test('proposal stage gating, reject reasons, lineage and precheck', async () => 
   }
 })
 
+test('canvas snapshots checkpoint and restore (undo this batch)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-snap-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'n1', kind: 'text', label: '原稿', x: 0, y: 0 })
+    const snap = await store.snapshot('proposal-p1')
+    await store.addNode({ id: 'n2', kind: 'text', label: '执行后新增', x: 0, y: 0 })
+    const before = await store.read()
+    assert.equal(before.nodes.length, 2, 'mutation applied')
+    await store.restoreSnapshot(snap.id)
+    const after = await store.read()
+    assert.equal(after.nodes.length, 1, 'snapshot restores pre-batch state')
+    assert.equal(after.nodes[0].label, '原稿')
+    const index = await store.readSnapshotsIndex()
+    assert.ok(index.some(entry => entry.id === snap.id), 'index lists the checkpoint')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('proposal next returns the oldest pending item for the approval loop', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-next-'))
   try {
