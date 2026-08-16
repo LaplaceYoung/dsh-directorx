@@ -308,3 +308,12 @@
 | model-based 判定 | VBench/EvalCrafter/FVD 不作单条 qaCheck 门；VBench 质量子集可作离线批次回归（可选） |
 | 提案编辑 | 面板「编辑」零成本改 prompt（plan-first 模式）；patch 走 update 路由 |
 | 待校准 | flicker/banding/清晰度精确阈值实测；CAMBI 无参考调用验证 |
+
+
+## 视频后处理调研采纳（2026-08-18）
+
+| 层 | 落地 |
+|---|---|
+| Tier 0（已落地） | restore 预设：upscale-sharp（2x lanczos+unsharp+cas）/ denoise（hqdn3d+tmix）；delogo 参数（静态角标 band=10）——纯 ffmpeg 确定性、真实渲染测试 |
+| Tier 1（仅记录） | realesrgan/rife/waifu2x/realcugan-ncnn-vulkan + IOPaint 探测式可选（MIT/BSD/Apache；subprocess 调用、不捆绑权重）；按「不本地部署模型」原则暂不实现 |
+| 许可红线 | ProPainter/E2FGVI 非商用禁入；AGPL 禁代码集成；ffmpeg 仅 LGPL 组件；权重不随插件分发 |

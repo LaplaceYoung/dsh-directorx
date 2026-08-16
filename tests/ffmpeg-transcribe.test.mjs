@@ -163,6 +163,23 @@ test('videoAnalyze detects luminance flicker', async () => {
   }
 })
 
+test('videoProcess restore presets and delogo render', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-restore-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    for (const restore of ['upscale-sharp', 'denoise']) {
+      const out = await videoProcess({ source: clip, outputDir: dir, restore })
+      assert.ok(existsSync(out.path), `${restore} renders`)
+    }
+    const delogo = await videoProcess({ source: clip, outputDir: dir, delogo: '10:10:60:30' })
+    assert.ok(existsSync(delogo.path), 'delogo renders')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess applies cinematic grade presets', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-grade-'))
   try {

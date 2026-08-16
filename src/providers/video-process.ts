@@ -64,6 +64,10 @@ export interface VideoProcessInput {
   extractAudio?: boolean
   /** 电影感调色预设：teal-orange 青橙 / film-fade 褪色胶片 / bw-contrast 黑白高对比。 */
   grade?: 'teal-orange' | 'film-fade' | 'bw-contrast'
+  /** 修复预设：upscale-sharp 2x 兰索斯放大+锐化 / denoise 时空降噪。 */
+  restore?: 'upscale-sharp' | 'denoise'
+  /** 去水印（静态角标）：'x:y:w:h' 区域 + delogo band=10。 */
+  delogo?: string
   /** 3D LUT 调色（.cube 文件绝对路径；lut3d 滤镜）。 */
   lut3d?: string
   /** LUT 插值模式（lut3d interp，默认 tetrahedral）。 */
@@ -192,6 +196,14 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
     if (!existsSync(input.lut3d)) throw new Error(`LUT 文件不存在：${input.lut3d}`)
     const interp = input.lut3dInterp ?? 'tetrahedral'
     videoFilters.push(`lut3d=file=${input.lut3d.replace(/[,;\\]/g, '')}:interp=${interp}`)
+  }
+  if (input.restore === 'upscale-sharp') {
+    videoFilters.push('scale=iw*2:ih*2:flags=lanczos,unsharp=5:5:0.6:5:5:0.0,cas=0.4')
+  } else if (input.restore === 'denoise') {
+    videoFilters.push('hqdn3d=1.5:1.5:6:6,tmix=frames=3:weights=1 2 1')
+  }
+  if (input.delogo !== undefined && /^\d+:\d+:\d+:\d+$/.test(input.delogo)) {
+    videoFilters.push(`delogo=x=${input.delogo.split(':')[0]}:y=${input.delogo.split(':')[1]}:w=${input.delogo.split(':')[2]}:h=${input.delogo.split(':')[3]}:band=10`)
   }
   if (input.grade !== undefined) {
     // 完整配方（调研确认的选项表推导）：10-bit 处理域起步，末位降 8-bit。
