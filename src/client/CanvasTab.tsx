@@ -21,6 +21,9 @@ type NodeCallbacks = {
   onDuplicate?: (id: string) => void
   onDelete?: (id: string) => void
   onDissolve?: (id: string) => void
+  onBranch?: (id: string, anchor: { x: number; y: number }) => void
+  onCycleShotStatus?: (id: string) => void
+  onToggleCollapse?: (id: string) => void
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
@@ -1830,15 +1833,39 @@ function CanvasTabInner(): ReactNode {
     { label: '新建镜头组', hint: '创建', run: addGroup },
     { label: '媒体库', hint: '创建', run: () => { void openPicker() } },
     { label: '上传文件', hint: '创建', run: importMedia },
+    { label: '复制所选', hint: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) duplicateNode(id) } },
+    { label: '删除所选', hint: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) deleteNode(id) } },
+    { label: '锁定 / 解锁所选', hint: '编辑', run: () => {
+      const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id)
+      if (ids.length === 0) return
+      const allLocked = ids.every(id => (nodesRef.current.find(node => node.id === id)?.data as { locked?: boolean } | undefined)?.locked === true)
+      pushHistory()
+      setNodes(list => list.map(node => ids.includes(node.id) ? { ...node, data: { ...node.data, locked: !allLocked } } : node))
+      scheduleSave()
+    } },
+    { label: '撤销', hint: '编辑', run: undo },
+    { label: '重做', hint: '编辑', run: redo },
+    { label: '镜头状态循环', hint: '镜头', run: () => {
+      const ids = nodesRef.current.filter(node => node.selected === true && node.type === 'group').map(node => node.id)
+      for (const id of ids) nodeCallbacks.onCycleShotStatus?.(id)
+    } },
+    { label: '折叠 / 展开所选组', hint: '镜头', run: () => {
+      const ids = nodesRef.current.filter(node => node.selected === true && node.type === 'group').map(node => node.id)
+      if (ids.length === 0) return
+      const anyOpen = ids.some(id => !collapsedGroups.has(id))
+      setCollapsedGroups(current => { const next = new Set(current); for (const id of ids) { if (anyOpen) next.add(id); else next.delete(id) } return next })
+    } },
     { label: '适配全部内容', hint: '视图', run: () => { void fitView() } },
     { label: '重置缩放 100%', hint: '视图', run: () => setViewport({ zoom: 1, x: 0, y: 0 }) },
     { label: '语义泳道布局', hint: '视图', run: arrangeSemantic },
     { label: '网格整理', hint: '视图', run: arrangeGrid },
     { label: '粗剪条开关', hint: '镜头', run: () => setStripOpen(open => !open) },
     { label: '镜头列表', hint: '镜头', run: () => setShotListOpen(open => !open) },
+    { label: '导出 PNG 分镜板', hint: '导出', run: () => { void exportPng() } },
+    { label: '对比分支版本', hint: '导出', run: openCompare },
     { label: '上下文面板', hint: '面板', run: () => setAgentOpen(open => !open) },
     { label: '操作帮助', hint: '面板', run: () => setHelpOpen(open => !open) },
-  ], [addTextNode, addGroup, openPicker, importMedia, fitView, setViewport, arrangeSemantic, arrangeGrid])
+  ], [addTextNode, addGroup, openPicker, importMedia, fitView, setViewport, arrangeSemantic, arrangeGrid, duplicateNode, deleteNode, undo, redo, exportPng, openCompare, nodeCallbacks, collapsedGroups, setNodes, scheduleSave, pushHistory])
 
   const runCommand = useCallback((id: string) => {
     setPaletteOpen(false)
