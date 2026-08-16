@@ -420,6 +420,9 @@ function CanvasTabInner(): ReactNode {
   const [connectMenu, setConnectMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [paletteQuery, setPaletteQuery] = useState('')
+  const paletteInputRef = useRef<HTMLInputElement | null>(null)
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
   const [guides, setGuides] = useState<{ vertical: number[]; horizontal: number[] }>({ vertical: [], horizontal: [] })
@@ -638,6 +641,7 @@ function CanvasTabInner(): ReactNode {
         setQuickAdd(undefined)
         setPickerOpen(false)
         setSelectedEdge(undefined)
+        setPaletteOpen(false)
         return
       }
       if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -658,6 +662,12 @@ function CanvasTabInner(): ReactNode {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'y') {
         event.preventDefault()
         redo()
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen(open => !open)
+        setPaletteQuery('')
         return
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd') {
@@ -885,7 +895,7 @@ function CanvasTabInner(): ReactNode {
     setSelectedCount(params.nodes.length)
   }, [])
 
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, fitView } = useReactFlow()
 
   const mediaByPath = useMemo(() => new Map(mediaFiles.map(file => [file.path, file])), [mediaFiles])
 
@@ -1191,6 +1201,38 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setNodes, scheduleSave])
 
+  const runCommand = useCallback((id: string) => {
+    setPaletteOpen(false)
+    setPaletteQuery('')
+    if (id === 'text') { addTextNode(); return }
+    if (id === 'group') { addGroup(); return }
+    if (id === 'library') { void openPicker(); return }
+    if (id === 'import') { importMedia(); return }
+    if (id === 'arrange') { arrangeGrid(); return }
+    if (id === 'export') { void exportPng(); return }
+    if (id === 'undo') { undo(); return }
+    if (id === 'redo') { redo(); return }
+    if (id === 'fit') { void fitView({ padding: 0.15, duration: 300 }); return }
+    if (id === 'clearSel') {
+      setNodes(current => current.map(node => node.selected === true ? { ...node, selected: false } : node))
+      setSelectedCount(0)
+      return
+    }
+  }, [addTextNode, addGroup, openPicker, importMedia, arrangeGrid, exportPng, undo, redo, fitView, setNodes])
+
+  const COMMANDS: Array<{ id: string; label: string; hint: string }> = [
+    { id: 'text', label: '添加文字', hint: '新建文字节点' },
+    { id: 'group', label: '新建分组', hint: '分组容器节点' },
+    { id: 'library', label: '打开媒体库', hint: '从输出目录选择素材' },
+    { id: 'import', label: '导入本地媒体…', hint: '上传本地图片/视频/音频' },
+    { id: 'arrange', label: '网格整理', hint: '自动排布全部节点' },
+    { id: 'fit', label: '适应视图', hint: '缩放至全部内容' },
+    { id: 'clearSel', label: '清空选择', hint: '取消所有选中' },
+    { id: 'undo', label: '撤销', hint: '⌘Z' },
+    { id: 'redo', label: '重做', hint: '⇧⌘Z' },
+    { id: 'export', label: '导出 PNG 分镜板', hint: '下载画布快照' },
+  ]
+
   const defaultEdgeOptions = useMemo(() => ({
     type: 'default' as const,
     style: { stroke: 'rgba(128,160,255,.55)', strokeWidth: 1.5 },
@@ -1297,6 +1339,40 @@ function CanvasTabInner(): ReactNode {
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setConnectMenu(undefined); void openPicker() }}>媒体库…</button>
+        </div>
+      ) : null}
+      {paletteOpen ? (
+        <div
+          style={{ position: 'fixed', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 9, width: 360, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 8 }}
+          onClick={event => event.stopPropagation()}
+        >
+          <input
+            ref={paletteInputRef}
+            autoFocus
+            value={paletteQuery}
+            placeholder="输入命令…（⌘K 打开）"
+            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.05)', color: '#f5f5f5', fontSize: 13, marginBottom: 6 }}
+            onChange={event => setPaletteQuery(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter') {
+                const match = COMMANDS.filter(cmd => cmd.label.includes(paletteQuery.trim()) || paletteQuery.trim() === '')[0]
+                if (match !== undefined) runCommand(match.id)
+              }
+              if (event.key === 'Escape') setPaletteOpen(false)
+            }}
+          />
+          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+            {COMMANDS.filter(cmd => paletteQuery.trim() === '' || cmd.label.includes(paletteQuery.trim())).map(cmd => (
+              <button
+                key={cmd.id}
+                style={{ display: 'flex', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
+                onClick={() => runCommand(cmd.id)}
+              >
+                <span>{cmd.label}</span>
+                <span style={{ color: '#777', fontSize: 11 }}>{cmd.hint}</span>
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
       {quickAdd !== undefined ? (

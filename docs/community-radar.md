@@ -42,6 +42,7 @@
 | zundo（charkour） | 883 | MIT | zustand 撤销/重做中间件 | 已自研轻量历史栈（画布 50 步上限）；多 store 协同再评估 |
 | plyr | 29,951 | MIT | 全功能 HTML5 播放器 | 编辑器大预览/成片播放场景候选（节点内已自绘轻量控制条） |
 | react-player | 10,279 | MIT | React 多源播放器封装 | 编辑器/成片预览候选（YouTube 等外链源支持） |
+| transformers.js（HF） | 15,203 | Apache-2.0 | 浏览器内 WASM 推理（含 RMBG/背景移除模型） | **图片编辑器抠图按钮候选**（模型权重需另行核许可） |
 
 ## 已调研 · 弃用（附原因）
 
@@ -51,6 +52,7 @@
 | etro | 1,147 | GPL-3.0 硬阻断；离线渲染未完成 |
 | remotion | 56,393 | 导出走 CLI（headless Chrome+ffmpeg），非浏览器内交互；商业许可（>3 人公司付费） |
 | peaks.js | 3,403 | LGPL-3.0；开发已迁 Codeberg |
+| imgly/background-removal-js | 7,262 | AGPL-3.0 | 浏览器内抠图（WASM） | 弃用：AGPL 传染性许可与本插件不兼容 |
 | twick | — | 非 OSI（Sustainable Use License） |
 
 ## 模型 API 适配（协议源）
