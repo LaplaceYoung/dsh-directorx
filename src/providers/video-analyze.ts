@@ -35,6 +35,8 @@ export interface VideoAnalyzeOutput {
   shots: ShotSegment[]
   /** Sampled frames near black (YAVG < 16) — bad-frame sanity signal. */
   blackFrameCount: number
+  /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
+  whiteFrameCount: number
   audioLoudness?: { meanLu: number; peakLu: number }
   note?: string
 }
@@ -122,6 +124,7 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     fps: frameRate,
     shots,
     blackFrameCount: yavg.filter(value => value < 16).length,
+    whiteFrameCount: yavg.filter(value => value > 240).length,
     ...(audioLoudness !== undefined ? { audioLoudness } : {}),
     ...(visionAvailable ? {} : { note: 'vision 未配置：分镜描述为 null（帧路径可用），配置 DirectorX vision 后以 describe=true 重跑可获得逐镜描述。' }),
   }
@@ -181,8 +184,9 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
     const maxOk = input.expect.maxShots === undefined || count <= input.expect.maxShots
     checks.push({ name: '镜头数', pass: minOk && maxOk, detail: `${count} 镜 / 期望 [${input.expect.minShots ?? '-'}, ${input.expect.maxShots ?? '-'}]` })
   }
-  // Black-frame sanity from the analysis output.
+  // Black/white frame sanity from the analysis output.
   checks.push({ name: '黑帧', pass: analysis.blackFrameCount === 0, detail: analysis.blackFrameCount > 0 ? `检出 ${analysis.blackFrameCount} 帧近黑（YAVG<16）` : '无近黑帧' })
+  checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
   if (input.expect?.rhythm === true && analysis.shots.length > 1) {
     const longest = Math.max(...analysis.shots.map(shot => shot.durationSec))
     const over = analysis.shots.filter(shot => shot.durationSec > 8).length

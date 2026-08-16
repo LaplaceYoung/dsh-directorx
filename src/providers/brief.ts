@@ -16,6 +16,8 @@ export interface BriefInput {
 }
 
 export interface BriefOutput {
+  /** 建议的下一步动作序列（按顺序调用）。 */
+  nextActions: string[]
   brief: {
     type: string
     typeConfidence: 'high' | 'medium' | 'low'
@@ -114,7 +116,19 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
   if (type === '混剪/卡点') suggestedFlow = 'directorx-montage（素材盘点 → 节拍检测 → 卡点裁剪 → 拼接 → 混音）'
   if (type === '广告/宣传') suggestedFlow = 'preflight 四道闸门 → propose 占位 → 批准后按 pipeline 生成（成本护栏优先）'
 
+  const nextActions: string[] = []
+  if (materials.length > 0) {
+    nextActions.push('先 directorx_video_analyze / directorx_probe_media 理解素材（或画布盘点 directorx_canvas_get）')
+  }
+  if (characters.length === 0 && (type === '剧情/短剧' || type === '分镜/成片' || type === 'MV/音乐')) {
+    nextActions.push('用 directorx_character_register 注册主体锚点（多镜头一致性前提）')
+  }
+  nextActions.push(`用 directorx_preflight 做四道闸门审计 + directorx_propose 排队完整生成规格（先方案后生成）`)
+  nextActions.push(`加载 directorx-workflow，按推导流程 dryRun 验证编排（零成本），再执行`)
+  nextActions.push(`成片后 directorx_qa 过质检门（含节奏/黑帧/白帧检查），结论写回画布`)
+
   return {
+    nextActions,
     brief: {
       type,
       typeConfidence: matchedType !== undefined ? 'high' : 'low',
