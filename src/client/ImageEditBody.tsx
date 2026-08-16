@@ -172,6 +172,9 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   return (
     <div style={wrapper}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      <div style={{ position: 'absolute', bottom: 10, left: 12, zIndex: 30, display: 'flex', gap: 6, alignItems: 'center', pointerEvents: 'none' }}>
+        <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.45)', padding: '4px 10px', borderRadius: 999, background: 'rgba(18,18,18,.75)', backdropFilter: 'blur(8px)' }}>滚轮缩放 · 拖拽平移 · 底部菜单：裁剪/旋转/滤镜/文字</span>
+      </div>
       <div style={{ position: 'absolute', top: 10, right: 12, zIndex: 30, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button style={toolChip} disabled={matting} onClick={() => void matteImage()}>
           {matting ? '处理中…' : '智能抠图'}

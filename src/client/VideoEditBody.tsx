@@ -326,6 +326,13 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                   key={segment.id}
                   style={{ ...(selected === segment.id ? segSelected : segStyle), width, textAlign: 'center', overflow: 'hidden', position: 'relative' }}
                   onClick={() => setSelected(segment.id)}
+                  onDoubleClick={() => {
+                    const video = videoRef.current
+                    if (video === null) return
+                    video.currentTime = segment.startUs / 1e6
+                    void video.play().catch(() => {})
+                  }}
+                  title="双击：预览跳转到该片段起点" 
                 >
                   <div
                     style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
