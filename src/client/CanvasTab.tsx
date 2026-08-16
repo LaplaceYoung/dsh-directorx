@@ -408,15 +408,21 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
       <g key={edge.id}>
         <path
           d={path} fill="none"
-          stroke={selected ? 'rgba(255,255,255,.85)' : hovered ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)'}
-          strokeWidth={selected ? 2.2 : hovered ? 1.8 : 1.4}
-          markerEnd="url(#dx-arrow)"
+          stroke="transparent"
+          strokeWidth={20}
           pointerEvents="stroke"
           style={{ cursor: 'pointer' }}
           onClick={event => { event.stopPropagation(); onSelect(selected ? undefined : edge.id) }}
           onContextMenu={event => { event.preventDefault(); event.stopPropagation(); onContext(edge.id, event.clientX, event.clientY) }}
           onPointerEnter={() => setHoveredId(edge.id)}
           onPointerLeave={() => setHoveredId(current => current === edge.id ? undefined : current)}
+        />
+        <path
+          d={path} fill="none"
+          stroke={selected ? 'rgba(255,255,255,.85)' : hovered ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)'}
+          strokeWidth={selected ? 2.2 : hovered ? 1.8 : 1.4}
+          markerEnd="url(#dx-arrow)"
+          pointerEvents="none"
         />
         <circle
           cx={sourceX} cy={sourceY} r={4.5} fill="#f5f5f5" opacity={hovered || selected ? 0.9 : 0}
@@ -603,6 +609,18 @@ function CanvasTabInner(): ReactNode {
 
   useEffect(() => { void load() }, [load])
 
+  // 未保存更改时阻止无提示离开（报告 11.1）。
+  useEffect(() => {
+    const handler = (event: BeforeUnloadEvent) => {
+      if (dirtyRef.current) {
+        event.preventDefault()
+        event.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [])
+
   const saveNow = useCallback(async () => {
     if (!dirtyRef.current) return
     setSaveState('保存中…')
@@ -685,7 +703,7 @@ function CanvasTabInner(): ReactNode {
     dirtyRef.current = true
     setSaveState('保存中…')
     if (saveTimerRef.current !== undefined) window.clearTimeout(saveTimerRef.current)
-    saveTimerRef.current = window.setTimeout(() => { void saveNow() }, 900)
+    saveTimerRef.current = window.setTimeout(() => { void saveNow() }, 500)
   }, [saveNow])
 
   useEffect(() => {
@@ -1666,6 +1684,22 @@ function CanvasTabInner(): ReactNode {
     style: { stroke: 'rgba(148,163,184,.65)', strokeWidth: 1.5 },
   }), [])
 
+  // 视口恢复：首次加载读取上次保存的视口（报告 11.2）。
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('directorx-viewport')
+      if (raw !== null) {
+        const parsed = JSON.parse(raw) as { x?: number; y?: number; zoom?: number }
+        if (typeof parsed.x === 'number' && typeof parsed.y === 'number' && typeof parsed.zoom === 'number') {
+          setViewport({ x: parsed.x, y: parsed.y, zoom: parsed.zoom })
+        }
+      }
+    } catch {
+      // corrupted storage — fall back to fitView.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // DEBUG probe: expose edge/nodes counts for browser verification.
   useEffect(() => {
     // 窄容器（画布列过窄）时隐藏小地图与控件，避免挤压主区域。
@@ -1728,19 +1762,35 @@ function CanvasTabInner(): ReactNode {
         onDragOver={onPaneDragOver}
         onDrop={onPaneDrop}
         onSelectionChange={onSelectionChange}
+        onMoveEnd={(event, viewport) => {
+          // 视口持久化（报告 11.2）：节流写入 localStorage。
+          try {
+            localStorage.setItem('directorx-viewport', JSON.stringify({ x: viewport.x, y: viewport.y, zoom: viewport.zoom }))
+          } catch {
+            // storage unavailable — non-fatal.
+          }
+        }}
         selectionOnDrag
         selectionMode={SelectionMode.Partial}
         multiSelectionKeyCode="Shift"
-        panOnDrag={[1]}
+        panOnDrag={[2]}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
+        zoomOnScroll={false}
+        panOnScroll
+        zoomOnPinch
+        zoomOnDoubleClick={false}
+        snapToGrid
+        snapGrid={[15, 15]}
+        connectionRadius={30}
         defaultEdgeOptions={defaultEdgeOptions}
         style={{ background: '#000000' }}
         fitView
+        fitViewOptions={{ minZoom: 0.7, maxZoom: 1.3 }}
         proOptions={{ hideAttribution: true }}
         colorMode="dark"
-        minZoom={0.1}
-        maxZoom={2.5}
+        minZoom={0.15}
+        maxZoom={2}
         deleteKeyCode={['Backspace', 'Delete']}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
