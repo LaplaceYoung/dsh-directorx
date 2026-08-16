@@ -7,6 +7,7 @@ import type { DirectorxSettings } from './config.ts'
 import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
+import { routeModel } from './model-matrix.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { DirectorxEditLedger } from './edits.ts'
@@ -1170,6 +1171,29 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     isConcurrencySafe: () => true,
     async execute(args: any) {
       return contactSheet({ sources: Array.isArray(args.sources) ? args.sources.map(String) : [], outputDir: settings.outputDir, columns: args.columns })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_model_router',
+    description: '模型能力表路由：按输入需求（时长/画幅/首尾帧/音画同出）过滤并排序可用视频模型，返回 eligible 列表 + 每模型的排除原因——参数组合问题在计划期暴露，不等到执行期失败。',
+    parameters: {
+      durationSec: { type: 'number', description: '目标时长（秒）。' },
+      aspectRatio: { type: 'string', description: '目标画幅，如 16:9 / 9:16 / 1:1。' },
+      needsFirstFrame: { type: 'boolean', description: '是否要求首帧输入。' },
+      needsLastFrame: { type: 'boolean', description: '是否要求尾帧输入。' },
+      needsAudio: { type: 'boolean', description: '是否要求音画同出（原生音频）。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return routeModel({
+        durationSec: typeof args.durationSec === 'number' ? args.durationSec : undefined,
+        aspectRatio: typeof args.aspectRatio === 'string' ? args.aspectRatio : undefined,
+        needsFirstFrame: args.needsFirstFrame === true,
+        needsLastFrame: args.needsLastFrame === true,
+        needsAudio: args.needsAudio === true,
+      })
     },
   })))
 

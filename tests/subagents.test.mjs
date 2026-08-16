@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { brief, planStoryboard, preflight, registerSubagentSetup } from '../lib/testing.js'
+import { brief, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -107,6 +107,19 @@ test('storyboard enforces the camera vocabulary and anti-monotony', () => {
   // storyBeat passthrough
   const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
   assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
+test('model router filters and ranks by requirement fit', () => {
+  // 15s + 9:16 + last frame + audio -> only kling family qualifies.
+  const strict = routeModel({ durationSec: 15, aspectRatio: '9:16', needsLastFrame: true, needsAudio: true })
+  assert.ok(strict.eligible.every(capability => capability.model.startsWith('kling')), 'only kling family')
+  // 8s first-frame 16:9 -> several, ranked; excluded entries carry reasons.
+  const loose = routeModel({ durationSec: 8, needsFirstFrame: true, aspectRatio: '16:9' })
+  assert.ok(loose.eligible.length >= 3, 'broad eligibility')
+  assert.ok(loose.excluded.some(entry => entry.reasons.some(reason => reason.includes('首帧'))), 'excluded with reasons')
+  // vidu lacks first/last frames -> excluded when requested.
+  const vidu = routeModel({ needsFirstFrame: true }).excluded.find(entry => entry.model === 'viduq3')
+  assert.ok(vidu !== undefined && vidu.reasons.some(reason => reason.includes('首帧')), 'vidu excluded for first frame')
 })
 
 test('planStoryboard keeps industrial shot fields through the plan', () => {
