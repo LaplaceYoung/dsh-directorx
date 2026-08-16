@@ -152,3 +152,16 @@
 
 **本轮工具升级**：tts instructions · reverse/freezeEnd · scene speed · platformCard · titles/coverPrompt · canvas_search 容错 · 纯视频拼接（cut+fade 双路径）。
 **README**：SEO/GEO 重写（双语关键词 + FAQ + 双 mermaid 流程图），package.json keywords 扩充。
+
+
+## 同类项目融合行动（2026-08-17 起，五组深拆 → 25+ 能力融入）
+
+| 组 | 融入的能力（通用措辞） |
+|---|---|
+| agent 框架组 | 媒体资产库、风格常量锁（style.json 注入）、失败分流（4xx/5xx 分类）、意图驱动剪辑（directorx_edit）、工业分镜 schema、运镜安全词表+反单调、剧本单一事实源（group=beat/node=shot）、提案阶段门控+版本血统+提交即检查点+预检 |
+| 分镜短剧工作台组 | 组装式角色（身份/服装/道具分层）、相邻镜头承接变量硬规则、分镜表铁律语义 |
+| 剪辑 MCP/编辑器组 | 滤镜链+bounds、crop/rotate/flip、音频抽取、fadeIn/fadeOut、黑场/音量 QC、接触表、错误码契约（DirectiveError）、黄金向量 fixtures、MCP 只读标注、中央限制清单、原子输出、音频时长策略、freezeStart、逐对转场库（55 白名单） |
+| 画布工作台组 | 连线类型矩阵+reason 自纠、确定性排片（shotIndex 存储身份）、紧凑上下文快照、画布红线六条入技能 |
+| 管线编排组 | 阶段门控审批队列、失败分类重试语义、批准资产基线（characters 扩展）、单资产隔离约定 |
+
+**纪律**：commit 信息与代码注释零上游名；全部为「语义映射+参数扩展+流程约定」层实现，无新服务、无本地部署。
