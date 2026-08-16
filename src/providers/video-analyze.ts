@@ -123,3 +123,64 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     ...(visionAvailable ? {} : { note: 'vision 未配置：分镜描述为 null（帧路径可用），配置 DirectorX vision 后以 describe=true 重跑可获得逐镜描述。' }),
   }
 }
+
+export interface QaInput {
+  source: string
+  outputDir: string
+  /** Expected brief values; omitted checks are skipped. */
+  expect?: {
+    targetSeconds?: number
+    aspectRatio?: string
+    hasAudio?: boolean
+    minShots?: number
+    maxShots?: number
+  }
+}
+
+export interface QaOutput {
+  verdict: 'pass' | 'fix'
+  checks: Array<{ name: string; pass: boolean; detail: string }>
+}
+
+/**
+ * Deterministic final-cut QC gate (成片质检): duration vs target, aspect
+ * ratio, audio presence, shot-count sanity and loudness presence — built
+ * on videoAnalyze. Frame-level visual QA stays with extract_frames +
+ * view_image (frame-qa skill).
+ */
+export async function qaCheck(input: QaInput, settings: DirectorxSettings, vision: CapabilitySettings): Promise<QaOutput> {
+  const analysis = await videoAnalyze({ source: input.source, outputDir: input.outputDir, settings, vision, minShotSec: 0.3 })
+  const checks: QaOutput['checks'] = []
+  const videoStream = analysis.probe.streams.find(stream => stream.type === 'video')
+  const audioStream = analysis.probe.streams.some(stream => stream.type === 'audio')
+  const duration = analysis.probe.durationSec
+
+  if (input.expect?.targetSeconds !== undefined) {
+    const target = input.expect.targetSeconds
+    const ok = Math.abs(duration - target) <= Math.max(1, target * 0.25)
+    checks.push({ name: '时长', pass: ok, detail: `实测 ${duration}s / 目标 ${target}s` })
+  }
+  if (input.expect?.aspectRatio !== undefined) {
+    const width = videoStream?.width as number | undefined
+    const height = videoStream?.height as number | undefined
+    const [tw, th] = String(input.expect.aspectRatio).split(':').map(Number)
+    const ok = width !== undefined && height !== undefined && Math.abs(width / height - tw / th) < 0.08
+    checks.push({ name: '画幅', pass: ok, detail: `${width}x${height} / 期望 ${input.expect.aspectRatio}` })
+  }
+  if (input.expect?.hasAudio !== undefined) {
+    checks.push({ name: '音轨', pass: audioStream === input.expect.hasAudio, detail: audioStream ? '含音轨' : '无音轨' })
+  }
+  if (input.expect?.minShots !== undefined || input.expect?.maxShots !== undefined) {
+    const count = analysis.shots.length
+    const minOk = input.expect.minShots === undefined || count >= input.expect.minShots
+    const maxOk = input.expect.maxShots === undefined || count <= input.expect.maxShots
+    checks.push({ name: '镜头数', pass: minOk && maxOk, detail: `${count} 镜 / 期望 [${input.expect.minShots ?? '-'}, ${input.expect.maxShots ?? '-'}]` })
+  }
+  if (analysis.audioLoudness !== undefined && analysis.audioLoudness.peakLu > -60) {
+    checks.push({ name: '响度', pass: true, detail: `均值 ${analysis.audioLoudness.meanLu} LU，峰值 ${analysis.audioLoudness.peakLu} LU` })
+  } else if (audioStream) {
+    checks.push({ name: '响度', pass: false, detail: '音频近乎静音（峰值 < -60 LU）' })
+  }
+
+  return { verdict: checks.every(check => check.pass) ? 'pass' : 'fix', checks }
+}

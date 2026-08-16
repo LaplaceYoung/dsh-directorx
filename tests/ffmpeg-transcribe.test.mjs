@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,23 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('qaCheck gates duration/aspect/audio against the brief', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-qa-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=3', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const settings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }
+    const pass = await qaCheck({ source: clip, outputDir: dir, expect: { targetSeconds: 3, aspectRatio: '16:9', hasAudio: true, minShots: 1 } }, settings, settings.vision)
+    assert.equal(pass.verdict, 'pass', JSON.stringify(pass.checks))
+    const fail = await qaCheck({ source: clip, outputDir: dir, expect: { targetSeconds: 10 } }, settings, settings.vision)
+    assert.equal(fail.verdict, 'fix')
+    assert.ok(fail.checks.some(check => check.name === '时长' && !check.pass))
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('smartCut matches script sentences to subtitle cues and assembles', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sc-'))

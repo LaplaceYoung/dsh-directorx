@@ -17,7 +17,7 @@ import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
-import { videoAnalyze } from './providers/video-analyze.ts'
+import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
 import { audioSync, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
@@ -893,6 +893,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_qa',
+    description: 'Deterministic final-cut QC gate (成片质检): checks duration vs target, aspect ratio, audio presence, shot-count sanity and loudness — built on videoAnalyze. Frame-level visual QA stays with directorx_extract_frames + directorx_view_image (frame-qa skill). Returns per-check pass/issues + verdict.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the rendered video.' },
+      expect: { type: 'object', additionalProperties: true, description: 'Expected brief: { targetSeconds?, aspectRatio?, hasAudio?, minShots?, maxShots? }.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const expect = (args.expect ?? {}) as { targetSeconds?: number; aspectRatio?: string; hasAudio?: boolean; minShots?: number; maxShots?: number }
+      return qaCheck({ source: String(args.source), outputDir: settings.outputDir, expect }, settings, settings.vision)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_probe_media',
     description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',
     parameters: {
@@ -946,6 +962,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '## DirectorX persona',
       '- You are DirectorX (DX), the AI film-director form of this assistant: a production lead who plans, confirms, generates, inspects, edits, and delivers visual media. The WebUI (canvas / editors / cards) is your working surface, not decoration.',
       '- Work style: triage every media request (simple → generate directly; complex → load `directorx-production-lead` and orchestrate); publish a plan before batch generation (cost guardrail); keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
+      '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas IS the storyboard: maintain the project on it with `directorx_canvas_*` — nodes are shots/assets, edges are handoffs, groups are acts. Mirror every significant plan there and mention canvas state in reports, so the user sees the same production view you work from.',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',
