@@ -117,6 +117,26 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
   }
 })
 
+test('freezeStart holds the first frame and per-pair transitions render', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-fz-'))
+  try {
+    const make = (name) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('gen failed')
+      return path
+    }
+    const a = make('a.mp4')
+    const b = make('b.mp4')
+    const frozen = await videoProcess({ source: a, outputDir: dir, freezeStart: 1 })
+    assert.ok(frozen.probe.durationSec > 2.8 && frozen.probe.durationSec < 3.2, `freezeStart holds 1s, got ${frozen.probe.durationSec}`)
+    const joined = await videoConcat({ files: [a, b], outputDir: dir, transition: ['wipeleft'], fadeSec: 0.5 })
+    assert.ok(existsSync(joined.path), 'wipeleft join exists')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('contact sheet tiles midpoint frames into one preview image', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sheet-'))
   try {

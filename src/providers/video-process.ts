@@ -50,6 +50,8 @@ export interface VideoProcessInput {
   reverse?: boolean
   /** Hold the LAST frame for N extra seconds (freeze-frame ending). */
   freezeEnd?: number
+  /** Hold the FIRST frame for N extra seconds (freeze-frame opening). */
+  freezeStart?: number
   /** 裁剪 'w:h:x:y'（crop 滤镜，逐字段 clamp 到源尺寸内）。 */
   crop?: string
   /** 旋转 90/180/270 度（transpose 链）。 */
@@ -65,7 +67,8 @@ export interface VideoProcessInput {
 export interface VideoConcatInput {
   files: string[]
   outputDir: string
-  transition?: 'fade' | 'cut'
+  /** 'cut' | 'fade'，或逐对接缝的转场名数组（xfade 白名单）。 */
+  transition?: 'fade' | 'cut' | string[]
   fadeSec?: number
   scale?: string
 }
@@ -154,6 +157,10 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
     videoFilters.push(`tpad=stop_mode=clone:stop_duration=${input.freezeEnd}`)
     audioFilters.push(`apad=pad_dur=${input.freezeEnd}`)
   }
+  if (input.freezeStart !== undefined && input.freezeStart > 0) {
+    videoFilters.push(`tpad=start_mode=clone:start_duration=${input.freezeStart}`)
+    audioFilters.push(`apad=pad_dur=${input.freezeStart}`)
+  }
   if (input.mute === true) {
     audioFilters.length = 0
   } else if (input.volume !== undefined) {
@@ -180,6 +187,8 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   const fadeSec = input.fadeSec ?? 0.5
   const scale = input.scale ?? '1280:720'
 
+  const XFADE_WHITELIST = new Set(['fade', 'dissolve', 'fadeblack', 'fadewhite', 'wipeleft', 'wiperight', 'wipeup', 'wipedown', 'slideleft', 'slideright', 'slideup', 'slidedown', 'circlecrop', 'rectcrop', 'distance', 'radial', 'smoothleft', 'smoothright', 'smoothup', 'smoothdown', 'circleopen', 'circleclose', 'vertopen', 'vertclose', 'horzopen', 'horzclose', 'pixelize', 'diagtl', 'diagtr', 'diagbl', 'diagbr', 'hlslice', 'hrslice', 'vuslice', 'vdslice', 'hblur', 'fadegrays', 'wipetl', 'wipetr', 'wipebl', 'wipebr', 'squeezeh', 'squeezev', 'zoomin', 'hlwind', 'hrwind', 'vuwind', 'vdwind', 'coverleft', 'coverright', 'coverup', 'coverdown', 'revealleft', 'revealright', 'revealup', 'revealdown'])
+  const perPairTransitions = Array.isArray(input.transition) ? input.transition : undefined
   if (input.transition === 'cut' || fadeSec <= 0) {
     // Plain concat: normalize each clip to a common size/fps first. Clips
     // without audio get a silent track so the audio chain stays aligned.
@@ -227,7 +236,10 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   let offset = (probes[0]?.durationSec ?? 3) - fadeSec
   for (let index = 1; index < input.files.length; index += 1) {
     const nextV = `[vx${index}]`
-    filters.push(`${video}[v${index}]xfade=transition=fade:duration=${fadeSec}:offset=${offset.toFixed(3)}${nextV}`)
+    const transitionName = perPairTransitions?.[index - 1] !== undefined && XFADE_WHITELIST.has(perPairTransitions[index - 1])
+      ? perPairTransitions[index - 1]
+      : 'fade'
+    filters.push(`${video}[v${index}]xfade=transition=${transitionName}:duration=${fadeSec}:offset=${offset.toFixed(3)}${nextV}`)
     if (anyAudio) {
       const nextA = `[ax${index}]`
       filters.push(`${audio}[a${index}]acrossfade=d=${fadeSec}${nextA}`)
