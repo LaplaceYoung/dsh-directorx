@@ -6,6 +6,7 @@
 
 ### Added
 
+- **生成条角色锚点**：画布指令带上已注册角色名；`formatDshCanvasPrompt` 要求 DSH 生成时传 `characters`，UI 不再自己写节点。
 - **隔离开发回路**：`scripts/parallel-dev-loop.mjs` 以独立 cwd/`git -C` 推进本仓库；测试红则本树不提交，不碰 sibling agent 树。
 - **画布命令面板换成 cmdk**：两套手写 ⌘K 列表合并为 `CanvasCommandPalette`（pacocoursey/cmdk），分组过滤、方向键与 aria 由库负责。
 - **画布上下文抽屉**：列出 `GET /directorx/canvas/intent` 待领取/处理中指令（再交给 DSH / 取消），并接入角色库 `GET/POST /directorx/characters`（只写 `characters.json`，不改画布）。指令 POST 现在也可 `{id,status}` 取消。

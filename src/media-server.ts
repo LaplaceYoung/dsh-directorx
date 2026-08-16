@@ -627,6 +627,7 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
           prompt,
           ...(typeof body.sourceId === 'string' && body.sourceId !== '' ? { sourceId: body.sourceId } : {}),
           ...(Array.isArray(body.selectedIds) ? { selectedIds: body.selectedIds as string[] } : {}),
+          ...(Array.isArray(body.characters) ? { characters: body.characters as string[] } : {}),
         })
         sendJsonLocal(response, 200, { ok: true, intent, prompt: formatDshCanvasPrompt(intent) })
       } catch (cause) {

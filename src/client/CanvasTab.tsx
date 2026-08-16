@@ -605,7 +605,8 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
   const [stripOpen, setStripOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [agentOpen, setAgentOpen] = useState(false)
-  const [generateSheet, setGenerateSheet] = useState<{ sourceId?: string; kind: 'image' | 'video'; prompt: string } | undefined>(undefined)
+  const [generateSheet, setGenerateSheet] = useState<{ sourceId?: string; kind: 'image' | 'video'; prompt: string; characters: string[] } | undefined>(undefined)
+  const [characterNames, setCharacterNames] = useState<string[]>([])
   const [generateBusy, setGenerateBusy] = useState(false)
   const [shotListOpen, setShotListOpen] = useState(false)
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
@@ -746,7 +747,14 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
       ...(source !== undefined ? { sourceId: source.id } : {}),
       kind,
       prompt: (typeof data?.prompt === 'string' && data.prompt !== '' ? data.prompt : data?.label ?? '').toString(),
+      characters: [],
     })
+    void fetch('/directorx/characters')
+      .then(response => response.ok ? response.json() : { characters: [] })
+      .then((data: { characters?: Array<{ name?: string }> }) => {
+        setCharacterNames((data.characters ?? []).map(card => card.name).filter((name): name is string => typeof name === 'string' && name !== ''))
+      })
+      .catch(() => setCharacterNames([]))
   }, [])
 
   const nodeCallbacks = useMemo<NodeCallbacks>(() => ({
@@ -1358,6 +1366,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
           prompt: generateSheet.prompt,
           ...(source !== undefined ? { sourceId: source.id } : {}),
           selectedIds: nodesRef.current.filter(node => node.selected === true).map(node => node.id),
+          characters: generateSheet.characters,
         }),
       })
       if (!response.ok) {
@@ -2367,6 +2376,31 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
               </button>
             ))}
           </div>
+          {characterNames.length > 0 ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {characterNames.map(name => {
+                const on = generateSheet.characters.includes(name)
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => setGenerateSheet(current => current === undefined ? current : {
+                      ...current,
+                      characters: on ? current.characters.filter(item => item !== name) : [...current.characters, name],
+                    })}
+                    style={{
+                      padding: '3px 9px', borderRadius: 999, fontSize: 11, cursor: 'pointer',
+                      border: on ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.16)',
+                      background: on ? 'rgba(255,255,255,.12)' : 'transparent',
+                      color: '#e8e8e8',
+                    }}
+                  >
+                    {name}
+                  </button>
+                )
+              })}
+            </div>
+          ) : null}
           <textarea
             autoFocus
             value={generateSheet.prompt}

@@ -156,11 +156,7 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
   }
 
   if (peerBefore) {
-    const peerAfter = snapshotTree(peer)
-    record.peerUntouched = snapshotsEqual(peerBefore, peerAfter)
-    if (!record.peerUntouched) {
-      record.skip = record.skip ?? 'peer_mutated'
-    }
+    record.peerUntouched = snapshotsEqual(peerBefore, snapshotTree(peer))
   }
 
   record.endHead = snapshotTree(tree).head

@@ -736,8 +736,9 @@ test('canvas intents are DSH-owned: enqueue does not write canvas nodes', async 
     const store = new CanvasIntentStore(dir)
     await canvas.addNode({ kind: 'image', label: '定妆', path: '/tmp/a.png', x: 10, y: 10 })
     await assert.rejects(() => store.enqueue({ kind: 'image', prompt: '  ' }), /prompt 不能为空/)
-    const intent = await store.enqueue({ kind: 'video', prompt: '雨巷跟镜头', sourceId: 'src-1', selectedIds: ['src-1'] })
+    const intent = await store.enqueue({ kind: 'video', prompt: '雨巷跟镜头', sourceId: 'src-1', selectedIds: ['src-1'], characters: ['阿宁'] })
     assert.equal(intent.status, 'pending')
+    assert.deepEqual(intent.characters, ['阿宁'])
     const after = await canvas.read()
     assert.equal(after.nodes.length, 1, 'intent enqueue must not add canvas nodes')
     const text = formatDshCanvasPrompt(intent, { sourceLabel: '定妆' })
@@ -745,6 +746,11 @@ test('canvas intents are DSH-owned: enqueue does not write canvas nodes', async 
     assert.match(text, /directorx_canvas_continue/)
     assert.match(text, /src-1/)
     assert.match(text, /不要让画布 UI 自己写 generating 节点/)
+    assert.match(text, /角色锚点: 阿宁/)
+    assert.match(text, /characters 参数/)
+    const bare = await store.enqueue({ kind: 'image', prompt: '空镜' })
+    assert.deepEqual(bare.characters, [])
+    assert.doesNotMatch(formatDshCanvasPrompt(bare), /角色锚点/)
     const taken = await store.ack(intent.id, 'taken')
     assert.equal(taken.status, 'taken')
     const done = await store.ack(intent.id, 'done')
@@ -783,13 +789,15 @@ test('POST /directorx/canvas/intent queues a directive without mutating the boar
     const created = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'image', prompt: '霓虹巷', sourceId: 'n1' }),
+      body: JSON.stringify({ kind: 'image', prompt: '霓虹巷', sourceId: 'n1', characters: ['阿宁'] }),
     })
     assert.equal(created.status, 200)
     const body = await created.json()
     assert.equal(body.ok, true)
     assert.equal(body.intent.prompt, '霓虹巷')
+    assert.deepEqual(body.intent.characters, ['阿宁'])
     assert.match(body.prompt, /掌管画布/)
+    assert.match(body.prompt, /阿宁/)
     const board = await canvas.read()
     assert.equal(board.nodes.length, 1)
     assert.equal(board.nodes[0].kind, 'text')

@@ -15,6 +15,7 @@ export interface CanvasIntent {
   prompt: string
   sourceId?: string
   selectedIds: string[]
+  characters: string[]
   status: 'pending' | 'taken' | 'done' | 'cancelled'
   at: number
 }
@@ -36,6 +37,9 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
     `- 提示词: ${intent.prompt}`,
     `- 源节点: ${source}`,
     intent.selectedIds.length > 0 ? `- 当前选中: ${intent.selectedIds.join(', ')}` : '',
+    intent.characters.length > 0
+      ? `- 角色锚点: ${intent.characters.join(', ')}。生成工具必须传 characters 参数（directorx_character_list 已注册）。`
+      : '',
     '做完后调用 directorx_canvas_intent_ack。',
   ].filter(Boolean).join('\n')
 }
@@ -50,7 +54,15 @@ export class CanvasIntentStore {
   async read(): Promise<IntentLedger> {
     try {
       const parsed = JSON.parse(await readFile(this.filePath(), 'utf8')) as Partial<IntentLedger>
-      return { intents: Array.isArray(parsed.intents) ? parsed.intents : [] }
+      return {
+        intents: Array.isArray(parsed.intents)
+          ? parsed.intents.map(item => ({
+              ...item,
+              characters: Array.isArray(item.characters) ? item.characters : [],
+              selectedIds: Array.isArray(item.selectedIds) ? item.selectedIds : [],
+            }))
+          : [],
+      }
     } catch {
       return { intents: [] }
     }
@@ -62,7 +74,7 @@ export class CanvasIntentStore {
     return ledger
   }
 
-  async enqueue(input: { kind: CanvasIntentKind; prompt: string; sourceId?: string; selectedIds?: string[] }): Promise<CanvasIntent> {
+  async enqueue(input: { kind: CanvasIntentKind; prompt: string; sourceId?: string; selectedIds?: string[]; characters?: string[] }): Promise<CanvasIntent> {
     const prompt = input.prompt.trim()
     if (prompt === '') throw new Error('prompt 不能为空')
     if (input.kind !== 'image' && input.kind !== 'video') throw new Error('kind 必须是 image/video')
@@ -73,6 +85,7 @@ export class CanvasIntentStore {
       prompt: prompt.slice(0, 2000),
       ...(typeof input.sourceId === 'string' && input.sourceId !== '' ? { sourceId: input.sourceId.slice(0, 100) } : {}),
       selectedIds: (input.selectedIds ?? []).filter((id): id is string => typeof id === 'string' && id !== '').slice(0, 20),
+      characters: (input.characters ?? []).filter((name): name is string => typeof name === 'string' && name.trim() !== '').map(name => name.trim().slice(0, 80)).slice(0, 8),
       status: 'pending',
       at: Date.now(),
     }
