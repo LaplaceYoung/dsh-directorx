@@ -6,6 +6,19 @@
 
 ### Added
 
+- **联网+开源社区调研驱动的 agentic 能力补齐**（调研沉淀见 docs/community-radar.md）：
+  - `directorx/mcp`：JSON-RPC 2.0 MCP 端点（13 工具）——外部 AI 助手（Claude/
+    ChatGPT/Cursor）可驱动 DirectorX 制片工作室（对标 Runway MCP）；
+  - `directorx_video_understand`：视频理解（抽帧+vision 描述，不可用时确定性降级）；
+  - `directorx_character_register/list` + 生成工具 `characters` 参数：角色/主体
+    一致性锚点（对标 Gen-4 世界一致性、可灵 3.0 主体参考）；
+  - `directorx_timeline`：OTIO 灵感 timeline.json 渲染中枢（裁剪→拼接→混音→字幕，
+    改计划=重渲染）；
+  - `directorx_audio_sync`：音画同出（旁白边界检测+自动混音+字幕+时间锚点）；
+  - `directorx_canvas_branch` + 画布「对比」视图：多版本对比选优（Sora 2 remix）；
+  - `directorx_subtitle_cut`：按字幕打点切镜头（FunClip 对标，关键词定位）；
+  - 自主推导工作流三次实测（口播 dryRun/拉片/理解联动），画布全程镜像。
+
 - **AI 视频制作全链路**（确定性 ffmpeg 工具链，插件自包含）：
   - `directorx_video_process`（裁剪/变速 0.5-8x/缩放/音量/静音/fps）、
     `directorx_video_concat`（硬切或 xfade 交叉淡化拼接）、
