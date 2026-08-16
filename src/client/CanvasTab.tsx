@@ -87,14 +87,15 @@ function RenameLabel({ value, id, onRename, style }: { value: string; id: string
 /** Hover action bar: ghost buttons overlaid on a node (tapnow-style card actions). */
 function NodeActions({ actions }: { actions: Array<{ label: string; hint: string; run: () => void }> }): ReactNode {
   return (
-    <div style={{ position: 'absolute', top: 6, left: 6, display: 'flex', gap: 4, zIndex: 3 }}>
+    <div style={{ position: 'absolute', top: -38, left: 0, display: 'flex', gap: 4, zIndex: 4 }}>
       {actions.map(action => (
         <button
           key={action.label}
           title={action.hint}
           style={{
-            padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)',
-            background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer',
+            padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.22)',
+            background: 'rgba(18,18,18,.92)', backdropFilter: 'blur(8px)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer',
+            boxShadow: '0 6px 16px rgba(0,0,0,.45)',
           }}
           onClick={event => { event.stopPropagation(); action.run() }}
         >
@@ -141,9 +142,9 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       onMouseLeave={() => setHovered(false)}
     >
       <NodeResizer isVisible={selected} minWidth={120} minHeight={80} color="rgba(245,245,245,.85)" />
-      {hovered ? (
+      {hovered || selected ? (
         <NodeActions actions={[
-          { label: '编辑', hint: '打开右侧编辑器', run: () => openEditor(data.kind, data.path) },
+          { label: '编辑', hint: '打开右侧编辑器（图片：抠图/翻转；视频：时间线剪辑）', run: () => openEditor(data.kind, data.path) },
           { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
@@ -1611,6 +1612,22 @@ function CanvasTabInner(): ReactNode {
     saveRef.current()
   }, [comparePick, setNodes, pushHistory])
 
+  const batchBranch = useCallback(() => {
+    const selectedIds = nodesRef.current.filter(node => node.selected === true).map(node => node.id)
+    if (selectedIds.length < 2) return
+    const selected = nodesRef.current.filter(node => selectedIds.includes(node.id))
+    const cx = selected.reduce((sum, node) => sum + node.position.x, 0) / selected.length
+    const cy = selected.reduce((sum, node) => sum + node.position.y, 0) / selected.length
+    const targetId = newLocalId('text')
+    setNodes(current => [...current, {
+      id: targetId, type: 'text',
+      position: { x: cx + 260, y: cy },
+      data: { label: '共同下游', ...nodeCallbacks },
+    }])
+    setEdges(current => [...current, ...selectedIds.map(source => ({ id: newLocalId('edge'), source, target: targetId, type: 'bezier' }))])
+    scheduleSave()
+  }, [setNodes, setEdges, scheduleSave, nodeCallbacks])
+
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
     deleteSelectedEdgeById(selectedEdge)
@@ -1855,6 +1872,7 @@ function CanvasTabInner(): ReactNode {
         <div style={{ position: 'absolute', bottom: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 14, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(20,20,20,.92)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
           {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
           {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
+          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchBranch}>创建共同下游</button> : null}
           {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
           {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         </div>
