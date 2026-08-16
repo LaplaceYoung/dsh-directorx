@@ -180,7 +180,7 @@ export async function audioSync(input: AudioSyncInput): Promise<AudioSyncOutput>
 
   // 2. Mix narration + optional BGM with ducking under the narration.
   const tracks: Array<{ path: string; volume?: number }> = [{ path: input.narration, volume: 1 }]
-  if (input.bgm !== undefined && input.bgm !== '') tracks.push({ path: input.bgm, volume: 0.3 })
+  if (input.bgm !== undefined && input.bgm !== '') tracks.push({ path: input.bgm, volume: 0.12 })
   let mixed = await audioMix({
     video: input.video,
     outputDir: input.outputDir,

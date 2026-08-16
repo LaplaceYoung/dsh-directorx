@@ -79,3 +79,22 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
     按脚本标注所需镜头语义 → 视觉语义检索候选片段评分排序 →
     组装时间轴导出（EDL/剪映草稿）。我们对应：transcribe →
     smart_cut 匹配 → subtitle_cut/timeline 组装 → 导出 timeline.json。
+
+## 音频方法论（2026-08 调研沉淀）
+
+19. **混音铁律**：对白为基准（0 dB 参照），BGM 垫底 -18~-22 dB，
+    ducking 压降 6~12 dB；交付响度按平台：短视频 -14 LUFS、广播
+    -23 LUFS、长片 -27 LUFS。工具落点：`directorx_audio_mix` /
+    `directorx_audio_sync`（BGM 默认 0.12 ≈ -18 dB 已对齐）。
+20. **SFX 三层**：Foley（动作声）+ 环境声（铺底）+ 设计音效（卡点重音）；
+    硬音效遮剪辑点、riser→impact 转场、高潮后 0.5s 静默留白。
+    工具落点：`directorx_audio_beat` 找卡点 → 音效对齐切点。
+21. **语速预算公式**：中文口播 4 字/秒（240 字/分钟）；成片时长 =
+    字数 ÷ 240（如 96 字 → 24s）；字幕 ≤17 CPS、单条最短 0.83s。
+    工具落点：`directorx_storyboard` 时长校验 + `directorx_transcribe_audio`。
+22. **字幕双标准**：单行 ≤16 字（中文短视频共识）+ 每秒 ≤17 字符
+    （Netflix TTSG）；中文字幕行高与安全区避让。工具落点：
+    `directorx_video_subtitle` + talking-video 模板硬性规范。
+23. **AI 音频三段式提示词**：情绪指令（OpenAI `instructions` 写情绪、
+    目标语速）+ 声音设计（音色/配器/混响）+ 结构标签
+    （Suno `[Verse]/[Chorus]`）。工具落点：`directorx_generate_audio`。
