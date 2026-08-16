@@ -587,6 +587,9 @@ function CanvasTabInner(): ReactNode {
   const [snapOn, setSnapOn] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
   const [toast, setToast] = useState<string | undefined>(undefined)
+  const [cmdOpen, setCmdOpen] = useState(false)
+  const [cmdQuery, setCmdQuery] = useState('')
+  const [cmdIndex, setCmdIndex] = useState(0)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -859,6 +862,13 @@ function CanvasTabInner(): ReactNode {
       const target = event.target as HTMLElement | null
       const typing = target !== null && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       if (typing) return
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setCmdOpen(open => !open)
+        setCmdQuery('')
+        setCmdIndex(0)
+        return
+      }
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         const selected = nodesRef.current.filter(node => node.selected === true)
         if (selected.length === 0) return
@@ -928,6 +938,13 @@ function CanvasTabInner(): ReactNode {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
         if (selected.length > 0) void fitView({ nodes: selected, padding: 0.3, duration: 300 })
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setCmdOpen(open => !open)
+        setCmdQuery('')
+        setCmdIndex(0)
         return
       }
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
@@ -1808,6 +1825,21 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setNodes, scheduleSave])
 
+  const cmdCommands = useMemo(() => [
+    { label: '新建文字节点', hint: '创建', run: addTextNode },
+    { label: '新建镜头组', hint: '创建', run: addGroup },
+    { label: '媒体库', hint: '创建', run: () => { void openPicker() } },
+    { label: '上传文件', hint: '创建', run: importMedia },
+    { label: '适配全部内容', hint: '视图', run: () => { void fitView() } },
+    { label: '重置缩放 100%', hint: '视图', run: () => setViewport({ zoom: 1, x: 0, y: 0 }) },
+    { label: '语义泳道布局', hint: '视图', run: arrangeSemantic },
+    { label: '网格整理', hint: '视图', run: arrangeGrid },
+    { label: '粗剪条开关', hint: '镜头', run: () => setStripOpen(open => !open) },
+    { label: '镜头列表', hint: '镜头', run: () => setShotListOpen(open => !open) },
+    { label: '上下文面板', hint: '面板', run: () => setAgentOpen(open => !open) },
+    { label: '操作帮助', hint: '面板', run: () => setHelpOpen(open => !open) },
+  ], [addTextNode, addGroup, openPicker, importMedia, fitView, setViewport, arrangeSemantic, arrangeGrid])
+
   const runCommand = useCallback((id: string) => {
     setPaletteOpen(false)
     setPaletteQuery('')
@@ -2038,6 +2070,45 @@ function CanvasTabInner(): ReactNode {
             左键框选 · 中键/右键平移 · ⌘滚轮缩放 · 双击空白建节点 · 右键更多操作
           </div>
         </div>
+      ) : null}
+      {cmdOpen ? (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 30, background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(2px)' }} onClick={() => setCmdOpen(false)} />
+          <div className="dx-pop" style={{ position: 'fixed', left: '50%', top: '16%', transform: 'translateX(-50%)', zIndex: 31, width: 380, maxWidth: 'calc(100% - 24px)', borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.6)', overflow: 'hidden' }}>
+            <input
+              autoFocus
+              value={cmdQuery}
+              placeholder="输入命令…（如：泳道 / 粗剪 / 适配）"
+              onChange={event => { setCmdQuery(event.target.value); setCmdIndex(0) }}
+              onKeyDown={event => {
+                const list = cmdCommands.filter(command => command.label.includes(cmdQuery))
+                if (event.key === 'ArrowDown') { event.preventDefault(); setCmdIndex(index => Math.min(list.length - 1, index + 1)) }
+                if (event.key === 'ArrowUp') { event.preventDefault(); setCmdIndex(index => Math.max(0, index - 1)) }
+                if (event.key === 'Enter') { event.preventDefault(); const hit = list[cmdIndex]; if (hit !== undefined) { setCmdOpen(false); setCmdQuery(''); hit.run() } }
+                if (event.key === 'Escape') setCmdOpen(false)
+              }}
+              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', border: 'none', borderBottom: '1px solid rgba(255,255,255,.1)', background: 'transparent', color: '#f0f0f0', fontSize: 13.5, outline: 'none' }}
+            />
+            <div style={{ maxHeight: 300, overflowY: 'auto', padding: 6 }}>
+              {(() => {
+                const list = cmdCommands.filter(command => command.label.includes(cmdQuery))
+                return list.length === 0
+                  ? <div style={{ padding: '10px 12px', fontSize: 12, color: '#9b9b9b' }}>没有匹配的命令。</div>
+                  : list.map((command, index) => (
+                    <button
+                      key={command.label}
+                      onMouseEnter={() => setCmdIndex(index)}
+                      onClick={() => { setCmdOpen(false); setCmdQuery(''); command.run() }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: index === cmdIndex ? 'rgba(255,255,255,.1)' : 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }}
+                    >
+                      <span>{command.label}</span>
+                      <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>{command.hint}</span>
+                    </button>
+                  ))
+              })()}
+            </div>
+          </div>
+        </>
       ) : null}
       <div style={topBar}>
         <input
