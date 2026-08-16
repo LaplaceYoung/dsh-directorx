@@ -921,6 +921,11 @@ function CanvasTabInner(): ReactNode {
       const target = event.target as HTMLElement | null
       const typing = target !== null && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       if (typing) return
+      if (event.key === '?' && !typing) {
+        event.preventDefault()
+        setHelpOpen(open => !open)
+        return
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
         setCmdOpen(open => !open)
@@ -999,6 +1004,11 @@ function CanvasTabInner(): ReactNode {
         if (selected.length > 0) void fitView({ nodes: selected, padding: 0.3, duration: 300 })
         return
       }
+      if (event.key === '?' && !typing) {
+        event.preventDefault()
+        setHelpOpen(open => !open)
+        return
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
         setCmdOpen(open => !open)
@@ -1023,6 +1033,11 @@ function CanvasTabInner(): ReactNode {
           ? { ...node, position: { x: node.position.x + dx, y: node.position.y + dy } }
           : node))
         saveRef.current()
+        return
+      }
+      if (event.key === '?' && !typing) {
+        event.preventDefault()
+        setHelpOpen(open => !open)
         return
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {

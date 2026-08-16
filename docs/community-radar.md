@@ -278,3 +278,15 @@
 | 成本显式换算 | 面板批量成本行 + 每条成本突出显示 |
 | 拒绝回写原因重生成 | 拒绝时可选原因回存提案（rejectReason），DSH 据此重做 |
 | 待办 | 撤销此批（提案 done 前存画布快照，一键回滚） |
+
+
+## LUT 调色调研收尾采纳（2026-08-18）
+
+| 项 | 结论/落地 |
+|---|---|
+| lut3d 接入 | 已接入（file + interp 五模式，tetrahedral 默认）；格式支持 .cube/.dat/.3dl/.m3d/.csp |
+| 强度控制 | blend=all_opacity 路线（需 filter_complex 双流）——待办；当前 grade 预设 + 全强度 LUT |
+| 调色链顺序 schema | setparams→10bit→colortemperature→colorbalance→eq→curves→lut3d→vignette/noise→dither（agent 只暴露语义参数，滤镜串代码确定性映射） |
+| LUT 来源 | 首选自产：haldclutsrc 生成 clut.png（零版权）；可再分发仅 CC BY-SA 4.0 集合；明确禁捆绑清单（含应用内分发禁止项） |
+| Banding 基线 | 10-bit 中间处理 + sws_dither；当前 yuv420p 8-bit 链路记录为已知限制 |
+| 未验证 | PQ→SDR 链（本机构建无 zscale）；三配方参数待出帧微调 |
