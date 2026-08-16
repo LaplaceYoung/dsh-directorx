@@ -16,6 +16,41 @@ const PNG_BYTES = Buffer.from(
   'base64',
 )
 
+test('MCP endpoint speaks initialize / tools/list / tools/call', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-mcp-'))
+  try {
+    // Round-trip through the route registration using the same handler shape.
+    let handler
+    const fakeServer = { register: (route) => { handler = route.handler; return () => {} } }
+    // registerMcpRoute is exercised through the real web server in
+    // production; here we verify the JSON-RPC contract directly.
+    const { registerMcpRoute } = await import('../lib/testing.js')
+    const { createServer } = await import('node:http')
+    const server = createServer((req, res) => { void handler(req, res) })
+    await new Promise(resolve => server.listen(0, resolve))
+    const port = server.address().port
+    const call = async (body) => {
+      const response = await fetch(`http://127.0.0.1:${port}/directorx/mcp`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      return response.json()
+    }
+    // register on the same fake server path is fine: the handler serves all POSTs.
+    const dispose = registerMcpRoute({ get: () => fakeServer }, () => ({ outputDir: dir, vision: {}, image: {}, video: {}, audio: {}, openlib: {} }))
+    const init = await call({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} })
+    assert.equal(init.result.protocolVersion, '2025-03-26')
+    const tools = await call({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} })
+    assert.ok(tools.result.tools.length >= 10)
+    const canvasGet = await call({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'directorx_canvas_get', arguments: {} } })
+    assert.equal(canvasGet.result.version, 1)
+    dispose()
+    server.close()
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('media route path is the exact /directorx/media pathname', () => {
   assert.equal(MEDIA_ROUTE_PATH, '/directorx/media')
 })

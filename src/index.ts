@@ -10,6 +10,7 @@ import { corpus } from './corpus.ts'
 import { registerCanvasResetRoute, registerCanvasRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerVendorRoute } from './media-server.ts'
 import { registerBundledSkills } from './skills.ts'
 import { registerSettingsTestRoute } from './settings-test.ts'
+import { registerMcpRoute } from './mcp.ts'
 import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
 
@@ -77,6 +78,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerCanvasResetRoute(ctx, () => scope.get().outputDir), 'directorx canvas reset route')
   ctx.effect(() => registerVendorRoute(ctx), 'directorx vendor assets route')
   ctx.effect(() => registerSettingsTestRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx settings test route')
+  ctx.effect(() => registerMcpRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx mcp route')
   ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
 
   void registerBundledSkills(ctx).catch(error => {
