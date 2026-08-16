@@ -264,7 +264,8 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
 const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: GroupNodeComponent }
 
 const toolbar: CSSProperties = {
-  position: 'absolute', top: 10, left: 12, zIndex: 5, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap',
+  position: 'absolute', top: 10, left: 12, zIndex: 10, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap',
+  maxWidth: 'calc(100% - 24px)',
   border: '1px solid rgba(255,255,255,.12)', borderRadius: 14, background: 'rgba(24,24,28,.88)', backdropFilter: 'blur(14px)',
   padding: '6px 8px', boxShadow: '0 8px 24px rgba(0,0,0,.5)',
 }
@@ -287,7 +288,7 @@ const iconBtn: CSSProperties = {
   color: '#e8e8e8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
 }
 const pillBtn: CSSProperties = {
-  width: 40, height: 40, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
+  width: 34, height: 34, borderRadius: 9999, border: 'none', background: '#f5f5f5', color: '#171717',
   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
 }
 const picker: CSSProperties = {
@@ -482,6 +483,7 @@ function CanvasTabInner(): ReactNode {
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string; label: string } | undefined>(undefined)
   const [alignMenu, setAlignMenu] = useState<{ x: number; y: number } | undefined>(undefined)
   const [compareGroup, setCompareGroup] = useState<CanvasFlowNode | undefined>(undefined)
+  const [flowWidth, setFlowWidth] = useState(1200)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -1669,6 +1671,17 @@ function CanvasTabInner(): ReactNode {
 
   // DEBUG probe: expose edge/nodes counts for browser verification.
   useEffect(() => {
+    // 窄容器（画布列过窄）时隐藏小地图与控件，避免挤压主区域。
+    const measure = () => {
+      if (flowRootRef.current !== null) setFlowWidth(flowRootRef.current.clientWidth)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    if (flowRootRef.current !== null) observer.observe(flowRootRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const probe = document.getElementById('directorx-canvas-debug')
     if (probe !== null) {
       probe.dataset.edges = String(edges.length)
@@ -1741,20 +1754,22 @@ function CanvasTabInner(): ReactNode {
             {guides.horizontal.map(y => <line key={`h${y}`} x1={-5000} y1={y} x2={5000} y2={y} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
           </svg>
         ) : null}
-        <Controls position="bottom-left" showInteractive={false} />
-        <MiniMap
-          pannable zoomable
-          style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }}
-          maskColor="rgba(0,0,0,.75)"
-          nodeColor={node => node.type === 'group' ? '#454545' : node.type === 'media' ? '#6f6f6f' : '#5a5a5a'}
-          nodeStrokeColor={node => node.type === 'group' ? '#5c5c5c' : '#777777'}
-        />
+        {flowWidth >= 340 ? <Controls position="bottom-left" showInteractive={false} /> : null}
+        {flowWidth >= 340 ? (
+          <MiniMap
+            pannable zoomable
+            style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }}
+            maskColor="rgba(0,0,0,.75)"
+            nodeColor={node => node.type === 'group' ? '#454545' : node.type === 'media' ? '#6f6f6f' : '#5a5a5a'}
+            nodeStrokeColor={node => node.type === 'group' ? '#5c5c5c' : '#777777'}
+          />
+        ) : null}
       </ReactFlow>
       <input
         value={title}
         placeholder="请输入标题"
         className="dx-title-input"
-        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 5, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'center', padding: '7px 14px', width: 260, outline: 'none' }}
+        style={{ position: 'absolute', top: 56, left: '50%', transform: 'translateX(-50%)', zIndex: 10, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'center', padding: '7px 14px', maxWidth: 'min(260px, calc(100% - 24px))', width: 260, outline: 'none' }}
         onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
         onBlur={() => void saveNow()}
         title="画布标题（tapnow 式）"
@@ -1770,18 +1785,25 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={() => void load()} title="重载">{ICONS.reload}</button>
-        {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
-        {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
-        {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
-        {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
-        <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘+/- 缩放 · ⌘0 适配 · ⌘2 适配选中 · ⌘D 复制 · Esc 清除'}</span>
+      </div>
+      {selectedCount >= 2 || selectedEdge !== undefined ? (
+        <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 6, alignItems: 'center', padding: '6px 8px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(24,24,28,.9)', backdropFilter: 'blur(12px)', boxShadow: '0 8px 22px rgba(0,0,0,.5)' }}>
+          {selectedCount >= 2 ? <button style={toolBtn} onClick={event => setAlignMenu({ x: event.clientX, y: event.clientY })}>对齐…</button> : null}
+          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchGroup}>归入新分组</button> : null}
+          {selectedCount >= 2 ? <button style={toolBtn} onClick={batchDelete}>批量删除</button> : null}
+          {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
+        </div>
+      ) : null}
+      <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button
-          style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer' }}
+          style={{ padding: '4px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.9)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer', backdropFilter: 'blur(12px)' }}
           title="点击复位 100%"
           onClick={() => setViewport({ zoom: 1, x: 0, y: 0 })}
         >
           {Math.round(zoom * 100)}%
         </button>
+      </div>
+      <div style={{ position: 'absolute', bottom: 14, left: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
         <span style={saveChip}>{saveState}</span>
         {agentEditFlash ? (
           <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,245,245,.14)', color: '#f5f5f5' }}>
@@ -1789,12 +1811,13 @@ function CanvasTabInner(): ReactNode {
           </span>
         ) : null}
         {conflict !== undefined ? (
-          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ display: 'flex', gap: 6, alignItems: 'center', pointerEvents: 'auto' }}>
             <button style={toolBtn} onClick={conflictKeepMine}>保留我的</button>
             <button style={toolBtn} onClick={conflictLoadFresh}>载入最新</button>
           </span>
         ) : null}
         {error !== undefined ? <span style={{ ...saveChip, color: '#e88f8f' }}>{error}</span> : null}
+        <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,.4)' }}>⌘K 命令 · ⌘+/- 缩放 · Esc 清除</span>
       </div>
       {connectMenu !== undefined ? (
         <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
