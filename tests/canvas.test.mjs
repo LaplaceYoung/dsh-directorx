@@ -122,6 +122,41 @@ test('canvas store write enforces optimistic concurrency', async () => {
   }
 })
 
+test('canvas search / batch / dissolve / title / hierarchy', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.batchAdd({
+      nodes: [
+        { id: 'g1', kind: 'group', label: '第一幕', x: 0, y: 0 },
+        { id: 's1', kind: 'text', label: '镜头A', x: 10, y: 10, parent: 'g1' },
+        { id: 's2', kind: 'text', label: '镜头B', x: 10, y: 60, parent: 'g1' },
+      ],
+      edges: [{ id: 'e1', from: 's1', to: 's2', label: '承接' }],
+    })
+    // search
+    const found = await store.search({ label: '镜头' })
+    assert.equal(found.length, 2)
+    const inGroup = await store.search({ parent: 'g1' })
+    assert.equal(inGroup.length, 2)
+    // title
+    const titled = await store.setTitle('测试标题')
+    assert.equal(titled.title, '测试标题')
+    // hierarchy layout
+    const laid = await store.hierarchyLayout()
+    const s1 = laid.nodes.find(node => node.id === 's1')
+    const s2 = laid.nodes.find(node => node.id === 's2')
+    assert.ok(s2.x > s1.x, 'target sits right of source (level axis)')
+    // dissolve group
+    const dissolved = await store.dissolveGroup('g1')
+    assert.equal(dissolved.nodes.some(node => node.id === 'g1'), false)
+    assert.equal(dissolved.nodes.find(node => node.id === 's1').parent, undefined)
+    assert.equal(dissolved.edges.length, 1, 'member edge survives dissolution')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas reset clears the doc and keeps a timestamped backup', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
   try {

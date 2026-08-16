@@ -346,6 +346,75 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_search',
+    description: 'Search canvas nodes by label substring / kind / group membership. Use it to locate nodes before update/connect (avoid dumping the whole document).',
+    parameters: {
+      label: { type: 'string', description: 'Label substring (case-insensitive).' },
+      kind: { type: 'string', enum: ['image', 'video', 'text', 'group'], description: 'Filter by kind.' },
+      parent: { type: 'string', description: 'Filter by parent group id.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.search({ label: args.label, kind: args.kind, parent: args.parent })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_batch',
+    description: 'Batch add nodes (and optional edges) to the canvas in one write. nodes: [{kind, label, path?, parent?, x, y, width?, height?}]; edges: [{from, to, label?}]. Much cheaper than repeated canvas_add + canvas_connect calls.',
+    parameters: {
+      nodes: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Nodes to add (same shape as canvas_add arguments).' },
+      edges: { type: 'array', items: { type: 'object', additionalProperties: true }, description: 'Optional edges between existing/new node ids.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.batchAdd({ nodes: args.nodes ?? [], edges: args.edges ?? [] })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_dissolve_group',
+    description: 'Dissolve a group node: its members become top-level (absolute coordinates) and the group plus its edges are removed. Members are NOT deleted.',
+    parameters: {
+      groupId: { type: 'string', required: true, description: 'Group node id from directorx_canvas_get.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.dissolveGroup(String(args.groupId))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_title',
+    description: 'Set the canvas title (shown in the WebUI header).',
+    parameters: {
+      title: { type: 'string', required: true, description: 'New canvas title (max 200 chars).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.setTitle(String(args.title))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_layout_hierarchy',
+    description: 'Lay the canvas out as a left-to-right tree along edge direction (BFS levels; sources at left). Good for script->shot dependency boards.',
+    parameters: {
+      gapX: { type: 'number', description: 'Horizontal gap between levels (default 260).' },
+      gapY: { type: 'number', description: 'Vertical gap between siblings (default 140).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.hierarchyLayout(args.gapX ?? 260, args.gapY ?? 140)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_clear',
     description: 'Clear the entire canvas (removes every node and edge). Irreversible; read with directorx_canvas_get first when unsure.',
     parameters: {},

@@ -228,6 +228,92 @@ export class DirectorxCanvasStore {
     })
   }
 
+
+  /** Search nodes by label substring / kind / group membership. */
+  async search(query: { label?: string; kind?: CanvasNodeKind; parent?: string }): Promise<CanvasNode[]> {
+    const doc = await this.read()
+    const label = (query.label ?? '').trim().toLowerCase()
+    return doc.nodes.filter(node => {
+      if (label !== '' && !node.label.toLowerCase().includes(label)) return false
+      if (query.kind !== undefined && node.kind !== query.kind) return false
+      if (query.parent !== undefined && node.parent !== query.parent) return false
+      return true
+    })
+  }
+
+  /** Batch add nodes (and optional edges) in one write. */
+  async batchAdd(input: { nodes: Array<Record<string, unknown>>; edges?: Array<Record<string, unknown>> }): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      for (const node of (input.nodes ?? [])) {
+        doc.nodes.push(sanitizeNode({ id: newId('text'), ...node }))
+      }
+      for (const edge of (input.edges ?? [])) {
+        doc.edges.push(sanitizeEdge({ id: newId('edge'), ...edge }))
+      }
+    })
+  }
+
+  /** Dissolve a group: children become top-level (absolute coords), group and its edges removed. */
+  async dissolveGroup(groupId: string): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const group = doc.nodes.find(node => node.id === groupId && node.kind === 'group')
+      if (group === undefined) throw new Error(`group "${groupId}" not found`)
+      for (const node of doc.nodes) {
+        if (node.parent === groupId) delete node.parent
+      }
+      doc.nodes = doc.nodes.filter(node => node.id !== groupId)
+      doc.edges = doc.edges.filter(edge => edge.from !== groupId && edge.to !== groupId)
+    })
+  }
+
+  /** Set the document title. */
+  async setTitle(title: string): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      doc.title = title.slice(0, 200)
+    })
+  }
+
+  /** Tree layout along edge direction: sources left, targets right, BFS levels. */
+  async hierarchyLayout(gapX = 260, gapY = 140): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const level = new Map<string, number>()
+      const indegree = new Map<string, number>()
+      const targets = new Map<string, string[]>()
+      for (const edge of doc.edges) {
+        indegree.set(edge.to, (indegree.get(edge.to) ?? 0) + 1)
+        const list = targets.get(edge.from) ?? []
+        list.push(edge.to)
+        targets.set(edge.from, list)
+      }
+      const roots = doc.nodes.filter(node => (indegree.get(node.id) ?? 0) === 0)
+      const queue = roots.map((node, index) => ({ id: node.id, level: 0, order: index }))
+      const visited = new Set<string>()
+      while (queue.length > 0) {
+        const current = queue.shift() as { id: string; level: number; order: number }
+        if (visited.has(current.id)) continue
+        visited.add(current.id)
+        level.set(current.id, current.level)
+        const children = targets.get(current.id) ?? []
+        children.forEach((child, index) => {
+          if (!visited.has(child)) queue.push({ id: child, level: current.level + 1, order: index })
+        })
+      }
+      // Nodes with no edge involvement keep their position; laid nodes get
+      // level/order placement (children of the same parent stack vertically).
+      const orderInLevel = new Map<number, number>()
+      for (const [id, nodeLevel] of level) {
+        const node = doc.nodes.find(candidate => candidate.id === id)
+        if (node === undefined) continue
+        const order = orderInLevel.get(nodeLevel) ?? 0
+        orderInLevel.set(nodeLevel, order + 1)
+        const width = node.width ?? 200
+        node.x = nodeLevel * gapX
+        node.y = order * gapY
+        void width
+      }
+    })
+  }
+
   /** 整理：auto-layout nodes into a tidy grid (or a single row) while keeping all connections. Group children stay inside their group. */
   async arrange(layout: 'grid' | 'row' = 'grid', gap = 40): Promise<CanvasDocument> {
     return this.mutate(doc => {
