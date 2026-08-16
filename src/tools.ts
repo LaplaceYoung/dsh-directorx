@@ -16,7 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
-import { renderTimeline } from './providers/timeline.ts'
+import { audioSync, renderTimeline } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -741,6 +741,29 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         audio: Array.isArray(timeline.audio) ? timeline.audio as never[] : undefined,
         scale: timeline.scale,
       }, settings.outputDir)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_audio_sync',
+    description: '音画同出: detect narration speech boundaries (silencedetect), mix narration + optional BGM onto the video with ducking, and mux subtitles — returning speech intervals as timing anchors so scene cuts align with the voice track. Deterministic and free. Output lands in the output dir.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the base video.' },
+      narration: { type: 'string', required: true, description: 'Narration audio path (e.g. from directorx_generate_audio).' },
+      bgm: { type: 'string', description: 'Optional BGM audio path (mixed at 0.3, ducked under narration).' },
+      srt: { type: 'string', description: 'Optional .srt subtitle path to mux.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return audioSync({
+        video: String(args.video),
+        narration: String(args.narration),
+        bgm: typeof args.bgm === 'string' ? args.bgm : undefined,
+        srt: typeof args.srt === 'string' ? args.srt : undefined,
+        outputDir: settings.outputDir,
+      })
     },
   })))
 

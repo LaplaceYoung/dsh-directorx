@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, hasLibass, renderTimeline, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, hasLibass, renderTimeline, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -47,6 +47,29 @@ test('videoUnderstand samples frames and degrades without vision', async () => {
     assert.equal(out.frames.length, 4)
     assert.ok(out.frames.every(frame => frame.path !== '' && frame.path.includes('frames/')), 'frame paths present')
     assert.ok(out.note !== undefined, 'degradation note present')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('audioSync detects narration intervals and mixes with ducking', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-sync-'))
+  try {
+    const makeVideo = (name) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=4', '-c:v', 'libx264', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('video gen failed')
+      return path
+    }
+    // Narration: 1s speech, 0.8s silence, 1s speech.
+    const narration = join(dir, 'narration.mp3')
+    const voice = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'aevalsrc=sin(880*2*PI*t)*lt(t\\,1)+sin(880*2*PI*t)*gt(t\\,1.8)*lt(t\\,2.8):d=4', '-c:a', 'libmp3lame', narration], { encoding: 'utf8' })
+    if (voice.status !== 0) throw new Error('narration gen failed')
+    const video = makeVideo('v.mp4')
+    const out = await audioSync({ video, narration, outputDir: dir })
+    assert.ok(existsSync(out.path), 'synced file exists')
+    assert.ok(out.speechIntervals.length >= 1, `speech intervals detected: ${JSON.stringify(out.speechIntervals)}`)
+    assert.ok(out.probe.streams.some(stream => stream.type === 'audio'), 'audio present')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
