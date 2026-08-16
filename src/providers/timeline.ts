@@ -1,6 +1,8 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+import { probeMedia } from './ffmpeg.ts'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './video-process.ts'
 import type { VideoOutput } from './video-process.ts'
 
@@ -131,6 +133,33 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
       })
       tempFiles.push(assembled.path)
       steps.push(`audio mix: ${spec.audio.length} tracks${narrationIndex >= 0 ? ` (duck under track ${narrationIndex})` : ''} -> ${assembled.path}`)
+    }
+
+    // 3.5 Fade in/out on the assembled cut (video+audio fade filters).
+    if (spec.fadeIn !== undefined || spec.fadeOut !== undefined) {
+      const duration = assembled.probe.durationSec ?? 0
+      const fadeFilters: string[] = []
+      const audioFade: string[] = []
+      if (spec.fadeIn !== undefined && spec.fadeIn > 0) {
+        fadeFilters.push(`fade=t=in:st=0:d=${spec.fadeIn}`)
+        audioFade.push(`afade=t=in:st=0:d=${spec.fadeIn}`)
+      }
+      if (spec.fadeOut !== undefined && spec.fadeOut > 0 && duration > spec.fadeOut) {
+        fadeFilters.push(`fade=t=out:st=${(duration - spec.fadeOut).toFixed(3)}:d=${spec.fadeOut}`)
+        audioFade.push(`afade=t=out:st=${(duration - spec.fadeOut).toFixed(3)}:d=${spec.fadeOut}`)
+      }
+      if (fadeFilters.length > 0 || audioFade.length > 0) {
+        const out = join(resolve(process.cwd(), outputDir), `faded-${Date.now().toString(36)}.mp4`)
+        const fargs: string[] = ['-hide_banner', '-y', '-i', assembled.path]
+        if (fadeFilters.length > 0) fargs.push('-vf', fadeFilters.join(','))
+        if (audioFade.length > 0) fargs.push('-af', audioFade.join(','))
+        fargs.push('-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'aac', out)
+        const result = spawnSync('ffmpeg', fargs, { encoding: 'utf8' })
+        if (result.status !== 0) throw new Error(`fade failed: ${result.stderr?.slice(-300)}`)
+        tempFiles.push(out)
+        assembled = { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+        steps.push(`fade in/out -> ${out}`)
+      }
     }
 
     // 4. Subtitle mux (soft track; burn only when the build supports libass).

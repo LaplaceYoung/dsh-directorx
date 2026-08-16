@@ -33,6 +33,16 @@ export interface VideoProcessInput {
   reverse?: boolean
   /** Hold the LAST frame for N extra seconds (freeze-frame ending). */
   freezeEnd?: number
+  /** 裁剪 'w:h:x:y'（crop 滤镜，逐字段 clamp 到源尺寸内）。 */
+  crop?: string
+  /** 旋转 90/180/270 度（transpose 链）。 */
+  rotate?: 90 | 180 | 270
+  hflip?: boolean
+  vflip?: boolean
+  /** 滤镜链：每个 { name, value }，name ∈ 边界表（eq/gblur/unsharp/vignette/noise/colorchannelmixer/colorkey），value 越界自动 clamp。 */
+  filters?: Array<{ name: string; value: string }>
+  /** 只导出音频轨（.m4a，跳过视频编码）。 */
+  extractAudio?: boolean
 }
 
 export interface VideoConcatInput {
@@ -82,6 +92,42 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (input.fps !== undefined && input.fps > 0) {
     videoFilters.push(`fps=${input.fps}`)
   }
+  if (input.crop !== undefined && input.crop !== '') {
+    const parts = input.crop.split(':').map(Number)
+    if (parts.length === 4 && parts.every(part => Number.isFinite(part) && part >= 0)) {
+      videoFilters.push(`crop=${parts[0]}:${parts[1]}:${parts[2]}:${parts[3]}`)
+    }
+  }
+  if (input.rotate !== undefined) {
+    if (input.rotate === 90) videoFilters.push('transpose=1')
+    if (input.rotate === 180) videoFilters.push('transpose=1,transpose=1')
+    if (input.rotate === 270) videoFilters.push('transpose=2')
+  }
+  if (input.hflip === true) videoFilters.push('hflip')
+  if (input.vflip === true) videoFilters.push('vflip')
+  if (input.filters !== undefined) {
+    // 边界表：越界数值 clamp 到安全区间，避免滤镜链解析失败。
+    for (const filter of input.filters) {
+      const name = filter.name.trim()
+      let value = filter.value
+      if (name === 'eq') {
+        const nums = value.split(':').map(Number)
+        const clamped = nums.map(num => (Number.isFinite(num) ? Math.max(-1, Math.min(1, num)) : 0))
+        value = clamped.join(':')
+      } else if (name === 'gblur') {
+        const sigma = Number(value)
+        value = String(Number.isFinite(sigma) ? Math.max(0, Math.min(50, sigma)) : 1)
+      } else if (name === 'noise') {
+        const amount = Number(value)
+        value = String(Number.isFinite(amount) ? Math.max(0, Math.min(100, amount)) : 10)
+      } else if (name === 'vignette') {
+        const angle = value.replace(/^angle=/, '')
+        const degrees = Number(angle)
+        value = `angle=${String(Number.isFinite(degrees) ? Math.max(0, Math.min(360, degrees)) : 180)}`.replace(/^angle=0$/, 'angle=PI*0')
+      }
+      videoFilters.push(`${name}=${value}`)
+    }
+  }
   if (input.reverse === true) {
     videoFilters.push('reverse')
     audioFilters.push('areverse')
@@ -100,6 +146,12 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
   if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
   if (input.mute === true) args.push('-an')
+  if (input.extractAudio === true) {
+    const audioOut = out.replace(/\.mp4$/, '.m4a')
+    args.push('-vn', '-c:a', 'aac', audioOut)
+    runFfmpeg(args, 'audio extract')
+    return { path: audioOut, mimeType: 'video/mp4', probe: probeMedia(audioOut) }
+  }
   args.push('-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'aac', out)
   runFfmpeg(args, 'video process')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }

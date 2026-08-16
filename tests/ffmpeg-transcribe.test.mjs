@@ -96,6 +96,41 @@ test('openaiTts passes instructions through when provided', async () => {
   }
 })
 
+test('videoProcess filter chain, rotate/flip and audio extraction', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-fx-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=2', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const rotated = await videoProcess({ source: clip, outputDir: dir, rotate: 90 })
+    const videoStream = rotated.probe.streams.find(stream => stream.type === 'video')
+    assert.equal(videoStream.height, 320, '90deg rotation swaps dimensions')
+    const flipped = await videoProcess({ source: clip, outputDir: dir, hflip: true })
+    assert.ok(existsSync(flipped.path), 'hflip exists')
+    const filtered = await videoProcess({ source: clip, outputDir: dir, filters: [{ name: 'eq', value: '0.9:1.1:1.2' }] })
+    assert.ok(existsSync(filtered.path), 'eq filter chain exists')
+    const audioOnly = await videoProcess({ source: clip, outputDir: dir, extractAudio: true })
+    assert.ok(audioOnly.path.endsWith('.m4a'), 'audio extracted as m4a')
+    assert.ok(audioOnly.probe.streams.every(stream => stream.type === 'audio'), 'audio-only stream')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('renderTimeline applies fadeIn/fadeOut', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-fade-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=3', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const out = await renderTimeline({ scenes: [{ source: clip, transition: 'cut' }], fadeIn: 0.5, fadeOut: 0.5 }, dir)
+    assert.ok(existsSync(out.path), 'faded cut exists')
+    assert.ok(out.steps.some(step => step.includes('fade in/out')), 'fade step recorded')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess reverse and freezeEnd work', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-rev-'))
   try {
