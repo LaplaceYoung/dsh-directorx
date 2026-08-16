@@ -93,6 +93,31 @@ function parseTimecode(text: string): number | null {
   return null
 }
 
+/** 客户端 SRT 解析（时间戳→微秒；支持逗号/点毫秒）。 */
+function parseSrtClient(content: string): Array<{ startUs: number; endUs: number; text: string }> {
+  const blocks = content.replace(/\r\n/g, '\n').split(/\n\s*\n/)
+  const parsed: Array<{ startUs: number; endUs: number; text: string }> = []
+  for (const block of blocks) {
+    const lines = block.split('\n').filter(line => line.trim() !== '')
+    if (lines.length < 2) continue
+    const timeLine = lines.find(line => line.includes('-->'))
+    if (timeLine === undefined) continue
+    const [startRaw, endRaw] = timeLine.split('-->').map(part => part.trim())
+    const toUs = (raw: string) => {
+      const parts = raw.replace(',', '.').split(':').map(Number)
+      if (parts.length !== 3) return -1
+      const [h, m, sec] = parts
+      if (!Number.isFinite(h) || !Number.isFinite(m) || !Number.isFinite(sec)) return -1
+      return Math.round((h * 3600 + m * 60 + sec) * 1e6)
+    }
+    const startUs = toUs(startRaw)
+    const endUs = toUs(endRaw)
+    if (startUs < 0 || endUs < 0) continue
+    parsed.push({ startUs, endUs, text: lines.filter(line => line !== timeLine && !/^\d+$/.test(line.trim())).join(' ') })
+  }
+  return parsed
+}
+
 function fmtBytes(bytes: number): string {
   return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`
 }
@@ -117,6 +142,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [currentTime, setCurrentTime] = useState(0)
   const [trimPreview, setTrimPreview] = useState<string | undefined>(undefined)
   const [timeInput, setTimeInput] = useState<string | undefined>(undefined)
+  const [subtitles, setSubtitles] = useState<Array<{ id: number; startUs: number; endUs: number; text: string }>>([])
+  const [subSelected, setSubSelected] = useState<number | undefined>(undefined)
+  const [subEditing, setSubEditing] = useState<number | undefined>(undefined)
   const videoRef = useRef<HTMLVideoElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const waveInstanceRef = useRef<WaveSurfer | null>(null)
@@ -231,6 +259,19 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     setSegments(previous => previous.filter(segment => segment.id !== selected))
     setSelected(undefined)
   }, [selected])
+
+  const importSubtitles = useCallback((file: File | undefined) => {
+    if (file === undefined) return
+    void file.text().then(text => {
+      const blocks = parseSrtClient(text)
+      if (blocks.length === 0) {
+        setError('SRT 解析失败（无有效字幕块）')
+        return
+      }
+      pushHistory()
+      setSubtitles(blocks.map((block, index) => ({ id: index + 1, ...block })))
+    }).catch(cause => setError(cause instanceof Error ? cause.message : String(cause)))
+  }, [])
 
   const importAudio = useCallback((file: File | undefined) => {
     pushHistory()
@@ -617,6 +658,69 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
               <div style={{ fontSize: 11.5, opacity: .55, padding: '6px 0' }}>
                 导入一段音乐或旁白（mp3/wav），导出时混入成片；波形点击可定位主预览。
               </div>
+            )}
+          </div>
+          <div style={{ ...audioLane, marginTop: 10 }}>
+            <div style={audioLabel}>
+              <span>字幕轨</span>
+              <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {subtitles.length > 0 ? (
+                  <button style={btn} onClick={() => { if (subSelected !== undefined) { pushHistory(); setSubtitles(current => current.filter(block => block.id !== subSelected)); setSubSelected(undefined) } }}>删除所选</button>
+                ) : null}
+                <label style={{ ...btn, cursor: 'pointer' }}>
+                  {subtitles.length === 0 ? '导入字幕 SRT' : `已导入 ${subtitles.length} 条 · 重新导入`}
+                  <input type="file" accept=".srt" style={{ display: 'none' }} onChange={event => { importSubtitles(event.target.files?.[0]); event.target.value = '' }} />
+                </label>
+              </span>
+            </div>
+            {subtitles.length > 0 ? (
+              <div style={{ position: 'relative', height: 30, overflow: 'hidden' }}>
+                {subtitles.map(block => {
+                  const left = block.startUs / 1e6 * scale
+                  const width = Math.max(28, (block.endUs - block.startUs) / 1e6 * scale)
+                  const selectedBlock = subSelected === block.id
+                  return subEditing === block.id ? (
+                    <input
+                      key={block.id}
+                      autoFocus
+                      defaultValue={block.text}
+                      onBlur={event => {
+                        setSubtitles(current => current.map(item => item.id === block.id ? { ...item, text: event.target.value } : item))
+                        setSubEditing(undefined)
+                      }}
+                      onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); if (event.key === 'Escape') setSubEditing(undefined) }}
+                      style={{ position: 'absolute', left, top: 4, width, height: 22, fontSize: 11, padding: '0 6px', borderRadius: 6, border: '1px solid rgba(245,245,245,.6)', background: 'rgba(18,18,18,.95)', color: '#f5f5f5', outline: 'none', zIndex: 3 }}
+                    />
+                  ) : (
+                    <div
+                      key={block.id}
+                      onPointerDown={event => {
+                        event.preventDefault()
+                        setSubSelected(block.id)
+                        const originX = event.clientX
+                        const originStart = block.startUs
+                        const move = (moveEvent: PointerEvent) => {
+                          const deltaUs = (moveEvent.clientX - originX) / scale * 1e6
+                          setSubtitles(current => current.map(item => item.id === block.id ? { ...item, startUs: Math.max(0, Math.round(originStart + deltaUs)), endUs: Math.max(0, Math.round(originStart + deltaUs + (block.endUs - block.startUs))) } : item))
+                        }
+                        const up = () => {
+                          window.removeEventListener('pointermove', move)
+                          window.removeEventListener('pointerup', up)
+                        }
+                        window.addEventListener('pointermove', move)
+                        window.addEventListener('pointerup', up)
+                      }}
+                      onDoubleClick={() => setSubEditing(block.id)}
+                      title={`${fmt(block.startUs)}–${fmt(block.endUs)}：${block.text}（拖移 / 双击编辑）`}
+                      style={{ position: 'absolute', left, top: 4, width, height: 22, lineHeight: '22px', fontSize: 10.5, padding: '0 6px', borderRadius: 6, border: selectedBlock ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.2)', background: selectedBlock ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.07)', color: '#ececec', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'grab', zIndex: 2 }}
+                    >
+                      {block.text}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div style={{ fontSize: 11.5, opacity: .55, padding: '6px 0' }}>导入 SRT 后按时间轴排成字幕块：拖移改时间、双击编辑文字；烧录进成片后续接入。</div>
             )}
           </div>
           {exported !== undefined ? (
