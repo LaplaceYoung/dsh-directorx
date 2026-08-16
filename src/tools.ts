@@ -14,7 +14,7 @@ import { runImage } from './providers/image.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
-import { audioMix, videoConcat, videoProcess, videoSubtitle } from './providers/video-process.ts'
+import { audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
 
 function renderJson(_args: unknown, value: unknown) {
@@ -542,6 +542,43 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return preflight(args)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_zoom',
+    description: 'Ken Burns push-in/pull-back or pan on a local video: animated crop+scale (zoompan is absent from this ffmpeg build). strength = end scale delta (e.g. 0.3 -> 1.3x); direction in/out/left/right. Deterministic and free. Output lands in the output dir.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      strength: { type: 'number', description: 'End scale delta (default 0.25).' },
+      direction: { type: 'string', enum: ['in', 'out', 'left', 'right'], description: 'in = push-in (default); out = pull-back; left/right = pan.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoZoom({ ...args, outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_pip',
+    description: 'Picture-in-picture / sticker overlay: place an image or video on top of a video at a position/size, with an optional visibility window and alpha. Deterministic ffmpeg overlay. Output lands in the output dir.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the base video.' },
+      overlay: { type: 'string', required: true, description: 'Absolute path of the overlay image/video.' },
+      x: { type: 'number', description: 'Overlay x (default 20).' },
+      y: { type: 'number', description: 'Overlay y (default 20).' },
+      w: { type: 'number', description: 'Overlay width px (default 320; -1 keeps ratio via height).' },
+      h: { type: 'number', description: 'Overlay height px (default -1 = keep ratio).' },
+      enable: { type: 'array', items: { type: 'number' }, description: 'Optional [start, end] seconds visibility window.' },
+      alpha: { type: 'number', description: 'Overlay opacity 0-1 (default 1).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoPip({ ...args, outputDir: settings.outputDir })
     },
   })))
 

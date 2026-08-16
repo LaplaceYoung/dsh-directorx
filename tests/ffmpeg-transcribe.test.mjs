@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioMix, hasLibass, videoConcat, videoProcess, videoSubtitle } from '../lib/testing.js'
+import { audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,25 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('videoZoom and videoPip produce valid outputs', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-fx-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-f', 'lavfi', '-i', 'sine=frequency=300:duration=2', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const zoomed = await videoZoom({ video: clip, outputDir: dir, strength: 0.3, direction: 'in' })
+    assert.ok(existsSync(zoomed.path), 'zoomed file exists')
+    assert.ok(zoomed.probe.durationSec > 1.5, 'duration preserved')
+    const overlayPng = join(dir, 'sticker.png')
+    const png = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'color=c=red:s=80x60', '-frames:v', '1', overlayPng], { encoding: 'utf8' })
+    if (png.status !== 0) throw new Error('png gen failed')
+    const pip = await videoPip({ video: clip, overlay: overlayPng, outputDir: dir, x: 10, y: 10, w: 80 })
+    assert.ok(existsSync(pip.path), 'pip file exists')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('videoSubtitle soft-muxes an srt track without libass', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sub-'))

@@ -213,3 +213,66 @@ export async function videoSubtitle(input: VideoSubtitleInput): Promise<VideoOut
   runFfmpeg(['-i', input.video, '-i', input.srt, '-map', '0', '-map', '1', '-c', 'copy', '-c:s', 'mov_text', '-metadata:s:s:0', 'language=chi', out], 'subtitle mux')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }
+
+export interface VideoZoomInput {
+  video: string
+  outputDir: string
+  /** Zoom strength: end scale = 1 + strength (e.g. 0.3 -> 1.3x). */
+  strength?: number
+  /** Pan direction: 'in' (push-in), 'out' (pull-back), 'left', 'right'. */
+  direction?: 'in' | 'out' | 'left' | 'right'
+}
+
+/** Ken Burns push/pull via animated crop (zoompan is absent from this build). */
+export async function videoZoom(input: VideoZoomInput): Promise<VideoOutput> {
+  const out = outputPath(input.outputDir, 'zoom', 'mp4')
+  const strength = input.strength ?? 0.25
+  const direction = input.direction ?? 'in'
+  const dur = probeMedia(input.video).durationSec || 3
+  // Crop a shrinking window (push-in) or a growing one (pull-back), then
+  // scale back to the source size. Pan directions shift the crop origin.
+  const sizeExpr = direction === 'in'
+    ? `iw-iw*${strength}*min(t/${dur}\\,1):ih-ih*${strength}*min(t/${dur}\\,1)`
+    : `iw/(1+${strength})+iw*${strength}*min(t/${dur}\\,1):ih/(1+${strength})+ih*${strength}*min(t/${dur}\\,1)`
+  const xExpr = direction === 'left' ? '(iw-ow)*min(t/' + dur + '\\,1)' : direction === 'right' ? '(iw-ow)*(1-min(t/' + dur + '\\,1))' : '(iw-ow)/2'
+  const yExpr = '(ih-oh)/2'
+  runFfmpeg([
+    '-i', input.video,
+    '-vf', `crop=${sizeExpr}:x=${xExpr}:y=${yExpr},scale=iw:ih`,
+    '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'copy',
+    out,
+  ], 'video zoom')
+  return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+}
+
+export interface VideoPipInput {
+  video: string
+  overlay: string
+  outputDir: string
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  /** Show the overlay only inside this window (seconds). */
+  enable?: [number, number]
+  alpha?: number
+}
+
+/** Picture-in-picture / sticker overlay onto a video. */
+export async function videoPip(input: VideoPipInput): Promise<VideoOutput> {
+  const out = outputPath(input.outputDir, 'pip', 'mp4')
+  const x = input.x ?? 20
+  const y = input.y ?? 20
+  const w = input.w ?? 320
+  const h = input.h ?? -1
+  const alpha = input.alpha ?? 1
+  const enable = input.enable !== undefined ? `:enable='between(t,${input.enable[0]},${input.enable[1]})'` : ''
+  const vf = `[1:v]scale=${w}:${h},format=rgba,colorchannelmixer=aa=${alpha}[ov];[0:v][ov]overlay=${x}:${y}${enable},format=yuv420p`
+  runFfmpeg([
+    '-i', input.video, '-i', input.overlay,
+    '-filter_complex', vf,
+    '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'copy',
+    out,
+  ], 'video pip')
+  return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+}
