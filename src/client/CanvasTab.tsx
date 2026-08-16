@@ -2187,14 +2187,15 @@ function CanvasTabInner(): ReactNode {
       {helpOpen ? (
         <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
-          <div>左键空白拖动 = 框选</div>
-          <div>中键 / 右键拖动 = 平移</div>
-          <div>滚轮 / 触控板双指 = 平移</div>
-          <div>⌘ + 滚轮 = 缩放（或左下缩放条）</div>
-          <div>双击空白 = 新建文字节点</div>
-          <div>右键空白 = 创建菜单</div>
-          <div>⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制</div>
-          <div>Esc 关闭浮层 · ⌘J 打开 Agent 抽屉</div>
+          <div>左键空白拖动 = 框选 · 中键/右键 = 平移</div>
+          <div>滚轮 = 平移 · ⌘ + 滚轮 = 缩放</div>
+          <div>双击空白 = 创建菜单 · 右键空白 = 更多</div>
+          <div>选中节点 → 右侧 + = 继续生成</div>
+          <div>右键节点 = 锁定 / 状态 / 删除</div>
+          <div>拖线到空白 = 新建并自动连线</div>
+          <div>点击粗剪条 = 选中并定位镜头</div>
+          <div>⌘K 命令面板 · ⌘Z 撤销 · ⇧⌘Z 重做</div>
+          <div>⌘D 复制 · Esc 关闭浮层</div>
         </div>
       ) : null}
       {shotListOpen ? (
