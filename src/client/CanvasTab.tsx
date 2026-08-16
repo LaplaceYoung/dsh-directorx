@@ -22,8 +22,8 @@ type NodeCallbacks = {
   onDelete?: (id: string) => void
   onDissolve?: (id: string) => void
 }
-type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string } & NodeCallbacks
-type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string } & NodeCallbacks
+type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
+type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
@@ -195,6 +195,15 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       ) : null}
       <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} />
       <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
+      {selected ? (
+        <button
+          title="以该节点为输入继续生成"
+          onClick={event => { event.stopPropagation(); data.onBranch?.(props.id, { x: event.clientX, y: event.clientY }) }}
+          style={{ position: 'absolute', right: -14, top: '50%', transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: 9999, border: '1px solid rgba(255,255,255,.4)', background: '#0f0f0f', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, lineHeight: 1 }}
+        >
+          +
+        </button>
+      ) : null}
     </div>
   )
 }
@@ -219,6 +228,15 @@ function TextNodeComponent(props: NodeProps): ReactNode {
       <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} />
       <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
+      {selected ? (
+        <button
+          title="以该节点为输入继续生成"
+          onClick={event => { event.stopPropagation(); data.onBranch?.(props.id, { x: event.clientX, y: event.clientY }) }}
+          style={{ position: 'absolute', right: -14, top: '50%', transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: 9999, border: '1px solid rgba(255,255,255,.4)', background: '#0f0f0f', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, lineHeight: 1 }}
+        >
+          +
+        </button>
+      ) : null}
     </div>
   )
 }
