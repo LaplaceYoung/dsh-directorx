@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join, resolve } from 'node:path'
-import { preflight, registerSubagentSetup } from '../lib/testing.js'
+import { planStoryboard, preflight, registerSubagentSetup } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -71,6 +71,23 @@ test('preflight audits the four generation gates deterministically', () => {
   assert.ok(risky.gates.content.issues.some(issue => issue.includes('缺少')), 'short prompt flags missing elements')
   assert.ok(risky.gates.rights.issues.length > 0, 'rights flags fire')
   assert.equal(risky.gates.cost.pass, false, 'cost gate requires budget confirmation')
+})
+
+test('planStoryboard allocates durations and checks continuity anchors', () => {
+  const plan = planStoryboard({
+    shots: [
+      { id: 's1', description: '主角在雨夜小巷转身', seconds: 8 },
+      { id: 's2', description: '主角回头', seconds: 15 },
+      { id: 's3', description: '空镜' },
+    ],
+    targetSeconds: 24,
+    maxShotSeconds: 10,
+    anchors: { characters: ['主角'], scenes: ['雨夜小巷'] },
+  })
+  assert.ok(plan.shots.every(shot => shot.seconds >= 1 && shot.seconds <= 10), 'all within clamp')
+  assert.equal(plan.shots[1].seconds, 10, '15s clamped to 10')
+  assert.ok(plan.issues.some(issue => issue.includes('s3') && issue.includes('主角')), 'missing anchor flagged')
+  assert.ok(plan.shots[2].seconds > 0, 'unspecified duration allocated')
 })
 
 for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js', 'directorx-montage.js']) {

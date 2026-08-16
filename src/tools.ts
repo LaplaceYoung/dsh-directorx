@@ -16,6 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
+import { planStoryboard } from './providers/storyboard.ts'
 import { audioSync, renderTimeline, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
@@ -800,6 +801,29 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         outputDir: settings.outputDir,
         include: typeof args.include === 'string' ? args.include : undefined,
         pad: typeof args.pad === 'number' ? args.pad : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_storyboard',
+    description: 'Storyboard duration planning (PenShot-inspired deterministic layer): allocates per-shot durations against model limits, clamps out-of-range values, fills unspecified shots toward the target, and checks continuity anchors (every shot must reference registered characters/scenes). Returns a generation-ready shot plan + issues.',
+    parameters: {
+      shots: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Shot list: [{id?, description, seconds?}].' },
+      targetSeconds: { type: 'number', description: 'Whole-film target (e.g. 30).' },
+      maxShotSeconds: { type: 'number', description: 'Provider clamp (default 10).' },
+      minShotSeconds: { type: 'number', description: 'Minimum shot duration (default 1).' },
+      anchors: { type: 'object', additionalProperties: true, description: 'Continuity anchors: { characters: ["主角"], scenes: ["雨夜小巷"] }.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return planStoryboard({
+        shots: Array.isArray(args.shots) ? args.shots as never[] : [],
+        targetSeconds: args.targetSeconds,
+        maxShotSeconds: args.maxShotSeconds,
+        minShotSeconds: args.minShotSeconds,
+        anchors: args.anchors as { characters?: string[]; scenes?: string[] } | undefined,
       })
     },
   })))

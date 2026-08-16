@@ -76,5 +76,7 @@ user-invocable: true
 5. **占位规划**：分阶段计划（阶段→单元→每单元完整提示词+参数+参考锚点），
    标注用户确认门；给出总生成预算与去向。画布就是计划板：
    `directorx_canvas_replace` 写入分镜板，节点=单元、连线=承接、分组=幕。
+   分镜时长与连续性先过 `directorx_storyboard` 校验器（模型时长钳制、
+   目标时长分配、锚点引用核对），再进入生成。
 6. **编排落地**：多单元时用 workflow 工具按推导出的阶段现场写脚本（串行段
    pipeline/并行段 parallel/闸门段 agent 质检），不硬套模板；dryRun 先行。
