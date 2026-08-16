@@ -309,6 +309,18 @@ const toolbar: CSSProperties = {
   position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 2, alignItems: 'center',
   maxWidth: 'calc(100% - 24px)', flexWrap: 'wrap', justifyContent: 'center',
 }
+
+const leftBar: CSSProperties = {
+  position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center',
+  padding: 6, borderRadius: 16, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(18,18,18,.88)', backdropFilter: 'blur(12px)',
+  boxShadow: '0 8px 24px rgba(0,0,0,.5)',
+}
+
+const agentDrawer: CSSProperties = {
+  position: 'absolute', top: 12, right: 12, bottom: 12, zIndex: 11, width: 320, maxWidth: 'calc(100% - 24px)',
+  display: 'flex', flexDirection: 'column', borderRadius: 16, border: '1px solid rgba(255,255,255,.12)',
+  background: 'rgba(18,18,18,.94)', backdropFilter: 'blur(14px)', boxShadow: '0 12px 36px rgba(0,0,0,.55)', overflow: 'hidden',
+}
 const ICONS = {
   media: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>,
   text: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7V5h16v2M12 5v14M9 19h6"/></svg>,
@@ -532,6 +544,10 @@ function CanvasTabInner(): ReactNode {
   const [flowWidth, setFlowWidth] = useState(1200)
   const [stripOpen, setStripOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [agentOpen, setAgentOpen] = useState(false)
+  const [agentGoal, setAgentGoal] = useState('')
+  const [agentMode, setAgentMode] = useState<'auto' | 'confirm'>('confirm')
+  const [shotListOpen, setShotListOpen] = useState(false)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -1889,12 +1905,35 @@ function CanvasTabInner(): ReactNode {
         onBlur={() => void saveNow()}
         title="画布标题（tapnow 式）"
       />
-      <div style={toolbar}>
-        <button style={pillBtn} onClick={() => void openPicker()} title="添加媒体（媒体库）">{ICONS.plus}</button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={() => void openPicker()} title="媒体库">{ICONS.media}</button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
+      <div style={leftBar}>
+        <button style={pillBtn} onClick={() => void openPicker()} title="新建 / 媒体库">{ICONS.plus}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={() => void openPicker()} title="素材库">{ICONS.media}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="文字节点（双击画布同效）">{ICONS.text}</button>
+        <button className="dx-tool-icon" style={iconBtn} onClick={addGroup} title="新建 Shot 分组">{ICONS.group}</button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(shotListOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setShotListOpen(open => !open)} title="镜头列表">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </button>
         <button className="dx-tool-icon" style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
+      </div>
+      {shotListOpen ? (
+        <div style={{ position: 'absolute', top: 12, left: 66, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+          <div style={{ fontSize: 11, color: '#9b9b9b', padding: '2px 6px 6px' }}>镜头列表（shotIndex 序）</div>
+          {orderedShots.length === 0 ? (
+            <div style={{ fontSize: 11.5, color: '#777', padding: '2px 6px' }}>暂无入镜镜头：给媒体节点设 shotIndex。</div>
+          ) : orderedShots.map(shot => {
+            const data = shot.data as { kind: 'image' | 'video'; label: string; path: string; shotIndex: number; shotStatus?: string }
+            return (
+              <button key={shot.id} onClick={() => { const m = nodeMetrics(shot); setCenter(shot.position.x + m.width / 2, shot.position.y + m.height / 2, { zoom: 1.2, duration: 260 }) }} style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', textAlign: 'left', padding: '5px 6px', borderRadius: 8, border: 'none', background: 'transparent', color: '#ececec', fontSize: 11.5, cursor: 'pointer' }}>
+                <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 700, color: '#9b9b9b', width: 22 }}>#{data.shotIndex}</span>
+                <img src={mediaUrl(data.path)} alt="" loading="lazy" style={{ width: 26, height: 18, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} draggable={false} />
+                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{data.label}</span>
+                {data.shotStatus !== undefined ? <span style={{ flexShrink: 0, width: 6, height: 6, borderRadius: 9999, background: SHOT_STATUS_COLORS[data.shotStatus] ?? '#8a8a8a' }} /> : null}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
+      <div style={toolbar}>
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}), position: 'relative' }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）">
           <span style={{ position: 'absolute', top: 6, right: 7, width: 6, height: 6, borderRadius: 9999, background: '#4f9dff', boxShadow: '0 0 0 2px #000' }} /><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
@@ -1922,6 +1961,65 @@ function CanvasTabInner(): ReactNode {
           {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         </div>
       ) : null}
+      {agentOpen ? (
+        <div style={agentDrawer}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>导演 Agent</span>
+            <button className="dx-tool-icon" style={{ ...iconBtn, width: 28, height: 28 }} onClick={() => setAgentOpen(false)} title="收起">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, padding: 12, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11.5, color: '#9b9b9b' }}>模式</div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button onClick={() => setAgentMode('auto')} style={{ flex: 1, padding: '6px 10px', borderRadius: 9, border: agentMode === 'auto' ? '1px solid rgba(245,245,245,.8)' : '1px solid rgba(255,255,255,.14)', background: agentMode === 'auto' ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 12, cursor: 'pointer' }}>自动</button>
+              <button onClick={() => setAgentMode('confirm')} style={{ flex: 1, padding: '6px 10px', borderRadius: 9, border: agentMode === 'confirm' ? '1px solid rgba(245,245,245,.8)' : '1px solid rgba(255,255,255,.14)', background: agentMode === 'confirm' ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 12, cursor: 'pointer' }}>手动确认</button>
+            </div>
+            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>画布引用（当前选中节点）</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {selectedCount === 0 ? (
+                <span style={{ fontSize: 11.5, color: '#666' }}>画布上没有选中节点——选中节点即作为上下文引用。</span>
+              ) : nodes.filter(node => node.selected === true).map(selectedNode => {
+                const id = selectedNode.id
+                const node = nodes.find(candidate => candidate.id === id)
+                return <span key={id} style={{ fontSize: 10.5, padding: '3px 8px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8' }}>@{node?.data?.label ?? id}</span>
+              })}
+            </div>
+            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>目标</div>
+            <textarea
+              value={agentGoal}
+              onChange={event => setAgentGoal(event.target.value)}
+              placeholder="今天想拍什么？例如：给镜头 1 生成三个霓虹雨夜的变体"
+              style={{ minHeight: 84, resize: 'vertical', padding: '10px', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.04)', color: '#f0f0f0', fontSize: 12.5, outline: 'none', lineHeight: 1.5 }}
+            />
+            <button
+              onClick={() => {
+                const goal = agentGoal.trim()
+                if (goal === '') return
+                const firstSelected = nodes.find(node => node.selected === true)
+                const position = firstSelected !== undefined ? { x: firstSelected.position.x, y: firstSelected.position.y + (nodeMetrics(firstSelected).height + 40) } : { x: 240, y: 240 }
+                setNodes(current => [...current, { id: newLocalId('text'), type: 'text', position, data: { label: `目标：${goal}`, ...nodeCallbacks } }])
+                setAgentGoal('')
+                scheduleSave()
+              }}
+              style={{ padding: '9px 12px', borderRadius: 10, border: 'none', background: '#f5f5f5', color: '#171717', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
+            >
+              {agentMode === 'confirm' ? '生成确认卡' : '发送（自动）'}
+            </button>
+            <div style={{ fontSize: 10.5, color: '#666', lineHeight: 1.6 }}>
+              建议卡：高成本生成先确认模型/参数/引用/成本（提案队列同语义）。目标落地为画布文本节点，agent 据此执行。
+            </div>
+          </div>
+        </div>
+      ) : (
+        <button
+          title="打开导演 Agent 抽屉"
+          onClick={() => setAgentOpen(true)}
+          style={{ position: 'absolute', right: 14, bottom: 14, zIndex: 10, width: 44, height: 44, borderRadius: 9999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(18,18,18,.9)', color: '#f5f5f5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12z"/></svg>
+        </button>
+      )}
       <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button
           style={{ padding: '4px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.9)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer', backdropFilter: 'blur(12px)' }}
