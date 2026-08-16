@@ -151,7 +151,7 @@ test('planStoryboard allocates durations and checks continuity anchors', () => {
   assert.ok(plan.shots[2].seconds > 0, 'unspecified duration allocated')
 })
 
-for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js', 'directorx-montage.js']) {
+for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js', 'directorx-montage.js', 'directorx-localize.js']) {
 test(`workflow template ${file} parses as a workflow script body`, () => {
   const source = readFileSync(join(root, 'workflows', file), 'utf8')
   // The workflow runner executes the body inside an async function with the
