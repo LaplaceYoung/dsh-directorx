@@ -126,3 +126,16 @@
 | MiniMax H3 | /v2/video_generation 多模态 content[]、导演模式=模型名后缀、prompt [指令] 镜头控制 | ⏳ 待下一波 |
 
 **风险记录**：Sora seconds 官方文档矛盾（4/8/12 vs 16/20）；Veo 音频表述不一（需实测）；Runway gen4.5 无尾帧（已护栏）。
+
+
+## 制作方法论调研波（2026-08，三方向全部沉淀为 directorx-methodology 68 条规则）
+
+| 方向 | 来源 | 沉淀 |
+|---|---|---|
+| 导演技巧/镜头语言 | StudioBinder、No Film School、Filmmakers Academy、Wikipedia（42 条） | 规则 36-48（景别序列/运镜动机/场面调度/光影色彩/转场语法 + ASL 质检门） |
+| 叙事结构与后期 | Meta Reels Playbook、TikTok Creator Academy、ClipForge、PremiumBeat（34 条） | 规则 49-58（三段式/三幕比例/冷热开场/Setup-Payoff/B-roll/字幕时序/响度曲线/声音三支柱） |
+| 生成提示词进阶 | OpenAI Cookbook、Veo 3 官方指南、火山引擎 Seedance 指南、Runway Help（40+ 条） | 规则 59-68（时序三层分离/镜头块模板/风格语法/画幅先定/参考池/种子语义/音画三格式/首帧锁构图） |
+| 负面提示词体系 | invideo FAQ、Cliprise、OCDevel（早轮） | 规则 26-28、65 |
+| 风格语法产品化 | 上表 | directorx_style 语法预设：wong-kar-wai / wes-anderson / cyberpunk / noir（锚+色盘+运动+负面四件套） |
+
+口径声明：留存数据为平台方口径（需本地 A/B 验证）；Kling 相关结论建议补充官方核实。
