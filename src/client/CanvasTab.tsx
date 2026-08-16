@@ -513,6 +513,7 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
           pointerEvents="stroke"
           style={{ cursor: 'pointer' }}
           onClick={event => { event.stopPropagation(); onSelect(selected ? undefined : edge.id) }}
+          onDoubleClick={event => { event.stopPropagation(); onContext(edge.id, event.clientX, event.clientY) }}
           onContextMenu={event => { event.preventDefault(); event.stopPropagation(); onContext(edge.id, event.clientX, event.clientY) }}
           onPointerEnter={() => setHoveredId(edge.id)}
           onPointerLeave={() => setHoveredId(current => current === edge.id ? undefined : current)}
