@@ -93,6 +93,8 @@ dsh web
 
 ## 🎛️ WebUI 设置：把模型当成家电来配
 
+视频模式矩阵（8 个真实模式 + mock）：`kling`（可灵 legacy）· `kling-v3`（可灵 3.0 新标准）· `runway` · `minimax-h3` · `vidu`（多主体参考生）· `veo`（Google Veo 3.1）· `openai-videos`（Sora 2）· `modelverse-tasks`（豆包 Seedance 等）。协议全部官方文档一手核实，每个模式都有本地服务器往返测试。
+
 打开 DSH WebUI，左下角 **Settings → DirectorX**。四个能力各自独立：
 
 | 能力 | 工具 | 配置方式 | 模型示例 |

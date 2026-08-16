@@ -63,7 +63,7 @@ const DEFAULT_DRAFT: Draft = {
 const MODES: Record<keyof Draft, string[]> = {
   vision: ['openai-chat', 'mock'],
   image: ['openai-images', 'modelverse-tasks', 'mock'],
-  video: ['openai-videos', 'modelverse-tasks', 'kling', 'runway', 'mock'],
+  video: ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'mock'],
   audio: ['openai-tts', 'mock'],
 }
 

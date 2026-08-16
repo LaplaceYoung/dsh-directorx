@@ -61,6 +61,15 @@
   - agent 完全掌控：9 个画布工具（get/add/connect/update/remove/arrange/
     replace/clear + 状态查询）；编辑器产物反向落画布。
 
+- **视频模型模式矩阵**（协议均按官方文档一手核实，8 个真实模式 + mock）：
+  - `kling`（legacy JWT：base64 无 data: 前缀、默认 kling-v3、15s、音画参数）；
+  - `kling-v3`（新标准：Bearer + 模型入路径 + GET /tasks + 4K + muti_shot）；
+  - `runway`（gen4.5 首帧-only 护栏）；
+  - `minimax-h3`（官方 v2：多模态 content[] + 2K）；
+  - `vidu`（Token 鉴权 + subjects 多主体 + 音画同出）；
+  - `veo`（Gemini LRO + 时间戳多镜头提示词）；
+  - `openai-videos`（Sora 2：string seconds 枚举 + input_reference）；
+  - `modelverse-tasks`（豆包 Seedance 等任务协议）。
 - **主流视频模型直连接入**（协议均按官方文档/官方仓库一手核实）：
   - `kling` 模式：可灵 Kling 直连（AK/SK → HS256 JWT 鉴权；text2video /
     image2video + 首尾帧；任务轮询路径为创建路径+id）；设置页新增 AK/SK 字段；
