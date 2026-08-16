@@ -204,9 +204,13 @@ export async function runwayVideo(
   }
   if (isImageToVideo) {
     // Runway accepts a single {uri, position:'first'} object, or an array
-    // with an optional last frame ({position:'last'}).
+    // with an optional last frame ({position:'last'}). Gen-4.5 i2v supports
+    // FIRST frames only (official API reference) — a last frame would 400.
     const firstUri = await mediaSourceToDataUrl(options.firstFramePath as string)
     const first = { uri: firstUri, position: 'first' }
+    if (options.lastFramePath !== undefined && (ctx.capability.model === 'gen4.5' || ctx.capability.model.startsWith('gen4.5'))) {
+      throw new Error('Runway gen4.5 图生视频仅支持首帧（无尾帧）。请改用支持首尾帧的模型（如 gen-4），或去掉 last_frame_path。')
+    }
     if (options.lastFramePath !== undefined) {
       const lastUri = await mediaSourceToDataUrl(options.lastFramePath)
       payload.promptImage = [first, { uri: lastUri, position: 'last' }]

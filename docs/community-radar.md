@@ -112,3 +112,17 @@
 
 **其它实证**（雷达备份）：fastmcp 27.2k Apache-2.0（MCP DX 参考）、kinocut 113 Apache-2.0（护栏化 ffmpeg MCP）、MoneyPrinterTurbo 104k MIT（竖屏流水线）、NarratoAI 10.7k MIT（LLM 精剪）、FunClip 6.1k MIT（按口播文本打点剪辑）、VideoLingo 18.2k Apache-2.0（多语配音）、Qwen3-VL 19.8k Apache-2.0（视觉底座）、Wan2.1/Open-Sora/CogVideoX/LTX-Video（Apache-2.0 权重，自部署成本高）。
 **许可红线**：Mora/Open-AI-Micro-Drama-Generator 无许可、Crayotter 自定义许可（仅参考）；ComfyUI GPL-3.0（仅 API 进程隔离）。持续发现渠道：awesome-ai-media-cn、AI-Video-Tools。
+
+
+## 视频模型 API 协议更新调研（2026-08-16，官方文档一手核对）
+
+| 模型 | 关键变化 | 我们适配器状态 |
+|---|---|---|
+| Kling 3.0 | 3-15s/4K/音画同出（settings.audio native）/多镜头 prompt 语法；新标准 = API Key Bearer + 模型入路径 + GET /tasks；legacy JWT /v1/videos 保留；主体参考走 Element 库（无 subject_reference 字段） | ✅ 15s + generate_audio/voice_ids 已加（legacy）；新标准模式留待下一波 |
+| Runway | x-runway-version 必填；**gen4.5 i2v 无尾帧**；托管第三方模型 + Model Router | ✅ gen4.5 尾帧已加显式报错护栏；router 待评估 |
+| Vidu Q3 | 公开 API：Token 鉴权（非 Bearer）、/ent/v2/reference2video、3-16s、音画同出、subjects 多主体 ≤7 | ⏳ 轮询端点待核实（第三方网关文档混淆），协议已沉淀 |
+| Sora 2 | input_reference 首帧、characters 角色端点、extensions(+20s×6)、edits；**remix 已弃用**；seconds 为 string | ⏳ 待下一波（依赖 OpenAI key） |
+| Veo 3.1 | Gemini API veo-3.1-generate-preview、原生音频默认、时间戳提示词多镜头 | ⏳ 待下一波 |
+| MiniMax H3 | /v2/video_generation 多模态 content[]、导演模式=模型名后缀、prompt [指令] 镜头控制 | ⏳ 待下一波 |
+
+**风险记录**：Sora seconds 官方文档矛盾（4/8/12 vs 16/20）；Veo 音频表述不一（需实测）；Runway gen4.5 无尾帧（已护栏）。
