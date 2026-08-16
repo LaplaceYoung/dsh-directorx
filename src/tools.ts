@@ -14,7 +14,7 @@ import { runImage } from './providers/image.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
-import { audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
+import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
 
 function renderJson(_args: unknown, value: unknown) {
@@ -579,6 +579,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     isConcurrencySafe: () => true,
     async execute(args: any) {
       return videoPip({ ...args, outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_audio_beat',
+    description: 'Detect beat/energy peaks in a local audio or video file (ffmpeg astats, deterministic — no librosa): returns up to N cut-point timestamps with strengths. Use the beats to time cuts in a montage (feed them into directorx_video_process trims + directorx_video_concat).',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the audio/video to analyze.' },
+      count: { type: 'number', description: 'Max beats returned (default 16).' },
+      minGap: { type: 'number', description: 'Min gap between beats in seconds (default 0.4).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return audioBeats({ source: args.source, count: args.count, minGap: args.minGap })
     },
   })))
 

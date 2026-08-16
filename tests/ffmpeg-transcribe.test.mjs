@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,20 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('audioBeats detects energy peaks in a music-like tone', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-beat-'))
+  try {
+    const audio = join(dir, 'beat.mp3')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'aevalsrc=sin(440*2*PI*t)*(0.4+0.6*sin(2*2*PI*t)):d=4', '-c:a', 'libmp3lame', audio], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('audio gen failed')
+    const beats = audioBeats({ source: audio, count: 8, minGap: 0.3 })
+    assert.ok(beats.length >= 2, `expects several peaks, got ${beats.length}`)
+    assert.ok(beats.every(point => point.t >= 0 && point.t <= 4.2), 'timestamps inside the clip')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('videoZoom and videoPip produce valid outputs', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fx-'))

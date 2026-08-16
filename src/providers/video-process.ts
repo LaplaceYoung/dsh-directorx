@@ -276,3 +276,69 @@ export async function videoPip(input: VideoPipInput): Promise<VideoOutput> {
   ], 'video pip')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }
+
+export interface BeatInput {
+  /** Audio or video file to analyze. */
+  source: string
+  /** Peak count cap. */
+  count?: number
+  /** Minimum gap between picked beats (seconds). */
+  minGap?: number
+}
+
+export interface BeatPoint {
+  t: number
+  strength: number
+}
+
+/**
+ * Deterministic beat/energy analysis via ffmpeg astats (no librosa): reads
+ * per-frame RMS from the metadata stream, smooths it, and picks local peaks
+ * with a minimum gap. Good enough for cut-point suggestions on music beds.
+ */
+export function audioBeats(input: BeatInput): BeatPoint[] {
+  const result = spawnSync('ffmpeg', [
+    '-hide_banner', '-i', input.source,
+    '-af', 'ebur128=peak=true',
+    '-vn', '-f', 'null', '-',
+  ], { encoding: 'utf8' })
+  // ebur128 prints momentary loudness every ~100ms: "t: 0.3999 ... M: -7.5 ..."
+  const samples: Array<{ t: number; energy: number }> = []
+  for (const line of (result.stderr ?? '').split('\n')) {
+    const tMatch = line.match(/t:\s*([\d.]+)/)
+    const mMatch = line.match(/M:\s*(-?[\d.]+)/)
+    if (tMatch !== null && mMatch !== null) {
+      const lufs = Number(mMatch[1])
+      // -120.7 LUFS = digital silence; map louder to higher energy.
+      const energy = Math.pow(10, (lufs + 70) / 20)
+      samples.push({ t: Number(tMatch[1]), energy })
+    }
+  }
+  if (samples.length < 4) return []
+  const window = 3
+  const smoothed = samples.map((_, index) => {
+    let sum = 0
+    let count = 0
+    for (let offset = -window; offset <= window; offset += 1) {
+      const value = samples[index + offset]
+      if (value !== undefined) { sum += value.energy; count += 1 }
+    }
+    return sum / count
+  })
+  const minGap = input.minGap ?? 0.4
+  const candidates: BeatPoint[] = []
+  let lastPick = -9999
+  for (let index = 1; index < smoothed.length - 1; index += 1) {
+    const value = smoothed[index]
+    if (value > smoothed[index - 1] && value >= smoothed[index + 1]) {
+      const t = samples[index].t
+      if (t - lastPick >= minGap) {
+        candidates.push({ t: Number(t.toFixed(2)), strength: Number(value.toFixed(4)) })
+        lastPick = t
+      }
+    }
+  }
+  const mean = smoothed.reduce((sum, value) => sum + value, 0) / (smoothed.length || 1)
+  const strong = candidates.filter(point => point.strength > mean * 1.15)
+  return (strong.length > 0 ? strong : candidates).slice(0, input.count ?? 16)
+}

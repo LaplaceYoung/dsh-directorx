@@ -73,7 +73,7 @@ test('preflight audits the four generation gates deterministically', () => {
   assert.equal(risky.gates.cost.pass, false, 'cost gate requires budget confirmation')
 })
 
-for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js']) {
+for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js', 'directorx-montage.js']) {
 test(`workflow template ${file} parses as a workflow script body`, () => {
   const source = readFileSync(join(root, 'workflows', file), 'utf8')
   // The workflow runner executes the body inside an async function with the
