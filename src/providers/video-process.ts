@@ -66,6 +66,8 @@ export interface VideoProcessInput {
   grade?: 'teal-orange' | 'film-fade' | 'bw-contrast'
   /** 3D LUT 调色（.cube 文件绝对路径；lut3d 滤镜）。 */
   lut3d?: string
+  /** LUT 插值模式（lut3d interp，默认 tetrahedral）。 */
+  lut3dInterp?: 'nearest' | 'trilinear' | 'tetrahedral' | 'pyramid' | 'prism'
   /** 文字层：样式化文字叠加（drawtext）。CJK 需 fontFile 指定字体文件路径。 */
   textOverlays?: Array<{
     text: string
@@ -188,7 +190,8 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   if (input.mute === true) args.push('-an')
   if (input.lut3d !== undefined && input.lut3d !== '') {
     if (!existsSync(input.lut3d)) throw new Error(`LUT 文件不存在：${input.lut3d}`)
-    videoFilters.push(`lut3d=file=${input.lut3d.replace(/[,;\\]/g, '')}`)
+    const interp = input.lut3dInterp ?? 'tetrahedral'
+    videoFilters.push(`lut3d=file=${input.lut3d.replace(/[,;\\]/g, '')}:interp=${interp}`)
   }
   if (input.grade !== undefined) {
     if (input.grade === 'teal-orange') {
