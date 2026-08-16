@@ -29,6 +29,10 @@ export interface VideoProcessInput {
   volume?: number
   mute?: boolean
   fps?: number
+  /** Reverse playback (时光倒流效果) — reverse filter. */
+  reverse?: boolean
+  /** Hold the LAST frame for N extra seconds (freeze-frame ending). */
+  freezeEnd?: number
 }
 
 export interface VideoConcatInput {
@@ -77,6 +81,15 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   }
   if (input.fps !== undefined && input.fps > 0) {
     videoFilters.push(`fps=${input.fps}`)
+  }
+  if (input.reverse === true) {
+    videoFilters.push('reverse')
+    audioFilters.push('areverse')
+  }
+  if (input.freezeEnd !== undefined && input.freezeEnd > 0) {
+    // tpad holds the last frame (video) + apad keeps silence (audio).
+    videoFilters.push(`tpad=stop_mode=clone:stop_duration=${input.freezeEnd}`)
+    audioFilters.push(`apad=pad_dur=${input.freezeEnd}`)
   }
   if (input.mute === true) {
     audioFilters.length = 0

@@ -1,7 +1,7 @@
 ---
 name: directorx-methodology
 description: >-
-  视频制作方法论速查（81 条联网调研沉淀的可执行规则）：成片结构/提示词工程/
+  视频制作方法论速查（83 条联网调研沉淀的可执行规则）：成片结构/提示词工程/
   镜头语言/导演技法/剪辑节奏/音频混音/字幕设计/叙事后期。写脚本、写提示词、
   剪节奏、做质检前先查本技能，用规则而不是凭感觉；决策与质检结论引用规则编号。
 user-invocable: true
@@ -10,7 +10,7 @@ user-invocable: true
 # 制作方法论速查（2026 调研沉淀）
 
 
-## 规则目录（81 条）
+## 规则目录（83 条）
 
 - 成片结构与留存：1-5（钩子/模式打断/留存曲线/时长密度/口播结构）
 - AI 提示词工程：6-9、14-15（单镜单动作/角色绑定/音画同步/镜头解剖/Veo 词汇）
@@ -29,8 +29,8 @@ user-invocable: true
   参考池管理/种子语义/负面词短准/音画三格式/音效时间线/首帧锁构图）
 - 商业广告与教育类：69-73（Distributed AIDA/广告 Attention/变体 A-B 纪律/
   微课认知负荷/知识类结构）
-- 视觉特效与剪辑特效：74-81（慢动作纪律/跳切定格/闪白闪黑/无缝转场原理/
-  分屏动机/VFX 四要素/合成思维/转场参数表）
+- 视觉特效与剪辑特效：74-83（慢动作纪律/跳切定格/闪白闪黑/无缝转场原理/
+  分屏动机/VFX 四要素/合成思维/转场参数表/十项要素清单/反向冻结帧）
 
 调研来源：OpenAI Sora 2 Cookbook、Kling 3.0 官方 Quickstart、Google Cloud
 Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六原则
@@ -373,3 +373,12 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 81. **转场参数表**：硬切 0s / 交叉溶解 0.3-0.8s / 黑场 0.3-1s /
     白闪 2-4 帧；情绪反差用 smash cut；时间流逝用叠化。工具落点：
     timeline transition + xfade fadeSec。
+82. **VFX 十项要素清单**（生成前逐项勾选）：元素、发射源、材质
+    （translucent/volumetric/glowing）、运动轨迹、物理（重力/湍流/
+    惯性/二次运动）、光照互动（spill 染色/阴影/反射）、环境互动
+    （风/尘/水面）、时间（速度/持续/相位）、镜头（机位/焦距）、
+    质感统一（grain/色温）。工具落点：generate_video prompt 模板 +
+    preflight 六要素 lint。
+83. **反向与冻结帧**：reverse 表达时光倒流、freeze 把观众钉在某一帧
+    ——两者都要短（>2s 从强调变故障感）；冻结帧配标题弹出=结尾钩子。
+    工具落点：video_process 的 reverse / freezeEnd（本工具已支持）。

@@ -53,6 +53,21 @@ test('clipRank scores and orders subtitle candidates', async () => {
   }
 })
 
+test('videoProcess reverse and freezeEnd work', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-rev-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const reversed = await videoProcess({ source: clip, outputDir: dir, reverse: true })
+    assert.ok(existsSync(reversed.path), 'reversed exists')
+    const frozen = await videoProcess({ source: clip, outputDir: dir, freezeEnd: 1 })
+    assert.ok(frozen.probe.durationSec > 2.8 && frozen.probe.durationSec < 3.2, `freeze holds 1s, got ${frozen.probe.durationSec}`)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('renderTimeline applies scene-level speed (speed ramp building block)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-ramp-'))
   try {
