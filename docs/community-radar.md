@@ -259,3 +259,11 @@
 | 多镜头一致性范式 | 资产预注册（characters）+ 参考图类型化 + 首尾帧接力（handoff 末帧）；pipeline 模板加「主体预注册 + 连续性锁」步骤 |
 | 对口型 as-a-service | 契约统一（视频|图+音频→视频）；建议作音画同出降级路径；开源侧 OpenRAIL++ 需注意条款 |
 | 待核对 | MiniMax audio 字段结构、OpenAI 音频参数名（落地前逐字段核对） |
+
+
+## 音画同出/一致性完整矩阵采纳（2026-08-18 续）
+
+- 模型能力路由新增 **needsMultiRef** 维度（多参考图/多主体条件输入），矩阵标注 kling-3.0/viduq3/veo 多参考能力
+- pipeline 模板补「末帧资产接力」步骤（每镜 extract_frames 取末帧 → 下镜 first_frame 自动引用）
+- 归档：9 服务能力矩阵、三契约模式、element_id 派生缓存防供应商锁定策略、跨镜一致性 QC（frame-qa 三方对比）待 vision 恢复后实现
+- **待官方 schema 核对**：MiniMax Hailuo 2.3 audio 字段结构、OpenAI 音频参数名

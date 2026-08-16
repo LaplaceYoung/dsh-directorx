@@ -1267,6 +1267,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       needsFirstFrame: { type: 'boolean', description: '是否要求首帧输入。' },
       needsLastFrame: { type: 'boolean', description: '是否要求尾帧输入。' },
       needsAudio: { type: 'boolean', description: '是否要求音画同出（原生音频）。' },
+      needsMultiRef: { type: 'boolean', description: '是否要求多参考图（多主体/多素材条件输入）。' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
@@ -1277,6 +1278,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         needsFirstFrame: args.needsFirstFrame === true,
         needsLastFrame: args.needsLastFrame === true,
         needsAudio: args.needsAudio === true,
+        needsMultiRef: args.needsMultiRef === true,
       })
     },
   })))
