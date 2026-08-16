@@ -7,6 +7,28 @@ import { Transform } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { join, resolve } from 'node:path'
 import type { Context } from 'cordis'
+import { ProposalStore } from './proposals.ts'
+
+function sendJsonLocal(response: ServerResponse, status: number, body: unknown): void {
+  response.writeHead(status, { 'content-type': 'application/json' })
+  response.end(JSON.stringify(body))
+}
+
+async function readBodyLocal(request: IncomingMessage, maxBytes: number): Promise<Record<string, unknown>> {
+  const chunks: Buffer[] = []
+  let total = 0
+  for await (const chunk of request) {
+    const buffer = typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk as ArrayBuffer)
+    total += buffer.length
+    if (total > maxBytes) throw new Error('body too large')
+    chunks.push(buffer)
+  }
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString('utf8')) as Record<string, unknown>
+  } catch {
+    return {}
+  }
+}
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { DirectorxCanvasStore, type CanvasDocument } from './canvas.ts'
@@ -492,3 +514,59 @@ export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => strin
     },
   })
 }
+
+/** 提案面板路由：画布顶栏显示待批准提案并可批准/拒绝（人机确认环的 UI 侧）。 */
+export function registerProposalsRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/proposals',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const store = new ProposalStore(getOutputDir())
+      const ledger = await store.read()
+      sendJsonLocal(response, 200, { proposals: ledger.proposals })
+    },
+  })
+}
+
+export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/proposals/update',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      const body = await readBodyLocal(request, 64 * 1024) as { id?: unknown; status?: unknown }
+      const id = typeof body.id === 'string' ? body.id : ''
+      const status = body.status === 'approved' || body.status === 'rejected' ? body.status : null
+      if (id === '' || status === null) {
+        sendJsonLocal(response, 400, { ok: false, message: 'id 与 status(approved/rejected) 必填' })
+        return
+      }
+      const store = new ProposalStore(getOutputDir())
+      const updated = await store.update(id, status)
+      sendJsonLocal(response, 200, { ok: true, proposal: updated })
+    },
+  })
+}
+

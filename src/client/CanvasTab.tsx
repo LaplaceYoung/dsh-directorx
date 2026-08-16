@@ -603,6 +603,8 @@ function CanvasTabInner(): ReactNode {
   const [cmdOpen, setCmdOpen] = useState(false)
   const [cmdQuery, setCmdQuery] = useState('')
   const [cmdIndex, setCmdIndex] = useState(0)
+  const [proposals, setProposals] = useState<Array<{ id: string; kind: string; prompt: string; model?: string; size?: string; duration?: number; count: number; estimatedCost?: string; status: string }>>([])
+  const [proposalPanel, setProposalPanel] = useState(false)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -746,6 +748,24 @@ function CanvasTabInner(): ReactNode {
   }, [applyDoc])
 
   useEffect(() => { void load() }, [load])
+
+  // 提案轮询：DSH 侧 propose 后顶栏出现待批准徽标（8s 轮询）。
+  useEffect(() => {
+    let live = true
+    const refresh = async () => {
+      try {
+        const response = await fetch('/directorx/proposals')
+        if (!response.ok) return
+        const data = await response.json() as { proposals: Array<{ id: string; kind: string; prompt: string; model?: string; size?: string; duration?: number; count: number; estimatedCost?: string; status: string }> }
+        if (live) setProposals((data.proposals ?? []).filter(item => item.status === 'proposed'))
+      } catch {
+        // 提案路由不可用时静默。
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => { void refresh() }, 8000)
+    return () => { live = false; window.clearInterval(timer) }
+  }, [])
 
   // 未保存更改时阻止无提示离开（报告 11.1）。
   useEffect(() => {
