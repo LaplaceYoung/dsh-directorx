@@ -2337,6 +2337,14 @@ function CanvasTabInner(): ReactNode {
       )}
       <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button
+          className="dx-tool-icon"
+          style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.92)', color: '#f0f0f0', fontSize: 11, cursor: 'pointer' }}
+          title="适配全部内容"
+          onClick={() => { void fitView() }}
+        >
+          适配
+        </button>
+        <button
           style={{ padding: '4px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.9)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer', backdropFilter: 'blur(12px)' }}
           title="点击复位 100%"
           onClick={() => setViewport({ zoom: 1, x: 0, y: 0 })}
