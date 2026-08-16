@@ -13,6 +13,7 @@
     "CHANGELOG.md",
     "docs/architecture.md",
     "docs/community-radar.md",
+    "recipes/",
     "lib/"
   ],
   "deny": [
@@ -21,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(canvas): claimed intents record takenAt for the DSH handoff"
+  "message": "feat(cases): three production cases run to confirmable placeholders"
 }
