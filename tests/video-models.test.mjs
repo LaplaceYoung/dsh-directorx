@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, runVideo, viduVideo } from '../lib/testing.js'
+import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, runVideo, veoVideo, viduVideo } from '../lib/testing.js'
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -161,6 +161,51 @@ test('kling-v3 mode uses the new-standard protocol', async () => {
     assert.equal(createPayload.settings.audio, 'native')
     assert.equal(createPayload.settings.muti_shot, true)
     assert.ok(pollPath.includes('/tasks?task_ids=kv1'), 'GET /tasks polling')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.close()
+  }
+})
+
+test('veo mode runs the Gemini generateVideos LRO flow', async () => {
+  let createPayload = null
+  let createPath = ''
+  const server = createServer(async (req, res) => {
+    const url = req.url ?? ''
+    if (url.includes(':generateVideos') && req.method === 'POST') {
+      createPayload = await readJson(req)
+      createPath = url
+      sendJson(res, 200, { name: 'operations/veo1', done: false })
+      return
+    }
+    if (url === '/operations/veo1') {
+      sendJson(res, 200, { name: 'operations/veo1', done: true, response: { generatedVideos: [{ video: { uri: `http://127.0.0.1:${server.address().port}/veo.mp4` } }] } })
+      return
+    }
+    if (url === '/veo.mp4') {
+      const bytes = Buffer.from('veo-video')
+      res.writeHead(200, { 'content-type': 'video/mp4', 'content-length': bytes.length })
+      res.end(bytes)
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+  await new Promise(resolve => server.listen(0, resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-veo-'))
+  try {
+    const ctx = {
+      capability: { mode: 'veo', model: 'veo-3.1-generate-preview', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '720p', auth: {}, apiKey: 'g-key', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+      ledger: undefined,
+    }
+    const result = await veoVideo(ctx, '[00:00-00:04] 城市空镜；[00:04-00:08] 主角出场', { seconds: 8, aspectRatio: '16:9' })
+    assert.equal(result.status, 'succeed')
+    assert.ok(createPath.includes('/models/veo-3.1-generate-preview:generateVideos'))
+    assert.equal(createPayload.config.durationSeconds, 8)
+    assert.equal(createPayload.config.aspectRatio, '16:9')
+    assert.equal(createPayload.config.resolution, '720p')
   } finally {
     await rm(dir, { recursive: true, force: true })
     server.close()
