@@ -141,12 +141,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         text: { type: 'string', required: true, description: 'Text to synthesize. For music prompts, write the desired style, tempo, and instrumentation.' },
         voice: { type: 'string', description: 'Voice id such as alloy, echo, onyx, nova, or a provider-specific voice.' },
         format: { type: 'string', enum: ['mp3', 'wav', 'opus', 'aac'], description: 'Audio format. Default mp3.' },
+        instructions: { type: 'string', description: 'Performance instructions (gpt-4o-mini-tts 官方七维：口音/情绪幅度/语调/模仿/语速/语气/耳语)。示例：「Speak in a calm documentary tone; pause before numbers; end sentences level.」不透传时表演走 text 标点协议（directorx-methodology 规则 92-99）。' },
       },
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       async execute(args: any, exec: any) {
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        return runAudio(toolContext(settings, settings.audio, signal), args.text, { voice: args.voice, format: args.format })
+        return runAudio(toolContext(settings, settings.audio, signal), args.text, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined })
       },
     })))
 

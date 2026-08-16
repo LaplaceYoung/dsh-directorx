@@ -2,13 +2,24 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, clipRank, hasLibass, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, clipRank, hasLibass, openaiTts, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { extractFrames, mockTranscribe, probeMedia, registerMediaTasksRoute, runTranscribe } from '../lib/testing.js'
+
+async function readJson(request, limit = 1024 * 1024) {
+  const chunks = []
+  let size = 0
+  for await (const chunk of request) {
+    chunks.push(chunk)
+    size += chunk.length
+    if (size > limit) throw new Error('request body too large')
+  }
+  return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
+}
 
 const hasFfmpeg = (() => {
   const found = spawnSync('which', ['ffmpeg'], { encoding: 'utf8' })
@@ -50,6 +61,38 @@ test('clipRank scores and orders subtitle candidates', async () => {
     assert.ok(out.ranked[0].score > out.ranked[1].score, 'descending scores')
   } finally {
     await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('openaiTts passes instructions through when provided', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-tts-'))
+  let server
+  try {
+    let captured = null
+    server = createServer(async (req, res) => {
+      if (req.url === '/audio/speech' && req.method === 'POST') {
+        captured = await readJson(req)
+        const bytes = Buffer.from('mp3-bytes')
+        res.writeHead(200, { 'content-type': 'audio/mpeg', 'content-length': bytes.length })
+        res.end(bytes)
+        return
+      }
+      res.writeHead(404)
+      res.end()
+    })
+    await new Promise(resolve => server.listen(0, resolve))
+    const ctx = {
+      capability: { mode: 'openai-tts', model: 'gpt-4o-mini-tts', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '', auth: {}, apiKey: 'sk-test', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+    }
+    await openaiTts(ctx, '测试旁白', 'onyx', 'mp3', 'Speak in a calm documentary tone; pause before numbers.')
+    assert.ok(captured !== null, 'payload captured')
+    assert.equal(captured.instructions, 'Speak in a calm documentary tone; pause before numbers.')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.closeAllConnections?.()
+    server.close()
   }
 })
 

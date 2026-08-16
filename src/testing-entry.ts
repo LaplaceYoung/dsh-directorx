@@ -1,7 +1,7 @@
 export { corpus } from './corpus.ts'
 export { DirectorxEditLedger, MAX_EDIT_LINES } from './edits.ts'
 export { DirectorxTaskLedger, MAX_LEDGER_LINES } from './tasks.ts'
-export { runAudio, mockAudio } from './providers/audio.ts'
+export { openaiTts, runAudio, mockAudio } from './providers/audio.ts'
 export { runImage, mockImage } from './providers/image.ts'
 export { openaiVideo, runVideo, mockVideo } from './providers/video.ts'
 export { runVision, mockVision } from './providers/vision.ts'

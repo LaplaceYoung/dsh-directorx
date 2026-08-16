@@ -39,7 +39,7 @@ export async function mockAudio(ctx: ProviderContext, text: string): Promise<Aud
   return { model: ctx.capability.model, text, files: [{ path, mimeType: 'audio/wav' }], mode: 'mock' }
 }
 
-export async function openaiTts(ctx: ProviderContext, text: string, voice?: string, format?: string): Promise<AudioResult> {
+export async function openaiTts(ctx: ProviderContext, text: string, voice?: string, format?: string, instructions?: string): Promise<AudioResult> {
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_AUDIO_API_KEY', 'OPENAI_API_KEY'], baseURL)
   const response = await fetch(`${baseURL}/audio/speech`, {
@@ -50,6 +50,7 @@ export async function openaiTts(ctx: ProviderContext, text: string, voice?: stri
       input: text,
       voice: voice ?? 'alloy',
       response_format: format ?? 'mp3',
+      ...(instructions !== undefined && instructions !== '' ? { instructions } : {}),
     }),
     signal: ctx.signal,
   })
@@ -66,8 +67,8 @@ export async function openaiTts(ctx: ProviderContext, text: string, voice?: stri
   return { model: ctx.capability.model, text, files, mode: 'openai-tts' }
 }
 
-export async function runAudio(ctx: ProviderContext, text: string, options: { voice?: string; format?: string }): Promise<AudioResult> {
+export async function runAudio(ctx: ProviderContext, text: string, options: { voice?: string; format?: string; instructions?: string }): Promise<AudioResult> {
   if (ctx.capability.mode === 'mock') return mockAudio(ctx, text)
-  if (ctx.capability.mode === 'openai-tts') return openaiTts(ctx, text, options.voice, options.format)
+  if (ctx.capability.mode === 'openai-tts') return openaiTts(ctx, text, options.voice, options.format, options.instructions)
   throw new Error(`Unsupported audio mode: ${ctx.capability.mode}`)
 }
