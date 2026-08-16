@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './video-process.ts'
 import type { VideoOutput } from './video-process.ts'
@@ -68,16 +69,25 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
     }
 
     // 2. Concat (fade by default; per-scene hard cuts honored globally when all are cut).
+    // A single segment skips the concat stage entirely.
     const allCut = spec.scenes.every(scene => scene.transition === 'cut')
-    let assembled = await videoConcat({
-      files: segmentPaths,
-      outputDir,
-      transition: allCut ? 'cut' : 'fade',
-      fadeSec: 0.5,
-      ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
-    })
-    tempFiles.push(assembled.path)
-    steps.push(`concat (${allCut ? 'cut' : 'fade'}): ${segmentPaths.length} scenes -> ${assembled.path}`)
+    let assembled: VideoOutput
+    if (segmentPaths.length === 1) {
+      const single = await videoProcess({ source: segmentPaths[0], outputDir, ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}) })
+      assembled = { path: single.path, mimeType: 'video/mp4', probe: single.probe }
+      tempFiles.push(single.path)
+      steps.push(`single scene (no concat): ${segmentPaths[0]} -> ${single.path}`)
+    } else {
+      assembled = await videoConcat({
+        files: segmentPaths,
+        outputDir,
+        transition: allCut ? 'cut' : 'fade',
+        fadeSec: 0.5,
+        ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
+      })
+      tempFiles.push(assembled.path)
+      steps.push(`concat (${allCut ? 'cut' : 'fade'}): ${segmentPaths.length} scenes -> ${assembled.path}`)
+    }
 
     // 3. Audio mixing (ducking under the narration track when requested).
     if (spec.audio !== undefined && spec.audio.length > 0) {
@@ -186,4 +196,89 @@ export async function audioSync(input: AudioSyncInput): Promise<AudioSyncOutput>
   }
 
   return { path: mixed.path, mimeType: 'video/mp4', speechIntervals, steps, probe: mixed.probe }
+}
+
+export interface SrtCue {
+  index: number
+  start: number
+  end: number
+  text: string
+}
+
+/** Minimal SRT parser (the shape produced by directorx_transcribe_audio). */
+export function parseSrt(content: string): SrtCue[] {
+  const cues: SrtCue[] = []
+  const blocks = content.replace(/\r\n/g, '\n').split(/\n\n+/)
+  for (const block of blocks) {
+    const lines = block.trim().split('\n')
+    if (lines.length < 2) continue
+    const timeMatch = lines[1]?.match(/([\d:,]+)\s*-->\s*([\d:,]+)/)
+    if (timeMatch === null || timeMatch === undefined) continue
+    const start = toSeconds(timeMatch[1])
+    const end = toSeconds(timeMatch[2])
+    const text = lines.slice(2).join(' ').trim()
+    if (!Number.isFinite(start) || !Number.isFinite(end)) continue
+    cues.push({ index: Number(lines[0]) || cues.length + 1, start, end, text })
+  }
+  return cues
+}
+
+function toSeconds(timestamp: string): number {
+  // SRT uses a comma as the millisecond separator: normalize first.
+  const normalized = timestamp.replace(',', '.')
+  const parts = normalized.split(':').map(Number)
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  if (parts.length === 2) return parts[0] * 60 + parts[1]
+  return Number(normalized)
+}
+
+export interface SubtitleCutInput {
+  video: string
+  srt: string
+  outputDir: string
+  /** Only cut cues whose text contains this keyword (按口播文本定位). */
+  include?: string
+  /** Padding seconds kept around each cue window (default 0.15). */
+  pad?: number
+  /** Keep one continuous segment when cues overlap (default true). */
+  mergeOverlap?: boolean
+}
+
+export interface SubtitleCutOutput {
+  path: string
+  mimeType: 'video/mp4'
+  cues: Array<{ start: number; end: number; text: string }>
+  steps: string[]
+  probe: VideoOutput['probe']
+}
+
+/** Cut a video at subtitle cue boundaries (FunClip-style 按文本打点剪辑). */
+export async function subtitleCut(input: SubtitleCutInput): Promise<SubtitleCutOutput> {
+  const content = readFileSync(input.srt, 'utf8')
+  const pad = input.pad ?? 0.15
+  let cues = parseSrt(content)
+  if (input.include !== undefined && input.include !== '') {
+    cues = cues.filter(cue => cue.text.includes(input.include ?? ''))
+  }
+  if (cues.length === 0) throw new Error('srt 中没有匹配的字幕条目')
+  // Windows with padding, merged when overlapping.
+  let windows = cues.map(cue => ({ start: Math.max(0, cue.start - pad), end: cue.end + pad }))
+  if (input.mergeOverlap !== false) {
+    windows = windows.reduce<Array<{ start: number; end: number }>>((merged, window) => {
+      const last = merged[merged.length - 1]
+      if (last !== undefined && window.start <= last.end) last.end = Math.max(last.end, window.end)
+      else merged.push({ ...window })
+      return merged
+    }, [])
+  }
+  const rendered = await renderTimeline({
+    scenes: windows.map(window => ({ source: input.video, trim: [window.start, window.end], transition: 'cut' })),
+  }, input.outputDir)
+  return {
+    path: rendered.path,
+    mimeType: 'video/mp4',
+    cues: cues.map(cue => ({ start: cue.start, end: cue.end, text: cue.text })),
+    steps: rendered.steps,
+    probe: rendered.probe,
+  }
 }

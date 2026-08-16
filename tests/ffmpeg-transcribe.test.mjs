@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, hasLibass, renderTimeline, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, subtitleCut, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -70,6 +70,26 @@ test('audioSync detects narration intervals and mixes with ducking', async () =>
     assert.ok(existsSync(out.path), 'synced file exists')
     assert.ok(out.speechIntervals.length >= 1, `speech intervals detected: ${JSON.stringify(out.speechIntervals)}`)
     assert.ok(out.probe.streams.some(stream => stream.type === 'audio'), 'audio present')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('parseSrt and subtitleCut drive caption-based cuts', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-srtcut-'))
+  try {
+    const cues = parseSrt('1\n00:00:00,000 --> 00:00:01,000\n开场词\n\n2\n00:00:02,000 --> 00:00:03,000\n主体句\n\n')
+    assert.equal(cues.length, 2)
+    assert.equal(cues[1].start, 2)
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=4', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const srt = join(dir, 'subs.srt')
+    await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,000\n开场词\n\n2\n00:00:02,000 --> 00:00:03,000\n主体句\n\n', 'utf8')
+    const out = await subtitleCut({ video: clip, srt, outputDir: dir, include: '主体', pad: 0.1 })
+    assert.ok(existsSync(out.path), 'cut file exists')
+    assert.equal(out.cues.length, 1, 'keyword filtered to one cue')
+    assert.ok(out.probe.durationSec > 0.8 && out.probe.durationSec < 1.4, `kept only the matched window, got ${out.probe.durationSec}`)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

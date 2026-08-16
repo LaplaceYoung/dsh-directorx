@@ -16,7 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
-import { audioSync, renderTimeline } from './providers/timeline.ts'
+import { audioSync, renderTimeline, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -778,6 +778,29 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return canvas.branch(String(args.nodeId), Array.isArray(args.variations) ? args.variations.map(String) : [])
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_subtitle_cut',
+    description: 'Cut a video at subtitle cue boundaries (FunClip-style 按文本打点剪辑): parses the SRT, optionally filters cues by a keyword, pads each window, merges overlaps, and renders the cut via the timeline pipeline. The talking-video/montage assembly step for caption-driven edits.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt file (e.g. from directorx_transcribe_audio).' },
+      include: { type: 'string', description: 'Only cut cues whose text contains this keyword.' },
+      pad: { type: 'number', description: 'Padding seconds around each cue (default 0.15).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return subtitleCut({
+        video: String(args.video),
+        srt: String(args.srt),
+        outputDir: settings.outputDir,
+        include: typeof args.include === 'string' ? args.include : undefined,
+        pad: typeof args.pad === 'number' ? args.pad : undefined,
+      })
     },
   })))
 
