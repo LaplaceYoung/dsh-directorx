@@ -109,3 +109,13 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 25. **字幕同帧校验**：字幕与语音 ±1 帧对齐；中文 3~5 字/秒；单条最短
     0.83s。管线建议：transcribe → srt → smart_cut/timeline 时用
     subtitleCut 的 pad 控制在 0.1s 内保对齐。
+
+## 知识库深潜索引（规则 → 语料文章）
+
+规则是速查层；深潜用 `directorx_knowledge_search` / `directorx_knowledge_read`：
+- 规则 6/9/14 镜头解剖 → 文章 01 镜头语言与景别（19k 字全集）、89 名场面运镜解剖
+- 规则 12 转场/30 度 → 文章 02 剪辑与转场（蒙太奇/Murch）、127 AI 剪辑转场节奏
+- 规则 10/17 卡点节奏 → 文章 127、63 字幕节奏
+- 规则 7/16 角色一致性 → 文章 123 AI 长视频多镜一致性（场景卡/跨镜 QA）
+- 场面调度/构图 → 文章 07 导演技巧、94 场景调度深化、233 场面调度全要素
+- 叙事视点 → 文章 234 叙事视点（客观/主观/POV）
