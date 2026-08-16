@@ -124,27 +124,40 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   }
 
   // Xfade chain: overlap = fadeSec; offsets accumulate from clip durations.
+  // Audio-aware: video-only clips get silent tracks so the chain stays aligned.
   const probes = input.files.map(file => probeMedia(file))
+  const anyAudio = probes.some(probe => probe.streams.some(stream => stream.type === 'audio'))
   const args: string[] = []
   for (const file of input.files) args.push('-i', file)
   const filters: string[] = []
-  input.files.forEach((_, index) => {
-    filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]`)
-  })
+  if (anyAudio) {
+    input.files.forEach((_, index) => {
+      const hasAudio = probes[index].streams.some(stream => stream.type === 'audio')
+      filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000[a${index}]`}`)
+    })
+  } else {
+    input.files.forEach((_, index) => {
+      filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}]`)
+    })
+  }
   let video = '[v0]'
   let audio = '[a0]'
   let offset = (probes[0]?.durationSec ?? 3) - fadeSec
   for (let index = 1; index < input.files.length; index += 1) {
     const nextV = `[vx${index}]`
-    const nextA = `[ax${index}]`
     filters.push(`${video}[v${index}]xfade=transition=fade:duration=${fadeSec}:offset=${offset.toFixed(3)}${nextV}`)
-    filters.push(`${audio}[a${index}]acrossfade=d=${fadeSec}${nextA}`)
+    if (anyAudio) {
+      const nextA = `[ax${index}]`
+      filters.push(`${audio}[a${index}]acrossfade=d=${fadeSec}${nextA}`)
+      audio = nextA
+    }
     video = nextV
-    audio = nextA
     offset += (probes[index]?.durationSec ?? 3) - fadeSec
   }
   const filterComplex = `${filters.join(';')}`
-  args.push('-filter_complex', filterComplex, '-map', video, '-map', audio, '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'aac', out)
+  args.push('-filter_complex', filterComplex, '-map', video)
+  if (anyAudio) args.push('-map', audio, '-c:a', 'aac')
+  args.push('-c:v', 'libx264', '-preset', 'veryfast', out)
   runFfmpeg(args, 'video concat (fade)')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }

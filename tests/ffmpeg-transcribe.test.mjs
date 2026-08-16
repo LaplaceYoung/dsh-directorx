@@ -53,6 +53,27 @@ test('clipRank scores and orders subtitle candidates', async () => {
   }
 })
 
+test('renderTimeline applies scene-level speed (speed ramp building block)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-ramp-'))
+  try {
+    const a = join(dir, 'a.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=4', '-c:v', 'libx264', a], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const out = await renderTimeline({
+      scenes: [
+        { source: a, trim: [0, 2], speed: 2 },
+        { source: a, trim: [0, 2], speed: 0.5, transition: 'cut' },
+      ],
+    }, dir)
+    assert.ok(existsSync(out.path), 'ramped cut exists')
+    // 2s at 2x = 1s + 2s at 0.5x = 4s -> ~5s total.
+    assert.ok(out.probe.durationSec > 4.0 && out.probe.durationSec < 6.0, `speed-ramped duration ~5s, got ${out.probe.durationSec}`)
+    assert.ok(out.steps.some(step => step.includes('speed 2x')), 'speed steps recorded')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('smartCut matches script sentences to subtitle cues and assembles', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sc-'))
   try {

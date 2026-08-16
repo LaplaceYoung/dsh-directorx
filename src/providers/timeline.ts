@@ -23,6 +23,8 @@ import type { VideoOutput } from './video-process.ts'
 export interface TimelineScene {
   source: string
   trim?: [number, number]
+  /** Optional playback speed for this scene (0.5-8x) — speed-ramp building block. */
+  speed?: number
   transition?: 'fade' | 'cut'
 }
 
@@ -57,11 +59,22 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
           outputDir,
           start: scene.trim[0],
           end: scene.trim[1],
+          ...(scene.speed !== undefined && scene.speed > 0 ? { speed: Math.min(8, Math.max(0.5, scene.speed)) } : {}),
           ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
         })
         tempFiles.push(segment.path)
         segmentPaths.push(segment.path)
-        steps.push(`trim scene ${index + 1}: ${scene.source} [${scene.trim[0]},${scene.trim[1]}] -> ${segment.path}`)
+        steps.push(`trim scene ${index + 1}${scene.speed !== undefined && scene.speed > 0 ? ` (speed ${scene.speed}x)` : ''}: ${scene.source} [${scene.trim[0]},${scene.trim[1]}] -> ${segment.path}`)
+      } else if (scene.speed !== undefined && scene.speed > 0 && Math.abs(scene.speed - 1) > 0.01) {
+        const segment = await videoProcess({
+          source: scene.source,
+          outputDir,
+          speed: Math.min(8, Math.max(0.5, scene.speed)),
+          ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
+        })
+        tempFiles.push(segment.path)
+        segmentPaths.push(segment.path)
+        steps.push(`scene ${index + 1} speed ${scene.speed}x: ${scene.source} -> ${segment.path}`)
       } else {
         segmentPaths.push(scene.source)
         steps.push(`scene ${index + 1} untrimmed: ${scene.source}`)
