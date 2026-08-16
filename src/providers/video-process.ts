@@ -194,12 +194,13 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
     videoFilters.push(`lut3d=file=${input.lut3d.replace(/[,;\\]/g, '')}:interp=${interp}`)
   }
   if (input.grade !== undefined) {
+    // 完整配方（调研确认的选项表推导）：10-bit 处理域起步，末位降 8-bit。
     if (input.grade === 'teal-orange') {
-      videoFilters.push('colorbalance=rs=.08:gs=.02:bs=-.08:rm=.06:bm=-.06,colorchannelmixer=rr=.95:bb=1.05,eq=saturation=1.12:contrast=1.06')
+      videoFilters.push('format=yuv420p10le,colorbalance=rs=-0.12:gs=0.06:bs=0.12:rh=0.12:gh=0.03:bh=-0.12:rm=0.03:bm=-0.03,eq=contrast=1.08:saturation=1.2,format=yuv420p')
     } else if (input.grade === 'film-fade') {
-      videoFilters.push('eq=contrast=.92:saturation=.85:gamma=.95,colorbalance=rm=-.03:bm=-.03:rs=-.02,noise=alls=4:allf=t')
+      videoFilters.push('format=yuv420p10le,curves=master=\'0/0.05 0.2/0.24 0.6/0.58 1/0.96\':interp=pchip,eq=saturation=0.85:gamma=1.05,colorbalance=rh=0.06:bh=-0.05,vignette=angle=PI/7,noise=alls=5:allf=t+u,format=yuv420p')
     } else if (input.grade === 'bw-contrast') {
-      videoFilters.push('hue=s=0,eq=contrast=1.25:brightness=-.02')
+      videoFilters.push('format=yuv420p10le,hue=s=0,curves=preset=strong_contrast,eq=contrast=1.15:brightness=-0.02,noise=alls=4:allf=t,format=yuv420p')
     }
   }
   if (input.textOverlays !== undefined && input.textOverlays.length > 0) {
