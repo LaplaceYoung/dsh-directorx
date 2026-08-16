@@ -212,6 +212,25 @@ test('speech duration estimator and aiBrief idempotent cache', async () => {
   }
 })
 
+test('takes query returns shot members sorted deterministically with selected take', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-takes-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'shot', kind: 'group', label: '镜头A', x: 0, y: 0, shotStatus: 'review' })
+    await store.addNode({ id: 't2', kind: 'video', label: 'Take B', path: '/tmp/b.mp4', parent: 'shot', x: 0, y: 0, shotIndex: 2 })
+    await store.addNode({ id: 't1', kind: 'video', label: 'Take A', path: '/tmp/a.mp4', parent: 'shot', x: 0, y: 0, shotIndex: 1 })
+    await store.update('shot', { selectedTakeId: 't1' })
+    const result = await store.takes('shot')
+    assert.equal(result.takes.length, 2)
+    assert.equal(result.takes[0].id, 't1', 'sorted by shotIndex')
+    assert.equal(result.selectedTakeId, 't1', 'selected take pinned')
+    assert.equal(result.shotStatus, 'review')
+    await assert.rejects(() => store.takes('missing'), /not found/)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('shot status lifecycle persists on nodes and rejects invalid values', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-shot-'))
   try {

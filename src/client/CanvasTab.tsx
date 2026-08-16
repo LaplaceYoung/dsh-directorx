@@ -24,7 +24,7 @@ type NodeCallbacks = {
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
-type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -331,7 +331,7 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
+interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string; selectedTakeId?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
@@ -686,6 +686,7 @@ function CanvasTabInner(): ReactNode {
             ...(data.locked === true ? { locked: true } : {}),
             ...(data.aiBrief !== undefined ? { aiBrief: data.aiBrief } : {}),
             ...((data as unknown as { shotStatus?: string }).shotStatus !== undefined ? { shotStatus: (data as unknown as { shotStatus: string }).shotStatus } : {}),
+            ...((data as unknown as { selectedTakeId?: string }).selectedTakeId !== undefined ? { selectedTakeId: (data as unknown as { selectedTakeId: string }).selectedTakeId } : {}),
             ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
             x: absolute.x, y: absolute.y,
             ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),

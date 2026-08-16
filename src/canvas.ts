@@ -32,6 +32,8 @@ export interface CanvasNode {
   aiBrief?: string
   /** 镜头状态（Shot 一等容器语义）：idea/approved/generating/review/locked。 */
   shotStatus?: 'idea' | 'approved' | 'generating' | 'review' | 'locked'
+  /** 选定 Take：Shot 组内被钉住采用的结果节点 id。 */
+  selectedTakeId?: string
 }
 
 export interface CanvasEdge {
@@ -83,6 +85,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(input.locked === true ? { locked: true } : {}),
     ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
     ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
+    ...(typeof input.selectedTakeId === 'string' && input.selectedTakeId !== '' ? { selectedTakeId: input.selectedTakeId.slice(0, 100) } : {}),
   }
   return node
 }
@@ -424,6 +427,32 @@ export class DirectorxCanvasStore {
       ownPrompt: target.prompt ?? null,
       blocks: { subjects, references, directions, title: target.label !== '' ? target.label : null },
     }
+  }
+
+  /**
+   * Take 归档查询：Shot 组内媒体成员即 Takes（确定性排序：shotIndex
+   * 优先，同值按 id）。返回选定 Take 与全体候选，供 agent 打分/对比/
+   * 钉选使用。
+   */
+  async takes(groupId: string): Promise<{
+    groupId: string
+    shotStatus: string | null
+    selectedTakeId: string | null
+    takes: Array<{ id: string; label: string; path: string | null; shotIndex: number | null }>
+  }> {
+    const doc = await this.read()
+    const group = doc.nodes.find(node => node.id === groupId)
+    if (group === undefined || group.kind !== 'group') throw new Error(`canvas shot group "${groupId}" not found`)
+    const members = doc.nodes
+      .filter(node => node.parent === groupId && (node.kind === 'image' || node.kind === 'video'))
+      .map(node => ({ id: node.id, label: node.label, path: node.path ?? null, shotIndex: node.shotIndex ?? null }))
+      .sort((a, b) => {
+        if (a.shotIndex !== null && b.shotIndex !== null && a.shotIndex !== b.shotIndex) return a.shotIndex - b.shotIndex
+        if (a.shotIndex !== null) return -1
+        if (b.shotIndex !== null) return 1
+        return a.id < b.id ? -1 : 1
+      })
+    return { groupId, shotStatus: group.shotStatus ?? null, selectedTakeId: group.selectedTakeId ?? null, takes: members }
   }
 
   /**

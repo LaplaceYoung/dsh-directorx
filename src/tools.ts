@@ -418,6 +418,19 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_takes',
+    description: 'Take 归档查询：返回 Shot 组内的候选结果（媒体成员，按 shotIndex 确定性排序）+ 选定 Take + 镜头状态——agent 打分/对比/钉选（selectedTakeId 经 canvas_update 写入）的确定性底座。',
+    parameters: {
+      groupId: { type: 'string', required: true, description: 'Shot group node id.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return canvas.takes(String(args.groupId))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_prompt_for',
     description: '自动合成 prompt 上下文：沿入边回溯目标节点的上游（主体/参考图 ref_image_N 槽位/方向/标题），prompt-first（节点自带 prompt 压过自动简介）。返回结构化分块，LLM 合成生成提示词就在此基础上完成——画布状态到提示词的确定性一半。',
     parameters: {
