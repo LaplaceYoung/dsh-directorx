@@ -13,6 +13,9 @@ export interface CharacterCard {
   description: string
   /** Local image path (output dir media) or http(s) URL. */
   refPath: string
+  /** 组装式角色：服装（外观层）与道具（随身物品层），可单独变更。 */
+  outfit?: string
+  props?: string
   at: number
 }
 
@@ -34,13 +37,20 @@ export class CharacterStore {
     }
   }
 
-  async register(input: { name: string; description?: string; refPath: string }): Promise<CharacterCard> {
+  async register(input: { name: string; description?: string; refPath: string; outfit?: string; props?: string }): Promise<CharacterCard> {
     const name = input.name.trim().slice(0, 100)
     if (name === '') throw new Error('character name is required')
     if (input.refPath.trim() === '') throw new Error('refPath is required (local media path or http(s) URL)')
     const ledger = await this.read()
     const existing = ledger.characters.findIndex(card => card.name === name)
-    const card: CharacterCard = { name, description: (input.description ?? '').slice(0, 1000), refPath: input.refPath, at: Date.now() }
+    const card: CharacterCard = {
+      name,
+      description: (input.description ?? '').slice(0, 1000),
+      refPath: input.refPath,
+      ...(input.outfit !== undefined && input.outfit !== '' ? { outfit: input.outfit.slice(0, 300) } : {}),
+      ...(input.props !== undefined && input.props !== '' ? { props: input.props.slice(0, 300) } : {}),
+      at: Date.now(),
+    }
     if (existing >= 0) ledger.characters[existing] = card
     else {
       ledger.characters.push(card)

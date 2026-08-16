@@ -5,6 +5,8 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
 import { corpus } from './corpus.ts'
+import { listMediaFiles } from './media-server.ts'
+import { ProjectStyleStore } from './style-constants.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
@@ -85,7 +87,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
-        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}`).join('；')
+        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
         const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
         return runImage(toolContext(settings, settings.image, signal), prompt, {
           size: args.size,
@@ -117,7 +119,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
-        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}`).join('；')
+        const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
         const prompt = characterCards.length > 0 ? `${args.prompt}\n\n角色一致性锚点：${characterNote}` : args.prompt
         return runVideo(toolContext(settings, settings.video, signal), prompt, {
           seconds: args.seconds,
@@ -794,11 +796,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       name: { type: 'string', required: true, description: 'Character name (unique; re-registering overwrites).' },
       description: { type: 'string', description: 'Appearance description (stable features only: hair/outfit/scars/props).' },
       refPath: { type: 'string', required: true, description: 'Reference image path (local output-dir media or http(s) URL). 标准（Runway 官方）：自然均匀光 + 中性表情 + 中等画质（「空白画布」原则，便于跨场景改造）。' },
+      outfit: { type: 'string', description: '组装式角色：服装描述（外观层，可单独换装不改身份）。' },
+      props: { type: 'string', description: '组装式角色：随身道具描述（道具层，如武器/配饰）。' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return new CharacterStore(settings.outputDir).register({ name: String(args.name), description: args.description, refPath: String(args.refPath) })
+      return new CharacterStore(settings.outputDir).register({ name: String(args.name), description: args.description, refPath: String(args.refPath), outfit: typeof args.outfit === 'string' ? args.outfit : undefined, props: typeof args.props === 'string' ? args.props : undefined })
     },
   })))
 
@@ -1057,6 +1061,51 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return clipRank({ srt: String(args.srt), script: Array.isArray(args.script) ? args.script.map(String) : [], topN: args.topN })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_media_list',
+    description: '媒体资产库：列出输出目录下的全部媒体文件（顶层 + edited/frames/transcripts），含路径/类型/大小。用它在剪辑/混剪前盘点可用素材（素材盘点步），具体规格再对单个文件 directorx_probe_media。',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      return listMediaFiles(settings.outputDir)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_style_lock',
+    description: '项目风格常量锁：camera / palette / lighting / sceneAnchors / negativeBaseline 一次定义存 style.json，之后每个生成提示词逐字复用同一段常量块（跨拍一致性靠复用常量文本，不靠每次重写）。',
+    parameters: {
+      camera: { type: 'string', description: '机位/镜头语言常量，如「35mm anamorphic, 浅景深, 静止或缓慢推轨」' },
+      palette: { type: 'string', description: '色调常量，如「青橙分调, 琥珀高光, 3-5 个锚色」' },
+      lighting: { type: 'string', description: '布光常量（光源方向/色温/阴影），如「左侧柔窗主光 5600K, 暖灯补光」' },
+      sceneAnchors: { type: 'array', items: { type: 'string' }, description: '场景锚点列表（每场景的固定描述短句）' },
+      negativeBaseline: { type: 'string', description: '负面基线（默认四类伪影 + 风格边界）' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return new ProjectStyleStore(settings.outputDir).set({
+        camera: typeof args.camera === 'string' ? args.camera : undefined,
+        palette: typeof args.palette === 'string' ? args.palette : undefined,
+        lighting: typeof args.lighting === 'string' ? args.lighting : undefined,
+        sceneAnchors: Array.isArray(args.sceneAnchors) ? args.sceneAnchors.map(String) : undefined,
+        negativeBaseline: typeof args.negativeBaseline === 'string' ? args.negativeBaseline : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_style_get',
+    description: '读取当前项目的风格常量锁（style.json）。生成提示词时把返回字段逐字并入对应位置（camera/palette/lighting/sceneAnchors/negativeBaseline）。',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      return new ProjectStyleStore(settings.outputDir).read()
     },
   })))
 

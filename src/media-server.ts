@@ -271,6 +271,43 @@ export function registerMediaTasksRoute(ctx: Context, getOutputDir: () => string
  * output dir (top level, edited/, frames/, transcripts/), one level deep —
  * the canvas "add media" picker and the dock media library consume it.
  */
+export interface MediaFileEntry {
+  path: string
+  name: string
+  mediaType: string
+  size: number
+}
+
+/** 扫描输出目录下的媒体资产（顶层 + edited/frames/transcripts 一层）。 */
+export async function listMediaFiles(outputDir: string): Promise<MediaFileEntry[]> {
+  const root = resolve(process.cwd(), outputDir)
+  const files: MediaFileEntry[] = []
+  const scan = async (dir: string, depth: number) => {
+    if (depth > 1) return
+    let entries
+    try {
+      entries = await readdir(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      const full = join(dir, entry.name)
+      if (entry.isDirectory()) {
+        if (entry.name === 'frames' || entry.name === 'edited' || entry.name === 'transcripts') await scan(full, depth + 1)
+        continue
+      }
+      const info = await stat(full).catch(() => undefined)
+      if (info === undefined || !info.isFile()) continue
+      const mediaType = mimeForPath(full)
+      if (mediaType === 'application/octet-stream') continue
+      files.push({ path: full, name: entry.name, mediaType, size: info.size })
+    }
+  }
+  await scan(root, 0)
+  files.sort((a, b) => b.size - a.size)
+  return files.slice(0, 200)
+}
+
 export function registerMediaListRoute(ctx: Context, getOutputDir: () => string): () => void {
   const webServer = ctx.get('webServer') as
     | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
@@ -292,33 +329,9 @@ export function registerMediaListRoute(ctx: Context, getOutputDir: () => string)
         return
       }
       try {
-        const root = resolve(process.cwd(), getOutputDir())
-        const files: Array<{ path: string; name: string; mediaType: string; size: number }> = []
-        const scan = async (dir: string, depth: number) => {
-          if (depth > 1) return
-          let entries
-          try {
-            entries = await readdir(dir, { withFileTypes: true })
-          } catch {
-            return
-          }
-          for (const entry of entries) {
-            const full = join(dir, entry.name)
-            if (entry.isDirectory()) {
-              if (entry.name === 'frames' || entry.name === 'edited' || entry.name === 'transcripts') await scan(full, depth + 1)
-              continue
-            }
-            const info = await stat(full).catch(() => undefined)
-            if (info === undefined || !info.isFile()) continue
-            const mediaType = mimeForPath(full)
-            if (mediaType === 'application/octet-stream') continue
-            files.push({ path: full, name: entry.name, mediaType, size: info.size })
-          }
-        }
-        await scan(root, 0)
-        files.sort((a, b) => b.size - a.size)
+        const files = await listMediaFiles(getOutputDir())
         response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
-        response.end(JSON.stringify({ files: files.slice(0, 200) }))
+        response.end(JSON.stringify({ files }))
       } catch (error) {
         response.writeHead(500, { 'content-type': 'application/json; charset=utf-8' })
         response.end(JSON.stringify({ error: error instanceof Error ? error.message : 'list failed' }))

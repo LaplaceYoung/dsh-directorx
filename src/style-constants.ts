@@ -1,0 +1,55 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+
+/**
+ * 项目风格常量锁：camera / palette / lighting / 场景锚点 / 负面基线
+ * 一次定义、全片复用——生成提示词里逐字引用这些常量块保持跨镜头一致
+ * （跨拍一致性不是靠改提示词，而是靠复用同一段常量文本）。
+ */
+
+export interface StyleConstants {
+  camera: string
+  palette: string
+  lighting: string
+  sceneAnchors: string[]
+  negativeBaseline: string
+  at: number
+}
+
+export class ProjectStyleStore {
+  constructor(private readonly outputDir: string) {}
+
+  private filePath(): string {
+    return join(resolve(process.cwd(), this.outputDir), 'style.json')
+  }
+
+  async read(): Promise<StyleConstants | null> {
+    try {
+      const parsed = JSON.parse(await readFile(this.filePath(), 'utf8')) as StyleConstants
+      if (typeof parsed.camera !== 'string') return null
+      return parsed
+    } catch {
+      return null
+    }
+  }
+
+  async set(input: Partial<Omit<StyleConstants, 'at'>>): Promise<StyleConstants> {
+    const current = await this.read()
+    const merged: StyleConstants = {
+      camera: input.camera ?? current?.camera ?? '',
+      palette: input.palette ?? current?.palette ?? '',
+      lighting: input.lighting ?? current?.lighting ?? '',
+      sceneAnchors: input.sceneAnchors ?? current?.sceneAnchors ?? [],
+      negativeBaseline: input.negativeBaseline ?? current?.negativeBaseline ?? '',
+      at: Date.now(),
+    }
+    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await writeFile(this.filePath(), JSON.stringify(merged, null, 2), 'utf8')
+    return merged
+  }
+
+  /** 生成提示词的常量块（逐字复用）。 */
+  block(): string {
+    return ''
+  }
+}

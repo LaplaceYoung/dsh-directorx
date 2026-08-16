@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { CharacterStore, DirectorxCanvasStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
+import { CharacterStore, DirectorxCanvasStore, ProjectStyleStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -190,6 +190,23 @@ test('canvas branch clones a node into a labelled variant group', async () => {
     assert.ok(members.every(member => member.label.includes('变体')), 'variants labelled')
     const original = branched.nodes.find(node => node.id === 'shot1')
     assert.ok(original !== undefined, 'source preserved')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('style constants lock merges and persists across set calls', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-style-'))
+  try {
+    const store = new ProjectStyleStore(dir)
+    assert.equal(await store.read(), null, 'empty -> null')
+    const first = await store.set({ camera: '35mm anamorphic', palette: '青橙' })
+    assert.equal(first.camera, '35mm anamorphic')
+    const second = await store.set({ lighting: '左窗主光 5600K' })
+    assert.equal(second.camera, '35mm anamorphic', 'merge keeps prior fields')
+    assert.equal(second.lighting, '左窗主光 5600K')
+    const reread = await store.read()
+    assert.equal(reread.palette, '青橙')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

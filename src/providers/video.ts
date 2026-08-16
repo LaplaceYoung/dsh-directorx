@@ -180,12 +180,24 @@ export async function runVideo(
     if (ctx.capability.mode === 'veo') return veoVideo(ctx, prompt, options)
     throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
   } catch (error) {
+    // 失败分流：4xx（鉴权/参数）重试无效，5xx/超时（上游临时）可重试——
+    // 把分类写进错误信息，agent 依此决定重试还是改配置。
+    const message = error instanceof Error ? error.message : String(error)
+    const httpMatch = message.match(/HTTP (\d{3})/)
+    const classified = httpMatch !== null
+      ? (Number(httpMatch[1]) >= 400 && Number(httpMatch[1]) < 500
+        ? `${message} [失败分类: 4xx 参数/鉴权类——重试无效，检查 Settings 配置与参数]`
+        : Number(httpMatch[1]) >= 500
+          ? `${message} [失败分类: 5xx 上游临时——可稍后重试]`
+          : message)
+      : /timed out|abort|ECONNRESET|fetch failed/i.test(message)
+        ? `${message} [失败分类: 网络/超时——可稍后重试]`
+        : message
     // A timeout or abort may leave the provider task running: record the
     // local failure under the task id so directorx_task_status can surface
     // the orphan and directorx_cancel_task can mark it.
     const taskId = (error as { taskId?: string } | null)?.taskId
     if (taskId !== undefined && taskId !== '' && !(await ctx.ledger?.isCancelled(taskId))) {
-      const message = error instanceof Error ? error.message : String(error)
       await ctx.ledger?.append({
         taskId,
         model: ctx.capability.model,
@@ -196,6 +208,8 @@ export async function runVideo(
         error: `${message} — the provider task may still be running; check directorx_task_status.`,
       }).catch(() => {})
     }
-    throw error
+    const classifiedError = new Error(message)
+    ;(classifiedError as unknown as { taskId?: string }).taskId = taskId
+    throw classifiedError
   }
 }
