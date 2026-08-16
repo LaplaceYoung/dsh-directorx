@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import WaveSurfer from 'wavesurfer.js'
-import { AudioClip, Combinator, MP4Clip, OffscreenSprite } from '@webav/av-cliper'
+import { AudioClip, Combinator, EmbedSubtitlesClip, MP4Clip, OffscreenSprite } from '@webav/av-cliper'
 
 /**
  * Track-timeline video editor, powered by WebAV (MIT, actively maintained;
@@ -293,7 +293,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     setExported(undefined)
     try {
       if (!await Combinator.isSupported({ width: meta.width, height: meta.height })) {
-        throw new Error('当前浏览器不支持 WebCodecs H.264 编码（需要 Chrome/Edge/Safari 较新版本）')
+        throw new Error('当前浏览器不支持 WebCodecs H.264 编码（仅支持 Chrome/Edge 102+）')
       }
       // Partition the source once, in source order, at every segment boundary.
       const cuts = [...new Set(segments.flatMap(segment => [segment.startUs, segment.endUs]))]
@@ -322,6 +322,24 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
         sprite.time = { offset: offsetUs, duration: Math.round((segment.endUs - segment.startUs) / rate), playbackRate: rate }
         await combinator.addSprite(sprite)
         offsetUs += Math.round((segment.endUs - segment.startUs) / rate)
+      }
+      if (subtitles.length > 0) {
+        await document.fonts.ready
+        const subClip = new EmbedSubtitlesClip(
+          subtitles.map(block => ({ start: block.startUs, end: block.endUs, text: block.text })),
+          {
+            videoWidth: meta.width, videoHeight: meta.height,
+            fontFamily: 'Noto Sans SC, PingFang SC, sans-serif',
+            fontSize: Math.max(20, Math.round(meta.height / 18)),
+            fontWeight: 600, color: '#FFFFFF', strokeStyle: '#000000',
+            lineWidth: Math.max(3, Math.round(meta.height / 240)), lineJoin: 'round',
+            bottomOffset: Math.round(meta.height / 16),
+          },
+        )
+        await subClip.ready
+        const subSprite = new OffscreenSprite(subClip)
+        subSprite.time = { offset: 0, duration: Math.min(offsetUs, subClip.meta.duration) }
+        await combinator.addSprite(subSprite)
       }
       const totalUs = offsetUs
       if (audio !== undefined) {
@@ -720,7 +738,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                 })}
               </div>
             ) : (
-              <div style={{ fontSize: 11.5, opacity: .55, padding: '6px 0' }}>导入 SRT 后按时间轴排成字幕块：拖移改时间、双击编辑文字；烧录进成片后续接入。</div>
+              <div style={{ fontSize: 11.5, opacity: .55, padding: '6px 0' }}>导入 SRT 后按时间轴排成字幕块：拖移改时间、双击编辑文字；导出时烧录进成片（白字黑描边）。</div>
             )}
           </div>
           {exported !== undefined ? (
