@@ -1704,6 +1704,32 @@ function CanvasTabInner(): ReactNode {
     saveRef.current()
   }, [comparePick, setNodes, pushHistory])
 
+  const arrangeSemantic = useCallback(() => {
+    const current = nodesRef.current
+    const shots = current
+      .filter(node => node.type === 'group' && node.parentId === undefined && (node.data as { shotIndex?: number } | undefined)?.shotIndex !== undefined)
+      .sort((a, b) => ((a.data as { shotIndex: number }).shotIndex) - ((b.data as { shotIndex: number }).shotIndex))
+    const anchors = current.filter(node => node.type !== 'group' && node.parentId === undefined && !shots.some(shot => shot.id === node.id))
+    pushHistory()
+    const positioned: typeof current = []
+    anchors.forEach((node, index) => {
+      positioned.push({ ...node, position: { x: 40, y: 60 + index * 190 } })
+    })
+    let y = 60
+    const shotIds = new Set(shots.map(shot => shot.id))
+    for (const shot of shots) {
+      positioned.push({ ...shot, position: { x: 320, y }, style: { ...shot.style, width: shot.style?.width ?? 520 } })
+      const members = current.filter(node => node.parentId === shot.id)
+      members.forEach((member, index) => {
+        positioned.push({ ...member, position: { x: 20 + index * 240, y: 64 } })
+      })
+      const shotHeight = typeof shot.style?.height === 'number' ? shot.style.height : 380
+      y += shotHeight + 48
+    }
+    setNodes(currentNodes => currentNodes.map(node => positioned.find(placed => placed.id === node.id) ?? node))
+    scheduleSave()
+  }, [setNodes, scheduleSave])
+
   const batchBranch = useCallback(() => {
     const selectedIds = nodesRef.current.filter(node => node.selected === true).map(node => node.id)
     if (selectedIds.length < 2) return
@@ -2032,6 +2058,7 @@ function CanvasTabInner(): ReactNode {
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setMoreOpen(false)} />
             <div style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+              <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); arrangeSemantic() }}>语义泳道布局</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); openCompare() }}>对比分支版本</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); void exportPng() }}>导出 PNG 分镜板</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); void load() }}>重载画布</button>
