@@ -1563,6 +1563,26 @@ function CanvasTabInner(): ReactNode {
     setUploading(false)
   }, [setNodes, nodeCallbacks, centerFlowPos, pushHistory])
 
+  // 粘贴素材：剪贴板图片/文件直接落为画布节点（视口中心）。
+  const onCanvasPaste = useCallback((event: React.ClipboardEvent) => {
+    const items = event.clipboardData?.items
+    if (items === undefined) return
+    const files: File[] = []
+    for (const item of Array.from(items)) {
+      const file = item.getAsFile?.()
+      if (file !== null && file !== undefined) files.push(file)
+    }
+    if (files.length === 0) return
+    event.preventDefault()
+    const center = screenToFlowPosition({
+      x: (flowRootRef.current?.clientWidth ?? 800) / 2,
+      y: (flowRootRef.current?.clientHeight ?? 600) / 2,
+    })
+    void uploadFilesAt(files, center)
+  }, [screenToFlowPosition, uploadFilesAt])
+
+
+
   const onUploadFiles = useCallback(async (files: FileList | null) => {
     if (files === null || files.length === 0) return
     await uploadFilesAt(Array.from(files))
@@ -1807,7 +1827,7 @@ function CanvasTabInner(): ReactNode {
   }, [edges, nodes])
 
   return (
-    <div ref={flowRootRef} style={{ position: 'relative', height: '100%', minHeight: 480 }}>
+    <div ref={flowRootRef} style={{ position: 'relative', height: '100%', minHeight: 480 }} onPaste={onCanvasPaste} tabIndex={0}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
       <style>{`
         .react-flow__controls { background: rgba(24,24,28,.9); box-shadow: 0 6px 18px rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; overflow: hidden; }
@@ -1878,6 +1898,7 @@ function CanvasTabInner(): ReactNode {
         minZoom={0.15}
         maxZoom={2}
         deleteKeyCode={['Backspace', 'Delete']}
+        onlyRenderVisibleElements={nodes.length > 100}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="rgba(255,255,255,.09)" />
         <DirectorxEdges nodes={nodes} edges={edges} selectedId={selectedEdge} onSelect={setSelectedEdge} onContext={onEdgeContext} onReconnect={onEdgeReconnect} />
@@ -1909,7 +1930,6 @@ function CanvasTabInner(): ReactNode {
           title="画布标题"
         />
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 10.5, color: '#8a8a8a', padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.04)' }}>额度 —</span>
           <span style={saveChip}>{saveState}</span>
           <button
             className="dx-tool-icon"
@@ -2190,6 +2210,7 @@ function CanvasTabInner(): ReactNode {
             { label: '图片素材', run: () => quickAddMedia('image') },
             { label: '视频素材', run: () => quickAddMedia('video') },
             { label: '分组', run: quickAddGroup },
+            { label: '上传', run: () => { setQuickAdd(undefined); importMedia() } },
           ].map(item => (
             <button
               key={item.label}
