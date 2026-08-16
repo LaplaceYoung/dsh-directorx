@@ -34,6 +34,8 @@ export interface CanvasNode {
   shotStatus?: 'idea' | 'approved' | 'generating' | 'review' | 'locked'
   /** 选定 Take：Shot 组内被钉住采用的结果节点 id。 */
   selectedTakeId?: string
+  /** 连续性规则引用：跨镜头锁定的角色/服装/道具/光线/方位等约束。 */
+  continuityRules?: string[]
 }
 
 export interface CanvasEdge {
@@ -86,6 +88,7 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
     ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
     ...(typeof input.selectedTakeId === 'string' && input.selectedTakeId !== '' ? { selectedTakeId: input.selectedTakeId.slice(0, 100) } : {}),
+    ...(Array.isArray(input.continuityRules) ? { continuityRules: input.continuityRules.filter((rule: unknown): rule is string => typeof rule === 'string' && rule !== '').slice(0, 5).map((rule: string) => rule.slice(0, 200)) } : {}),
   }
   return node
 }
@@ -427,6 +430,26 @@ export class DirectorxCanvasStore {
       ownPrompt: target.prompt ?? null,
       blocks: { subjects, references, directions, title: target.label !== '' ? target.label : null },
     }
+  }
+
+  /**
+   * 连续性规则注册表：汇总全部 Shot 组的 continuityRules；跨镜头重复
+   * 出现的规则即「连续性锁」（报告 16.4：角色/服装/道具/光线/方位）。
+   */
+  async continuity(): Promise<{
+    shots: Array<{ id: string; label: string; rules: string[] }>
+    locks: Array<{ rule: string; shotCount: number }>
+  }> {
+    const doc = await this.read()
+    const shots = doc.nodes
+      .filter(node => node.kind === 'group' && Array.isArray(node.continuityRules) && node.continuityRules.length > 0)
+      .map(node => ({ id: node.id, label: node.label, rules: node.continuityRules ?? [] }))
+    const counts = new Map<string, number>()
+    for (const shot of shots) {
+      for (const rule of shot.rules) counts.set(rule, (counts.get(rule) ?? 0) + 1)
+    }
+    const locks = [...counts.entries()].filter(([, count]) => count >= 2).map(([rule, shotCount]) => ({ rule, shotCount }))
+    return { shots, locks }
   }
 
   /**

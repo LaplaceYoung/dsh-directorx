@@ -212,6 +212,23 @@ test('speech duration estimator and aiBrief idempotent cache', async () => {
   }
 })
 
+test('continuity registry surfaces cross-shot locks', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-cont-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 's1', kind: 'group', label: '镜头1', x: 0, y: 0, continuityRules: ['红衣女子：黑发+红风衣', '霓虹雨夜街道'] })
+    await store.addNode({ id: 's2', kind: 'group', label: '镜头2', x: 0, y: 0, continuityRules: ['红衣女子：黑发+红风衣'] })
+    const registry = await store.continuity()
+    assert.equal(registry.shots.length, 2, 'two shots carry rules')
+    const lock = registry.locks.find(entry => entry.rule.includes('红衣女子'))
+    assert.ok(lock !== undefined && lock.shotCount === 2, 'cross-shot rule becomes a continuity lock')
+    const doc = await store.read()
+    assert.equal(doc.nodes.find(node => node.id === 's1').continuityRules.length, 2, 'rules persist on node')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('takes query returns shot members sorted deterministically with selected take', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-takes-'))
   try {

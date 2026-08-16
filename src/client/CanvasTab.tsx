@@ -24,7 +24,7 @@ type NodeCallbacks = {
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
-type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[]; onCycleShotStatus?: (id: string) => void } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -272,6 +272,15 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
       <NodeResizer isVisible={selected} minWidth={260} minHeight={180} color="rgba(245,245,245,.85)" />
       <div style={groupTitle}>
         <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={{ flex: 1, minWidth: 0 }} />
+        {(data.continuityRules?.length ?? 0) > 0 ? (
+          <span
+            title={`连续性锁：${data.continuityRules?.join('；')}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#4f9dff', padding: '1px 6px', borderRadius: 8, background: 'rgba(79,157,255,.12)', flexShrink: 0 }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+            {data.continuityRules?.length}
+          </span>
+        ) : null}
         <button
           title="镜头状态（点击循环：idea→approved→generating→review→locked）"
           onClick={event => { event.stopPropagation(); data.onCycleShotStatus?.(props.id) }}
@@ -331,7 +340,7 @@ const pickerGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repea
 const pickerThumb: CSSProperties = { width: '100%', height: 56, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(255,255,255,.14)', display: 'block' }
 const saveChip: CSSProperties = { fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', color: '#9be29b' }
 
-interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string; selectedTakeId?: string }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
+interface CanvasDocument { version: number; updatedAt: number; title?: string; nodes: Array<{ id: string; kind: string; label: string; path?: string; parent?: string; x: number; y: number; width?: number; height?: number; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[] }>; edges: Array<{ id: string; from: string; to: string; label?: string; sourceVariantIdx?: number }> }
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
@@ -687,6 +696,7 @@ function CanvasTabInner(): ReactNode {
             ...(data.aiBrief !== undefined ? { aiBrief: data.aiBrief } : {}),
             ...((data as unknown as { shotStatus?: string }).shotStatus !== undefined ? { shotStatus: (data as unknown as { shotStatus: string }).shotStatus } : {}),
             ...((data as unknown as { selectedTakeId?: string }).selectedTakeId !== undefined ? { selectedTakeId: (data as unknown as { selectedTakeId: string }).selectedTakeId } : {}),
+            ...((data as unknown as { continuityRules?: string[] }).continuityRules !== undefined ? { continuityRules: (data as unknown as { continuityRules: string[] }).continuityRules } : {}),
             ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
             x: absolute.x, y: absolute.y,
             ...(typeof node.style?.width === 'number' ? { width: node.style.width } : {}),
@@ -1885,7 +1895,8 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
-        <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}), position: 'relative' }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）">
+          <span style={{ position: 'absolute', top: 6, right: 7, width: 6, height: 6, borderRadius: 9999, background: '#4f9dff', boxShadow: '0 0 0 2px #000' }} /><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
         <button className="dx-tool-icon" style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(moreOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setMoreOpen(open => !open)} title="更多">

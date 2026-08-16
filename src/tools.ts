@@ -431,6 +431,17 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_continuity',
+    description: '连续性规则注册表：汇总全部 Shot 组的 continuityRules；跨镜头重复出现的规则即「连续性锁」（角色/服装/道具/光线/方位跨镜头锁定）。返回逐镜头规则 + 锁列表（规则 × 出现镜头数）。',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute() {
+      return canvas.continuity()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_prompt_for',
     description: '自动合成 prompt 上下文：沿入边回溯目标节点的上游（主体/参考图 ref_image_N 槽位/方向/标题），prompt-first（节点自带 prompt 压过自动简介）。返回结构化分块，LLM 合成生成提示词就在此基础上完成——画布状态到提示词的确定性一半。',
     parameters: {
