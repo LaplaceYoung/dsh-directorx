@@ -2205,7 +2205,7 @@ function CanvasTabInner(): ReactNode {
           ) : orderedShots.map(shot => {
             const data = shot.data as { kind: 'image' | 'video'; label: string; path: string; shotIndex: number; shotStatus?: string }
             return (
-              <button key={shot.id} onClick={() => { const m = nodeMetrics(shot); setCenter(shot.position.x + m.width / 2, shot.position.y + m.height / 2, { zoom: 1.2, duration: 260 }) }} style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', textAlign: 'left', padding: '5px 6px', borderRadius: 8, border: 'none', background: 'transparent', color: '#ececec', fontSize: 11.5, cursor: 'pointer' }}>
+              <button key={shot.id} onClick={() => { setNodes(list => list.map(node => node.id === shot.id ? { ...node, selected: true } : { ...node, selected: false })); const m = nodeMetrics(shot); setCenter(shot.position.x + m.width / 2, shot.position.y + m.height / 2, { zoom: 1.2, duration: 260 }) }} style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', textAlign: 'left', padding: '5px 6px', borderRadius: 8, border: 'none', background: shot.selected === true ? 'rgba(255,255,255,.1)' : 'transparent', color: '#ececec', fontSize: 11.5, cursor: 'pointer' }}>
                 <span style={{ flexShrink: 0, fontSize: 9.5, fontWeight: 700, color: '#9b9b9b', width: 22 }}>#{data.shotIndex}</span>
                 <img src={mediaUrl(data.path)} alt="" loading="lazy" style={{ width: 26, height: 18, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} draggable={false} />
                 <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{data.label}</span>
@@ -2293,15 +2293,14 @@ function CanvasTabInner(): ReactNode {
             return (
               <button
                 key={shot.id}
-                title={`#${data.shotIndex} ${data.label}（点击定位到画布）`}
+                title={`#${data.shotIndex} ${data.label}（点击选中并定位 · 双击打开编辑器）`}
                 onClick={() => {
+                  setNodes(list => list.map(node => node.id === shot.id ? { ...node, selected: true } : { ...node, selected: false }))
                   const m = nodeMetrics(shot)
                   setCenter(shot.position.x + m.width / 2, shot.position.y + m.height / 2, { zoom: 1.2, duration: 260 })
                 }}
-                onDoubleClick={() => {
-                  setNodes(list => list.map(node => node.id === shot.id ? { ...node, selected: true } : { ...node, selected: false }))
-                }}
-                style={{ position: 'relative', flexShrink: 0, width: 96, height: 54, padding: 0, border: '1px solid rgba(255,255,255,.18)', borderRadius: 10, overflow: 'hidden', background: '#000', cursor: 'pointer' }}
+                onDoubleClick={() => openEditor(data.kind, data.path)}
+                style={{ position: 'relative', flexShrink: 0, width: 96, height: 54, padding: 0, border: shot.selected === true ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.18)', borderRadius: 10, overflow: 'hidden', background: '#000', cursor: 'pointer' }}
               >
                 <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} draggable={false} />
                 <span style={{ position: 'absolute', top: 4, left: 4, fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 5, background: 'rgba(0,0,0,.7)', color: '#f5f5f5' }}>#{data.shotIndex}</span>
