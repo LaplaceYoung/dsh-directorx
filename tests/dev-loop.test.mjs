@@ -152,6 +152,30 @@ test('tests_red restores unscoped dirt and leaves no loop-gate stash', async () 
   assert.deepEqual(loopGateStashes(plugin), [], 'tests_red must not leave a loop-gate stash')
 })
 
+test('leftover unicode paths survive hide/restore without a leftover stash', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'loop-unicode-'))
+  const plugin = join(root, 'plugin')
+  const agent = join(root, 'agent')
+  initRepo(plugin, 'plugin')
+  initRepo(agent, 'agent')
+  mkdirSync(join(plugin, 'src'), { recursive: true })
+  mkdirSync(join(plugin, 'skills', 'novel-storyboard', 'examples'), { recursive: true })
+  writeFileSync(join(plugin, 'src', 'good.js'), 'export const ok = 1\n')
+  writeFileSync(join(plugin, 'skills', 'novel-storyboard', 'examples', '渡口-storyboard.json'), '{"ok":true}\n')
+  writeFileSync(join(plugin, 'scripts', 'loop-increment.json'), JSON.stringify({
+    name: 'plugin',
+    test: ['node', '-e', "require('node:fs').existsSync('skills/novel-storyboard/examples/渡口-storyboard.json') ? process.exit(2) : process.exit(0)"],
+    allow: ['src/'],
+    deny: [],
+    message: 'unicode leftover',
+  }))
+  const record = runTreeJob({ tree: plugin, peer: agent, recordDir: join(root, 'record'), skipPush: true })
+  assert.equal(record.testsOk, true, record.stashHideError ?? record.skip)
+  assert.ok(record.commit)
+  assert.equal(readFileSync(join(plugin, 'skills', 'novel-storyboard', 'examples', '渡口-storyboard.json'), 'utf8'), '{"ok":true}\n')
+  assert.deepEqual(loopGateStashes(plugin), [])
+})
+
 test('scopedPaths reads the real git status of the tree under test', async () => {
   const root = await mkdtemp(join(tmpdir(), 'loop-scope-'))
   const tree = join(root, 'tree')

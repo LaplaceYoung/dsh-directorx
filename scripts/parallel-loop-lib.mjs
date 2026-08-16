@@ -34,11 +34,21 @@ export function parsePorcelainLine(line) {
 }
 
 export function listPorcelain(cwd) {
-  const result = git(cwd, ['status', '--porcelain', '-uall'])
+  const result = git(cwd, ['status', '--porcelain', '-uall', '-z'])
   if (result.status !== 0) {
     throw new Error(`git status failed in ${cwd}: ${result.stderr}`)
   }
-  return result.stdout.split('\n').map(parsePorcelainLine).filter(Boolean)
+  const entries = []
+  const parts = result.stdout.split('\0')
+  for (let i = 0; i < parts.length; i += 1) {
+    const rec = parts[i]
+    if (!rec) continue
+    const xy = rec.slice(0, 2)
+    const path = rec.slice(3)
+    if (xy.includes('R') || xy.includes('C')) i += 1
+    if (path !== '') entries.push({ raw: rec, path })
+  }
+  return entries
 }
 
 export function matchRule(relPath, rule) {
@@ -132,6 +142,11 @@ export function hideLeftover(cwd, leftover, env = {}) {
     ], env)
     const out = `${result.stdout || ''}\n${result.stderr || ''}`
     if (result.status !== 0) {
+      if (loopGateStashes(cwd).length > 0) {
+        const visible = new Set(listPorcelain(cwd).map((entry) => entry.path))
+        const hidden = leftover.filter((path) => !visible.has(path))
+        git(cwd, ['stash', hidden.length > 0 ? 'pop' : 'drop'], env)
+      }
       return { stashed: false, status: result.status, error: out.slice(0, 4000) }
     }
     if (/No local changes to save/i.test(out)) {
