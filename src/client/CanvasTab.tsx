@@ -160,24 +160,28 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
       ) : null}
       {data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
-        : <video
-            ref={ref => {
-              videoRef.current = ref
-              if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() }
-            }}
-            src={mediaUrl(data.path)}
-            muted={!playing}
-            loop
-            preload="metadata"
-            style={flowStyles.thumb}
-            draggable={false}
-            onTimeUpdate={event => {
-              const video = event.currentTarget
-              setProgress({ t: video.currentTime, d: Number.isFinite(video.duration) ? video.duration : 0 })
-            }}
-            onLoadedMetadata={event => setProgress({ t: 0, d: event.currentTarget.duration })}
-            onEnded={() => setPlaying(false)}
-          />}
+        : (hovered || playing)
+          ? <video
+              ref={ref => {
+                videoRef.current = ref
+                if (ref !== null) { playing ? void ref.play().catch(() => {}) : ref.pause() }
+              }}
+              src={mediaUrl(data.path)}
+              muted={!playing}
+              loop
+              preload="metadata"
+              style={flowStyles.thumb}
+              draggable={false}
+              onTimeUpdate={event => {
+                const video = event.currentTarget
+                setProgress({ t: video.currentTime, d: Number.isFinite(video.duration) ? video.duration : 0 })
+              }}
+              onLoadedMetadata={event => setProgress({ t: 0, d: event.currentTarget.duration })}
+              onEnded={() => setPlaying(false)}
+            />
+          : <div style={{ ...flowStyles.thumb, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0c0c0c', color: 'rgba(255,255,255,.4)' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z"/></svg>
+            </div>}
       {showControls ? (
         <div
           style={{
@@ -1966,7 +1970,7 @@ function CanvasTabInner(): ReactNode {
           title="画布标题"
         />
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={saveChip}>{saveState}</span>
+          <span style={{ ...saveChip, opacity: saveState === '已保存' ? 0 : 1, transition: 'opacity .3s ease' }}>{saveState}</span>
           <button
             className="dx-tool-icon"
             style={{ ...iconBtn, width: 32, height: 32, ...(agentOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }}
