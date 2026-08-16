@@ -599,6 +599,7 @@ function CanvasTabInner(): ReactNode {
   const [snapOn, setSnapOn] = useState(true)
   const [helpOpen, setHelpOpen] = useState(false)
   const [toast, setToast] = useState<string | undefined>(undefined)
+  const [dragCount, setDragCount] = useState(0)
   const [cmdOpen, setCmdOpen] = useState(false)
   const [cmdQuery, setCmdQuery] = useState('')
   const [cmdIndex, setCmdIndex] = useState(0)
@@ -1078,6 +1079,7 @@ function CanvasTabInner(): ReactNode {
 
   const onNodeDragStart = useCallback(() => {
     pushHistory()
+    setDragCount(nodesRef.current.filter(node => node.selected === true).length)
   }, [pushHistory])
 
   const onNodeDrag = useCallback((_event: unknown, node: CanvasFlowNode) => {
@@ -1155,6 +1157,7 @@ function CanvasTabInner(): ReactNode {
   }, [setNodes])
 
   const onNodeDragStop = useCallback((_event: unknown, node: CanvasFlowNode) => {
+    setDragCount(0)
     setGuides({ vertical: [], horizontal: [] })
     setNodes(current => current.map(candidate => (candidate.data as unknown as GroupNodeData).groupHover === true
       ? { ...candidate, data: { ...candidate.data, groupHover: false } }
