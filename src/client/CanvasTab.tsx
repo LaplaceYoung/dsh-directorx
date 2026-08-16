@@ -308,12 +308,15 @@ const nodeTypes = { media: MediaNodeComponent, text: TextNodeComponent, group: G
 const toolbar: CSSProperties = {
   position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: 2, alignItems: 'center',
   maxWidth: 'calc(100% - 24px)', flexWrap: 'wrap', justifyContent: 'center',
+  padding: '6px 8px', borderRadius: 16, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(18,18,18,.9)', backdropFilter: 'blur(14px)',
+  boxShadow: '0 8px 24px rgba(0,0,0,.5)',
 }
 
-const leftBar: CSSProperties = {
-  position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center',
-  padding: 6, borderRadius: 16, border: '1px solid rgba(255,255,255,.12)', background: 'rgba(18,18,18,.88)', backdropFilter: 'blur(12px)',
-  boxShadow: '0 8px 24px rgba(0,0,0,.5)',
+const topBar: CSSProperties = {
+  position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10,
+  height: 48, padding: '0 14px',
+  background: 'rgba(18,18,18,.9)', backdropFilter: 'blur(14px)',
+  borderBottom: '1px solid rgba(255,255,255,.1)',
 }
 
 const agentDrawer: CSSProperties = {
@@ -1898,16 +1901,30 @@ function CanvasTabInner(): ReactNode {
           />
         ) : null}
       </ReactFlow>
-      <input
-        value={title}
-        placeholder="请输入标题"
-        className="dx-title-input"
-        style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 10, background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 15, fontWeight: 500, textAlign: 'center', padding: '7px 14px', maxWidth: 'min(300px, calc(100% - 24px))', width: 300, outline: 'none', letterSpacing: .3 }}
-        onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
-        onBlur={() => void saveNow()}
-        title="画布标题（tapnow 式）"
-      />
-      <div style={leftBar}>
+      <div style={topBar}>
+        <input
+          value={title}
+          placeholder="请输入标题"
+          className="dx-title-input"
+          style={{ flex: '0 1 300px', background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'left', padding: '6px 10px', outline: 'none', letterSpacing: .3 }}
+          onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
+          onBlur={() => void saveNow()}
+          title="画布标题"
+        />
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 10.5, color: '#8a8a8a', padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.04)' }}>额度 —</span>
+          <span style={saveChip}>{saveState}</span>
+          <button
+            className="dx-tool-icon"
+            style={{ ...iconBtn, width: 32, height: 32, ...(agentOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }}
+            onClick={() => setAgentOpen(open => !open)}
+            title="导演 Agent 抽屉"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style={toolbar}>
         <button style={pillBtn} onClick={() => void openPicker()} title="新建 / 媒体库">{ICONS.plus}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={() => void openPicker()} title="素材库">{ICONS.media}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={addTextNode} title="文字节点（双击画布同效）">{ICONS.text}</button>
@@ -1921,9 +1938,8 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(helpOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setHelpOpen(open => !open)} title="操作帮助">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         </button>
-      </div>
       {helpOpen ? (
-        <div style={{ position: 'absolute', top: 12, left: 66, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
+        <div style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
           <div>左键空白拖动 = 框选</div>
           <div>中键 / 右键拖动 = 平移</div>
@@ -1936,7 +1952,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {shotListOpen ? (
-        <div style={{ position: 'absolute', top: 12, left: 66, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+        <div style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
           <div style={{ fontSize: 11, color: '#9b9b9b', padding: '2px 6px 6px' }}>镜头列表（shotIndex 序）</div>
           {orderedShots.length === 0 ? (
             <div style={{ fontSize: 11.5, color: '#777', padding: '2px 6px' }}>暂无入镜镜头：给媒体节点设 shotIndex。</div>
@@ -1953,7 +1969,6 @@ function CanvasTabInner(): ReactNode {
           })}
         </div>
       ) : null}
-      <div style={toolbar}>
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(stripOpen ? { background: 'rgba(255,255,255,.12)' } : {}), position: 'relative' }} onClick={() => setStripOpen(open => !open)} title="粗剪条（镜头顺序）">
           <span style={{ position: 'absolute', top: 6, right: 7, width: 6, height: 6, borderRadius: 9999, background: '#4f9dff', boxShadow: '0 0 0 2px #000' }} /><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="4" rx="1.5"/><rect x="3" y="17" width="18" height="4" rx="1.5"/></svg></button>
         {moreOpen ? (
@@ -2071,10 +2086,6 @@ function CanvasTabInner(): ReactNode {
           })}
         </div>
       ) : null}
-      <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
-        <span style={{ fontSize: 10.5, color: '#777', padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.04)' }}>额度 —</span>
-        <span style={saveChip}>{saveState}</span>
-      </div>
       <div style={{ position: 'absolute', bottom: 14, left: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
         {agentEditFlash ? (
           <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,245,245,.14)', color: '#f5f5f5' }}>
