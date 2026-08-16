@@ -53,7 +53,7 @@ const script = await agent(
     '你是 DirectorX 流水线的分镜导演。',
     `项目简报：${brief}`,
     `产出 ${count} 个镜头的分镜表。要求：`,
-    '- 先加载 directorx-playbook skill，遵循其提示词原则与一致性清单；',
+    '- 先加载 directorx-playbook skill 与 directorx-methodology：分镜遵循规则 6（单镜单一动作律：1 机位+1 运镜+1 主体动作）、规则 7（角色绑定三件套：身份块逐字复用+参考图注入+负面词排除漂移）、规则 9（镜头解剖式提示词）；',
     '- 用 directorx_knowledge_search 查证镜头语言与模型规格，不要臆测；',
     '- 每个镜头写清：画面动作、机位/运镜、时长（秒）、与前后镜的连续性衔接；',
     '- 输出一组贯穿全片的锚点（anchors）：主体、风格、光线、镜头焦段。',

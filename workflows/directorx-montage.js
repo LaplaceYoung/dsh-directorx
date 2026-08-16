@@ -36,7 +36,7 @@ const plan = await agent(
     '你是混剪导演。',
     `简报：${brief}；候选素材（本地路径，为空则从画布取）：${JSON.stringify(clips)}。`,
     '要求：',
-    '- 先加载 directorx-production-lead 分诊；用 directorx_canvas_get 盘点画布上的 video/image 节点作为素材候选；',
+    '- 先加载 directorx-production-lead 分诊与 directorx-methodology：节奏遵循规则 10（卡点时长分配表：重音 0.5-1s/叙事 1-2s/高潮递减）与规则 17（cut-on-beat/cut-on-breath 交替、A/B 配比 6:4）；用 directorx_canvas_get 盘点画布素材；',
     '- 若提供了 music（BGM 路径）：用 directorx_audio_beat 检测节拍（count 按成片时长估算），把节拍时间列进 cutPlan；',
     '- 无 BGM 时按镜头节奏设计 cutPlan（每个切点说明秒数与动机）；',
     '- 输出 beats（原始节拍）、cutPlan（逐条：素材/裁剪区间/为什么卡这个点）、clips（最终选定素材路径清单）。',
