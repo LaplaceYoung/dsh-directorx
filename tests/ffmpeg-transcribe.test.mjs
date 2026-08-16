@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, hasLibass, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, hasLibass, renderTimeline, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -47,6 +47,36 @@ test('videoUnderstand samples frames and degrades without vision', async () => {
     assert.equal(out.frames.length, 4)
     assert.ok(out.frames.every(frame => frame.path !== '' && frame.path.includes('frames/')), 'frame paths present')
     assert.ok(out.note !== undefined, 'degradation note present')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('renderTimeline assembles trimmed scenes into a finished cut', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-tl-'))
+  try {
+    const make = (name, seconds) => {
+      const path = join(dir, name)
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', `testsrc2=size=320x180:rate=24:duration=${seconds}`, '-f', 'lavfi', '-i', `sine=frequency=440:duration=${seconds}`, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('clip gen failed')
+      return path
+    }
+    const a = make('a.mp4', 3)
+    const b = make('b.mp4', 3)
+    const srt = join(dir, 'subs.srt')
+    await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,000\n字幕。\n\n', 'utf8')
+    const out = await renderTimeline({
+      scenes: [
+        { source: a, trim: [0, 2] },
+        { source: b, trim: [0.5, 2.5], transition: 'cut' },
+      ],
+      subtitle: srt,
+      scale: '320:180',
+    }, dir)
+    assert.ok(existsSync(out.path), 'final cut exists')
+    assert.ok(out.probe.durationSec > 3.0 && out.probe.durationSec < 4.5, `trimmed duration ~3.5s, got ${out.probe.durationSec}`)
+    assert.ok(out.probe.streams.some(stream => stream.type === 'subtitle'), 'subtitle track muxed')
+    assert.ok(out.steps.length >= 4, 'steps recorded')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

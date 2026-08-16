@@ -16,6 +16,7 @@ import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
+import { renderTimeline } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -720,6 +721,26 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute() {
       return new CharacterStore(settings.outputDir).list()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_timeline',
+    description: 'Render a timeline JSON into a finished cut (OTIO-inspired subset — the editing agent\'s central format): scenes with per-scene trims, cross-fade/hard-cut concat, optional audio mixing with ducking, and subtitle muxing. Deterministic and re-renderable: change the plan, re-render, never re-generate. timeline = { scenes: [{source, trim?, transition?}], subtitle?, audio? [{path, volume?, duckUnder?}], scale? }.',
+    parameters: {
+      timeline: { type: 'object', required: true, description: 'Timeline spec: scenes array + optional subtitle srt path, audio tracks, scale.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const timeline = (args.timeline ?? {}) as { scenes?: unknown[]; subtitle?: string; audio?: unknown[]; scale?: string }
+      return renderTimeline({
+        scenes: Array.isArray(timeline.scenes) ? timeline.scenes as never[] : [],
+        subtitle: timeline.subtitle,
+        audio: Array.isArray(timeline.audio) ? timeline.audio as never[] : undefined,
+        scale: timeline.scale,
+      }, settings.outputDir)
     },
   })))
 

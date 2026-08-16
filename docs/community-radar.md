@@ -97,3 +97,18 @@
 - **缺口**：①主体一致性锚点/角色库（注册参考图→生成时自动注入）②音画同出的自动化串联（tts+BGM 与画面时序对齐）③多版本对比的 WebUI 呈现（compare 面板）。
 
 **主线程同步发现**：Runway MCP 把工作室暴露给 Claude/ChatGPT/Cursor——已对齐实现（directorx/mcp）；剪映侧实战流水线 daihuo-fanpai（反推爆款→即梦/Seedance 重生成→剪映草稿交付）。
+
+
+## 开源视频 Agent 生态调研（2026-08-16，21 项一手核实）
+
+**Top-5 采纳与落地状态**：
+| 项目 | ★/许可 | 采纳 |
+|---|---|---|
+| OpenTimelineIO | 1,955 / Apache-2.0 | ✅ **已落地子集**：directorx_timeline（scenes/trim/transition + subtitle + audio 混音，OTIO 灵感 timeline.json） |
+| PenShot（story-shot-agent） | 138 / MIT | 分镜规划技能参考（时长规划+连续性记忆）——已并入 production-lead 推导协议 |
+| HKUDS/VideoAgent | 1,721 / MIT | 帧级 QA 工具面已具备（extract/understand/view_image）；目标跟踪待评估 |
+| whisperX / faster-whisper | 23.6k/24.9k / BSD-2/MIT | 转写已有（openai-transcriptions）；词级时间戳打点待本地服务评估 |
+| video-db/Director | 1,512 / MIT | 「视频即数据」任务图范式：画布+提案账本已承担该角色 |
+
+**其它实证**（雷达备份）：fastmcp 27.2k Apache-2.0（MCP DX 参考）、kinocut 113 Apache-2.0（护栏化 ffmpeg MCP）、MoneyPrinterTurbo 104k MIT（竖屏流水线）、NarratoAI 10.7k MIT（LLM 精剪）、FunClip 6.1k MIT（按口播文本打点剪辑）、VideoLingo 18.2k Apache-2.0（多语配音）、Qwen3-VL 19.8k Apache-2.0（视觉底座）、Wan2.1/Open-Sora/CogVideoX/LTX-Video（Apache-2.0 权重，自部署成本高）。
+**许可红线**：Mora/Open-AI-Micro-Drama-Generator 无许可、Crayotter 自定义许可（仅参考）；ComfyUI GPL-3.0（仅 API 进程隔离）。持续发现渠道：awesome-ai-media-cn、AI-Video-Tools。
