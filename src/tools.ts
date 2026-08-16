@@ -18,6 +18,7 @@ import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitl
 import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { videoAnalyze } from './providers/video-analyze.ts'
+import { brief } from './providers/brief.ts'
 import { audioSync, renderTimeline, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
@@ -851,6 +852,20 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         minShotSec: args.minShotSec,
         describe: args.describe === true,
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_brief',
+    description: 'Intent understanding (意图分诊): turns a raw user request + materials into a structured production brief — type (口播/广告/混剪/剧情/MV/纪录片/分镜), platform & aspect ratio, target duration, style hints (mapped to directorx_style presets), registered character anchors, material classification — plus the one-shot clarification questions with recommended defaults (一次澄清协议) and a suggested flow shape. Use at the START of every production request to triage intent before planning.',
+    parameters: {
+      request: { type: 'string', required: true, description: 'The user\'s raw request text.' },
+      materials: { type: 'array', items: { type: 'string' }, description: 'Optional local material paths (media files).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return brief({ request: String(args.request), materials: Array.isArray(args.materials) ? args.materials.map(String) : [], outputDir: settings.outputDir })
     },
   })))
 

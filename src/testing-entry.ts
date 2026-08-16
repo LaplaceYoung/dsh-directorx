@@ -11,6 +11,7 @@ export { audioMix, hasLibass, videoConcat, videoProcess, videoSubtitle } from '.
 export { preflight } from './providers/preflight.ts'
 export { planStoryboard } from './providers/storyboard.ts'
 export { videoAnalyze } from './providers/video-analyze.ts'
+export { brief } from './providers/brief.ts'
 export { audioSync, parseSrt, renderTimeline, subtitleCut } from './providers/timeline.ts'
 export { videoUnderstand } from './providers/video-understand.ts'
 export { ProposalStore } from './proposals.ts'

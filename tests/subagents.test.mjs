@@ -2,8 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { planStoryboard, preflight, registerSubagentSetup } from '../lib/testing.js'
+import { brief, planStoryboard, preflight, registerSubagentSetup } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -71,6 +73,17 @@ test('preflight audits the four generation gates deterministically', () => {
   assert.ok(risky.gates.content.issues.some(issue => issue.includes('缺少')), 'short prompt flags missing elements')
   assert.ok(risky.gates.rights.issues.length > 0, 'rights flags fire')
   assert.equal(risky.gates.cost.pass, false, 'cost gate requires budget confirmation')
+})
+
+test('brief infers type/platform/duration and asks one-shot clarifications', async () => {
+  const out = await brief({ request: '帮我做一个 30 秒的抖音带货广告，介绍这款智能保温杯，赛博朋克风格', materials: ['/tmp/x.mp4', '/tmp/y.png'], outputDir: await mkdtemp(join(tmpdir(), 'directorx-brief-')) })
+  assert.equal(out.brief.type, '广告/宣传')
+  assert.equal(out.brief.aspectRatio, '9:16')
+  assert.equal(out.brief.targetSeconds, 30)
+  assert.ok(out.brief.styleHints.includes('cyberpunk'), 'style hint mapped to preset slug')
+  assert.equal(out.brief.materials[0].kind, 'video')
+  assert.ok(out.questions.length >= 3, 'clarification questions generated')
+  assert.ok(out.suggestedFlow.includes('preflight'), 'ad flow suggests cost gates')
 })
 
 test('planStoryboard allocates durations and checks continuity anchors', () => {
