@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join, resolve } from 'node:path'
-import { registerSubagentSetup } from '../lib/testing.js'
+import { preflight, registerSubagentSetup } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -54,6 +54,23 @@ test('subagent setup is a no-op without the subagents service', () => {
   const dispose = registerSubagentSetup({ get: () => undefined })
   assert.equal(typeof dispose, 'function')
   dispose()
+})
+
+test('preflight audits the four generation gates deterministically', () => {
+  const good = preflight({
+    prompt: '一个女孩在雨夜城市的霓虹街道上奔跑，逆光高对比电影感风格，不要出现水印',
+    type: 'video', size: '16:9', duration: 5, count: 3,
+    userConfirmedBudget: true, userConfirmedContent: true,
+  })
+  assert.equal(good.verdict, 'pass', JSON.stringify(good.gates))
+  const risky = preflight({
+    prompt: '周杰伦风格',
+    type: 'image',
+  })
+  assert.equal(risky.verdict, 'review')
+  assert.ok(risky.gates.content.issues.some(issue => issue.includes('缺少')), 'short prompt flags missing elements')
+  assert.ok(risky.gates.rights.issues.length > 0, 'rights flags fire')
+  assert.equal(risky.gates.cost.pass, false, 'cost gate requires budget confirmation')
 })
 
 for (const file of ['directorx-pipeline.js', 'directorx-talking-video.js']) {

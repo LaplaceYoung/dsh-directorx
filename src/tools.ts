@@ -15,6 +15,7 @@ import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './providers/video-process.ts'
+import { preflight } from './providers/preflight.ts'
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -521,6 +522,26 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     isConcurrencySafe: () => true,
     async execute(args: any) {
       return videoSubtitle({ ...args, outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_preflight',
+    description: 'Pre-flight audit before paid generation: the four gates from directorx-playbook (规格/内容/成本/权利) checked deterministically — parameter completeness, six-element prompt lint, budget acknowledgment, and IP/persona/music rights flags. Returns per-gate pass/issues plus a verdict. Use before any batch generation.',
+    parameters: {
+      prompt: { type: 'string', required: true, description: 'The generation prompt to audit.' },
+      model: { type: 'string', description: 'Model key, if already chosen.' },
+      type: { type: 'string', enum: ['image', 'video', 'audio'], description: 'Task type.' },
+      size: { type: 'string', description: 'Size/aspect, e.g. 16:9.' },
+      duration: { type: 'number', description: 'Duration in seconds (video).' },
+      count: { type: 'number', description: 'Expected generation count (cost gate).' },
+      userConfirmedBudget: { type: 'boolean', description: 'Whether the user already confirmed the budget.' },
+      userConfirmedContent: { type: 'boolean', description: 'Whether the user already confirmed the script/prompt.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return preflight(args)
     },
   })))
 
