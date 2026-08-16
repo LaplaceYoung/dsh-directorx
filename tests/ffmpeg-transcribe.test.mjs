@@ -86,9 +86,10 @@ test('openaiTts passes instructions through when provided', async () => {
       settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
       signal: AbortSignal.timeout(8000),
     }
-    await openaiTts(ctx, '测试旁白', 'onyx', 'mp3', 'Speak in a calm documentary tone; pause before numbers.')
+    await openaiTts(ctx, '测试旁白', 'onyx', 'mp3', 'Speak in a calm documentary tone; pause before numbers.', 1.2)
     assert.ok(captured !== null, 'payload captured')
     assert.equal(captured.instructions, 'Speak in a calm documentary tone; pause before numbers.')
+    assert.equal(captured.speed, 1.2, 'speed passes through with clamp')
   } finally {
     await rm(dir, { recursive: true, force: true })
     server.closeAllConnections?.()
