@@ -548,6 +548,8 @@ function CanvasTabInner(): ReactNode {
   const [agentGoal, setAgentGoal] = useState('')
   const [agentMode, setAgentMode] = useState<'auto' | 'confirm'>('confirm')
   const [shotListOpen, setShotListOpen] = useState(false)
+  const [snapOn, setSnapOn] = useState(true)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -1864,7 +1866,7 @@ function CanvasTabInner(): ReactNode {
         panOnScroll
         zoomOnPinch
         zoomOnDoubleClick={false}
-        snapToGrid
+        snapToGrid={snapOn}
         snapGrid={[15, 15]}
         connectionRadius={30}
         defaultEdgeOptions={defaultEdgeOptions}
@@ -1913,8 +1915,26 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(shotListOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setShotListOpen(open => !open)} title="镜头列表">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
         </button>
-        <button className="dx-tool-icon" style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(snapOn ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setSnapOn(on => !on)} title="吸附网格 15×15（开关）">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 8h16M4 16h16M8 4v16M16 4v16"/></svg>
+        </button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(helpOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setHelpOpen(open => !open)} title="操作帮助">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
+        </button>
       </div>
+      {helpOpen ? (
+        <div style={{ position: 'absolute', top: 12, left: 66, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
+          <div>左键空白拖动 = 框选</div>
+          <div>中键 / 右键拖动 = 平移</div>
+          <div>滚轮 / 触控板双指 = 平移</div>
+          <div>⌘ + 滚轮 = 缩放（或左下缩放条）</div>
+          <div>双击空白 = 新建文字节点</div>
+          <div>右键空白 = 创建菜单</div>
+          <div>⌘Z 撤销 · ⇧⌘Z 重做 · ⌘D 复制</div>
+          <div>Esc 关闭浮层 · ⌘J 打开 Agent 抽屉</div>
+        </div>
+      ) : null}
       {shotListOpen ? (
         <div style={{ position: 'absolute', top: 12, left: 66, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
           <div style={{ fontSize: 11, color: '#9b9b9b', padding: '2px 6px 6px' }}>镜头列表（shotIndex 序）</div>
@@ -2056,8 +2076,11 @@ function CanvasTabInner(): ReactNode {
           })}
         </div>
       ) : null}
-      <div style={{ position: 'absolute', bottom: 14, left: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <span style={{ fontSize: 10.5, color: '#777', padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.04)' }}>额度 —</span>
         <span style={saveChip}>{saveState}</span>
+      </div>
+      <div style={{ position: 'absolute', bottom: 14, left: 12, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center', pointerEvents: 'none' }}>
         {agentEditFlash ? (
           <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,245,245,.14)', color: '#f5f5f5' }}>
             AI 正在编辑画布…
