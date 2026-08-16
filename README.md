@@ -21,6 +21,22 @@
   text-to-video · AI video generator · video agent · storyboard · dsh-plugin · deepseek-harness · directorx
 </p>
 
+<details open>
+<summary><strong>📑 目录 / Table of Contents</strong></summary>
+
+- [这到底是个啥](#-这到底是个啥--what-is-this)
+- [为什么你可能会喜欢它](#-为什么你可能会喜欢它--why-youll-like-it)
+- [和别的方案比，有什么不一样](#-和别的方案比有什么不一样--comparison)
+- [制作流水线](#-制作流水线--production-pipeline)
+- [架构一图流](#-架构一图流--architecture)
+- [安装：三十秒上桌](#-安装三十秒上桌--quick-start)
+- [工具速查](#-工具速查--tool-cheat-sheet)
+- [片场知识包](#-片场知识包--knowledge-pack)
+- [开发与测试](#-开发与测试--development)
+- [FAQ](#-faq)
+
+</details>
+
 ---
 
 ## 🤔 这到底是个啥 / What is this
@@ -51,6 +67,19 @@
 | 生图、生视频、配音要装三四个插件 | 一个插件，四类能力，8 种视频模型协议，按需开关 |
 | 生成完就完事，质量靠玄学 | 成片质检门（时长/画幅/音轨/节奏/黑帧/白帧）+ 帧级 QA + 画布质检卡 |
 | 想做专业项目却没有流程约束 | brief 意图分诊 + 四道闸门 + 提案状态机，先方案后花钱 |
+
+---
+
+## 🤝 和别的方案比，有什么不一样 / Comparison
+
+| 方案 | 生成 | 剪辑 | 质检 | 编排 | 备注 |
+|---|---|---|---|---|---|
+| 纯提示词脚手架（wrapper 插件） | ✅ | ❌ | ❌ | ❌ | 生成完就交给剪辑软件，链路断在模型门口 |
+| 独立剪辑软件（剪映/PR） | ❌ | ✅ | 部分 | ❌ | 剪辑强，但 agent 进不去，流程靠人手 |
+| 商业 AI 成片平台 | ✅ | 黑盒 | 黑盒 | 半自动 | 快，但改一处重新生成、重新计费 |
+| **dsh-directorx** | ✅ 8 协议 | ✅ 确定性可重跑 | ✅ 七门+帧级 | ✅ agent 自主推导 | 改计划=重渲染，剪辑零 API 成本 |
+
+三个原则：**agent 是导演（推导流程）、画布是分镜板（全程镜像）、ffmpeg 是剪辑台（确定性与免费）**。
 
 ---
 
