@@ -14,7 +14,7 @@ import { runImage } from './providers/image.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
-import { audioMix, videoConcat, videoProcess } from './providers/video-process.ts'
+import { audioMix, videoConcat, videoProcess, videoSubtitle } from './providers/video-process.ts'
 
 function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
@@ -505,6 +505,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     isConcurrencySafe: () => true,
     async execute(args: any) {
       return audioMix({ ...args, outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_subtitle',
+    description: 'Add subtitles to a local video with ffmpeg. mode=soft muxes the SRT as a selectable mov_text track (works with every ffmpeg build); mode=burn hard-burns the text into the frame (requires a libass build; degrades with a clear error otherwise). Output lands in the output dir.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt subtitle file (e.g. from directorx_transcribe_audio).' },
+      mode: { type: 'string', enum: ['soft', 'burn'], description: 'soft = selectable subtitle track (default); burn = hard-burned text.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 900_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoSubtitle({ ...args, outputDir: settings.outputDir })
     },
   })))
 

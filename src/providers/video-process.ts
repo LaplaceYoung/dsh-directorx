@@ -180,3 +180,36 @@ export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
   runFfmpeg(args, 'audio mix')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }
+
+export interface VideoSubtitleInput {
+  video: string
+  srt: string
+  mode?: 'soft' | 'burn'
+  outputDir: string
+}
+
+/** Probe libass once per process (burn mode requires the ass filter). */
+let libassProbe: boolean | undefined
+export function hasLibass(): boolean {
+  if (libassProbe !== undefined) return libassProbe
+  const result = spawnSync('ffmpeg', ['-hide_banner', '-h', 'filter=ass'], { encoding: 'utf8' })
+  // ffmpeg 9 exits 0 even for unknown filters — parse the output instead.
+  libassProbe = result.status === 0 && !/Unknown filter/.test(result.stdout ?? '')
+  return libassProbe
+}
+
+export async function videoSubtitle(input: VideoSubtitleInput): Promise<VideoOutput> {
+  const mode = input.mode ?? 'soft'
+  const out = outputPath(input.outputDir, 'subtitle', 'mp4')
+  if (mode === 'burn') {
+    if (!hasLibass()) {
+      throw new Error('当前 ffmpeg 构建缺少 libass（无法烧录字幕）。请使用 mode=soft 软字幕，或安装带 libass 的 ffmpeg。')
+    }
+    const escaped = input.srt.replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'")
+    runFfmpeg(['-i', input.video, '-vf', `ass='${escaped}'`, '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'copy', out], 'subtitle burn')
+    return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+  }
+  // Soft subtitles: mux the SRT as a selectable mov_text track — no libass needed.
+  runFfmpeg(['-i', input.video, '-i', input.srt, '-map', '0', '-map', '1', '-c', 'copy', '-c:s', 'mov_text', '-metadata:s:s:0', 'language=chi', out], 'subtitle mux')
+  return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
+}

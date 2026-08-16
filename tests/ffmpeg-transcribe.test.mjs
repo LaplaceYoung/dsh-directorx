@@ -2,9 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioMix, videoConcat, videoProcess } from '../lib/testing.js'
+import { audioMix, hasLibass, videoConcat, videoProcess, videoSubtitle } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -21,6 +21,26 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('videoSubtitle soft-muxes an srt track without libass', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-sub-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=160x90:rate=12', '-f', 'lavfi', '-i', 'sine=frequency=300:duration=2', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const srt = join(dir, 'subs.srt')
+    await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,500\n你好，字幕。\n\n', 'utf8')
+    const out = await videoSubtitle({ video: clip, srt, mode: 'soft', outputDir: dir })
+    assert.ok(existsSync(out.path), 'subtitled file exists')
+    assert.ok(out.probe.streams.some(stream => stream.type === 'subtitle'), 'subtitle stream present')
+    if (hasLibass()) {
+      const burned = await videoSubtitle({ video: clip, srt, mode: 'burn', outputDir: dir })
+      assert.ok(existsSync(burned.path), 'burned file exists')
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('audioMix overlays BGM onto a video with ducking', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-mix-'))
