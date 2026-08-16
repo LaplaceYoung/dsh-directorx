@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { apiKeyOf, downloadToFile, ensureOutputDir, mediaSourceToDataUrl, readJsonResponse, slugify } from '../support.ts'
 import { pollModelverseTask, pollOpenAIVideoTask, submitModelverseTask } from './tasks.ts'
 import { klingVideo, runwayVideo } from './video-models.ts'
+import { minimaxH3Video } from './minimax.ts'
 import type { MediaFile, ProviderContext, VideoResult } from './types.ts'
 
 interface VideoCreateEnvelope {
@@ -149,6 +150,7 @@ export async function runVideo(
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'kling') return klingVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'runway') return runwayVideo(ctx, prompt, options)
+    if (ctx.capability.mode === 'minimax-h3') return minimaxH3Video(ctx, prompt, options)
     throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
   } catch (error) {
     // A timeout or abort may leave the provider task running: record the

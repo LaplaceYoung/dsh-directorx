@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { klingJwt, klingVideo, runVideo } from '../lib/testing.js'
+import { klingJwt, klingVideo, minimaxH3Video, runVideo } from '../lib/testing.js'
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -116,6 +116,54 @@ test('kling mode round-trips through a local endpoint', async () => {
   } finally {
     server.close()
     await rm(outDir, { recursive: true, force: true })
+  }
+})
+
+test('minimax-h3 mode round-trips through the v2 protocol', async () => {
+  let createPayload = null
+  const server = createServer(async (req, res) => {
+    const url = req.url ?? ''
+    if (url === '/v2/video_generation' && req.method === 'POST') {
+      createPayload = await readJson(req)
+      sendJson(res, 200, { task_id: 'mm1', base_resp: { status_code: 0, status_msg: 'ok' } })
+      return
+    }
+    if (url.includes('/v2/query/video_generation/mm1')) {
+      sendJson(res, 200, { status: 'Success', file_id: 'f1', base_resp: { status_code: 0 } })
+      return
+    }
+    if (url.includes('/v1/files/retrieve')) {
+      sendJson(res, 200, { file: { download_url: `http://127.0.0.1:${server.address().port}/download.mp4` }, base_resp: { status_code: 0 } })
+      return
+    }
+    if (url === '/download.mp4') {
+      const bytes = Buffer.from('fake-video-bytes')
+      res.writeHead(200, { 'content-type': 'video/mp4', 'content-length': bytes.length })
+      res.end(bytes)
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+  await new Promise(resolve => server.listen(0, resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-mm-'))
+  try {
+    const ctx = {
+      capability: { mode: 'minimax-h3', model: 'MiniMax-H3', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '2K', auth: {}, apiKey: 'mm-key', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+      ledger: undefined,
+    }
+    const result = await minimaxH3Video(ctx, '一只猫在雨夜行走', { seconds: 15, firstFramePath: undefined })
+    assert.equal(result.status, 'succeed')
+    assert.equal(result.files[0].path.endsWith('.mp4'), true)
+    assert.equal(createPayload.model, 'MiniMax-H3')
+    assert.equal(createPayload.duration, 15)
+    assert.equal(createPayload.resolution, '2K')
+    assert.ok(createPayload.content.some(item => item.type === 'text'))
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.close()
   }
 })
 

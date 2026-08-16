@@ -98,6 +98,14 @@ async function downloadFirst(urls: string[], ctx: ProviderContext, prompt: strin
   return files
 }
 
+/** Raw base64 without the data: prefix — legacy Kling forbids the prefix. */
+async function klingImagePayload(source: string): Promise<string> {
+  const dataUrl = await mediaSourceToDataUrl(source)
+  const match = dataUrl.match(/^data:[^;]+;base64,(.*)$/)
+  if (match !== null) return match[1]
+  return dataUrl
+}
+
 export async function klingVideo(
   ctx: ProviderContext,
   prompt: string,
@@ -110,6 +118,8 @@ export async function klingVideo(
     generateAudio?: boolean
     /** Kling 3.0: narration voice ids (referenced as <<<voice_1>>> in the prompt). */
     voiceIds?: string[]
+    negativePrompt?: string
+    cameraControl?: Record<string, unknown>
   },
 ): Promise<VideoResult> {
   const ak = ctx.capability.auth.klingAk
@@ -122,7 +132,7 @@ export async function klingVideo(
   const isImageToVideo = options.firstFramePath !== undefined
   const kindPath = isImageToVideo ? 'image2video' : 'text2video'
   const payload: Record<string, unknown> = {
-    model_name: ctx.capability.model !== '' ? ctx.capability.model : 'kling-v2',
+    model_name: ctx.capability.model !== '' ? ctx.capability.model : 'kling-v3',
     prompt,
     mode: 'std',
     duration: clampDuration(options.seconds, 5, 5, 15),
@@ -131,9 +141,12 @@ export async function klingVideo(
   if (options.generateAudio === true) payload.generate_audio = true
   if (options.voiceIds !== undefined && options.voiceIds.length > 0) payload.voice_ids = options.voiceIds
   if (isImageToVideo) {
-    payload.image = await mediaSourceToDataUrl(options.firstFramePath as string)
-    if (options.lastFramePath !== undefined) payload.image_tail = await mediaSourceToDataUrl(options.lastFramePath)
+    // Legacy Kling forbids the data: prefix on image fields (raw base64 only).
+    payload.image = await klingImagePayload(options.firstFramePath as string)
+    if (options.lastFramePath !== undefined) payload.image_tail = await klingImagePayload(options.lastFramePath)
   }
+  if (options.negativePrompt !== undefined && options.negativePrompt !== '') payload.negative_prompt = options.negativePrompt
+  if (options.cameraControl !== undefined) payload.camera_control = options.cameraControl
   const response = await fetch(`${base}/v1/videos/${kindPath}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
