@@ -727,7 +727,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
       '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',
-      '- Multi-shot projects should be orchestrated with the `workflow` tool and the `directorx-workflow` skill (script/storyboard → parallel prompt crafting → parallel generation → QA → assembly); do not generate shots serially.',
+      '- Agentic orchestration: for multi-unit goals, DERIVE the workflow yourself (materials + goal → stages → parallel vs serial → gates) and run it with the `workflow` tool; use `directorx-workflow` for the derivation protocol — built-in templates are prior art, not the default.',
       '- Frame-level QA: extract stills with `directorx_extract_frames`, then inspect them with `directorx_view_image` (multi-frame comparisons) before accepting a video result.',
       '- Subtitle pipeline: `directorx_transcribe_audio` (format srt) produces subtitle files the video editor can overlay; keep transcripts in the output dir for reuse.',
       '- If a tool fails with a Base URL / API Key / mode error, tell the user to open WebUI Settings → DirectorX and configure the matching capability.',

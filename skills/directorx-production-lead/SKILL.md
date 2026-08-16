@@ -60,6 +60,9 @@ user-invocable: true
 
 ## 工作流推导协议（复杂请求，配方只是先例不是枷锁）
 
+> agentic = 面向目标自主推导与编排：模板/配方是加速器而非默认路径；推导出的
+> 流程应胜过任何预设，因为它贴合实际素材与约束。
+
 1. **盘点先于一切**：先清点素材与工具能力——`directorx_probe_media`（视频元数据）、
    `directorx_extract_frames` + `directorx_view_image`（看内容）、读文档；回复中说明
    素材是什么、需求要什么、缺什么。绝不凭文件名规划。
@@ -73,3 +76,5 @@ user-invocable: true
 5. **占位规划**：分阶段计划（阶段→单元→每单元完整提示词+参数+参考锚点），
    标注用户确认门；给出总生成预算与去向。画布就是计划板：
    `directorx_canvas_replace` 写入分镜板，节点=单元、连线=承接、分组=幕。
+6. **编排落地**：多单元时用 workflow 工具按推导出的阶段现场写脚本（串行段
+   pipeline/并行段 parallel/闸门段 agent 质检），不硬套模板；dryRun 先行。
