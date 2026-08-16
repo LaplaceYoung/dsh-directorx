@@ -471,14 +471,28 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     name: 'directorx_style',
     description: 'Style / camera-language injector grounded in the bundled film knowledge corpus. Give a style name or craft need (e.g. "赛博朋克", "黑色电影", "推镜头 霓虹光", "韦斯·安德森") and get the matching craft article condensed for prompt injection — append it to generation prompts to lock the look. Never fabricates: returns real corpus text.',
     parameters: {
-      style: { type: 'string', required: true, description: 'Style name or craft need (Chinese or English).' },
+      style: { type: 'string', required: true, description: 'Style name or craft need (Chinese or English). Preset slugs: noir/film-noir, cyberpunk, ghibli, wes-anderson, documentary, commercial, retro-80s, horror, cinematic.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
       const style = String(args.style ?? '').trim()
       if (style === '') throw new Error('style is required')
-      const hits = await corpus.search(style, 3)
+      // Preset slugs map to curated corpus queries for higher hit quality.
+      const PRESETS: Record<string, string> = {
+        noir: '黑色电影 低调光 阴影',
+        'film-noir': '黑色电影 低调光 阴影',
+        cyberpunk: '赛博朋克 霓虹 高对比',
+        ghibli: '吉卜力 手绘 动画',
+        'wes-anderson': '韦斯安德森 对称 复古',
+        documentary: '纪录片 纪实 自然光',
+        commercial: '广告 商业 产品打光',
+        'retro-80s': '80年代 复古 胶片颗粒',
+        horror: '恐怖片 黑暗 悬疑',
+        cinematic: '电影感 运镜 浅景深',
+      }
+      const query = PRESETS[style.toLowerCase()] ?? style
+      const hits = await corpus.search(query, 3)
       if (hits.length === 0) {
         return { style, found: false, hint: '未找到匹配的工艺文章；换一个风格/镜头语言关键词，或用 directorx_knowledge_search 直接检索。' }
       }

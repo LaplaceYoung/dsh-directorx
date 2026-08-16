@@ -6,6 +6,26 @@
 
 ### Added
 
+- **AI 视频制作全链路**（确定性 ffmpeg 工具链，插件自包含）：
+  - `directorx_video_process`（裁剪/变速 0.5-8x/缩放/音量/静音/fps）、
+    `directorx_video_concat`（硬切或 xfade 交叉淡化拼接）、
+    `directorx_audio_mix`（多轨混音 + sidechain 闪避 ducking）、
+    `directorx_video_subtitle`（soft 软字幕轨 / burn 烧录按 libass 探测）、
+    `directorx_video_zoom`（Ken Burns 推拉/平移）、`directorx_video_pip`
+    （画中画/贴纸叠加）、`directorx_audio_beat`（ebur128 瞬时响度节拍检测）；
+    全部真实 ffmpeg 往返测试（44+ 用例覆盖）。
+- **agentic 工作流能力**：
+  - 三套 workflow 模板：directorx-pipeline（多镜头叙事）、
+    directorx-talking-video（口播/讲解：脚本→tts→b-roll→混音→srt）、
+    directorx-montage（卡点混剪：素材盘点→beat→裁剪→拼接→混音成片）；
+    全流程画布镜像 + dryRun 零成本质检路径；
+  - `directorx_propose/proposals/proposal_update` 占位提案状态机（先方案
+    后生成，approved 才执行）；
+  - `directorx_preflight` 生成前四道闸门（规格/内容/成本/权利）确定性审计；
+  - `directorx_style` 风格/镜头语言注入（知识库实文 + 10 个预设 slug）。
+- **导演知识工具化**：`directorx_style`（见上）+ 内置
+  directorx-production-lead 技能（分诊/控制模式/单元生产/工作流推导）。
+
 - **DirectorX persona 与画布/编辑器工作台**（agent runtime 层改造 + WebUI 表面）：
   - systemPrompt 注入 DirectorX（DX）制片统筹 persona：分诊（简单直接生成/
     复杂走 production-lead）、成本护栏、unit 粒度汇报、默认中文；子代理

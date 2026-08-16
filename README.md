@@ -162,6 +162,17 @@ dsh web
 | `directorx_generate_video` | 生成视频片段 | 图生视频、首尾帧转场、动作镜头 |
 | `directorx_generate_audio` | 生成旁白/音频 | 广告口播、短剧对白、音效底子 |
 | `directorx_knowledge_search` | 搜片场百科 | 查运镜术语、模型参数、平台规格 |
+| `directorx_video_process` | 确定性剪辑：裁剪/变速/规格/音量 | 统一素材规格、抠节奏片段 |
+| `directorx_video_concat` | 多片段拼接（硬切/交叉淡化） | 多镜头成片、蒙太奇 |
+| `directorx_audio_mix` | 多轨混音 + 旁白闪避 | BGM + 旁白 + 音效合成 |
+| `directorx_video_subtitle` | 软字幕轨 / 硬烧字幕 | 成片加字幕（转写 srt 直用） |
+| `directorx_video_zoom` / `_pip` | Ken Burns 运镜 / 画中画 | 推拉镜头、贴纸角标 |
+| `directorx_audio_beat` | 节拍检测（ebur128） | 卡点混剪的切点依据 |
+| `directorx_style` | 风格/镜头语言注入（知识库实文） | 锁定黑色电影/赛博朋克等质感 |
+| `directorx_preflight` | 生成前四道闸门审计 | 批量生成前把关 |
+| `directorx_propose` / `_proposals` / `_proposal_update` | 占位提案状态机 | 先方案后生成，批准才花钱 |
+| `directorx_canvas_*`（14 个） | 画布完全掌控 | 分镜板上画布、连线、分组、布局 |
+
 | `directorx_knowledge_read` | 读完整词条 | 把搜索结果展开成可执行方法论 |
 | `directorx_task_status` | 查生成任务状态 | 超时/中断后找回 provider 任务、拿回结果文件 |
 | `directorx_cancel_task` | 取消进行中任务 | 停止卡住或不再需要的异步生成 |
