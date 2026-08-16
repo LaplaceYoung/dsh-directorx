@@ -78,12 +78,14 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const [exportOpen, setExportOpen] = useState(false)
   const [exportResult, setExportResult] = useState<{ blob: Blob; url: string } | undefined>(undefined)
   const [adjustOpen, setAdjustOpen] = useState(false)
-  const [adjust, setAdjust] = useState({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })
+  const [adjust, setAdjust] = useState({ brightness: 1, contrast: 1, saturate: 1, warm: 0, hue: 0 })
+  const [adjustAdvanced, setAdjustAdvanced] = useState(false)
 
   // 调节实时预览：CSS filter 只作用于预览层（像素级提交在「应用」时执行）。
   const filterString = useMemo(() => {
     const warmPart = adjust.warm > 0 ? ` sepia(${(adjust.warm * 0.5).toFixed(2)})` : adjust.warm < 0 ? ` hue-rotate(${Math.round(-adjust.warm * 30)}deg)` : ''
-    return `brightness(${adjust.brightness}) contrast(${adjust.contrast}) saturate(${adjust.saturate})${warmPart}`
+    const huePart = adjust.hue !== 0 ? ` hue-rotate(${adjust.hue}deg)` : ''
+    return `brightness(${adjust.brightness}) contrast(${adjust.contrast}) saturate(${adjust.saturate})${warmPart}${huePart}`
   }, [adjust])
 
   useEffect(() => {
@@ -118,7 +120,7 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
       context.filter = filterString
       context.drawImage(image, 0, 0)
       await editor.loadImageFromURL(canvas.toDataURL('image/png'), props.path.split('/').pop() ?? 'image')
-      setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })
+      setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0, hue: 0 })
       setAdjustOpen(false)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
@@ -360,12 +362,12 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
             </div>
           ))}
           <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1.08, contrast: 1.1, saturate: 1.15, warm: 0.05 })}>自动增强</button>
-            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 })}>重置全部</button>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1.08, contrast: 1.1, saturate: 1.15, warm: 0.05, hue: 0 })}>自动增强</button>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0, hue: 0 })}>重置全部</button>
           </div>
           <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
             <button style={{ ...exportBtn, flex: 1, textAlign: 'center' }} onClick={() => void applyAdjustments()}>应用</button>
-            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => { setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0 }); setAdjustOpen(false) }}>取消</button>
+            <button style={{ ...toolChip, flex: 1, textAlign: 'center' }} onClick={() => { setAdjust({ brightness: 1, contrast: 1, saturate: 1, warm: 0, hue: 0 }); setAdjustOpen(false) }}>取消</button>
           </div>
           <div style={{ fontSize: 10, color: '#666', marginTop: 8 }}>预览走 CSS filter（零成本即时反馈）；「应用」才做像素级提交。双击数值复位。</div>
         </div>
