@@ -277,6 +277,17 @@ test('srt lint and term dictionary serve the localization checks', async () => {
   }
 })
 
+test('srt normalize merges gaps and extends short cues', async () => {
+  const { srtNormalize, cleanSpeechText, weightedWidth } = await import('../lib/testing.js')
+  const content = '1\n00:00:00,000 --> 00:00:01,000\n第一句\n\n2\n00:00:01,500 --> 00:00:04,000\n第二句（掌声）——结束\n'
+  const out = srtNormalize(content)
+  assert.ok(out.applied.some(note => note.includes('merged')), 'gap merged')
+  assert.ok(out.applied.some(note => note.includes('extended')), 'short cue extended')
+  assert.ok(out.srt.includes('00:00:01,500'), 'merged end carries next start')
+  assert.equal(cleanSpeechText('大家好（掌声）[音乐] 这是——测试™'), '大家好 这是，测试')
+  assert.ok(weightedWidth('中文测试') > 4, 'CJK weighted width')
+})
+
 test('srt lint flags line width, cps, duration and ordering', async () => {
   const { srtLint } = await import('../lib/testing.js')
   const content = '2\n00:00:01,000 --> 00:00:01,500\n这是一条超过十六个字的超长字幕行用来测试单行宽度限制的问题\n\n4\n00:00:03,000 --> 00:00:04,000\n短\n'

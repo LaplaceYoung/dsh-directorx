@@ -25,7 +25,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, srtLint, subtitleCut } from './providers/timeline.ts'
+import { audioSync, cleanSpeechText, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, srtLint, srtNormalize, subtitleCut, weightedWidth } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -1238,6 +1238,34 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return srtLint(readFileSync(String(args.srt), 'utf8'), { maxLineChars: args.maxLineChars, maxCps: args.maxCps })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_srt_normalize',
+    description: 'SRT 规范化（确定性）：间隙吞并（gap<1s 前条 end 延至下条 start）、最短展示时长延长（<2.5s，末条除外）、时间戳格式归一。配音对齐与成片前跑一遍，输出规范化后的 srt 文本与应用的改动清单。',
+    parameters: {
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt file.' },
+      minDurationSec: { type: 'number', description: '最短展示时长（默认 2.5）。' },
+      gapMergeSec: { type: 'number', description: '间隙吞并阈值（默认 1）。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return srtNormalize(readFileSync(String(args.srt), 'utf8'), { minDurationSec: args.minDurationSec, gapMergeSec: args.gapMergeSec })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_speech_clean',
+    description: '口播文本清理：删除括号噪声注释（(掌声)/[音乐] 类）、商标符号、破折号归一——SRT 文案转配音前的净化步骤。',
+    parameters: {
+      text: { type: 'string', required: true, description: 'The narration text to clean.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return { cleaned: cleanSpeechText(String(args.text)) }
     },
   })))
 

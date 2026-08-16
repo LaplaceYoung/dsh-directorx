@@ -650,3 +650,77 @@ export function srtLint(content: string, options: { maxLineChars?: number; maxCp
   })
   return { totalCues: cues.length, issues, ok: issues.length === 0 }
 }
+
+/**
+ * 口播文本清理：删除括号噪声注释（(掌声)/[音乐] 类）、商标符号与
+ * 破折号——SRT 文案转配音前净化。
+ */
+export function cleanSpeechText(text: string): string {
+  return text
+    .replace(/[（(][^（）()]*[）)]/g, ' ')
+    .replace(/[\[【][^\]】]*[\]】]/g, ' ')
+    .replace(/[™®©]/g, '')
+    .replace(/——/g, '，')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/** 加权字宽：CJK/全角 1.75、韩文 1.5、其他 1（显示行宽质检口径）。 */
+export function weightedWidth(text: string): number {
+  let width = 0
+  for (const char of text) {
+    if (/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(char)) width += 1.75
+    else if (/[\uac00-\ud7af]/.test(char)) width += 1.5
+    else width += 1
+  }
+  return width
+}
+
+export interface SrtNormalizeOutput {
+  srt: string
+  applied: string[]
+}
+
+/**
+ * SRT 规范化（确定性）：间隙吞并（gap<1s 时前条 end 延至下条 start）、
+ * 最短展示时长延长（<2.5s 延到 2.5s，末条除外）、时间戳格式归一。
+ */
+export function srtNormalize(content: string, options: { minDurationSec?: number; gapMergeSec?: number } = {}): SrtNormalizeOutput {
+  const cues = parseSrt(content)
+  const applied: string[] = []
+  const minDuration = options.minDurationSec ?? 2.5
+  const gapMerge = options.gapMergeSec ?? 1
+  for (let index = 0; index < cues.length; index += 1) {
+    const cue = cues[index]
+    // 间隙吞并：吞并的是「上一条的 end 到下一条的 start」之间的小间隙。
+    if (index < cues.length - 1) {
+      const gap = cues[index + 1].start - cue.end
+      if (gap > 0 && gap < gapMerge) {
+        cue.end = cues[index + 1].start
+        applied.push(`cue ${cue.index}: gap ${gap.toFixed(2)}s merged into end`)
+      }
+    }
+    // 最短展示时长（末条除外）。
+    if (index < cues.length - 1 && cue.end - cue.start < minDuration) {
+      cue.end = Number((cue.start + minDuration).toFixed(3))
+      applied.push(`cue ${cue.index}: duration extended to ${minDuration}s`)
+    }
+  }
+  const lines: string[] = []
+  cues.forEach((cue, index) => {
+    lines.push(String(index + 1))
+    lines.push(`${formatSrtTime(cue.start)} --> ${formatSrtTime(cue.end)}`)
+    lines.push(cue.text)
+    lines.push('')
+  })
+  return { srt: lines.join('\\n'), applied }
+}
+
+function formatSrtTime(seconds: number): string {
+  const ms = Math.max(0, Math.round(seconds * 1000))
+  const h = String(Math.floor(ms / 3600000)).padStart(2, '0')
+  const m = String(Math.floor(ms / 60000) % 60).padStart(2, '0')
+  const s = String(Math.floor(ms / 1000) % 60).padStart(2, '0')
+  const rem = String(ms % 1000).padStart(3, '0')
+  return `${h}:${m}:${s},${rem}`
+}
