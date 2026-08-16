@@ -480,6 +480,7 @@ function CanvasTabInner(): ReactNode {
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
   const [conflict, setConflict] = useState<CanvasDocument | undefined>(undefined)
+  const [agentEditFlash, setAgentEditFlash] = useState(false)
   const [title, setTitle] = useState('未命名画布')
   const titleRef = useRef('未命名画布')
   const cascadeRef = useRef(0)
@@ -681,6 +682,9 @@ function CanvasTabInner(): ReactNode {
         if (doc.updatedAt !== updatedAtRef.current) {
           applyDoc(doc)
           setSaveState('已同步')
+          // F4: surface remote (agent) edits briefly.
+          setAgentEditFlash(true)
+          window.setTimeout(() => setAgentEditFlash(false), 2600)
         }
       }).catch(() => {})
     }
@@ -1024,11 +1028,21 @@ function CanvasTabInner(): ReactNode {
   }, [scheduleSave])
   const onEdgesDelete = useCallback(() => scheduleSave(), [scheduleSave])
 
+  const isPairValid = useCallback((source: string, target: string): boolean => {
+    if (source === target) return false
+    return !edgesRef.current.some(edge => edge.source === source && edge.target === target)
+  }, [])
+
   const onConnect = useCallback((connection: Connection) => {
+    if (connection.source === null || connection.target === null) return
+    if (!isPairValid(connection.source, connection.target)) {
+      setError('连线无效：不允许自连或重复连线')
+      return
+    }
     pushHistory()
     setEdges(current => addEdge({ ...connection, id: newLocalId('edge') }, current))
     scheduleSave()
-  }, [setEdges, scheduleSave])
+  }, [setEdges, scheduleSave, pushHistory, isPairValid])
 
   const flowRootRef = useRef<HTMLDivElement | null>(null)
   const centerFlowPos = useCallback((): { x: number; y: number } => {
@@ -1247,12 +1261,19 @@ function CanvasTabInner(): ReactNode {
   }, [])
 
   const onEdgeReconnect = useCallback((edgeId: string, side: 'source' | 'target', endpointId: string) => {
+    const edge = edgesRef.current.find(candidate => candidate.id === edgeId)
+    if (edge === undefined) return
+    const next = side === 'source' ? { source: endpointId, target: edge.target } : { source: edge.source, target: endpointId }
+    if (!isPairValid(next.source, next.target)) {
+      setError('连线无效：不允许自连或重复连线')
+      return
+    }
     pushHistory()
-    setEdges(current => current.map(edge => edge.id === edgeId
-      ? side === 'source' ? { ...edge, source: endpointId } : { ...edge, target: endpointId }
-      : edge))
+    setEdges(current => current.map(candidate => candidate.id === edgeId
+      ? side === 'source' ? { ...candidate, source: endpointId } : { ...candidate, target: endpointId }
+      : candidate))
     scheduleSave()
-  }, [setEdges, scheduleSave, pushHistory])
+  }, [setEdges, scheduleSave, pushHistory, isPairValid])
 
   const saveEdgeLabel = useCallback(() => {
     if (edgeMenu === undefined) return
@@ -1655,7 +1676,13 @@ function CanvasTabInner(): ReactNode {
           </svg>
         ) : null}
         <Controls position="bottom-left" showInteractive={false} />
-        <MiniMap pannable zoomable style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }} maskColor="rgba(0,0,0,.75)" nodeColor="#3f3f3f" nodeStrokeColor="#5c5c5c" />
+        <MiniMap
+          pannable zoomable
+          style={{ width: 132, height: 88, borderRadius: 8, background: '#0a0a0a' }}
+          maskColor="rgba(0,0,0,.75)"
+          nodeColor={node => node.type === 'group' ? '#454545' : node.type === 'media' ? '#6f6f6f' : '#5a5a5a'}
+          nodeStrokeColor={node => node.type === 'group' ? '#5c5c5c' : '#777777'}
+        />
       </ReactFlow>
       <input
         value={title}
@@ -1681,6 +1708,11 @@ function CanvasTabInner(): ReactNode {
         {selectedEdge !== undefined ? <button style={toolBtn} onClick={deleteSelectedEdge}>删除连线</button> : null}
         <span style={{ fontSize: 10.5, color: '#777', padding: '0 2px' }}>{uploading ? '上传中…' : '⌘+/- 缩放 · ⌘0 适配 · ⌘2 适配选中 · ⌘D 复制 · Esc 清除'}</span>
         <span style={saveChip}>{saveState}</span>
+        {agentEditFlash ? (
+          <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,245,245,.14)', color: '#f5f5f5' }}>
+            AI 正在编辑画布…
+          </span>
+        ) : null}
         {conflict !== undefined ? (
           <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <button style={toolBtn} onClick={conflictKeepMine}>保留我的</button>
