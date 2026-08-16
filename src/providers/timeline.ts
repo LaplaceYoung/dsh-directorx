@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './video-process.ts'
 import type { VideoOutput } from './video-process.ts'
@@ -46,6 +46,21 @@ export interface TimelineOutput {
 
 export async function renderTimeline(spec: TimelineSpec, outputDir: string): Promise<TimelineOutput> {
   if (spec.scenes.length === 0) throw new Error('timeline needs at least one scene')
+  // Input guardrails: fail fast with actionable messages before any ffmpeg work.
+  for (const [index, scene] of spec.scenes.entries()) {
+    if (scene.source === '' || !existsSync(scene.source)) {
+      throw new Error(`timeline scene ${index + 1}: source not found (${scene.source || '<empty>'})`)
+    }
+    if (scene.trim !== undefined) {
+      const [start, end] = scene.trim
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end <= start) {
+        throw new Error(`timeline scene ${index + 1}: trim window [${start},${end}] invalid (0 <= start < end)`)
+      }
+    }
+    if (scene.speed !== undefined && (scene.speed < 0.5 || scene.speed > 8)) {
+      throw new Error(`timeline scene ${index + 1}: speed ${scene.speed}x out of range [0.5, 8]`)
+    }
+  }
   const steps: string[] = []
   const tempFiles: string[] = []
 

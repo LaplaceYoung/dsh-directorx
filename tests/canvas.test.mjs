@@ -195,6 +195,23 @@ test('canvas branch clones a node into a labelled variant group', async () => {
   }
 })
 
+test('proposal next returns the oldest pending item for the approval loop', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-next-'))
+  try {
+    const store = new ProposalStore(dir)
+    assert.equal(await store.next(), null, 'empty queue -> null')
+    await store.propose({ kind: 'image', prompt: '第一张', count: 1 })
+    await store.propose({ kind: 'image', prompt: '第二张', count: 1 })
+    const next = await store.next()
+    assert.equal(next.prompt, '第一张', 'oldest first')
+    await store.update(next.id, 'approved')
+    const after = await store.next()
+    assert.equal(after.prompt, '第二张', 'queue advances')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('proposal lifecycle mirrors onto a linked canvas node', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-prop-canvas-'))
   try {

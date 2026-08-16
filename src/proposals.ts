@@ -69,6 +69,15 @@ export class ProposalStore {
     return proposal
   }
 
+  /** 审批队列：取最旧的一条待批准提案（审批门循环的下一步）。 */
+  async next(): Promise<GenerationProposal | null> {
+    const ledger = await this.read()
+    const proposed = ledger.proposals
+      .filter(proposal => proposal.status === 'proposed')
+      .sort((a, b) => a.at - b.at)
+    return proposed[0] ?? null
+  }
+
   async list(status?: GenerationProposal['status'], limit = 50): Promise<GenerationProposal[]> {
     const ledger = await this.read()
     const filtered = status === undefined ? ledger.proposals : ledger.proposals.filter(proposal => proposal.status === status)
