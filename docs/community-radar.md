@@ -3,6 +3,7 @@
 > dsh-directorx 的开源社区沉淀清单：每一行都来自一手核实（GitHub API / npm registry /
 > 官方文档 / 官方仓库源码），记录采用、备选与弃用原因，供后续轮次择优集成。
 > 数据获取日期：2026-08-16（本轮核实部分以标注为准）。
+> 增量：2026-08-17 分镜表/先审后花（见文末「2026-08-17 分镜表调研」）。
 
 ## 已集成（In production）
 
@@ -114,6 +115,18 @@
 **其它实证**（雷达备份）：fastmcp 27.2k Apache-2.0（MCP DX 参考）、kinocut 113 Apache-2.0（护栏化 ffmpeg MCP）、MoneyPrinterTurbo 104k MIT（竖屏流水线）、NarratoAI 10.7k MIT（LLM 精剪）、FunClip 6.1k MIT（按口播文本打点剪辑）、VideoLingo 18.2k Apache-2.0（多语配音）、Qwen3-VL 19.8k Apache-2.0（视觉底座）、Wan2.1/Open-Sora/CogVideoX/LTX-Video（Apache-2.0 权重，自部署成本高）。
 **许可红线**：Mora/Open-AI-Micro-Drama-Generator 无许可、Crayotter 自定义许可（仅参考）；ComfyUI GPL-3.0（仅 API 进程隔离）。持续发现渠道：awesome-ai-media-cn、AI-Video-Tools。
 
+
+## 2026-08-17 分镜表调研（一手）
+
+| 项 | 源 | 判断 |
+|---|---|---|
+| wonderunit/storyboarder | gh api + README raw（3806★） | adapt 编号分镜表，不 vendor（许可 API 404） |
+| OpenCut-app/OpenCut | gh api MIT 83786★ 2026-08-10 | skip 整编辑器；adapt「时间线即审片面」 |
+| OpenTimelineIO | gh api Apache-2.0 1954★ | skip 本轮（已有 timeline 子集） |
+| Boords features | boords.com/features | adapt 分镜表 + 签字；skip 其生图 |
+| Kling Canvas Agent | app.klingai.com / kling.ai/canvas | skip 第二套 canvas agent；adapt「画布即计划」 |
+
+落地：`directorx_canvas_shotlist`（画布编号表 + 时长预算）。
 
 ## 视频模型 API 协议更新调研（2026-08-16，官方文档一手核对）
 

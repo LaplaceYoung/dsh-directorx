@@ -6,6 +6,7 @@
 
 ### Added
 
+- **画布分镜表**：`directorx_canvas_shotlist` 按 `shotIndex` 导出编号分镜（时长/连续性/状态/时长预算），给用户签字后再花钱。形态来自 Storyboarder / Boords，不生成媒体。
 - **生成条角色锚点**：画布指令带上已注册角色名；`formatDshCanvasPrompt` 要求 DSH 生成时传 `characters`，UI 不再自己写节点。
 - **隔离开发回路**：`scripts/parallel-dev-loop.mjs` 以独立 cwd/`git -C` 推进本仓库；测试红则本树不提交，不碰 sibling agent 树。
 - **画布命令面板换成 cmdk**：两套手写 ⌘K 列表合并为 `CanvasCommandPalette`（pacocoursey/cmdk），分组过滤、方向键与 aria 由库负责。

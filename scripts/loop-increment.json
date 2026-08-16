@@ -22,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "fix(orchestrate): keep the helper optional — agents compose the flow themselves"
+  "message": "feat(canvas): export a numbered shot list for sign-off before spend"
 }

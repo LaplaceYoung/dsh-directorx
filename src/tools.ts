@@ -16,6 +16,7 @@ import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
 import { orchestrateProduction } from './orchestrate/run.ts'
+import { formatCanvasShotlist } from './shotlist.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -502,6 +503,23 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute() {
       return canvas.summary()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_shotlist',
+    description: 'Export a numbered shot list from the canvas (Storyboarder/Boords-style board): shot index, kind, prompt, duration, continuity, status, and a running duration budget. Does not generate media. Use before proposing generation so the user can sign off the board.',
+    parameters: {
+      target_seconds: { type: 'number', description: 'Optional target runtime; remaining seconds are reported against the sum of shot durations.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const doc = await canvas.read()
+      return formatCanvasShotlist(doc, {
+        ...(typeof args.target_seconds === 'number' && Number.isFinite(args.target_seconds) ? { targetSeconds: args.target_seconds } : {}),
+      })
     },
   })))
 
