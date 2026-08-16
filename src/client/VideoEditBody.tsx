@@ -56,6 +56,7 @@ const btn: CSSProperties = {
 const primaryBtn: CSSProperties = { ...btn, border: 'none', background: '#f5f5f5', color: '#171717', fontWeight: 600 }
 const audioLane: CSSProperties = { marginTop: 12, border: '1px solid rgba(255,255,255,.14)', borderRadius: 12, padding: 10, background: 'rgba(255,255,255,.03)' }
 const audioLabel: CSSProperties = { fontSize: 11.5, opacity: .8, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
+const trimHandleCss = '.dx-trim-handle:hover { opacity: 1 !important; background: linear-gradient(to right, rgba(245,245,245,.6), transparent) !important; }'
 
 function fmt(us: number): string {
   const total = us / 1e6
@@ -80,6 +81,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [progress, setProgress] = useState<number | undefined>(undefined)
   const [exported, setExported] = useState<{ blob: Blob; url: string } | undefined>(undefined)
   const [currentTime, setCurrentTime] = useState(0)
+  const [trimPreview, setTrimPreview] = useState<string | undefined>(undefined)
   const videoRef = useRef<HTMLVideoElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const waveInstanceRef = useRef<WaveSurfer | null>(null)
@@ -259,6 +261,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
         let next = state.edge === 'start'
           ? Math.min(state.originEnd - 200_000, Math.max(0, state.originStart + deltaUs))
           : Math.max(state.originStart + 200_000, Math.min(meta.durationUs, state.originEnd + deltaUs))
+        setTrimPreview(fmt(next))
         // 吸附：播放头 / 0 / 片长 / 其他片段边界（±10px）。
         const video = videoRef.current
         const playheadUs = video !== null ? video.currentTime * 1e6 : -1
@@ -271,6 +274,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     }
     const up = () => {
       trimRef.current = undefined
+      setTrimPreview(undefined)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
     }
@@ -280,8 +284,72 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
 
   const totalUs = useMemo(() => segments.reduce((sum, segment) => sum + (segment.endUs - segment.startUs), 0), [segments])
 
+  // 全局快捷键（输入框焦点保护）：Space 播放 · S 分割 · Delete 删片段 ·
+  // ←/→ seek（Shift 大步）· ↑/↓ 跳切点 · Esc 取消选择。
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      const video = videoRef.current
+      if (video === null || meta === undefined) return
+      switch (event.key) {
+        case ' ':
+          event.preventDefault()
+          if (video.paused) void video.play().catch(() => {})
+          else video.pause()
+          break
+        case 's':
+        case 'S':
+          event.preventDefault()
+          splitAtPlayhead()
+          break
+        case 'Delete':
+        case 'Backspace':
+          event.preventDefault()
+          deleteSegment()
+          break
+        case 'ArrowLeft':
+          event.preventDefault()
+          video.currentTime = Math.max(0, video.currentTime - (event.shiftKey ? 5 : 1))
+          setCurrentTime(video.currentTime)
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          video.currentTime = Math.min(meta.durationUs / 1e6, video.currentTime + (event.shiftKey ? 5 : 1))
+          setCurrentTime(video.currentTime)
+          break
+        case 'ArrowUp': {
+          event.preventDefault()
+          const before = segments.filter(segment => segment.startUs / 1e6 < video.currentTime - 0.01)
+          if (before.length > 0) {
+            video.currentTime = before[before.length - 1].startUs / 1e6
+            setCurrentTime(video.currentTime)
+          }
+          break
+        }
+        case 'ArrowDown': {
+          event.preventDefault()
+          const after = segments.find(segment => segment.startUs / 1e6 > video.currentTime + 0.01)
+          if (after !== undefined) {
+            video.currentTime = after.startUs / 1e6
+            setCurrentTime(video.currentTime)
+          }
+          break
+        }
+        case 'Escape':
+          setSelected(undefined)
+          break
+        default:
+          break
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [meta, segments, splitAtPlayhead, deleteSegment])
+
   return (
     <div style={{ padding: 12, fontSize: 13 }}>
+      <style>{trimHandleCss}</style>
       {error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12.5, marginBottom: 8 }}>{error}</div> : null}
       {meta !== undefined ? (
         <>
@@ -358,13 +426,15 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                   title="双击：预览跳转到该片段起点；右键：删除" 
                 >
                   <div
-                    style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
-                    title="拖动裁剪入点"
+                    className="dx-trim-handle"
+                    style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 14, cursor: 'ew-resize', background: 'linear-gradient(to right, rgba(245,245,245,.35), transparent)', opacity: .7, transition: 'opacity .12s ease' }}
+                    title="拖动裁剪入点（吸附播放头/边界）"
                     onPointerDown={beginTrim(segment, 'start')}
                   />
                   <div
-                    style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
-                    title="拖动裁剪出点"
+                    className="dx-trim-handle"
+                    style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 14, cursor: 'ew-resize', background: 'linear-gradient(to left, rgba(245,245,245,.35), transparent)', opacity: .7, transition: 'opacity .12s ease' }}
+                    title="拖动裁剪出点（吸附播放头/边界）"
                     onPointerDown={beginTrim(segment, 'end')}
                   />
                   <div style={{ opacity: .75 }}>{fmt(segment.startUs)}–{fmt(segment.endUs)}</div>
@@ -374,6 +444,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             })}
             </div>
           </div>
+          {trimPreview !== undefined ? (
+            <div style={{ position: 'fixed', left: '50%', bottom: 24, transform: 'translateX(-50%)', zIndex: 30, fontSize: 12, fontVariantNumeric: 'tabular-nums', padding: '5px 12px', borderRadius: 999, background: 'rgba(18,18,18,.92)', border: '1px solid rgba(255,255,255,.18)', color: '#f5f5f5', boxShadow: '0 8px 20px rgba(0,0,0,.5)' }}>{trimPreview}</div>
+          ) : null}
           <div style={audioLane}>
             <div style={audioLabel}>
               <span>音频轨（wavesurfer.js）</span>
