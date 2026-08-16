@@ -617,6 +617,7 @@ function CanvasTabInner(): ReactNode {
   const [uploading, setUploading] = useState(false)
   const [conflict, setConflict] = useState<CanvasDocument | undefined>(undefined)
   const [agentEditFlash, setAgentEditFlash] = useState(false)
+  const [flashIds, setFlashIds] = useState<Set<string>>(new Set())
   const [title, setTitle] = useState('未命名画布')
   const titleRef = useRef('未命名画布')
   const cascadeRef = useRef(0)
@@ -705,6 +706,27 @@ function CanvasTabInner(): ReactNode {
   }), [renameNode, duplicateNode, deleteNode, dissolveGroup])
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
+    // Agent 编辑可视化：与上一版文档做 id 级 diff，变化/新增节点闪烁环。
+    const previous = nodesRef.current
+    const changed = new Set<string>()
+    for (const node of doc.nodes) {
+      const prior = previous.find(candidate => candidate.id === node.id)
+      if (prior === undefined) {
+        changed.add(node.id)
+        continue
+      }
+      const priorData = prior.data as Record<string, unknown>
+      const priorLabel = priorData.label
+      const priorPath = (priorData as { path?: string }).path
+      const priorPrompt = (priorData as { prompt?: string }).prompt
+      const priorShotStatus = (priorData as { shotStatus?: string }).shotStatus
+      if (priorLabel !== node.label || priorPath !== node.path || priorPrompt !== node.prompt || priorShotStatus !== node.shotStatus) changed.add(node.id)
+    }
+    if (changed.size > 0) {
+      setAgentEditFlash(true)
+      setFlashIds(changed)
+      window.setTimeout(() => { setFlashIds(new Set()); setAgentEditFlash(false) }, 1800)
+    }
     updatedAtRef.current = doc.updatedAt
     const nextTitle = typeof doc.title === 'string' && doc.title !== '' ? doc.title : '未命名画布'
     titleRef.current = nextTitle
@@ -1982,6 +2004,8 @@ function CanvasTabInner(): ReactNode {
         .dx-tool-icon { transition: background .15s ease, transform .12s ease; }
         .react-flow__node-media .dx-card, .react-flow__node-text { transition: transform .15s ease, box-shadow .15s ease; }
         .react-flow__node:active .dx-card { transform: scale(.98); }
+        .react-flow__node.dx-agent-flash { animation: dx-agent-flash 1.8s ease; }
+        @keyframes dx-agent-flash { 0%, 100% { box-shadow: none; } 20%, 60% { box-shadow: 0 0 0 2px rgba(79,157,255,.85); } }
         @keyframes dx-pop-in { from { opacity: 0; transform: translateY(4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes dx-dash-flow { to { stroke-dashoffset: -20; } }
         .dx-pop { animation: dx-pop-in .16s ease; }
@@ -1995,11 +2019,15 @@ function CanvasTabInner(): ReactNode {
             if (node.parentId !== undefined && node.parentId !== '' && collapsedGroups.has(node.parentId)) hiddenIds.add(node.id)
           }
           return nodes.map(node => {
-            if (hiddenIds.has(node.id)) return { ...node, hidden: true }
+            let next = node
+            if (hiddenIds.has(node.id)) next = { ...next, hidden: true }
             if (node.type === 'group' && collapsedGroups.has(node.id)) {
-              return { ...node, style: { ...node.style, width: node.style?.width ?? 520, height: 46 } }
+              next = { ...next, style: { ...node.style, width: node.style?.width ?? 520, height: 46 } }
             }
-            return node
+            if (flashIds.has(node.id)) {
+              next = { ...next, className: 'dx-agent-flash' }
+            }
+            return next
           })
         })()}
         edges={[]}
