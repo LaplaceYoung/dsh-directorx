@@ -173,6 +173,26 @@ test('contact sheet tiles midpoint frames into one preview image', async () => {
   }
 })
 
+test('timeline fingerprint cache reuses unchanged scenes (revision diff)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-diff-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=3', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const spec = { scenes: [{ source: clip, trim: [0, 2] }, { source: clip, trim: [1, 3], transition: 'cut' }] }
+    const first = await renderTimeline(spec, dir)
+    assert.ok(first.steps.every(step => !step.includes('cache hit')), 'first render computes scenes')
+    const second = await renderTimeline(spec, dir)
+    assert.equal(second.steps.filter(step => step.includes('cache hit')).length, 2, 'second render reuses both scenes')
+    // 改一镜 -> 只该镜重渲（diff 语义）
+    const third = await renderTimeline({ scenes: [{ source: clip, trim: [0, 2] }, { source: clip, trim: [0.5, 2.5], transition: 'cut' }] }, dir)
+    const hits = third.steps.filter(step => step.includes('cache hit'))
+    assert.equal(hits.length, 1, 'only the unchanged scene hits cache')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('timeline golden vector renders with pinned structural invariants', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-golden-'))
   try {

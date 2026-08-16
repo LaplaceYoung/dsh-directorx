@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readFileSync, statSync, mkdirSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { probeMedia } from './ffmpeg.ts'
@@ -56,6 +57,28 @@ export interface TimelineOutput {
   probe: VideoOutput['probe']
 }
 
+/**
+ * 场景指纹：源文件（路径+大小+mtime）+ 裁剪/变速/倒放/缩放参数。
+ * 指纹相同的场景重渲染时直接复用缓存段——修订 diff 重渲染
+ * （改哪层只重渲哪层）的基础。
+ */
+export function sceneFingerprint(scene: TimelineScene, scale?: string): string {
+  const source = scene.source
+  let sourceTag = source
+  try {
+    const info = statSync(source)
+    sourceTag = `${source}:${info.size}:${info.mtimeMs}`
+  } catch {
+    sourceTag = `${source}:missing`
+  }
+  const parts = [sourceTag, JSON.stringify(scene.trim ?? null), scene.speed ?? 1, scene.reverse === true ? 'rev' : 'fwd', scale ?? '']
+  return createHash('sha256').update(parts.join('|')).digest('hex').slice(0, 20)
+}
+
+function segmentCachePath(outputDir: string, fingerprint: string): string {
+  return join(resolve(process.cwd(), outputDir), '.timeline-cache', `${fingerprint}.mp4`)
+}
+
 export async function renderTimeline(spec: TimelineSpec, outputDir: string): Promise<TimelineOutput> {
   if (spec.scenes.length === 0) throw new DirectiveError('invalidArg', 'timeline needs at least one scene')
   // Input guardrails: fail fast with actionable messages before any ffmpeg work.
@@ -78,8 +101,16 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
 
   try {
     // 1. Per-scene trims (video_process when a trim window is requested).
+    // 场景指纹缓存：命中即复用（修订 diff 重渲染：未改场景零成本）。
     const segmentPaths: string[] = []
     for (const [index, scene] of spec.scenes.entries()) {
+      const fingerprint = sceneFingerprint(scene, spec.scale)
+      const cached = segmentCachePath(outputDir, fingerprint)
+      if (existsSync(cached)) {
+        segmentPaths.push(cached)
+        steps.push(`scene ${index + 1} cache hit (fingerprint ${fingerprint}): ${cached}`)
+        continue
+      }
       if (scene.trim !== undefined) {
         const segment = await videoProcess({
           source: scene.source,
@@ -93,6 +124,12 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
         tempFiles.push(segment.path)
         segmentPaths.push(segment.path)
         steps.push(`trim scene ${index + 1}${scene.speed !== undefined && scene.speed > 0 ? ` (speed ${scene.speed}x)` : ''}: ${scene.source} [${scene.trim[0]},${scene.trim[1]}] -> ${segment.path}`)
+        try {
+          mkdirSync(join(resolve(process.cwd(), outputDir), '.timeline-cache'), { recursive: true })
+          copyFileSync(segment.path, cached)
+        } catch {
+          // cache write failure is non-fatal; the segment is already usable.
+        }
       } else if (scene.speed !== undefined && scene.speed > 0 && Math.abs(scene.speed - 1) > 0.01) {
         const segment = await videoProcess({
           source: scene.source,
