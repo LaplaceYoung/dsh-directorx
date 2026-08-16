@@ -700,6 +700,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                   const left = block.startUs / 1e6 * scale
                   const width = Math.max(28, (block.endUs - block.startUs) / 1e6 * scale)
                   const selectedBlock = subSelected === block.id
+                  const overlaps = subtitles.some(other => other.id !== block.id && other.startUs < block.endUs && block.startUs < other.endUs)
                   return subEditing === block.id ? (
                     <input
                       key={block.id}
@@ -732,8 +733,8 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                         window.addEventListener('pointerup', up)
                       }}
                       onDoubleClick={() => setSubEditing(block.id)}
-                      title={`${fmt(block.startUs)}–${fmt(block.endUs)}：${block.text}（拖移 / 双击编辑）`}
-                      style={{ position: 'absolute', left, top: 4, width, height: 22, lineHeight: '22px', fontSize: 10.5, padding: '0 6px', borderRadius: 6, border: selectedBlock ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.2)', background: selectedBlock ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.07)', color: '#ececec', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'grab', zIndex: 2 }}
+                      title={`${fmt(block.startUs)}–${fmt(block.endUs)}：${block.text}（拖移 / 双击编辑${overlaps ? '；与相邻字幕时间重叠' : ''}）`}
+                      style={{ position: 'absolute', left, top: 4, width, height: 22, lineHeight: '22px', fontSize: 10.5, padding: '0 6px', borderRadius: 6, border: overlaps ? '1px solid rgba(240,163,163,.8)' : selectedBlock ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.2)', background: overlaps ? 'rgba(240,163,163,.14)' : selectedBlock ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.07)', color: '#ececec', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'grab', zIndex: 2 }}
                     >
                       {block.text}
                     </div>
