@@ -606,6 +606,8 @@ function CanvasTabInner(): ReactNode {
   const [proposals, setProposals] = useState<Array<{ id: string; kind: string; prompt: string; model?: string; size?: string; duration?: number; count: number; estimatedCost?: string; status: string }>>([])
   const [proposalPanel, setProposalPanel] = useState(false)
   const [proposalFocusId, setProposalFocusId] = useState<string | undefined>(undefined)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [snapshots, setSnapshots] = useState<Array<{ id: string; at: number; label: string }>>([])
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -2278,6 +2280,7 @@ function CanvasTabInner(): ReactNode {
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setMoreOpen(false)} />
             <div className="dx-pop" style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+              <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); setHistoryOpen(true); void fetch('/directorx/canvas/snapshots').then(r => r.json()).then((data: { snapshots?: Array<{ id: string; at: number; label: string }> }) => setSnapshots(data.snapshots ?? [])).catch(() => {}) }}>版本历史</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); arrangeSemantic() }}>语义泳道布局</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); openCompare() }}>对比分支版本</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); void exportPng() }}>导出 PNG 分镜板</button>

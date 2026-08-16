@@ -515,6 +515,67 @@ export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => strin
   })
 }
 
+export function registerCanvasSnapshotsRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/canvas/snapshots',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const store = new DirectorxCanvasStore(getOutputDir())
+      if (request.method === 'POST') {
+        const snap = await store.snapshot('手动检查点')
+        sendJsonLocal(response, 200, { ok: true, snapshot: snap })
+        return
+      }
+      sendJsonLocal(response, 200, { snapshots: await store.readSnapshotsIndex() })
+    },
+  })
+}
+
+export function registerCanvasRestoreRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/canvas/restore',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      const body = await readBodyLocal(request, 16 * 1024) as { id?: unknown }
+      const id = typeof body.id === 'string' ? body.id : ''
+      if (id === '') {
+        sendJsonLocal(response, 400, { ok: false, message: 'snapshot id 必填' })
+        return
+      }
+      try {
+        const store = new DirectorxCanvasStore(getOutputDir())
+        const doc = await store.restoreSnapshot(id)
+        sendJsonLocal(response, 200, { ok: true, updatedAt: doc.updatedAt })
+      } catch {
+        sendJsonLocal(response, 404, { ok: false, message: '快照不存在或已损坏' })
+      }
+    },
+  })
+}
+
 /** 提案面板路由：画布顶栏显示待批准提案并可批准/拒绝（人机确认环的 UI 侧）。 */
 export function registerProposalsRoute(ctx: Context, getOutputDir: () => string): () => void {
   const webServer = ctx.get('webServer') as

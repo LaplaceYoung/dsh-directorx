@@ -7,7 +7,7 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import { DirectorxSettings, SETTINGS_NS, type DirectorxSettings as DirectorxSettingsType } from './config.ts'
 import { corpus } from './corpus.ts'
-import { registerCanvasResetRoute, registerCanvasRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerProposalUpdateRoute, registerVendorRoute } from './media-server.ts'
+import { registerCanvasResetRoute, registerCanvasRestoreRoute, registerCanvasRoute, registerCanvasSnapshotsRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerProposalUpdateRoute, registerVendorRoute } from './media-server.ts'
 import { registerBundledSkills } from './skills.ts'
 import { registerSettingsTestRoute } from './settings-test.ts'
 import { registerMcpRoute } from './mcp.ts'
@@ -76,6 +76,8 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerMediaListRoute(ctx, () => scope.get().outputDir), 'directorx media list route')
   ctx.effect(() => registerCanvasRoute(ctx, () => scope.get().outputDir), 'directorx canvas route')
   ctx.effect(() => registerCanvasResetRoute(ctx, () => scope.get().outputDir), 'directorx canvas reset route')
+  ctx.effect(() => registerCanvasSnapshotsRoute(ctx, () => scope.get().outputDir), 'directorx canvas snapshots route')
+  ctx.effect(() => registerCanvasRestoreRoute(ctx, () => scope.get().outputDir), 'directorx canvas restore route')
   ctx.effect(() => registerVendorRoute(ctx), 'directorx vendor assets route')
   ctx.effect(() => registerProposalsRoute(ctx, () => scope.get().outputDir), 'directorx proposals route')
   ctx.effect(() => registerProposalUpdateRoute(ctx, () => scope.get().outputDir), 'directorx proposal update route')
