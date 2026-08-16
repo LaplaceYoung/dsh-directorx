@@ -39,6 +39,9 @@ interface AudioTrack {
   name: string
 }
 
+const MIN_SCALE = 8 // px per second
+const MAX_SCALE = 140
+
 const lane: CSSProperties = { display: 'flex', gap: 2, marginTop: 10, overflowX: 'auto', paddingBottom: 4 }
 const segStyle: CSSProperties = {
   padding: '4px 8px', borderRadius: 6, border: '1px solid rgba(128,160,255,.55)',
@@ -69,6 +72,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [meta, setMeta] = useState<Meta | undefined>(undefined)
   const [segments, setSegments] = useState<Segment[]>([])
   const [selected, setSelected] = useState<number | undefined>(undefined)
+  const [scale, setScale] = useState(30)
   const [audio, setAudio] = useState<AudioTrack | undefined>(undefined)
   const [volume, setVolume] = useState(100)
   const [busy, setBusy] = useState(false)
@@ -238,8 +242,36 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
     }
   }, [meta, segments, audio, volume])
 
+  const trimRef = useRef<{ id: number; edge: 'start' | 'end'; originX: number; originStart: number; originEnd: number } | undefined>(undefined)
+
+  const beginTrim = (segment: Segment, edge: 'start' | 'end') => (event: React.PointerEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+    trimRef.current = { id: segment.id, edge, originX: event.clientX, originStart: segment.startUs, originEnd: segment.endUs }
+    const move = (moveEvent: PointerEvent) => {
+      const state = trimRef.current
+      if (state === undefined || meta === undefined) return
+      const deltaUs = (moveEvent.clientX - state.originX) / scale * 1e6
+      setSegments(current => current.map(segment => {
+        if (segment.id !== state.id) return segment
+        if (state.edge === 'start') {
+          const next = Math.min(state.originEnd - 200_000, Math.max(0, state.originStart + deltaUs))
+          return { ...segment, startUs: next }
+        }
+        const next = Math.max(state.originStart + 200_000, Math.min(meta.durationUs, state.originEnd + deltaUs))
+        return { ...segment, endUs: next }
+      }))
+    }
+    const up = () => {
+      trimRef.current = undefined
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
   const totalUs = useMemo(() => segments.reduce((sum, segment) => sum + (segment.endUs - segment.startUs), 0), [segments])
-  const scale = meta !== undefined && totalUs > 0 ? Math.max(24, Math.min(220, 720 / (totalUs / 1e6))) : 60
 
   return (
     <div style={{ padding: 12, fontSize: 13 }}>
@@ -260,15 +292,31 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             {meta.width}×{meta.height} · 源时长 {fmt(meta.durationUs)} · 输出 {fmt(totalUs)} · 片段 {segments.length}
             {audio !== undefined ? ` · 音频 ${audio.name}` : ''}
           </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+            <button style={btn} onClick={() => setScale(current => Math.max(MIN_SCALE, current - 8))} title="缩小时间线">−</button>
+            <span style={{ fontSize: 11, opacity: .65, minWidth: 44, textAlign: 'center' }}>{Math.round(scale)} px/s</span>
+            <button style={btn} onClick={() => setScale(current => Math.min(MAX_SCALE, current + 8))} title="放大时间线">＋</button>
+            <span style={{ fontSize: 11, opacity: .5 }}>拖动片段左右边缘可裁剪入/出点</span>
+          </div>
           <div style={lane}>
             {segments.map(segment => {
-              const width = Math.max(30, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
+              const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
               return (
                 <div
                   key={segment.id}
-                  style={{ ...(selected === segment.id ? segSelected : segStyle), width, textAlign: 'center', overflow: 'hidden' }}
+                  style={{ ...(selected === segment.id ? segSelected : segStyle), width, textAlign: 'center', overflow: 'hidden', position: 'relative' }}
                   onClick={() => setSelected(segment.id)}
                 >
+                  <div
+                    style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
+                    title="拖动裁剪入点"
+                    onPointerDown={beginTrim(segment, 'start')}
+                  />
+                  <div
+                    style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
+                    title="拖动裁剪出点"
+                    onPointerDown={beginTrim(segment, 'end')}
+                  />
                   {fmt(segment.startUs)}–{fmt(segment.endUs)}
                 </div>
               )
