@@ -10,7 +10,7 @@ import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
 import { routeModel } from './model-matrix.ts'
 import { generationPreset, listPresets } from './presets.ts'
-import { buildShotPrompt, buildShotSequence } from './providers/shot-builder.ts'
+import { buildShotPrompt, buildShotSequence, gateShotSequence } from './providers/shot-builder.ts'
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
@@ -1343,6 +1343,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         composition: args.composition,
         durationSec: typeof args.durationSec === 'number' ? args.durationSec : undefined,
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_shot_gate',
+    description: '生成前规则 gate：把导演纪律变成规则编号化检查——ECU 惜用律（≤20%）、承接变量必填、描述长度、运镜词表与反单调、模型路由可用性（时长/画幅时）。与成片质检 qa_report 构成生成前后一对 gate。全部确定性，不调模型。',
+    parameters: {
+      shots: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Shot list（同 shot_sequence 输入形状）。' },
+      durationSec: { type: 'number', description: 'Optional target duration for model routing.' },
+      aspectRatio: { type: 'string', description: 'Optional aspect ratio for model routing.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return gateShotSequence({ shots: Array.isArray(args.shots) ? args.shots as never[] : [], durationSec: args.durationSec, aspectRatio: args.aspectRatio })
     },
   })))
 

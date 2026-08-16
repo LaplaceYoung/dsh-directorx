@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { brief, buildShotPrompt, buildShotSequence, generationPreset, listPresets, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
+import { brief, buildShotPrompt, buildShotSequence, gateShotSequence, generationPreset, listPresets, planStoryboard, preflight, registerSubagentSetup, routeModel } from '../lib/testing.js'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -107,6 +107,30 @@ test('storyboard enforces the camera vocabulary and anti-monotony', () => {
   // storyBeat passthrough
   const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
   assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
+test('shot gate enforces rule-numbered pre-generation checks', () => {
+  const good = gateShotSequence({
+    shots: [
+      { id: 'a', description: '雨夜巷口。', cameraMove: 'pan' },
+      { id: 'b', description: '她回头。', cameraMove: 'push_in' },
+    ],
+    durationSec: 8,
+    aspectRatio: '16:9',
+  })
+  assert.equal(good.verdict, 'pass', JSON.stringify(good.checks))
+  const bad = gateShotSequence({
+    shots: [
+      { id: 'a', description: '特写眼睛。', shotSize: 'ECU' },
+      { id: 'b', description: '特写手指。', shotSize: 'ECU' },
+      { id: 'c', description: '特写嘴唇。', shotSize: 'ECU' },
+      { id: 'd', description: '全景。', cameraMove: 'hyper_zoom' },
+    ],
+  })
+  assert.equal(bad.verdict, 'fix')
+  assert.ok(bad.checks.some(check => check.name === 'ECU 惜用律' && !check.pass), 'ECU ratio flagged')
+  assert.ok(bad.checks.some(check => check.name === '运镜词表与反单调' && !check.pass), 'off-vocabulary move flagged')
+  assert.ok(bad.checks.every(check => check.rule !== undefined), 'every check cites a rule')
 })
 
 test('generation presets pair parameters with the model router', () => {

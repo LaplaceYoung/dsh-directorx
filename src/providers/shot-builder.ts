@@ -1,4 +1,5 @@
 import { CAMERA_SAFE_MOVES } from './storyboard.ts'
+import { routeModel } from '../model-matrix.ts'
 
 /**
  * 镜头语言 → 生成提示词确定性翻译器（导演技巧的 AIGC 应用层）：
@@ -187,4 +188,84 @@ export function buildShotSequence(shots: SequenceShotInput[]): ShotSequenceOutpu
     })
   })
   return { specs, issues }
+}
+
+export interface ShotGateInput {
+  shots: SequenceShotInput[]
+  /** 可选：目标时长（秒）与画幅，联动模型路由检查。 */
+  durationSec?: number
+  aspectRatio?: string
+}
+
+export interface ShotGateCheck {
+  name: string
+  pass: boolean
+  detail: string
+  rule: string
+}
+
+export interface ShotGateOutput {
+  verdict: 'pass' | 'fix'
+  checks: ShotGateCheck[]
+}
+
+/**
+ * 生成前规则 gate：把导演纪律变成规则编号化检查（生成前跑，与
+ * 成片质检 qa_report 构成前后一对）。全部确定性，不调模型。
+ */
+export function gateShotSequence(input: ShotGateInput): ShotGateOutput {
+  const checks: ShotGateCheck[] = []
+  const shots = input.shots
+  if (shots.length === 0) {
+    return { verdict: 'fix', checks: [{ name: '镜头数', pass: false, detail: '镜头列表为空', rule: '规则 3c 剧本单一事实源' }] }
+  }
+  // ECU 惜用律：特写占比 ≤ 20%。
+  const ecuCount = shots.filter(shot => shot.shotSize === 'ECU').length
+  checks.push({
+    name: 'ECU 惜用律',
+    pass: ecuCount / shots.length <= 0.2,
+    detail: `${ecuCount}/${shots.length} 镜用 ECU（上限 20%）`,
+    rule: '规则 36 ECU 只给决定性细节',
+  })
+  // 负面基线必须逐镜存在（本装配层默认注入）。
+  checks.push({ name: '负面基线', pass: true, detail: '装配层逐镜注入四类负面基线', rule: '规则 26 负面四类基底' })
+  // 承接变量必填（首镜 prevEnd / 末镜 nextStart 豁免）。
+  const missingCarry: string[] = []
+  shots.forEach((shot, index) => {
+    if (index > 0 && tailSentence(shots[index - 1].description) === '') missingCarry.push(shot.id ?? `shot-${index + 1}`)
+    if (index < shots.length - 1 && (shot.description.split(/[。！？；\n]+/)[0] ?? '').trim() === '') missingCarry.push(shot.id ?? `shot-${index + 1}`)
+  })
+  checks.push({ name: '承接变量', pass: missingCarry.length === 0, detail: missingCarry.length > 0 ? `缺承接描述：${missingCarry.join(', ')}` : '逐镜承接文本齐备', rule: '规则 3b 承接变量必填' })
+  // 提示词长度（容器与内容分离：描述过长）。
+  const overlong = shots.filter(shot => shot.description.length > 200).map(shot => shot.id ?? '?')
+  checks.push({ name: '描述长度', pass: overlong.length === 0, detail: overlong.length > 0 ? `超长描述：${overlong.join(', ')}` : '全部 ≤200 字', rule: '规则 14 容器与内容分离' })
+  // 运镜词表 + 反单调。
+  const safeSet = new Set<string>(CAMERA_SAFE_MOVES)
+  const boldSet = new Set<string>(['orbit', 'dolly_zoom', 'roll', 'whip'])
+  const badMoves: string[] = []
+  let prevMove: string | undefined
+  shots.forEach((shot, index) => {
+    const move = shot.cameraMove?.toLowerCase()
+    if (move === undefined) return
+    const id = shot.id ?? `shot-${index + 1}`
+    if (!safeSet.has(move) && !boldSet.has(move)) badMoves.push(`${id}(${move})`)
+    if (prevMove !== undefined && prevMove === move && move !== 'static') badMoves.push(`${id}(与上镜同运镜)`)
+    prevMove = move
+  })
+  checks.push({ name: '运镜词表与反单调', pass: badMoves.length === 0, detail: badMoves.length > 0 ? badMoves.join('；') : '词表合规、相邻不同', rule: '规则 36 运镜安全词表' })
+  // 模型路由（若给时长/画幅）。
+  if (input.durationSec !== undefined || input.aspectRatio !== undefined) {
+    const route = routeModelForGate(input.durationSec, input.aspectRatio)
+    checks.push({
+      name: '模型路由',
+      pass: route.eligible.length > 0,
+      detail: route.eligible.length > 0 ? `${route.eligible.length} 个模型可用` : '无模型满足该参数组合',
+      rule: '规则 59/62 时长与画幅是参数',
+    })
+  }
+  return { verdict: checks.every(check => check.pass) ? 'pass' : 'fix', checks }
+}
+
+function routeModelForGate(durationSec?: number, aspectRatio?: string): { eligible: unknown[] } {
+  return routeModel({ durationSec, aspectRatio })
 }
