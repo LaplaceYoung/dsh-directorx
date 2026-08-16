@@ -24,7 +24,10 @@ test('no external upstream URLs are shipped', async () => {
   const offenders = []
   for (const file of files) {
     const content = await readFile(file, 'utf8')
-    if (/github\.com|api\.github\.com/i.test(content)) offenders.push(file)
+    // The plugin's OWN repository links are fine (README badges / package
+    // metadata); any other GitHub reference is an upstream leak.
+    const stripped = content.replace(/github\.com\/LaplaceYoung\/dsh-directorx/gi, '')
+    if (/github\.com|api\.github\.com/i.test(stripped)) offenders.push(file)
   }
   assert.deepEqual(offenders, [])
 })
@@ -45,5 +48,5 @@ test('original playbook is integrated as a DSH skill', async () => {
 test('README presents the content as original plugin features', async () => {
   const readme = await readFile(join(root, 'README.md'), 'utf8')
   assert.match(readme, /dsh-plugin/)
-  assert.doesNotMatch(readme, /github\.com|api\.github\.com/i)
+  assert.doesNotMatch(readme.replace(/github\.com\/LaplaceYoung\/dsh-directorx/gi, ''), /github\.com|api\.github\.com/i)
 })
