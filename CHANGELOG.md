@@ -6,6 +6,22 @@
 
 ### Added
 
+- **高优先级四支柱（产品与工程编排向，模型接入降级）**：
+  - 分析视频：`directorx_video_analyze`（分镜检测/代表帧/响度）、
+    `directorx_qa`（时长/画幅/音轨/镜头数/节奏/黑帧/白帧七门）、
+    `directorx_qa_report`（一键质检卡上画布）；
+  - 制作视频：`directorx_smart_cut`（LLM 精剪，脚本句↔字幕匹配组装）、
+    `directorx_clip_rank`（候选片段排序，ESA 评分步）、
+    `audioMix.targetLufs`（-14/-23 LUFS 平台标准）、ducking 参数对齐
+    行业标准、提案状态机上画布（propose 绑定画布节点）；
+  - 理解意图：`directorx_brief`（类型/平台/时长/风格/锚点/素材推断 +
+    一次澄清协议 + nextActions 动作序列）；
+  - 制作方法论：内置技能 `directorx-methodology`（25 条规则：成片结构/
+    提示词工程/剪辑节奏/LLM 精剪/音频混音，全部附来源与工具落点），
+    三模板引用规则编号；
+  - 方法论实演两次：质检镜像（analyze+qa→画布质检节点）、意图分诊
+    （brief→画布简报组 15 节点）。
+
 - **联网+开源社区调研驱动的 agentic 能力补齐**（调研沉淀见 docs/community-radar.md）：
   - `directorx/mcp`：JSON-RPC 2.0 MCP 端点（13 工具）——外部 AI 助手（Claude/
     ChatGPT/Cursor）可驱动 DirectorX 制片工作室（对标 Runway MCP）；
