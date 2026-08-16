@@ -67,6 +67,7 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const [matting, setMatting] = useState(false)
   const [matteStatus, setMatteStatus] = useState<string | undefined>(undefined)
   const [matte, setMatte] = useState<{ url: string } | undefined>(undefined)
+  const [exportFormat, setExportFormat] = useState<'png' | 'jpg'>('png')
 
   useEffect(() => {
     const container = containerRef.current
@@ -157,9 +158,10 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
     setBusy(true)
     setError(undefined)
     try {
-      const dataUrl = editor.toDataURL({ format: 'png', quality: 1 })
+      const format = exportFormat === 'jpg' ? 'jpeg' : 'png'
+      const dataUrl = editor.toDataURL({ format, quality: exportFormat === 'jpg' ? 0.92 : 1 })
       void fetch(dataUrl).then(response => response.blob()).then(blob => {
-        props.onExport(blob, 'image/png')
+        props.onExport(blob, exportFormat === 'jpg' ? 'image/jpeg' : 'image/png')
       }).catch(cause => {
         setError(cause instanceof Error ? cause.message : String(cause))
       }).finally(() => setBusy(false))
@@ -179,8 +181,19 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
         <button style={toolChip} disabled={matting} onClick={() => void matteImage()}>
           {matting ? '处理中…' : '智能抠图'}
         </button>
+        <div style={{ display: 'flex', padding: 3, borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(18,18,18,.85)' }}>
+          {(['png', 'jpg'] as const).map(format => (
+            <button
+              key={format}
+              onClick={() => setExportFormat(format)}
+              style={{ padding: '4px 10px', borderRadius: 999, border: 'none', background: exportFormat === format ? '#f5f5f5' : 'transparent', color: exportFormat === format ? '#171717' : '#d8d8d8', fontSize: 11, fontWeight: 600, cursor: 'pointer', textTransform: 'uppercase' }}
+            >
+              {format}
+            </button>
+          ))}
+        </div>
         <button style={exportBtn} disabled={busy || matting} onClick={exportPng}>
-          {busy ? '导出中…' : '导出 PNG'}
+          {busy ? '导出中…' : `导出 ${exportFormat.toUpperCase()}`}
         </button>
       </div>
       {matteStatus !== undefined ? (

@@ -332,7 +332,11 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                     video.currentTime = segment.startUs / 1e6
                     void video.play().catch(() => {})
                   }}
-                  title="双击：预览跳转到该片段起点" 
+                  onContextMenu={event => {
+                    event.preventDefault()
+                    if (window.confirm(`删除片段 ${fmt(segment.startUs)}–${fmt(segment.endUs)}？`)) deleteSegment()
+                  }}
+                  title="双击：预览跳转到该片段起点；右键：删除" 
                 >
                   <div
                     style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, cursor: 'ew-resize', background: 'rgba(245,245,245,.25)' }}
@@ -344,7 +348,8 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                     title="拖动裁剪出点"
                     onPointerDown={beginTrim(segment, 'end')}
                   />
-                  {fmt(segment.startUs)}–{fmt(segment.endUs)}
+                  <div style={{ opacity: .75 }}>{fmt(segment.startUs)}–{fmt(segment.endUs)}</div>
+                  <div style={{ fontSize: 10, opacity: .55 }}>{fmt(segment.endUs - segment.startUs)}</div>
                 </div>
               )
             })}
