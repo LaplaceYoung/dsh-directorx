@@ -20,10 +20,11 @@ type NodeCallbacks = {
   onRename?: (id: string, label: string) => void
   onDuplicate?: (id: string) => void
   onDelete?: (id: string) => void
+  onDissolve?: (id: string) => void
 }
 type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string } & NodeCallbacks
 type TextNodeData = { label: string } & NodeCallbacks
-type GroupNodeData = { label: string } & NodeCallbacks
+type GroupNodeData = { label: string; groupHover?: boolean } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
 
@@ -233,15 +234,18 @@ function GroupNodeComponent(props: NodeProps): ReactNode {
   const data = props.data as unknown as GroupNodeData
   const selected = props.selected === true
   const [hovered, setHovered] = useState(false)
+  const highlight = data.groupHover === true || selected
   return (
     <div
-      style={{ ...groupFrame, ...(selected ? { border: '1px solid rgba(255,255,255,.85)' } : {}), position: 'relative' }}
+      style={{ ...groupFrame, ...(highlight ? { border: '1px solid rgba(245,245,245,.85)', background: data.groupHover === true ? 'rgba(255,255,255,.07)' : groupFrame.background } : {}), position: 'relative' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      <NodeResizer isVisible={selected} minWidth={260} minHeight={180} color="rgba(245,245,245,.85)" />
       <RenameLabel id={props.id} value={data.label || '分组'} onRename={data.onRename} style={groupTitle} />
-      {hovered ? (
+      {hovered || selected ? (
         <div style={{ position: 'absolute', top: 8, right: 10, display: 'flex', gap: 4 }}>
+          <button style={{ padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer' }} onClick={event => { event.stopPropagation(); (data as unknown as { onDissolve?: (id: string) => void }).onDissolve?.(props.id) }}>解散</button>
           <button style={{ padding: '3px 8px', borderRadius: 7, border: '1px solid rgba(255,255,255,.25)', background: 'rgba(0,0,0,.6)', color: '#f5f5f5', fontSize: 10.5, cursor: 'pointer' }} onClick={event => { event.stopPropagation(); data.onDelete?.(props.id) }}>删除</button>
         </div>
       ) : null}
@@ -533,6 +537,21 @@ function CanvasTabInner(): ReactNode {
     saveRef.current()
   }, [setNodes])
 
+  const dissolveGroup = useCallback((groupId: string) => {
+    pushHistory()
+    setNodes(current => {
+      const group = current.find(node => node.id === groupId)
+      if (group === undefined) return current
+      return current
+        .filter(node => node.id !== groupId)
+        .map(node => node.parentId === groupId
+          ? { ...node, parentId: undefined, extent: undefined, position: { x: node.position.x + group.position.x, y: node.position.y + group.position.y } }
+          : node)
+    })
+    setEdges(current => current.filter(edge => edge.source !== groupId && edge.target !== groupId))
+    saveRef.current()
+  }, [setNodes, setEdges, pushHistory])
+
   const deleteNode = useCallback((id: string) => {
     pushHistory()
     setNodes(current => current.filter(node => node.id !== id))
@@ -541,8 +560,8 @@ function CanvasTabInner(): ReactNode {
   }, [setNodes, setEdges])
 
   const nodeCallbacks = useMemo<NodeCallbacks>(() => ({
-    onRename: renameNode, onDuplicate: duplicateNode, onDelete: deleteNode,
-  }), [renameNode, duplicateNode, deleteNode])
+    onRename: renameNode, onDuplicate: duplicateNode, onDelete: deleteNode, onDissolve: dissolveGroup,
+  }), [renameNode, duplicateNode, deleteNode, dissolveGroup])
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
     updatedAtRef.current = doc.updatedAt
@@ -775,6 +794,21 @@ function CanvasTabInner(): ReactNode {
   }, [pushHistory])
 
   const onNodeDrag = useCallback((_event: unknown, node: CanvasFlowNode) => {
+    // F1: highlight a group frame while a top-level node is dragged over it.
+    if (node.parentId === undefined || node.parentId === '') {
+      const cm = nodeMetrics(node)
+      const cx = node.position.x + cm.width / 2
+      const cy = node.position.y + cm.height / 2
+      setNodes(current => current.map(candidate => {
+        if (candidate.type !== 'group') return candidate
+        const gm = nodeMetrics(candidate)
+        const inside = cx >= candidate.position.x && cx <= candidate.position.x + gm.width
+          && cy >= candidate.position.y && cy <= candidate.position.y + gm.height
+        const flag = inside === true
+        const data = candidate.data as unknown as GroupNodeData
+        return data.groupHover === flag ? candidate : { ...candidate, data: { ...candidate.data, groupHover: flag } }
+      }))
+    }
     // LibTV-style alignment snapping (<=6px): pull the dragged node to the
     // nearest edge/center alignment and show guide lines.
     const snap = 6
@@ -835,6 +869,27 @@ function CanvasTabInner(): ReactNode {
 
   const onNodeDragStop = useCallback((_event: unknown, node: CanvasFlowNode) => {
     setGuides({ vertical: [], horizontal: [] })
+    setNodes(current => current.map(candidate => (candidate.data as unknown as GroupNodeData).groupHover === true
+      ? { ...candidate, data: { ...candidate.data, groupHover: false } }
+      : candidate))
+    // Drag-out of a group: when a child lands outside the parent frame,
+    // detach it (absolute coordinates) instead of locking it inside.
+    if (node.parentId !== undefined && node.parentId !== '') {
+      const parent = nodesRef.current.find(candidate => candidate.id === node.parentId)
+      if (parent !== undefined) {
+        const pm = nodeMetrics(parent)
+        const cm = nodeMetrics(node)
+        const absolute = { x: parent.position.x + node.position.x, y: parent.position.y + node.position.y }
+        const outside = absolute.x < parent.position.x || absolute.y < parent.position.y
+          || absolute.x + cm.width > parent.position.x + pm.width
+          || absolute.y + cm.height > parent.position.y + pm.height
+        if (outside) {
+          setNodes(current => current.map(candidate => candidate.id === node.id
+            ? { ...candidate, parentId: undefined, extent: undefined, position: absolute }
+            : candidate))
+        }
+      }
+    }
     // Drop-into-group: when a top-level node lands inside a group frame,
     // adopt it into the group (position becomes parent-relative).
     if (node.parentId === undefined || node.parentId === '') {
