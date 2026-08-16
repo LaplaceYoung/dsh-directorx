@@ -91,6 +91,24 @@ test('brief infers type/platform/duration and asks one-shot clarifications', asy
   assert.ok(out.nextActions.length >= 3, 'nextActions sequence present')
 })
 
+test('storyboard enforces the camera vocabulary and anti-monotony', () => {
+  const plan = planStoryboard({
+    shots: [
+      { id: 'a', description: '一', seconds: 3, movement: 'pan' },
+      { id: 'b', description: '二', seconds: 3, movement: 'pan' },
+      { id: 'c', description: '三', seconds: 3, movement: 'hyper_zoom' },
+      { id: 'd', description: '四', seconds: 3, movement: 'orbit' },
+    ],
+    targetSeconds: 12,
+  })
+  assert.ok(plan.issues.some(issue => issue.includes('反单调')), 'adjacent same move flagged')
+  assert.ok(plan.issues.some(issue => issue.includes('不在词表')), 'off-vocabulary move flagged')
+  assert.ok(plan.notes.some(note => note.includes('大胆运镜')), 'bold move annotated')
+  // storyBeat passthrough
+  const beatPlan = planStoryboard({ shots: [{ id: 'x', description: '五', seconds: 3, storyBeat: '开场' }], targetSeconds: 3 })
+  assert.equal(beatPlan.shots[0].storyBeat, '开场')
+})
+
 test('planStoryboard keeps industrial shot fields through the plan', () => {
   const plan = planStoryboard({
     shots: [

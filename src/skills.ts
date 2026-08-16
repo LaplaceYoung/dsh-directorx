@@ -204,6 +204,7 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       '2. 推演流程形状：哪些阶段必须串行（剧本→分镜）、哪些可以并行（逐镜提示词/逐镜生成）、哪些是闸门（preflight 四道闸门、质检 verdict）；',
       '3. 写出 workflow 工具的 meta（阶段标题 = 你推导出的流程）+ script（按推导的并行度用 pipeline/parallel）；',
       '3b. 逐镜提示词必填承接变量：上一镜 end_state（画面收在哪）、下一镜 start_goal（从哪开始）、轴线方向、构图锚点、主体优先级——相邻镜头未写承接变量的提示词一律退回重写；',
+      '3c. 剧本单一事实源：画布 group = beat（分场/节拍）、node = shot（镜头）、节点属性 = 旁白/标题/景别/运镜/动效/时长——与 timeline JSON 一一对应，所有 recipe 共用同一语义；',
       '4. 每个子代理的职责写进它的 prompt（用哪个技能、哪个工具、产出什么 schema、写不写画布）；',
       '5. 先 dryRun 验证编排零成本成立，再决定是否进入真实生成。',
       '',

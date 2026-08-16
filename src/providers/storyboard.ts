@@ -5,6 +5,10 @@
  * generation-ready before any API spend.
  */
 
+/** 运镜安全词表：统一平移/缩放类安全；轨道/旋转/甩镜类需显式放开。 */
+export const CAMERA_SAFE_MOVES = ['static', 'push_in', 'pull_out', 'pan', 'tilt', 'parallax', 'element'] as const
+export const CAMERA_BOLD_MOVES = ['orbit', 'dolly_zoom', 'roll', 'whip'] as const
+
 export interface ShotPlanInput {
   shots: Array<{
     id: string
@@ -17,6 +21,8 @@ export interface ShotPlanInput {
     moodTags?: string[]
     actionBeats?: string[]
     dialogue?: string
+    /** 分场/节拍归属（剧本单一事实源的 beat 层）。 */
+    storyBeat?: string
   }>
   /** Whole-film target (e.g. 30). Allocation scales when not all shots specify seconds. */
   targetSeconds?: number
@@ -38,6 +44,8 @@ export interface ShotPlanOutput {
     moodTags?: string[]
     actionBeats?: string[]
     dialogue?: string
+    /** 分场/节拍归属（剧本单一事实源的 beat 层）。 */
+    storyBeat?: string
   }>
   totalSeconds: number
   issues: string[]
@@ -65,6 +73,7 @@ export function planStoryboard(input: ShotPlanInput): ShotPlanOutput {
       ...(shot.moodTags !== undefined ? { moodTags: shot.moodTags } : {}),
       ...(shot.actionBeats !== undefined ? { actionBeats: shot.actionBeats } : {}),
       ...(shot.dialogue !== undefined ? { dialogue: shot.dialogue } : {}),
+      ...(shot.storyBeat !== undefined ? { storyBeat: shot.storyBeat } : {}),
     }
   })
   // Allocate unspecified durations: fill to target or the max-shot default.
@@ -90,6 +99,25 @@ export function planStoryboard(input: ShotPlanInput): ShotPlanOutput {
       for (const name of characterNames) if (!shot.description.includes(name)) missing.push(`角色「${name}」`)
       for (const name of sceneNames) if (!shot.description.includes(name)) missing.push(`场景「${name}」`)
       if (missing.length > 0) issues.push(`镜头 ${shot.id} 未引用连续性锚点：${missing.join('、')}`)
+    }
+  }
+  // 运镜硬约束：安全词表校验 + 相邻镜头反单调。
+  const safeSet = new Set<string>(CAMERA_SAFE_MOVES)
+  const boldSet = new Set<string>(CAMERA_BOLD_MOVES)
+  let previousMove: string | undefined
+  for (const shot of shots) {
+    const move = shot.movement !== undefined && shot.movement !== '' ? String(shot.movement).toLowerCase() : undefined
+    if (move !== undefined) {
+      if (!safeSet.has(move) && !boldSet.has(move)) {
+        issues.push(`镜头 ${shot.id} 运镜「${shot.movement}」不在词表内（安全：static/push_in/pull_out/pan/tilt/parallax/element；大胆需显式放开：orbit/dolly_zoom/roll/whip）`)
+      }
+      if (boldSet.has(move)) {
+        notes.push(`镜头 ${shot.id} 使用大胆运镜「${shot.movement}」——生成失败率高，建议备选安全运镜`)
+      }
+      if (previousMove !== undefined && previousMove === move && move !== 'static') {
+        issues.push(`镜头 ${shot.id} 与上一镜运镜相同（反单调规则：相邻镜头运镜必须不同）`)
+      }
+      previousMove = move
     }
   }
   return { shots, totalSeconds: Number(totalSeconds.toFixed(1)), issues, notes }
