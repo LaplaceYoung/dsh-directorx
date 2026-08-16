@@ -19,7 +19,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, renderTimeline, subtitleCut } from './providers/timeline.ts'
+import { audioSync, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -866,6 +866,29 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     timeoutMs: 30_000,
     async execute(args: any) {
       return brief({ request: String(args.request), materials: Array.isArray(args.materials) ? args.materials.map(String) : [], outputDir: settings.outputDir })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_smart_cut',
+    description: 'LLM 精剪（deterministic matcher）: the agent writes the narration script; this tool locates each sentence\'s best-matching subtitle cue (character-overlap scoring) in the source video and assembles the matched windows into a finished cut via the timeline pipeline. 智能成片 for 口播精剪/素材定位.',
+    parameters: {
+      video: { type: 'string', required: true, description: 'Absolute path of the source video.' },
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt transcript (directorx_transcribe_audio).' },
+      script: { type: 'array', items: { type: 'string' }, required: true, description: 'Script sentences (or one full text, split by punctuation).' },
+      pad: { type: 'number', description: 'Padding seconds around each matched cue (default 0.15).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return smartCut({
+        video: String(args.video),
+        srt: String(args.srt),
+        script: Array.isArray(args.script) ? args.script.map(String) : [],
+        outputDir: settings.outputDir,
+        pad: typeof args.pad === 'number' ? args.pad : undefined,
+      })
     },
   })))
 

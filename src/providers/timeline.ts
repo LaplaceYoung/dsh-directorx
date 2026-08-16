@@ -282,3 +282,65 @@ export async function subtitleCut(input: SubtitleCutInput): Promise<SubtitleCutO
     probe: rendered.probe,
   }
 }
+
+export interface SmartCutInput {
+  video: string
+  srt: string
+  /** 口播稿/脚本：按句拆分的句子列表，或全文（按标点拆句）。 */
+  script: string[]
+  outputDir: string
+  pad?: number
+  targetSeconds?: number
+}
+
+export interface SmartCutOutput {
+  path: string
+  mimeType: 'video/mp4'
+  /** 每句脚本匹配到的字幕窗口（时间锚点）。 */
+  matched: Array<{ script: string; cue: SrtCue | null; start: number; end: number }>
+  steps: string[]
+  probe: VideoOutput['probe']
+}
+
+function splitSentences(text: string): string[] {
+  return text.split(/[。！？；\n]+/).map(sentence => sentence.trim()).filter(sentence => sentence.length >= 4)
+}
+
+function overlap(a: string, b: string): number {
+  let score = 0
+  for (const char of a) if (b.includes(char)) score += 1
+  return score / Math.max(1, a.length)
+}
+
+/**
+ * LLM 精剪（deterministic matcher）: the agent writes the narration
+ * script, this tool locates each sentence's best-matching subtitle cue
+ * in the source and assembles the selected windows into a finished cut.
+ */
+export async function smartCut(input: SmartCutInput): Promise<SmartCutOutput> {
+  const cues = parseSrt(readFileSync(input.srt, 'utf8'))
+  const script = input.script.length > 0 && !input.script[0].includes('。') && input.script.length > 1
+    ? input.script
+    : splitSentences((input.script[0] ?? '').length > 0 ? input.script[0] : input.script.join(' '))
+  const pad = input.pad ?? 0.15
+  const matched: SmartCutOutput['matched'] = []
+  const windows: Array<{ start: number; end: number }> = []
+  for (const sentence of script) {
+    let best: SrtCue | null = null
+    let bestScore = 0
+    for (const cue of cues) {
+      const score = overlap(sentence, cue.text)
+      if (score > bestScore) { bestScore = score; best = cue }
+    }
+    if (best === null) { matched.push({ script: sentence, cue: null, start: 0, end: 0 }); continue }
+    const start = Math.max(0, best.start - pad)
+    const end = best.end + pad
+    windows.push({ start, end })
+    matched.push({ script: sentence, cue: best, start, end })
+  }
+  if (windows.length === 0) throw new Error('脚本与字幕没有可匹配的条目（换更接近原话的脚本，或先 transcribe 得到字幕）')
+  const rendered = await renderTimeline({
+    scenes: windows.map(window => ({ source: input.video, trim: [window.start, window.end], transition: 'cut' })),
+  }, input.outputDir)
+  return { path: rendered.path, mimeType: 'video/mp4', matched, steps: rendered.steps, probe: rendered.probe }
+}

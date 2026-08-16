@@ -99,16 +99,26 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   const scale = input.scale ?? '1280:720'
 
   if (input.transition === 'cut' || fadeSec <= 0) {
-    // Plain concat: normalize each clip to a common size/fps first.
+    // Plain concat: normalize each clip to a common size/fps first. Clips
+    // without audio get a silent track so the audio chain stays aligned.
+    const probes = input.files.map(file => probeMedia(file))
+    const anyAudio = probes.some(probe => probe.streams.some(stream => stream.type === 'audio'))
     const args: string[] = []
     const filters: string[] = []
     input.files.forEach((file, index) => {
       args.push('-i', file)
-      filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]`)
+      const hasAudio = probes[index].streams.some(stream => stream.type === 'audio')
+      if (anyAudio) {
+        filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000[a${index}]`}`)
+      } else {
+        filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}]`)
+      }
     })
-    const inputs = input.files.map((_, index) => `[v${index}][a${index}]`).join('')
-    const filterComplex = `${filters.join(';')}${inputs}concat=n=${input.files.length}:v=1:a=1[v][a]`
-    args.push('-filter_complex', filterComplex, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'aac', out)
+    const inputs = anyAudio ? input.files.map((_, index) => `[v${index}][a${index}]`).join('') : input.files.map((_, index) => `[v${index}]`).join('')
+    const filterComplex = `${filters.join(';')};${inputs}concat=n=${input.files.length}:v=1:a=${anyAudio ? 1 : 0}${anyAudio ? '[v][a]' : '[v]'}`
+    args.push('-filter_complex', filterComplex, '-map', '[v]', '-c:v', 'libx264', '-preset', 'veryfast')
+    if (anyAudio) args.push('-map', '[a]', '-c:a', 'aac')
+    args.push(out)
     runFfmpeg(args, 'video concat (cut)')
     return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
   }

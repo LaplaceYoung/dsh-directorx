@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,24 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('smartCut matches script sentences to subtitle cues and assembles', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-sc-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=5', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const srt = join(dir, 'subs.srt')
+    await writeFile(srt, '1\n00:00:00,500 --> 00:00:02,000\n今天我们聊产品亮点\n\n2\n00:00:03,000 --> 00:00:04,500\n最后记得点赞关注\n\n', 'utf8')
+    const out = await smartCut({ video: clip, srt, script: ['聊产品亮点', '点赞关注'], outputDir: dir, pad: 0.1 })
+    assert.ok(existsSync(out.path), 'cut exists')
+    assert.equal(out.matched.length, 2)
+    assert.ok(out.matched.every(item => item.cue !== null), 'both sentences matched')
+    assert.ok(out.probe.durationSec > 2.0 && out.probe.durationSec < 4.0, `two windows assembled, got ${out.probe.durationSec}`)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('videoAnalyze detects a hard cut between two clips', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-va-'))
