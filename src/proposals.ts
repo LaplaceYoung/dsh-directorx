@@ -118,7 +118,7 @@ export class ProposalStore {
     return filtered.slice(-limit).reverse()
   }
 
-  async update(id: string, status: GenerationProposal['status'], fields: { rejectReason?: string; taskId?: string; attempts?: number } = {}): Promise<GenerationProposal> {
+  async update(id: string, status: GenerationProposal['status'], fields: { rejectReason?: string; taskId?: string; attempts?: number; prompt?: string } = {}): Promise<GenerationProposal> {
     const ledger = await this.read()
     const proposal = ledger.proposals.find(candidate => candidate.id === id)
     if (proposal === undefined) throw new Error(`proposal "${id}" not found`)
@@ -126,6 +126,7 @@ export class ProposalStore {
     if (status === 'rejected' && fields.rejectReason !== undefined && fields.rejectReason !== '') proposal.rejectReason = fields.rejectReason
     if (fields.taskId !== undefined && fields.taskId !== '') proposal.taskId = fields.taskId
     if (fields.attempts !== undefined) proposal.attempts = fields.attempts
+    if (fields.prompt !== undefined && fields.prompt.trim() !== '') proposal.prompt = fields.prompt.slice(0, 2000)
     await this.write(ledger)
     return proposal
   }

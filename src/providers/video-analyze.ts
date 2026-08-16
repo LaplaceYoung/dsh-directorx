@@ -39,6 +39,8 @@ export interface VideoAnalyzeOutput {
   flickerCount: number
   /** 锐度代理：sobel 边缘能量均值（<15 疑似模糊，本地校准：锐 22 / 重模糊 14）。 */
   edgeSharpness: number
+  /** 冻结事件：freezedetect 检出画面静止段数（AI 视频卡帧伪影）。 */
+  freezeCount: number
   /** Sampled frames near white (YAVG > 240) — overexposure sanity signal. */
   whiteFrameCount: number
   /** blackdetect 黑场区间（d=0.25, pix=0.10 参数口径）。 */
@@ -65,6 +67,15 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     const match = line.match(/YAVG=([\d.]+)/)
     if (match !== null) yavg.push(Number(match[1]))
   }
+  // 冻结检测：freezedetect 静止段计数（第三趟，d=0.5s 起步）。
+  const freezeResult = spawnSync('ffmpeg', [
+    '-hide_banner', '-i', input.source,
+    '-vf', 'freezedetect=n=-60dB:d=0.5',
+    '-an', '-f', 'null', '-',
+  ], { encoding: 'utf8' })
+  const freezeMatches = (freezeResult.stderr ?? '').match(/freeze_start/g)
+  const freezeCount = freezeMatches !== null ? freezeMatches.length : 0
+
   // 锐度代理：sobel 边缘能量均值（第二趟扫描，与 YAVG 同成本）。
   const sobelResult = spawnSync('ffmpeg', [
     '-hide_banner', '-i', input.source,
@@ -178,6 +189,7 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     blackFrameCount: yavg.filter(value => value < 16).length,
     flickerCount,
     edgeSharpness,
+    freezeCount,
     whiteFrameCount: yavg.filter(value => value > 240).length,
     ...(blackSegments.length > 0 ? { blackSegments } : {}),
     ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
@@ -247,6 +259,7 @@ export async function qaCheck(input: QaInput, settings: DirectorxSettings, visio
   checks.push({ name: '白帧', pass: analysis.whiteFrameCount === 0, detail: analysis.whiteFrameCount > 0 ? `检出 ${analysis.whiteFrameCount} 帧过曝（YAVG>240）` : '无过曝帧' })
   checks.push({ name: '闪烁', pass: analysis.flickerCount <= Math.max(3, Math.round((analysis.probe.durationSec ?? 0) * 2)), detail: analysis.flickerCount > 0 ? `检出 ${analysis.flickerCount} 次亮度符号交替（AI 视频常见闪烁伪影）` : '无闪烁' })
   checks.push({ name: '锐度', pass: analysis.edgeSharpness >= 15, detail: analysis.edgeSharpness > 0 ? `边缘能量均值 ${analysis.edgeSharpness}${analysis.edgeSharpness < 15 ? '（疑似整体模糊）' : '（清晰）'}` : '无法测量' })
+  checks.push({ name: '冻结', pass: analysis.freezeCount === 0, detail: analysis.freezeCount > 0 ? `检出 ${analysis.freezeCount} 处画面静止段（≥0.5s，卡帧伪影）` : '无冻结段' })
   if (analysis.blackSegments !== undefined && analysis.blackSegments.length > 0) {
     const total = analysis.blackSegments.reduce((sum, segment) => sum + segment.durationSec, 0)
     checks.push({ name: '黑场段', pass: false, detail: `${analysis.blackSegments.length} 段黑场共 ${total.toFixed(2)}s（blackdetect d=0.25）` })

@@ -133,6 +133,22 @@ test('videoZoom diagonal pans produce valid output', async () => {
   }
 })
 
+test('videoAnalyze detects frozen frames', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-freeze-'))
+  try {
+    const clip = join(dir, 'frozen.mp4')
+    // 单帧循环 2s = 全程冻结。
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=160x90:rate=1:duration=1', '-c:v', 'libx264', join(dir, 'src.mp4')], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('freeze src gen failed')
+    const loop = spawnSync('ffmpeg', ['-hide_banner', '-y', '-stream_loop', '2', '-i', join(dir, 'src.mp4'), '-t', '2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (loop.status !== 0) throw new Error('freeze clip gen failed')
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    assert.ok(analysis.freezeCount > 0, 'static loop counts as frozen')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoAnalyze detects luminance flicker', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-flicker-'))
   try {

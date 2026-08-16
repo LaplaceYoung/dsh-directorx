@@ -617,7 +617,7 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
         response.end('method not allowed')
         return
       }
-      const body = await readBodyLocal(request, 64 * 1024) as { id?: unknown; status?: unknown; reason?: unknown }
+      const body = await readBodyLocal(request, 64 * 1024) as { id?: unknown; status?: unknown; reason?: unknown; prompt?: unknown }
       const id = typeof body.id === 'string' ? body.id : ''
       const status = body.status === 'approved' || body.status === 'rejected' ? body.status : null
       if (id === '' || status === null) {
@@ -625,7 +625,7 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
         return
       }
       const store = new ProposalStore(getOutputDir())
-      const updated = await store.update(id, status, typeof body.reason === 'string' && body.reason !== '' ? { rejectReason: body.reason.slice(0, 200) } : {})
+      const updated = await store.update(id, status, { ...(typeof body.reason === 'string' && body.reason !== '' ? { rejectReason: body.reason.slice(0, 200) } : {}), ...(typeof body.prompt === 'string' && body.prompt !== '' ? { prompt: body.prompt.slice(0, 2000) } : {}) })
       if (status === 'approved') {
         try {
           const canvas = new DirectorxCanvasStore(getOutputDir())
