@@ -210,22 +210,30 @@ export class DirectorxCanvasStore {
       if (!fromExists || !toExists) {
         throw new Error(`canvas edge endpoints must reference existing nodes (${edge.from} -> ${edge.to})`)
       }
-      // 连线 = 生成时的输入依赖（非执行顺序）；类型连接矩阵校验，
-      // 拒绝时给出可读 reason 供 agent 自纠。
-      const fromNode = doc.nodes.find(node => node.id === edge.from)
-      const toNode = doc.nodes.find(node => node.id === edge.to)
-      const fromKind = fromNode?.kind
-      const toKind = toNode?.kind
-      if (toNode?.locked === true) {
-        throw new Error(`edge reason: 目标节点 ${edge.to} 已锁定（定妆用途），拒绝新入边；解锁 = update 该节点 patch {locked: false}`)
-      }
-      if (fromKind !== undefined && toKind !== undefined) {
-        if (toKind === 'text' || toKind === 'group') throw new Error(`edge reason: 目标节点是 ${toKind}，不能作为输入依赖（连线只能指向 image/video）`)
-        if (fromKind === 'video' && toKind === 'image') throw new Error('edge reason: video 不能喂给 image（视频只能接力到 video）')
-        if (fromKind === 'group') throw new Error('edge reason: group 只作容器，不能作为连线源')
-      }
+      this.validateEdgeForDoc(doc, edge)
       if (!doc.edges.some(existing => existing.id === edge.id)) doc.edges.push(edge)
     })
+  }
+
+  /** 连线校验（端点存在/类型矩阵/锁定）——addEdge 与 batchAdd 共用。 */
+  private validateEdgeForDoc(doc: CanvasDocument, edge: CanvasEdge): void {
+    const fromExists = doc.nodes.some(node => node.id === edge.from)
+    const toExists = doc.nodes.some(node => node.id === edge.to)
+    if (!fromExists || !toExists) {
+      throw new Error(`canvas edge endpoints must reference existing nodes (${edge.from} -> ${edge.to})`)
+    }
+    const fromNode = doc.nodes.find(node => node.id === edge.from)
+    const toNode = doc.nodes.find(node => node.id === edge.to)
+    const fromKind = fromNode?.kind
+    const toKind = toNode?.kind
+    if (toNode?.locked === true) {
+      throw new Error(`edge reason: 目标节点 ${edge.to} 已锁定（定妆用途），拒绝新入边；解锁 = update 该节点 patch {locked: false}`)
+    }
+    if (fromKind !== undefined && toKind !== undefined) {
+      if (toKind === 'text' || toKind === 'group') throw new Error(`edge reason: 目标节点是 ${toKind}，不能作为输入依赖（连线只能指向 image/video）`)
+      if (fromKind === 'video' && toKind === 'image') throw new Error('edge reason: video 不能喂给 image（视频只能接力到 video）')
+      if (fromKind === 'group') throw new Error('edge reason: group 只作容器，不能作为连线源')
+    }
   }
 
   async update(id: string, patch: Record<string, unknown>): Promise<CanvasDocument> {
@@ -289,8 +297,11 @@ export class DirectorxCanvasStore {
       for (const node of (input.nodes ?? [])) {
         doc.nodes.push(sanitizeNode({ id: newId('text'), ...node }))
       }
+      // 边走与 addEdge 相同的校验（端点存在/类型矩阵/锁定），非法边报 reason。
       for (const edge of (input.edges ?? [])) {
-        doc.edges.push(sanitizeEdge({ id: newId('edge'), ...edge }))
+        const candidate = sanitizeEdge({ id: newId('edge'), ...edge })
+        this.validateEdgeForDoc(doc, candidate)
+        doc.edges.push(candidate)
       }
     })
   }

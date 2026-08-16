@@ -10,6 +10,16 @@ import type { MediaFile } from './types.ts'
  * (the same contract mock video mode already uses).
  */
 
+/** 解析 r_frame_rate 分数（如 "12/1"、"30000/1001"）为数值 fps。 */
+function parseFps(rate: string): number {
+  const parts = rate.split('/').map(Number)
+  if (parts.length === 2 && parts[1] > 0 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+    return Number((parts[0] / parts[1]).toFixed(3))
+  }
+  const direct = Number(rate)
+  return Number.isFinite(direct) && direct > 0 ? direct : 24
+}
+
 export interface MediaProbe {
   source: string
   format: string
@@ -47,7 +57,7 @@ export function probeMedia(source: string): MediaProbe {
     codec: stream.codec_name,
     ...(stream.width !== undefined ? { width: stream.width } : {}),
     ...(stream.height !== undefined ? { height: stream.height } : {}),
-    ...(stream.r_frame_rate !== undefined ? { fps: String(stream.r_frame_rate) } : {}),
+    ...(stream.r_frame_rate !== undefined ? { fps: parseFps(String(stream.r_frame_rate)) } : {}),
     ...(stream.channels !== undefined ? { channels: stream.channels } : {}),
     ...(stream.sample_rate !== undefined ? { sampleRate: stream.sample_rate } : {}),
   }))

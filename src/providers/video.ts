@@ -208,7 +208,7 @@ export async function runVideo(
         error: `${message} — the provider task may still be running; check directorx_task_status.`,
       }).catch(() => {})
     }
-    const classifiedError = new Error(message)
+    const classifiedError = new Error(classified)
     ;(classifiedError as unknown as { taskId?: string }).taskId = taskId
     throw classifiedError
   }

@@ -101,7 +101,8 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
     }
   }
   const steps: string[] = []
-  const tempFiles: string[] = []
+  /** 被下一阶段替换掉的旧产物（最终成片不入队，永不删除）。 */
+  const staleFiles: string[] = []
 
   try {
     // 1. Per-scene trims (video_process when a trim window is requested).
@@ -125,7 +126,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
           ...(scene.reverse === true ? { reverse: true } : {}),
           ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
         })
-        tempFiles.push(segment.path)
+        staleFiles.push(segment.path)
         segmentPaths.push(segment.path)
         steps.push(`trim scene ${index + 1}${scene.speed !== undefined && scene.speed > 0 ? ` (speed ${scene.speed}x)` : ''}: ${scene.source} [${scene.trim[0]},${scene.trim[1]}] -> ${segment.path}`)
         try {
@@ -141,7 +142,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
           speed: Math.min(8, Math.max(0.5, scene.speed)),
           ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
         })
-        tempFiles.push(segment.path)
+        staleFiles.push(segment.path)
         segmentPaths.push(segment.path)
         steps.push(`scene ${index + 1} speed ${scene.speed}x: ${scene.source} -> ${segment.path}`)
       } else {
@@ -157,7 +158,6 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
     if (segmentPaths.length === 1) {
       const single = await videoProcess({ source: segmentPaths[0], outputDir, ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}) })
       assembled = { path: single.path, mimeType: 'video/mp4', probe: single.probe }
-      tempFiles.push(single.path)
       steps.push(`single scene (no concat): ${segmentPaths[0]} -> ${single.path}`)
     } else {
       assembled = await videoConcat({
@@ -167,20 +167,19 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
         fadeSec: 0.5,
         ...(spec.scale !== undefined && spec.scale !== '' ? { scale: spec.scale } : {}),
       })
-      tempFiles.push(assembled.path)
       steps.push(`concat (${allCut ? 'cut' : 'fade'}): ${segmentPaths.length} scenes -> ${assembled.path}`)
     }
 
     // 3. Audio mixing (ducking under the narration track when requested).
     if (spec.audio !== undefined && spec.audio.length > 0) {
       const narrationIndex = spec.audio.findIndex(track => track.duckUnder !== undefined && track.duckUnder >= 0)
+      staleFiles.push(assembled.path)
       assembled = await audioMix({
         video: assembled.path,
         outputDir,
         tracks: spec.audio.map(track => ({ path: track.path, volume: track.volume })),
         duckUnder: narrationIndex >= 0 ? narrationIndex : undefined,
       })
-      tempFiles.push(assembled.path)
       steps.push(`audio mix: ${spec.audio.length} tracks${narrationIndex >= 0 ? ` (duck under track ${narrationIndex})` : ''} -> ${assembled.path}`)
     }
 
@@ -205,7 +204,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
         fargs.push('-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'aac', out)
         const result = spawnSync('ffmpeg', fargs, { encoding: 'utf8' })
         if (result.status !== 0) throw new Error(`fade failed: ${result.stderr?.slice(-300)}`)
-        tempFiles.push(out)
+        staleFiles.push(assembled.path)
         assembled = { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
         steps.push(`fade in/out -> ${out}`)
       }
@@ -213,18 +212,15 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
 
     // 4. Subtitle mux (soft track; burn only when the build supports libass).
     if (spec.subtitle !== undefined && spec.subtitle !== '') {
+      staleFiles.push(assembled.path)
       assembled = await videoSubtitle({ video: assembled.path, srt: spec.subtitle, mode: 'soft', outputDir })
-      tempFiles.push(assembled.path)
       steps.push(`subtitle mux: ${spec.subtitle} -> ${assembled.path}`)
     }
 
     return { path: assembled.path, mimeType: 'video/mp4', steps, probe: assembled.probe }
   } finally {
-    // Keep only the final render; intermediate trims/concat stages are
-    // disposable (deterministic — re-renderable at any time).
-    for (const temp of tempFiles) {
-      if (temp !== undefined && temp !== '') rm(temp, { force: true }).catch(() => {})
-    }
+    // 只清理被替换掉的中间产物；最终成片永不入清理队列。
+    await Promise.all(staleFiles.map(stale => rm(stale, { force: true }).catch(() => {})))
   }
 }
 
@@ -700,10 +696,14 @@ export function srtNormalize(content: string, options: { minDurationSec?: number
         applied.push(`cue ${cue.index}: gap ${gap.toFixed(2)}s merged into end`)
       }
     }
-    // 最短展示时长（末条除外）。
+    // 最短展示时长（末条除外；延长不超过下一条 start，防重叠）。
     if (index < cues.length - 1 && cue.end - cue.start < minDuration) {
-      cue.end = Number((cue.start + minDuration).toFixed(3))
-      applied.push(`cue ${cue.index}: duration extended to ${minDuration}s`)
+      const ceiling = index < cues.length - 1 ? cues[index + 1].start : Number.MAX_SAFE_INTEGER
+      const nextEnd = Math.min(cue.start + minDuration, ceiling)
+      if (nextEnd > cue.end) {
+        cue.end = Number(nextEnd.toFixed(3))
+        applied.push(`cue ${cue.index}: duration extended to ${(cue.end - cue.start).toFixed(2)}s (capped at next start)`)
+      }
     }
   }
   const lines: string[] = []
@@ -713,7 +713,7 @@ export function srtNormalize(content: string, options: { minDurationSec?: number
     lines.push(cue.text)
     lines.push('')
   })
-  return { srt: lines.join('\\n'), applied }
+  return { srt: lines.join('\n'), applied }
 }
 
 function formatSrtTime(seconds: number): string {

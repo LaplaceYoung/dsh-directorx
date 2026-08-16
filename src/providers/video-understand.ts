@@ -41,7 +41,8 @@ export async function videoUnderstand(input: VideoUnderstandInput): Promise<Vide
   for (let index = 0; index < extracted.length; index += 1) {
     const frame = extracted[index]
     const path = frame?.path ?? ''
-    const t = Number(((duration * (index + 1)) / (extracted.length + 1)).toFixed(2))
+    // 与 extractFrames 的中点公式一致（duration*(i+0.5)/count），避免时间戳与帧不符。
+    const t = Number(((duration * (index + 0.5)) / Math.max(1, extracted.length)).toFixed(2))
     let description: string | null = null
     if (visionAvailable && path !== '') {
       try {

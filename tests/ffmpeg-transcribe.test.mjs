@@ -189,6 +189,38 @@ test('contact sheet tiles midpoint frames into one preview image', async () => {
   }
 })
 
+test('timeline final output survives after the stale cleanup settles', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-keep-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=3', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const out = await renderTimeline({ scenes: [{ source: clip, trim: [0, 2] }] }, dir)
+    await new Promise(resolve => setTimeout(resolve, 350))
+    assert.ok(existsSync(out.path), 'final cut still exists after cleanup settles')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('probeMedia parses fractional frame rates to numbers', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-fps-'))
+  try {
+    const clip = join(dir, 'clip.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('clip gen failed')
+    const probe = probeMedia(clip)
+    const videoStream = probe.streams.find(stream => stream.type === 'video')
+    assert.equal(typeof videoStream.fps, 'number', 'fps is numeric')
+    assert.equal(videoStream.fps, 12, '12fps clip parsed as 12')
+    // 分析层应使用该数值（非 24 兜底）——直接校验 analyze 输出的 fps。
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    assert.equal(analysis.fps, 12, 'analyzer uses the real frame rate')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('timeline fingerprint cache reuses unchanged scenes (revision diff)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-diff-'))
   try {

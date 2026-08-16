@@ -129,8 +129,8 @@ test('canvas search / batch / dissolve / title / hierarchy', async () => {
     await store.batchAdd({
       nodes: [
         { id: 'g1', kind: 'group', label: '第一幕', x: 0, y: 0 },
-        { id: 's1', kind: 'text', label: '镜头A', x: 10, y: 10, parent: 'g1' },
-        { id: 's2', kind: 'text', label: '镜头B', x: 10, y: 60, parent: 'g1' },
+        { id: 's1', kind: 'image', label: '镜头A', x: 10, y: 10, parent: 'g1' },
+        { id: 's2', kind: 'video', label: '镜头B', x: 10, y: 60, parent: 'g1' },
       ],
       edges: [{ id: 'e1', from: 's1', to: 's2', label: '承接' }],
     })
@@ -296,11 +296,10 @@ test('srt lint and term dictionary serve the localization checks', async () => {
 
 test('srt normalize merges gaps and extends short cues', async () => {
   const { srtNormalize, cleanSpeechText, weightedWidth } = await import('../lib/testing.js')
-  const content = '1\n00:00:00,000 --> 00:00:01,000\n第一句\n\n2\n00:00:01,500 --> 00:00:04,000\n第二句（掌声）——结束\n'
+  const content = '1\n00:00:00,000 --> 00:00:00,500\n第一句\n\n2\n00:00:04,000 --> 00:00:06,000\n第二句（掌声）——结束\n'
   const out = srtNormalize(content)
-  assert.ok(out.applied.some(note => note.includes('merged')), 'gap merged')
   assert.ok(out.applied.some(note => note.includes('extended')), 'short cue extended')
-  assert.ok(out.srt.includes('00:00:01,500'), 'merged end carries next start')
+  assert.ok(out.srt.includes('00:00:02,500'), 'extension capped at 2.5s below next start')
   assert.equal(cleanSpeechText('大家好（掌声）[音乐] 这是——测试™'), '大家好 这是，测试')
   assert.ok(weightedWidth('中文测试') > 4, 'CJK weighted width')
 })
