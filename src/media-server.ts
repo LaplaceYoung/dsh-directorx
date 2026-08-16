@@ -556,7 +556,7 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
         response.end('method not allowed')
         return
       }
-      const body = await readBodyLocal(request, 64 * 1024) as { id?: unknown; status?: unknown }
+      const body = await readBodyLocal(request, 64 * 1024) as { id?: unknown; status?: unknown; reason?: unknown }
       const id = typeof body.id === 'string' ? body.id : ''
       const status = body.status === 'approved' || body.status === 'rejected' ? body.status : null
       if (id === '' || status === null) {
@@ -564,7 +564,7 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
         return
       }
       const store = new ProposalStore(getOutputDir())
-      const updated = await store.update(id, status)
+      const updated = await store.update(id, status, typeof body.reason === 'string' && body.reason !== '' ? { rejectReason: body.reason.slice(0, 200) } : {})
       sendJsonLocal(response, 200, { ok: true, proposal: updated })
     },
   })

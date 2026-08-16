@@ -605,6 +605,7 @@ function CanvasTabInner(): ReactNode {
   const [cmdIndex, setCmdIndex] = useState(0)
   const [proposals, setProposals] = useState<Array<{ id: string; kind: string; prompt: string; model?: string; size?: string; duration?: number; count: number; estimatedCost?: string; status: string }>>([])
   const [proposalPanel, setProposalPanel] = useState(false)
+  const [proposalFocusId, setProposalFocusId] = useState<string | undefined>(undefined)
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -2025,6 +2026,7 @@ function CanvasTabInner(): ReactNode {
         .react-flow__node-media .dx-card, .react-flow__node-text { transition: transform .15s ease, box-shadow .15s ease; }
         .react-flow__node:active .dx-card { transform: scale(.98); }
         .react-flow__node.dx-agent-flash { animation: dx-agent-flash 1.8s ease; }
+        .react-flow__node.dx-proposal-focus { box-shadow: 0 0 0 2px rgba(79,157,255,.85); }
         @keyframes dx-agent-flash { 0%, 100% { box-shadow: none; } 20%, 60% { box-shadow: 0 0 0 2px rgba(79,157,255,.85); } }
         @keyframes dx-pop-in { from { opacity: 0; transform: translateY(4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes dx-dash-flow { to { stroke-dashoffset: -20; } }
@@ -2046,6 +2048,9 @@ function CanvasTabInner(): ReactNode {
             }
             if (flashIds.has(node.id)) {
               next = { ...next, className: 'dx-agent-flash' }
+            }
+            if (proposalFocusId !== undefined && proposalFocusId === node.id) {
+              next = { ...next, className: 'dx-proposal-focus' }
             }
             return next
           })
