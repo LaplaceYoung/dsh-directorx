@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, subtitleCut, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { audioBeats, audioMix, audioSync, hasLibass, parseSrt, renderTimeline, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -21,6 +21,28 @@ function makeVideo(dir, name = 'sample.mp4') {
   assert.equal(result.status, 0, result.stderr?.slice(-300))
   return path
 }
+
+test('videoAnalyze detects a hard cut between two clips', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-va-'))
+  try {
+    const a = join(dir, 'a.mp4')
+    const b = join(dir, 'b.mp4')
+    const make = (path, color, seconds) => {
+      const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', `color=c=${color}:s=160x90:rate=12:duration=${seconds}`, '-c:v', 'libx264', path], { encoding: 'utf8' })
+      if (result.status !== 0) throw new Error('clip gen failed')
+    }
+    make(a, 'black', 2)
+    make(b, 'white', 2)
+    const joined = join(dir, 'joined.mp4')
+    const joinResult = spawnSync('ffmpeg', ['-hide_banner', '-y', '-i', a, '-i', b, '-filter_complex', '[0:v][1:v]concat=n=2:v=1[out]', '-map', '[out]', '-c:v', 'libx264', joined], { encoding: 'utf8' })
+    if (joinResult.status !== 0) throw new Error('join failed')
+    const analysis = await videoAnalyze({ source: joined, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, cutThreshold: 20 })
+    assert.ok(analysis.shots.length >= 2, `black/white cut detected, got ${analysis.shots.length} shots`)
+    assert.ok(analysis.shots.every(shot => shot.framePath !== undefined), 'representative frames present')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
 
 test('audioBeats detects energy peaks in a music-like tone', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-beat-'))

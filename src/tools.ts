@@ -17,6 +17,7 @@ import { runVision } from './providers/vision.ts'
 import { audioBeats, audioMix, videoConcat, videoPip, videoProcess, videoSubtitle, videoZoom } from './providers/video-process.ts'
 import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
+import { videoAnalyze } from './providers/video-analyze.ts'
 import { audioSync, renderTimeline, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
@@ -824,6 +825,31 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         maxShotSeconds: args.maxShotSeconds,
         minShotSeconds: args.minShotSeconds,
         anchors: args.anchors as { characters?: string[]; scenes?: string[] } | undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_video_analyze',
+    description: 'Comprehensive deterministic video analysis (拉片): scene-cut detection (per-frame signalstats luminance deltas), per-shot segments with durations, representative frames, optional per-shot vision descriptions, and an audio loudness summary. Use before editing/recut decisions; base claims on the returned data.',
+    parameters: {
+      source: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      cutThreshold: { type: 'number', description: 'Luminance delta threshold for cut detection (default 12).' },
+      minShotSec: { type: 'number', description: 'Minimum shot length in seconds (default 0.4).' },
+      describe: { type: 'boolean', description: 'Describe each shot via the vision capability (needs vision configured).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return videoAnalyze({
+        source: String(args.source),
+        outputDir: settings.outputDir,
+        settings,
+        vision: settings.vision,
+        cutThreshold: args.cutThreshold,
+        minShotSec: args.minShotSec,
+        describe: args.describe === true,
       })
     },
   })))
