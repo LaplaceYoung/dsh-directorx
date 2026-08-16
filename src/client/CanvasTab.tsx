@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStoreApi, SelectionMode,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -484,6 +484,7 @@ function CanvasTabInner(): ReactNode {
   const undoStackRef = useRef<Array<{ nodes: CanvasFlowNode[]; edges: Edge[] }>>([])
   const redoStackRef = useRef<Array<{ nodes: CanvasFlowNode[]; edges: Edge[] }>>([])
   const resizingRef = useRef(false)
+  const clipboardRef = useRef<{ nodes: CanvasFlowNode[]; edges: Edge[] } | undefined>(undefined)
 
   /** Snapshot the current graph into the undo stack (called before discrete mutations). */
   const pushHistory = useCallback(() => {
@@ -760,6 +761,44 @@ function CanvasTabInner(): ReactNode {
         setPaletteQuery('')
         return
       }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault()
+        setNodes(current => current.map(node => ({ ...node, selected: true })))
+        setSelectedCount(nodesRef.current.length)
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'c') {
+        const selected = nodesRef.current.filter(node => node.selected === true)
+        if (selected.length === 0) return
+        const ids = new Set(selected.map(node => node.id))
+        clipboardRef.current = {
+          nodes: selected,
+          edges: edgesRef.current.filter(edge => ids.has(edge.source) && ids.has(edge.target)),
+        }
+        return
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'v') {
+        const clipboard = clipboardRef.current
+        if (clipboard === undefined || clipboard.nodes.length === 0) return
+        pushHistory()
+        const idMap = new Map(clipboard.nodes.map(node => [node.id, newLocalId(node.type ?? 'text')]))
+        const pasted: CanvasFlowNode[] = clipboard.nodes.map(node => ({
+          ...node,
+          id: idMap.get(node.id) as string,
+          position: { x: node.position.x + 40, y: node.position.y + 40 },
+          selected: true,
+        }))
+        setNodes(current => [...current.map(node => ({ ...node, selected: false })), ...pasted])
+        setEdges(current => [...current, ...clipboard.edges.map(edge => ({
+          ...edge,
+          id: newLocalId('edge'),
+          source: idMap.get(edge.source) ?? edge.source,
+          target: idMap.get(edge.target) ?? edge.target,
+        }))])
+        setSelectedCount(pasted.length)
+        saveRef.current()
+        return
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd') {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
@@ -951,6 +990,18 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setEdges, scheduleSave])
 
+  const flowRootRef = useRef<HTMLDivElement | null>(null)
+  const centerFlowPos = useCallback((): { x: number; y: number } => {
+    const el = flowRootRef.current
+    if (el !== null) {
+      const rect = el.getBoundingClientRect()
+      if (rect.width > 40 && rect.height > 40) {
+        return screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+      }
+    }
+    return screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
+  }, [screenToFlowPosition])
+
   const addNodeAt = useCallback((node: CanvasFlowNode) => {
     pushHistory()
     cascadeRef.current += 1
@@ -997,26 +1048,26 @@ function CanvasTabInner(): ReactNode {
   const addMedia = useCallback((file: MediaListFile, fixedId?: string) => {
     const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
     addNodeAt({
-      id: fixedId ?? newLocalId(kind), type: 'media', position: { x: 120, y: 120 },
+      id: fixedId ?? newLocalId(kind), type: 'media', position: centerFlowPos(),
       data: { kind, label: file.name, path: file.path },
     })
     setPickerOpen(false)
-  }, [addNodeAt])
+  }, [addNodeAt, centerFlowPos])
 
   const addTextNode = useCallback(() => {
     addNodeAt({
-      id: newLocalId('text'), type: 'text', position: { x: 140, y: 140 },
+      id: newLocalId('text'), type: 'text', position: centerFlowPos(),
       data: { label: '文本节点' },
     })
-  }, [addNodeAt])
+  }, [addNodeAt, centerFlowPos])
 
   const addGroup = useCallback(() => {
     addNodeAt({
-      id: newLocalId('group'), type: 'group', position: { x: 160, y: 160 },
+      id: newLocalId('group'), type: 'group', position: centerFlowPos(),
       style: { width: 520, height: 380 },
       data: { label: '分组' },
     })
-  }, [addNodeAt])
+  }, [addNodeAt, centerFlowPos])
 
   const onSelectionChange = useCallback((params: { nodes: CanvasFlowNode[] }) => {
     setSelectedCount(params.nodes.length)
@@ -1493,7 +1544,7 @@ function CanvasTabInner(): ReactNode {
   }, [edges, nodes])
 
   return (
-    <div style={{ position: 'relative', height: '100%', minHeight: 480 }}>
+    <div ref={flowRootRef} style={{ position: 'relative', height: '100%', minHeight: 480 }}>
       <div id="directorx-canvas-debug" data-edges="0" data-nodes="0" style={{ display: 'none' }} />
       <style>{`
         .react-flow__controls { background: transparent; box-shadow: none; border: 1px solid rgba(255,255,255,.16); border-radius: 10px; overflow: hidden; }
@@ -1531,6 +1582,8 @@ function CanvasTabInner(): ReactNode {
         onDrop={onPaneDrop}
         onSelectionChange={onSelectionChange}
         selectionOnDrag
+        selectionMode={SelectionMode.Partial}
+        multiSelectionKeyCode="Shift"
         panOnDrag={false}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
@@ -1624,6 +1677,24 @@ function CanvasTabInner(): ReactNode {
                 <span>{cmd.label}</span>
                 <span style={{ color: '#777', fontSize: 11 }}>{cmd.hint}</span>
               </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {nodes.length === 0 ? (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, pointerEvents: 'none', zIndex: 2 }}>
+          <div style={{ fontSize: 15, color: '#f5f5f5', fontWeight: 600 }}>开始搭你的分镜板</div>
+          <div style={{ fontSize: 12, color: '#919191', textAlign: 'center', lineHeight: 1.7, maxWidth: 340 }}>
+            从工具栏或右键添加素材节点；也可以直接让 DSH 用画布工具写分镜——<br />它会在这里同步生产视图。
+          </div>
+          <div style={{ display: 'flex', gap: 8, pointerEvents: 'auto' }}>
+            {[
+              { label: '添加文字', run: addTextNode },
+              { label: '打开媒体库', run: () => void openPicker() },
+              { label: '新建分组', run: addGroup },
+              { label: '导入本地媒体', run: importMedia },
+            ].map(item => (
+              <button key={item.label} style={{ padding: '8px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={item.run}>{item.label}</button>
             ))}
           </div>
         </div>
