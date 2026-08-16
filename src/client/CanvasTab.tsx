@@ -1884,6 +1884,8 @@ function CanvasTabInner(): ReactNode {
         .react-flow__minimap { border: 1px solid rgba(255,255,255,.14); border-radius: 8px; overflow: hidden; }
         .dx-tool-icon:hover { background: rgba(255,255,255,.08); }
         .dx-tool-icon:active { background: rgba(255,255,255,.14); }
+        @keyframes dx-pop-in { from { opacity: 0; transform: translateY(4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .dx-pop { animation: dx-pop-in .16s ease; }
         .dx-title-input { transition: border-color .15s ease, background .15s ease; }
         .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
       `}</style>
@@ -2022,7 +2024,7 @@ function CanvasTabInner(): ReactNode {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         </button>
       {helpOpen ? (
-        <div style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
+        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
           <div>左键空白拖动 = 框选</div>
           <div>中键 / 右键拖动 = 平移</div>
@@ -2035,7 +2037,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {shotListOpen ? (
-        <div style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+        <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 216, maxHeight: 320, overflowY: 'auto', padding: 8, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.96)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
           <div style={{ fontSize: 11, color: '#9b9b9b', padding: '2px 6px 6px' }}>镜头列表（shotIndex 序）</div>
           {orderedShots.length === 0 ? (
             <div style={{ fontSize: 11.5, color: '#777', padding: '2px 6px' }}>暂无入镜镜头：给媒体节点设 shotIndex。</div>
@@ -2057,7 +2059,7 @@ function CanvasTabInner(): ReactNode {
         {moreOpen ? (
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setMoreOpen(false)} />
-            <div style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
+            <div className="dx-pop" style={{ position: 'absolute', bottom: 58, left: 0, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 172, padding: 6, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); arrangeSemantic() }}>语义泳道布局</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); openCompare() }}>对比分支版本</button>
               <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 9, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setMoreOpen(false); void exportPng() }}>导出 PNG 分镜板</button>
@@ -2076,7 +2078,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {agentOpen ? (
-        <div style={agentDrawer}>
+        <div className="dx-pop" style={agentDrawer}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>画布上下文</span>
             <button className="dx-tool-icon" style={{ ...iconBtn, width: 28, height: 28 }} onClick={() => setAgentOpen(false)} title="收起">
@@ -2269,6 +2271,7 @@ function CanvasTabInner(): ReactNode {
       ) : null}
       {quickAdd !== undefined ? (
         <div
+          className="dx-pop"
           style={{ position: 'fixed', left: quickAdd.x, top: quickAdd.y, zIndex: 8, display: 'flex', gap: 4, padding: 6, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)' }}
           onClick={event => event.stopPropagation()}
         >
@@ -2290,7 +2293,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {nodeMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
+        <div className="dx-pop" style={{ position: 'fixed', left: nodeMenu.x, top: nodeMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(18,18,18,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           {(() => {
             const target = nodesRef.current.find(node => node.id === nodeMenu.nodeId)
             const isMedia = target?.type === 'media'
@@ -2318,7 +2321,7 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {edgeMenu !== undefined ? (
-        <div style={{ position: 'fixed', left: edgeMenu.x, top: edgeMenu.y, zIndex: 8, minWidth: 200, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 8 }}
+        <div className="dx-pop" style={{ position: 'fixed', left: edgeMenu.x, top: edgeMenu.y, zIndex: 8, minWidth: 200, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: 'rgba(20,20,20,.97)', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 8 }}
           onClick={event => event.stopPropagation()}
         >
           <div style={{ fontSize: 11, color: '#919191', marginBottom: 6 }}>连线操作</div>
