@@ -14,6 +14,7 @@ import { buildShotPrompt, buildShotSequence, gateShotSequence } from './provider
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
+import { CanvasIntentStore } from './canvas-intent.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -284,9 +285,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  // Canvas CRUD tools: the agent owns the infinite canvas the same way the
-  // WebUI does — every write goes through the durable canvas.json document.
+  // Canvas tools: DSH owns the storyboard. The WebUI is a view + layout
+  // surface; generation and structure writes go through these tools.
   const canvas = new DirectorxCanvasStore(settings.outputDir)
+  const intents = new CanvasIntentStore(settings.outputDir)
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_get',
@@ -852,6 +854,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       count: { type: 'number', description: 'Generation count (default 1).' },
       estimatedCost: { type: 'string', description: 'Cost note (the plugin ships no price table — state the assumption).' },
       note: { type: 'string', description: 'Free-form note (continuity/anchors/references).' },
+      canvasNodeId: { type: 'string', description: 'Canvas node this proposal is bound to (visible on the board).' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
@@ -1023,6 +1026,54 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         bgm: typeof args.bgm === 'string' ? args.bgm : undefined,
         srt: typeof args.srt === 'string' ? args.srt : undefined,
         outputDir: settings.outputDir,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_intents',
+    description: 'List DSH-owned canvas generate directives queued by the WebUI generate bar. Pending items must be executed by you (directorx_canvas_continue / canvas_* / propose / generate) — the canvas UI does not write generating nodes.',
+    parameters: {
+      status: { type: 'string', enum: ['pending', 'taken', 'done'], description: 'Filter; omit for all, newest first.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      const status = args.status === 'pending' || args.status === 'taken' || args.status === 'done' ? args.status : undefined
+      return { intents: await intents.list(status) }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_intent_ack',
+    description: 'Mark a canvas intent taken (you started) or done (canvas mutated). Call after directorx_canvas_continue / generate.',
+    parameters: {
+      id: { type: 'string', required: true, description: 'Intent id from directorx_canvas_intents.' },
+      status: { type: 'string', enum: ['taken', 'done'], required: true, description: 'taken = claimed; done = applied on the canvas.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      const status = args.status === 'done' ? 'done' : 'taken'
+      return intents.ack(String(args.id), status)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_continue',
+    description: 'DSH-owned continue-generate: drop a generating placeholder wired from sourceId (absolute layout). Use this after taking a canvas intent — do not let the WebUI write the placeholder.',
+    parameters: {
+      sourceId: { type: 'string', description: 'Existing node to wire from. Omit to place a free node.' },
+      kind: { type: 'string', enum: ['image', 'video'], description: 'Defaults from the source kind (image/video → video, else image).' },
+      prompt: { type: 'string', required: true, description: 'Generation prompt for the placeholder.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return canvas.continueGenerate({
+        prompt: String(args.prompt),
+        ...(typeof args.sourceId === 'string' && args.sourceId !== '' ? { sourceId: args.sourceId } : {}),
+        ...(args.kind === 'image' || args.kind === 'video' ? { kind: args.kind } : {}),
       })
     },
   })))
@@ -1502,7 +1553,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- You are DirectorX (DX), the AI film-director form of this assistant: a production lead who plans, confirms, generates, inspects, edits, and delivers visual media. The WebUI (canvas / editors / cards) is your working surface, not decoration.',
       '- Work style: triage every media request (simple → generate directly; complex → load `directorx-production-lead` and orchestrate); publish a plan before batch generation (cost guardrail); keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas IS the storyboard: maintain the project on it with `directorx_canvas_*` — nodes are shots/assets, edges are handoffs, groups are acts. Mirror every significant plan there and mention canvas state in reports, so the user sees the same production view you work from.',
+      '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, take the intent, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack`.',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',
       '## DirectorX media tools',

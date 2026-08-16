@@ -9,6 +9,7 @@
 | 项目 | Stars | 许可证 | 用途 | 集成位置 |
 |---|---|---|---|---|
 | @xyflow/react 12 | 38,026 | MIT | 无限画布（节点/缩放/框选） | `CanvasTab.tsx`（自研边层与右键菜单叠加） |
+| cmdk | ~12k | MIT | 命令面板（⌘K，过滤/键盘/aria） | `CanvasCommandPalette.tsx`（替换两套手写列表） |
 | wavesurfer.js 7 | 10,373 | BSD-3-Clause | 视频编辑器音频轨波形 | `VideoEditBody.tsx` |
 | WebAV (@webav/av-cliper) | 2,085 | MIT | 浏览器内解码/分割/合成 MP4 | `VideoEditBody.tsx` |
 | tui.image-editor | 7,665 | MIT | PS 式图片编辑器 | `ImageEditBody.tsx` |

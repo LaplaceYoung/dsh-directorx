@@ -2,11 +2,14 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProper
 import {
   ReactFlow, Background, BackgroundVariant, Controls, MiniMap, NodeToolbar,
   addEdge, applyEdgeChanges, applyNodeChanges,
-  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStore, useStoreApi, SelectionMode, useViewport,
+  Handle, Position, NodeResizer, getBezierPath, ReactFlowProvider, useReactFlow, useStore, useStoreApi, SelectionMode, useViewport, ViewportPortal,
   type Connection, type Edge, type Node, type NodeProps, type NodeChange, type EdgeChange,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { openEditor } from './editor.ts'
+import { edgeHandlePoints, flowAbsolutePosition, hitTestAbsolute, inferContinueKind } from '../canvas-generate.ts'
+import { CanvasCommandPalette } from './CanvasCommandPalette.tsx'
+import { CanvasContextDrawer } from './CanvasContextDrawer.tsx'
 
 /**
  * Infinite canvas tab (libtv / tapnow style): media nodes with live
@@ -25,8 +28,8 @@ type NodeCallbacks = {
   onCycleShotStatus?: (id: string) => void
   onToggleCollapse?: (id: string) => void
 }
-type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
-type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
+type MediaNodeData = { kind: 'image' | 'video'; label: string; path: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[]; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
+type TextNodeData = { label: string; prompt?: string; shotIndex?: number; locked?: boolean; aiBrief?: string; shotStatus?: string; onBranch?: (id: string, anchor: { x: number; y: number }) => void } & NodeCallbacks
 type GroupNodeData = { label: string; groupHover?: boolean; memberCount?: number; locked?: boolean; shotStatus?: string; selectedTakeId?: string; continuityRules?: string[]; collapsed?: boolean; onCycleShotStatus?: (id: string) => void; onToggleCollapse?: (id: string) => void } & NodeCallbacks
 
 type CanvasFlowNode = Node<MediaNodeData | TextNodeData | GroupNodeData>
@@ -36,14 +39,14 @@ interface MediaListFile { path: string; name: string; mediaType: string; size: n
 const flowStyles = {
   mediaCard: {
     borderRadius: 16, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)',
-    boxShadow: 'none', overflow: 'hidden', minWidth: 128, cursor: 'pointer',
+    boxShadow: 'none', overflow: 'hidden', minWidth: 168, cursor: 'pointer',
   } as CSSProperties,
   selectedCard: { border: '1px solid rgba(245,245,245,.95)', boxShadow: '0 0 0 1px rgba(245,245,245,.4)' } as CSSProperties,
-  thumb: { width: 100 + '%', height: 88, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
+  thumb: { width: 100 + '%', height: 148, objectFit: 'cover' as const, display: 'block', pointerEvents: 'none' as const },
   label: { fontSize: 11, padding: '7px 10px', color: '#efefef', wordBreak: 'break-word' as const, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as 'vertical', overflow: 'hidden' },
   textCard: {
     borderRadius: 16, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)',
-    padding: '10px 12px', fontSize: 12, minWidth: 120, maxWidth: 240, cursor: 'pointer', color: '#efefef',
+    padding: '10px 12px', fontSize: 12, minWidth: 148, maxWidth: 280, cursor: 'pointer', color: '#efefef',
   } as CSSProperties,
   handle: { width: 7, height: 7, background: '#6f6f6f', border: '2px solid #000' } as CSSProperties,
 }
@@ -142,14 +145,18 @@ const MediaNodeComponent = memo(function MediaNodeComponent(props: NodeProps): R
   return (
     <div
       style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,.6)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
-      onClick={() => openEditor(data.kind, data.path)}
+      onDoubleClick={event => {
+        event.stopPropagation()
+        if (data.path !== '') openEditor(data.kind, data.path)
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <NodeResizer isVisible={selected} minWidth={120} minHeight={80} color="rgba(245,245,245,.85)" />
+      <NodeResizer isVisible={selected} minWidth={160} minHeight={120} color="rgba(245,245,245,.85)" />
       {(hovered || selected) && zoom >= 0.7 ? (
         <NodeActions actions={[
-          { label: '编辑', hint: '打开右侧编辑器（图片：抠图/翻转；视频：时间线剪辑）', run: () => openEditor(data.kind, data.path) },
+          ...(data.path !== '' ? [{ label: '编辑', hint: '打开右侧编辑器（图片：抠图/翻转；视频：时间线剪辑）', run: () => openEditor(data.kind, data.path) }] : []),
+          { label: '生成', hint: '以该节点为输入继续生成', run: () => data.onBranch?.(props.id, { x: 0, y: 0 }) },
           { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
@@ -161,7 +168,12 @@ const MediaNodeComponent = memo(function MediaNodeComponent(props: NodeProps): R
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
         </span>
       ) : null}
-      {data.kind === 'image'
+      {data.shotStatus === 'generating' || data.path === '' ? (
+        <div style={{ ...flowStyles.thumb, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, background: '#0c0c0c', color: '#d8d8d8' }}>
+          <span style={{ width: 18, height: 18, borderRadius: 999, border: '2px solid rgba(255,255,255,.25)', borderTopColor: '#f5f5f5', animation: data.shotStatus === 'generating' ? 'dx-spin .8s linear infinite' : undefined }} />
+          <span style={{ fontSize: 11 }}>{data.shotStatus === 'generating' ? '生成中…' : '待生成'}</span>
+        </div>
+      ) : data.kind === 'image'
         ? <img src={mediaUrl(data.path)} alt={data.label} loading="lazy" style={{ ...flowStyles.thumb, ...(hovered ? { transform: 'scale(1.04)' } : {}) , transition: 'transform .2s ease' }} draggable={false} />
         : (hovered || playing)
           ? <video
@@ -237,6 +249,7 @@ const TextNodeComponent = memo(function TextNodeComponent(props: NodeProps): Rea
       <NodeResizer isVisible={selected} minWidth={100} minHeight={40} color="rgba(245,245,245,.85)" />
       {hovered && zoom >= 0.7 ? (
         <NodeActions actions={[
+          { label: '生成', hint: '以该文本为输入继续生成', run: () => data.onBranch?.(props.id, { x: 0, y: 0 }) },
           { label: '复制', hint: '复制节点', run: () => data.onDuplicate?.(props.id) },
           { label: '删除', hint: '删除节点', run: () => data.onDelete?.(props.id) },
         ]} />
@@ -335,9 +348,10 @@ const toolbar: CSSProperties = {
 }
 
 const topBar: CSSProperties = {
-  position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10,
+  position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'grid',
+  gridTemplateColumns: '1fr minmax(160px, 360px) 1fr', alignItems: 'center', gap: 10,
   height: 48, padding: '0 14px',
-  background: '#3f3f46', backdropFilter: 'blur(14px)',
+  background: '#141414', backdropFilter: 'blur(14px)',
   borderBottom: '1px solid rgba(255,255,255,.1)',
 }
 
@@ -381,7 +395,7 @@ interface CanvasDocument { version: number; updatedAt: number; title?: string; n
 
 /** Absolute doc positions → flow nodes; children become parent-relative so XYFlow drags them with the group. */
 function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): CanvasFlowNode[] {
-  const { onRename, onDuplicate, onDelete } = callbacks ?? {}
+  const { onRename, onDuplicate, onDelete, onBranch, onCycleShotStatus, onToggleCollapse } = callbacks ?? {}
   const byId = new Map(doc.nodes.map(node => [node.id, node]))
   return doc.nodes.map(node => {
     const isMedia = node.kind === 'image' || node.kind === 'video'
@@ -395,13 +409,13 @@ function toFlowNodes(doc: CanvasDocument, callbacks?: Partial<NodeCallbacks>): C
       type: isGroup ? 'group' : isMedia ? 'media' : 'text',
       draggable: node.locked !== true,
       position,
-      style: { width: node.width ?? (isGroup ? 520 : 200), height: node.height ?? (isGroup ? 380 : undefined) },
+      style: { width: node.width ?? (isGroup ? 520 : isMedia ? 220 : 200), height: node.height ?? (isGroup ? 380 : isMedia ? 188 : undefined) },
       ...(parentNode !== undefined ? { parentId: parentNode.id, extent: 'parent' as const } : {}),
       data: isMedia
-        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, onRename, onDuplicate, onDelete }
+        ? { kind: node.kind as 'image' | 'video', label: node.label, path: node.path ?? '', prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, shotStatus: node.shotStatus, selectedTakeId: node.selectedTakeId, continuityRules: node.continuityRules, onRename, onDuplicate, onDelete, onBranch }
         : isGroup
-          ? { label: node.label, memberCount: doc.nodes.filter(candidate => candidate.parent === node.id).length, locked: node.locked, onRename, onDuplicate, onDelete, onDissolve: callbacks?.onDissolve }
-          : { label: node.label, prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, onRename, onDuplicate, onDelete },
+          ? { label: node.label, memberCount: doc.nodes.filter(candidate => candidate.parent === node.id).length, locked: node.locked, shotStatus: node.shotStatus, selectedTakeId: node.selectedTakeId, continuityRules: node.continuityRules, onRename, onDuplicate, onDelete, onDissolve: callbacks?.onDissolve, onCycleShotStatus, onToggleCollapse }
+          : { label: node.label, prompt: node.prompt, shotIndex: node.shotIndex, locked: node.locked, aiBrief: node.aiBrief, shotStatus: node.shotStatus, onRename, onDuplicate, onDelete, onBranch },
     }
   })
 }
@@ -421,16 +435,14 @@ function newLocalId(prefix: string): string {
 
 function nodeMetrics(node: CanvasFlowNode): { width: number; height: number } {
   const width = typeof node.style?.width === 'number' ? node.style.width : 200
-  const height = typeof node.style?.height === 'number' ? node.style.height : node.type === 'media' ? 126 : 42
+  const height = typeof node.style?.height === 'number' ? node.style.height : node.type === 'media' ? 188 : 42
   return { width, height }
 }
 
 /**
- * Self-owned edge layer: bezier connectors drawn inside the viewport pane, so
- * pan/zoom transform applies automatically. Deliberately independent of the
- * framework's edge pipeline (which proved unreliable for restored edges in
- * this environment); positions derive from the live nodes state. Paths are
- * clickable to select (stroke hit area), enabling UI deletion.
+ * Self-owned edge layer, portaled into React Flow's viewport so pan/zoom
+ * CSS-transforms the wires with the nodes. Endpoints use parent-absolute
+ * flow coordinates (grouped children are stored parent-relative).
  */
 function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onReconnect }: {
   nodes: CanvasFlowNode[]
@@ -442,42 +454,31 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
 }): ReactNode {
   const lookup = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes])
   const [hoveredId, setHoveredId] = useState<string | undefined>(undefined)
-  const [candidateId, setCandidateId] = useState<string | undefined>(undefined)
   const { screenToFlowPosition } = useReactFlow()
+  const boxes = useMemo(() => nodes.map(node => {
+    const abs = flowAbsolutePosition(node, lookup)
+    const metrics = nodeMetrics(node)
+    return { id: node.id, x: abs.x, y: abs.y, width: metrics.width, height: metrics.height }
+  }), [nodes, lookup])
 
   const dragEndpoint = (edge: Edge, side: 'source' | 'target') => (event: React.PointerEvent) => {
     event.stopPropagation()
     event.preventDefault()
     const move = (moveEvent: PointerEvent) => {
-      // 拖拽连线时高亮指针下的候选节点（命中即反馈）。
-      const flowPos = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
-      const hit = nodes.find(node => {
-        const m = nodeMetrics(node)
-        return flowPos.x >= node.position.x && flowPos.x <= node.position.x + m.width
-          && flowPos.y >= node.position.y && flowPos.y <= node.position.y + m.height
-      })
-      setCandidateId(hit?.id)
+      hitTestAbsolute(screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY }), boxes)
     }
     const up = (upEvent: PointerEvent) => {
-      setCandidateId(undefined)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
-      const flowPos = screenToFlowPosition({ x: upEvent.clientX, y: upEvent.clientY })
-      const hit = nodes.find(node => {
-        const m = nodeMetrics(node)
-        return flowPos.x >= node.position.x && flowPos.x <= node.position.x + m.width
-          && flowPos.y >= node.position.y && flowPos.y <= node.position.y + m.height
-      })
-      if (hit !== undefined && hit.id !== edge.id && !(side === 'source' ? hit.id === edge.target : hit.id === edge.source)) {
-        onReconnect(edge.id, side, hit.id)
+      const hit = hitTestAbsolute(screenToFlowPosition({ x: upEvent.clientX, y: upEvent.clientY }), boxes)
+      if (hit !== undefined && hit !== edge.id && !(side === 'source' ? hit === edge.target : hit === edge.source)) {
+        onReconnect(edge.id, side, hit)
       }
     }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
 
-  const candidate = candidateId !== undefined ? lookup.get(candidateId) : undefined
-  const candidateMetrics = candidate !== undefined ? nodeMetrics(candidate) : undefined
   const highlightedEdgeIds = useMemo(() => {
     const selectedNodeIds = new Set(nodes.filter(node => node.selected === true).map(node => node.id))
     if (selectedNodeIds.size === 0) return new Set<string>()
@@ -490,10 +491,12 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
     if (source === undefined || target === undefined) return null
     const sm = nodeMetrics(source)
     const tm = nodeMetrics(target)
-    const sourceX = source.position.x + sm.width
-    const sourceY = source.position.y + sm.height / 2
-    const targetX = target.position.x
-    const targetY = target.position.y + tm.height / 2
+    const sourceAbs = flowAbsolutePosition(source, lookup)
+    const targetAbs = flowAbsolutePosition(target, lookup)
+    const { sourceX, sourceY, targetX, targetY } = edgeHandlePoints(
+      { ...sourceAbs, ...sm },
+      { ...targetAbs, ...tm },
+    )
     const [path] = getBezierPath({
       sourceX, sourceY, sourcePosition: Position.Right,
       targetX, targetY, targetPosition: Position.Left,
@@ -549,18 +552,27 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
     )
   })
   return (
-    <svg className="directorx-edges" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
-      <defs>
-        <marker id="dx-arrow" viewBox="0 -4 8 8" refX="7" refY="0" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,-4 L8,0 L0,4 Z" fill="rgba(255,255,255,.55)" />
-        </marker>
-      </defs>
-      {paths}
-    </svg>
+    <ViewportPortal>
+      <svg className="directorx-edges" width="1" height="1" style={{ overflow: 'visible', pointerEvents: 'none', position: 'absolute', left: 0, top: 0, zIndex: 0 }}>
+        <defs>
+          <marker id="dx-arrow" viewBox="0 -4 8 8" refX="7" refY="0" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,-4 L8,0 L0,4 Z" fill="rgba(255,255,255,.55)" />
+          </marker>
+        </defs>
+        {paths}
+      </svg>
+    </ViewportPortal>
   )
 }
 
-function CanvasTabInner(): ReactNode {
+export interface CanvasTabProps {
+  /** Current DSH session (details slot standard prop). */
+  sessionId?: string
+  /** Hand a user turn to DSH. Canvas generate never mutates the board itself. */
+  onAskDsh?: (text: string) => Promise<void>
+}
+
+function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
   const [nodes, setNodes] = useState<CanvasFlowNode[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
   // The debounced save reads the LATEST graph through refs: state updates from
@@ -593,8 +605,8 @@ function CanvasTabInner(): ReactNode {
   const [stripOpen, setStripOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [agentOpen, setAgentOpen] = useState(false)
-  const [agentGoal, setAgentGoal] = useState('')
-  const [agentMode, setAgentMode] = useState<'auto' | 'confirm'>('confirm')
+  const [generateSheet, setGenerateSheet] = useState<{ sourceId?: string; kind: 'image' | 'video'; prompt: string } | undefined>(undefined)
+  const [generateBusy, setGenerateBusy] = useState(false)
   const [shotListOpen, setShotListOpen] = useState(false)
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [snapOn, setSnapOn] = useState(true)
@@ -602,8 +614,7 @@ function CanvasTabInner(): ReactNode {
   const [toast, setToast] = useState<string | undefined>(undefined)
   const [dragCount, setDragCount] = useState(0)
   const [cmdOpen, setCmdOpen] = useState(false)
-  const [cmdQuery, setCmdQuery] = useState('')
-  const [cmdIndex, setCmdIndex] = useState(0)
+  const [pendingIntents, setPendingIntents] = useState(0)
   const [proposals, setProposals] = useState<Array<{ id: string; kind: string; prompt: string; model?: string; size?: string; duration?: number; count: number; estimatedCost?: string; status: string }>>([])
   const [proposalPanel, setProposalPanel] = useState(false)
   const [proposalFocusId, setProposalFocusId] = useState<string | undefined>(undefined)
@@ -611,10 +622,6 @@ function CanvasTabInner(): ReactNode {
   const [snapshots, setSnapshots] = useState<Array<{ id: string; at: number; label: string }>>([])
   const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [paletteQuery, setPaletteQuery] = useState('')
-  const [paletteIndex, setPaletteIndex] = useState(0)
-  const paletteInputRef = useRef<HTMLInputElement | null>(null)
   const arrowGestureRef = useRef<{ active: boolean; timer: number | undefined }>({ active: false, timer: undefined })
   const connectSourceRef = useRef<string | undefined>(undefined)
   const [selectedCount, setSelectedCount] = useState(0)
@@ -707,9 +714,47 @@ function CanvasTabInner(): ReactNode {
     saveRef.current()
   }, [setNodes, setEdges])
 
+  const cycleShotStatus = useCallback((id: string) => {
+    const order = ['idea', 'approved', 'generating', 'review', 'locked'] as const
+    pushHistory()
+    setNodes(current => current.map(node => {
+      if (node.id !== id) return node
+      const currentStatus = (node.data as { shotStatus?: string }).shotStatus ?? 'idea'
+      const index = order.indexOf(currentStatus as typeof order[number])
+      const next = order[index < 0 ? 1 : (index + 1) % order.length]
+      return { ...node, data: { ...node.data, shotStatus: next } }
+    }))
+    saveRef.current()
+  }, [setNodes, pushHistory])
+
+  const toggleCollapse = useCallback((id: string) => {
+    setCollapsedGroups(current => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const openGenerate = useCallback((sourceId?: string) => {
+    const source = sourceId !== undefined
+      ? nodesRef.current.find(node => node.id === sourceId)
+      : nodesRef.current.find(node => node.selected === true)
+    const data = source?.data as { prompt?: string; label?: string; kind?: string } | undefined
+    const kind: 'image' | 'video' = inferContinueKind(data?.kind)
+    setGenerateSheet({
+      ...(source !== undefined ? { sourceId: source.id } : {}),
+      kind,
+      prompt: (typeof data?.prompt === 'string' && data.prompt !== '' ? data.prompt : data?.label ?? '').toString(),
+    })
+  }, [])
+
   const nodeCallbacks = useMemo<NodeCallbacks>(() => ({
     onRename: renameNode, onDuplicate: duplicateNode, onDelete: deleteNode, onDissolve: dissolveGroup,
-  }), [renameNode, duplicateNode, deleteNode, dissolveGroup])
+    onBranch: (id) => openGenerate(id),
+    onCycleShotStatus: cycleShotStatus,
+    onToggleCollapse: toggleCollapse,
+  }), [renameNode, duplicateNode, deleteNode, dissolveGroup, openGenerate, cycleShotStatus, toggleCollapse])
 
   const applyDoc = useCallback((doc: CanvasDocument) => {
     // Agent 编辑可视化：与上一版文档做 id 级 diff，变化/新增节点闪烁环。
@@ -820,7 +865,14 @@ function CanvasTabInner(): ReactNode {
             ...(typeof node.style?.height === 'number' ? { height: node.style.height } : {}),
           }
         }),
-        edges: currentEdges.map(edge => ({ id: edge.id, from: edge.source, to: edge.target, label: typeof edge.label === 'string' ? edge.label : undefined, ...((edge as unknown as { sourceVariantIdx?: number }).sourceVariantIdx !== undefined ? { sourceVariantIdx: (edge as unknown as { sourceVariantIdx: number }).sourceVariantIdx } : {}) })),
+        edges: currentEdges.map(edge => {
+          const variantIdx = (edge.data as { sourceVariantIdx?: number } | undefined)?.sourceVariantIdx
+          return {
+            id: edge.id, from: edge.source, to: edge.target,
+            label: typeof edge.label === 'string' ? edge.label : undefined,
+            ...(variantIdx !== undefined ? { sourceVariantIdx: variantIdx } : {}),
+          }
+        }),
       }
       const response = await fetch(`/directorx/canvas?expectedUpdatedAt=${updatedAtRef.current}`, {
         method: 'PUT',
@@ -921,7 +973,7 @@ function CanvasTabInner(): ReactNode {
       const target = event.target as HTMLElement | null
       const typing = target !== null && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       if (typing) return
-      if (event.key === '?' && !typing) {
+      if (event.key === '?') {
         event.preventDefault()
         setHelpOpen(open => !open)
         return
@@ -929,8 +981,6 @@ function CanvasTabInner(): ReactNode {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
         setCmdOpen(open => !open)
-        setCmdQuery('')
-        setCmdIndex(0)
         return
       }
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
@@ -958,9 +1008,16 @@ function CanvasTabInner(): ReactNode {
         setQuickAdd(undefined)
         setPickerOpen(false)
         setSelectedEdge(undefined)
-        setPaletteOpen(false)
+        setCmdOpen(false)
+        setGenerateSheet(undefined)
         setNodes(current => current.map(node => node.selected === true ? { ...node, selected: false } : node))
         setSelectedCount(0)
+        return
+      }
+      if (event.key.toLowerCase() === 'g' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault()
+        const selected = nodesRef.current.find(node => node.selected === true)
+        openGenerate(selected?.id)
         return
       }
       if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -1002,48 +1059,6 @@ function CanvasTabInner(): ReactNode {
         event.preventDefault()
         const selected = nodesRef.current.filter(node => node.selected === true)
         if (selected.length > 0) void fitView({ nodes: selected, padding: 0.3, duration: 300 })
-        return
-      }
-      if (event.key === '?' && !typing) {
-        event.preventDefault()
-        setHelpOpen(open => !open)
-        return
-      }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        setCmdOpen(open => !open)
-        setCmdQuery('')
-        setCmdIndex(0)
-        return
-      }
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        const selected = nodesRef.current.filter(node => node.selected === true)
-        if (selected.length === 0) return
-        event.preventDefault()
-        const step = event.shiftKey ? 10 : 1
-        const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
-        const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
-        if (!arrowGestureRef.current.active) {
-          pushHistory()
-          arrowGestureRef.current.active = true
-        }
-        if (arrowGestureRef.current.timer !== undefined) window.clearTimeout(arrowGestureRef.current.timer)
-        arrowGestureRef.current.timer = window.setTimeout(() => { arrowGestureRef.current.active = false }, 500)
-        setNodes(current => current.map(node => node.selected === true
-          ? { ...node, position: { x: node.position.x + dx, y: node.position.y + dy } }
-          : node))
-        saveRef.current()
-        return
-      }
-      if (event.key === '?' && !typing) {
-        event.preventDefault()
-        setHelpOpen(open => !open)
-        return
-      }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        setPaletteOpen(open => !open)
-        setPaletteQuery('')
         return
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
@@ -1104,7 +1119,7 @@ function CanvasTabInner(): ReactNode {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedEdge, setEdges, scheduleSave, undo, redo, zoomIn, zoomOut, fitView])
+  }, [selectedEdge, setEdges, scheduleSave, undo, redo, zoomIn, zoomOut, fitView, openGenerate])
 
   // Flush a pending debounced save when the tab unmounts, so closing the dock
   // never loses the last drag/edit.
@@ -1112,6 +1127,27 @@ function CanvasTabInner(): ReactNode {
     if (saveTimerRef.current !== undefined) window.clearTimeout(saveTimerRef.current)
     if (dirtyRef.current) void saveNow()
   }, [saveNow])
+
+  useEffect(() => {
+    let live = true
+    const pull = async () => {
+      try {
+        const response = await fetch('/directorx/canvas/intent')
+        if (!response.ok) return
+        const data = await response.json() as { intents?: Array<{ status?: string }> }
+        if (!live) return
+        setPendingIntents((data.intents ?? []).filter(item => item.status === 'pending' || item.status === 'taken').length)
+      } catch {
+        // badge refresh is best-effort
+      }
+    }
+    void pull()
+    const timer = window.setInterval(() => { void pull() }, 4000)
+    return () => {
+      live = false
+      window.clearInterval(timer)
+    }
+  }, [])
 
   const onNodesChange = useCallback((changes: NodeChange<CanvasFlowNode>[]) => {
     const removedIds = changes.filter(change => change.type === 'remove').map(change => change.id)
@@ -1306,6 +1342,46 @@ function CanvasTabInner(): ReactNode {
     setNodes(current => [...current, { ...node, data: { ...node.data, ...nodeCallbacks }, position: { x: node.position.x + offset, y: node.position.y + offset } }])
     scheduleSave()
   }, [setNodes, scheduleSave, nodeCallbacks])
+
+  const submitGenerate = useCallback(async () => {
+    if (generateSheet === undefined || generateBusy) return
+    const source = generateSheet.sourceId !== undefined
+      ? nodesRef.current.find(node => node.id === generateSheet.sourceId)
+      : undefined
+    setGenerateBusy(true)
+    try {
+      const response = await fetch('/directorx/canvas/intent', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          kind: generateSheet.kind,
+          prompt: generateSheet.prompt,
+          ...(source !== undefined ? { sourceId: source.id } : {}),
+          selectedIds: nodesRef.current.filter(node => node.selected === true).map(node => node.id),
+        }),
+      })
+      if (!response.ok) {
+        const text = await response.text().catch(() => '')
+        throw new Error(`画布指令未交给 DSH (${response.status}) ${text.slice(0, 80)}`)
+      }
+      const data = await response.json() as { intent?: { id: string }; prompt?: string }
+      const message = typeof data.prompt === 'string' && data.prompt !== ''
+        ? data.prompt
+        : generateSheet.prompt
+      if (onAskDsh !== undefined) {
+        await onAskDsh(message)
+        setToast('已交给 DSH，画布将随工具结果更新')
+      } else {
+        setToast('指令已入队。请在 DSH 会话里让它领取 directorx_canvas_intents')
+      }
+      window.setTimeout(() => setToast(undefined), 2800)
+      setGenerateSheet(undefined)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    } finally {
+      setGenerateBusy(false)
+    }
+  }, [generateSheet, generateBusy, onAskDsh])
 
   const openPicker = useCallback(async () => {
     if (pickerOpen) { setPickerOpen(false); return }
@@ -1904,13 +1980,14 @@ function CanvasTabInner(): ReactNode {
   }, [setNodes, scheduleSave])
 
   const cmdCommands = useMemo(() => [
-    { label: '新建文字节点', hint: '创建', run: addTextNode },
-    { label: '新建镜头组', hint: '创建', run: addGroup },
-    { label: '媒体库', hint: '创建', run: () => { void openPicker() } },
-    { label: '上传文件', hint: '创建', run: importMedia },
-    { label: '复制所选', hint: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) duplicateNode(id) } },
-    { label: '删除所选', hint: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) deleteNode(id) } },
-    { label: '锁定 / 解锁所选', hint: '编辑', run: () => {
+    { id: 'generate', label: '继续生成', hint: '交给 DSH', group: '创建', run: () => openGenerate() },
+    { id: 'text', label: '新建文字节点', hint: '创建', group: '创建', run: addTextNode },
+    { id: 'group', label: '新建镜头组', hint: '创建', group: '创建', run: addGroup },
+    { id: 'library', label: '媒体库', hint: '创建', group: '创建', run: () => { void openPicker() } },
+    { id: 'import', label: '上传文件', hint: '创建', group: '创建', run: importMedia },
+    { id: 'dup', label: '复制所选', hint: '编辑', group: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) duplicateNode(id) } },
+    { id: 'del', label: '删除所选', hint: '编辑', group: '编辑', run: () => { const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id); for (const id of ids) deleteNode(id) } },
+    { id: 'lock', label: '锁定 / 解锁所选', hint: '编辑', group: '编辑', run: () => {
       const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id)
       if (ids.length === 0) return
       const allLocked = ids.every(id => (nodesRef.current.find(node => node.id === id)?.data as { locked?: boolean } | undefined)?.locked === true)
@@ -1918,71 +1995,33 @@ function CanvasTabInner(): ReactNode {
       setNodes(list => list.map(node => ids.includes(node.id) ? { ...node, data: { ...node.data, locked: !allLocked } } : node))
       scheduleSave()
     } },
-    { label: '撤销', hint: '编辑', run: undo },
-    { label: '重做', hint: '编辑', run: redo },
-    { label: '镜头状态循环', hint: '镜头', run: () => {
+    { id: 'clearSel', label: '清空选择', hint: '编辑', group: '编辑', run: () => {
+      setNodes(current => current.map(node => node.selected === true ? { ...node, selected: false } : node))
+      setSelectedCount(0)
+    } },
+    { id: 'undo', label: '撤销', hint: '⌘Z', group: '编辑', run: undo },
+    { id: 'redo', label: '重做', hint: '⇧⌘Z', group: '编辑', run: redo },
+    { id: 'cycle', label: '镜头状态循环', hint: '镜头', group: '镜头', run: () => {
       const ids = nodesRef.current.filter(node => node.selected === true && node.type === 'group').map(node => node.id)
       for (const id of ids) nodeCallbacks.onCycleShotStatus?.(id)
     } },
-    { label: '折叠 / 展开所选组', hint: '镜头', run: () => {
+    { id: 'collapse', label: '折叠 / 展开所选组', hint: '镜头', group: '镜头', run: () => {
       const ids = nodesRef.current.filter(node => node.selected === true && node.type === 'group').map(node => node.id)
       if (ids.length === 0) return
       const anyOpen = ids.some(id => !collapsedGroups.has(id))
       setCollapsedGroups(current => { const next = new Set(current); for (const id of ids) { if (anyOpen) next.add(id); else next.delete(id) } return next })
     } },
-    { label: '适配全部内容', hint: '视图', run: () => { void fitView() } },
-    { label: '重置缩放 100%', hint: '视图', run: () => setViewport({ zoom: 1, x: 0, y: 0 }) },
-    { label: '语义泳道布局', hint: '视图', run: arrangeSemantic },
-    { label: '网格整理', hint: '视图', run: arrangeGrid },
-    { label: '粗剪条开关', hint: '镜头', run: () => setStripOpen(open => !open) },
-    { label: '镜头列表', hint: '镜头', run: () => setShotListOpen(open => !open) },
-    { label: '导出 PNG 分镜板', hint: '导出', run: () => { void exportPng() } },
-    { label: '对比分支版本', hint: '导出', run: openCompare },
-    { label: '上下文面板', hint: '面板', run: () => setAgentOpen(open => !open) },
-    { label: '操作帮助', hint: '面板', run: () => setHelpOpen(open => !open) },
-  ], [addTextNode, addGroup, openPicker, importMedia, fitView, setViewport, arrangeSemantic, arrangeGrid, duplicateNode, deleteNode, undo, redo, exportPng, openCompare, nodeCallbacks, collapsedGroups, setNodes, scheduleSave, pushHistory])
-
-  const runCommand = useCallback((id: string) => {
-    setPaletteOpen(false)
-    setPaletteQuery('')
-    if (id === 'text') { addTextNode(); return }
-    if (id === 'group') { addGroup(); return }
-    if (id === 'library') { void openPicker(); return }
-    if (id === 'import') { importMedia(); return }
-    if (id === 'arrange') { arrangeGrid(); return }
-    if (id === 'export') { void exportPng(); return }
-    if (id === 'undo') { undo(); return }
-    if (id === 'redo') { redo(); return }
-    if (id === 'fit') { void fitView({ padding: 0.15, duration: 300 }); return }
-    if (id === 'clearSel') {
-      setNodes(current => current.map(node => node.selected === true ? { ...node, selected: false } : node))
-      setSelectedCount(0)
-      return
-    }
-  }, [addTextNode, addGroup, openPicker, importMedia, arrangeGrid, exportPng, undo, redo, fitView, setNodes])
-
-  const fuzzyMatch = useCallback((query: string, label: string): boolean => {
-    const q = query.toLowerCase().replace(/\s+/g, '')
-    const target = label.toLowerCase()
-    let qIndex = 0
-    for (const char of target) {
-      if (qIndex < q.length && char === q[qIndex]) qIndex += 1
-    }
-    return qIndex === q.length
-  }, [])
-
-  const COMMANDS: Array<{ id: string; label: string; hint: string }> = [
-    { id: 'text', label: '添加文字', hint: '新建文字节点' },
-    { id: 'group', label: '新建分组', hint: '分组容器节点' },
-    { id: 'library', label: '打开媒体库', hint: '从输出目录选择素材' },
-    { id: 'import', label: '导入本地媒体…', hint: '上传本地图片/视频/音频' },
-    { id: 'arrange', label: '网格整理', hint: '自动排布全部节点' },
-    { id: 'fit', label: '适应视图', hint: '缩放至全部内容' },
-    { id: 'clearSel', label: '清空选择', hint: '取消所有选中' },
-    { id: 'undo', label: '撤销', hint: '⌘Z' },
-    { id: 'redo', label: '重做', hint: '⇧⌘Z' },
-    { id: 'export', label: '导出 PNG 分镜板', hint: '下载画布快照' },
-  ]
+    { id: 'strip', label: '粗剪条开关', hint: '镜头', group: '镜头', run: () => setStripOpen(open => !open) },
+    { id: 'shots', label: '镜头列表', hint: '镜头', group: '镜头', run: () => setShotListOpen(open => !open) },
+    { id: 'fit', label: '适配全部内容', hint: '视图', group: '视图', run: () => { void fitView() } },
+    { id: 'resetZoom', label: '重置缩放 100%', hint: '视图', group: '视图', run: () => setViewport({ zoom: 1, x: 0, y: 0 }) },
+    { id: 'lanes', label: '语义泳道布局', hint: '视图', group: '视图', run: arrangeSemantic },
+    { id: 'grid', label: '网格整理', hint: '视图', group: '视图', run: arrangeGrid },
+    { id: 'export', label: '导出 PNG 分镜板', hint: '导出', group: '导出', run: () => { void exportPng() } },
+    { id: 'compare', label: '对比分支版本', hint: '导出', group: '导出', run: openCompare },
+    { id: 'agent', label: '上下文面板', hint: '面板', group: '面板', run: () => setAgentOpen(open => !open) },
+    { id: 'help', label: '操作帮助', hint: '面板', group: '面板', run: () => setHelpOpen(open => !open) },
+  ], [addTextNode, addGroup, openPicker, importMedia, fitView, setViewport, arrangeSemantic, arrangeGrid, duplicateNode, deleteNode, undo, redo, exportPng, openCompare, nodeCallbacks, collapsedGroups, setNodes, scheduleSave, pushHistory, openGenerate])
 
   const defaultEdgeOptions = useMemo(() => ({
     type: 'default' as const,
@@ -2048,6 +2087,7 @@ function CanvasTabInner(): ReactNode {
         @keyframes dx-agent-flash { 0%, 100% { box-shadow: none; } 20%, 60% { box-shadow: 0 0 0 2px rgba(79,157,255,.85); } }
         @keyframes dx-pop-in { from { opacity: 0; transform: translateY(4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes dx-dash-flow { to { stroke-dashoffset: -20; } }
+        @keyframes dx-spin { to { transform: rotate(360deg); } }
         .dx-pop { animation: dx-pop-in .16s ease; }
         .dx-title-input { transition: border-color .15s ease, background .15s ease; }
         .dx-title-input:hover, .dx-title-input:focus { border-color: rgba(255,255,255,.25); background: rgba(24,24,28,.8); backdrop-filter: blur(10px); }
@@ -2114,7 +2154,7 @@ function CanvasTabInner(): ReactNode {
         panOnDrag={[2]}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
-        zoomOnScroll
+        zoomOnScroll={false}
         zoomActivationKeyCode="Meta"
         panOnScroll
         zoomOnPinch
@@ -2151,10 +2191,12 @@ function CanvasTabInner(): ReactNode {
           return edges.filter(edge => !hiddenIds.has(edge.source) && !hiddenIds.has(edge.target))
         })()} selectedId={selectedEdge} onSelect={setSelectedEdge} onContext={onEdgeContext} onReconnect={onEdgeReconnect} />
         {(guides.vertical.length > 0 || guides.horizontal.length > 0) ? (
-          <svg className="directorx-guides" style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 0 }}>
-            {guides.vertical.map(x => <line key={`v${x}`} x1={x} y1={-5000} x2={x} y2={5000} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
-            {guides.horizontal.map(y => <line key={`h${y}`} x1={-5000} y1={y} x2={5000} y2={y} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
-          </svg>
+          <ViewportPortal>
+            <svg className="directorx-guides" width="1" height="1" style={{ overflow: 'visible', pointerEvents: 'none', position: 'absolute', left: 0, top: 0, zIndex: 0 }}>
+              {guides.vertical.map(x => <line key={`v${x}`} x1={x} y1={-5000} x2={x} y2={5000} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
+              {guides.horizontal.map(y => <line key={`h${y}`} x1={-5000} y1={y} x2={5000} y2={y} stroke="rgba(245,245,245,.5)" strokeWidth={1} strokeDasharray="4 3" />)}
+            </svg>
+          </ViewportPortal>
         ) : null}
         {flowWidth >= 340 ? <Controls position="bottom-left" showInteractive={false} /> : null}
         {flowWidth >= 340 ? (
@@ -2171,9 +2213,10 @@ function CanvasTabInner(): ReactNode {
         <div style={{ position: 'absolute', inset: 0, zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, pointerEvents: 'none', padding: 16 }}>
           <div style={{ fontSize: 19, fontWeight: 600, color: '#f5f5f5', letterSpacing: .5, textAlign: 'center' }}>今天想拍什么？</div>
           <div style={{ fontSize: 12.5, color: '#8a8a8a', textAlign: 'center', lineHeight: 1.8, maxWidth: 420 }}>
-            让 DSH 在会话里直接开拍（brief 分诊 → 分镜 → 生成 → 质检），画布实时同步；<br />也可以先手动搭一个镜头组，或双击空白处开始。
+            底部生成条把指令交给 DSH；DSH 用画布工具改写分镜。<br />也可以先手动搭一个镜头组，或双击空白处开始。
           </div>
           <div style={{ display: 'flex', gap: 10, pointerEvents: 'auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => openGenerate()}>开始生成</button>
             <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={addGroup}>新建镜头组</button>
             <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => void openPicker()}>导入素材</button>
             <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 16px', fontSize: 12.5 }} onClick={() => setAgentOpen(true)}>打开上下文面板</button>
@@ -2184,45 +2227,7 @@ function CanvasTabInner(): ReactNode {
           </div>
         </div>
       ) : null}
-      {cmdOpen ? (
-        <>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 30, background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(2px)' }} onClick={() => setCmdOpen(false)} />
-          <div className="dx-pop" style={{ position: 'fixed', left: '50%', top: '16%', transform: 'translateX(-50%)', zIndex: 31, width: 380, maxWidth: 'calc(100% - 24px)', borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.6)', overflow: 'hidden' }}>
-            <input
-              autoFocus
-              value={cmdQuery}
-              placeholder="输入命令…（如：泳道 / 粗剪 / 适配）"
-              onChange={event => { setCmdQuery(event.target.value); setCmdIndex(0) }}
-              onKeyDown={event => {
-                const list = cmdCommands.filter(command => command.label.includes(cmdQuery))
-                if (event.key === 'ArrowDown') { event.preventDefault(); setCmdIndex(index => Math.min(list.length - 1, index + 1)) }
-                if (event.key === 'ArrowUp') { event.preventDefault(); setCmdIndex(index => Math.max(0, index - 1)) }
-                if (event.key === 'Enter') { event.preventDefault(); const hit = list[cmdIndex]; if (hit !== undefined) { setCmdOpen(false); setCmdQuery(''); hit.run() } }
-                if (event.key === 'Escape') setCmdOpen(false)
-              }}
-              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 14px', border: 'none', borderBottom: '1px solid rgba(255,255,255,.1)', background: 'transparent', color: '#f0f0f0', fontSize: 13.5, outline: 'none' }}
-            />
-            <div style={{ maxHeight: 300, overflowY: 'auto', padding: 6 }}>
-              {(() => {
-                const list = cmdCommands.filter(command => command.label.includes(cmdQuery))
-                return list.length === 0
-                  ? <div style={{ padding: '10px 12px', fontSize: 12, color: '#9b9b9b' }}>没有匹配的命令。</div>
-                  : list.map((command, index) => (
-                    <button
-                      key={command.label}
-                      onMouseEnter={() => setCmdIndex(index)}
-                      onClick={() => { setCmdOpen(false); setCmdQuery(''); command.run() }}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: index === cmdIndex ? 'rgba(255,255,255,.1)' : 'transparent', color: '#f0f0f0', fontSize: 12.5, cursor: 'pointer' }}
-                    >
-                      <span>{command.label}</span>
-                      <span style={{ fontSize: 10.5, color: '#9b9b9b' }}>{command.hint}</span>
-                    </button>
-                  ))
-              })()}
-            </div>
-          </div>
-        </>
-      ) : null}
+      <CanvasCommandPalette open={cmdOpen} onOpenChange={setCmdOpen} commands={cmdCommands} />
       {historyOpen ? (
         <div className="dx-pop" style={{ position: 'absolute', top: 52, right: 12, zIndex: 11, width: 300, maxHeight: 340, overflowY: 'auto', padding: 10, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 14px 40px rgba(0,0,0,.6)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -2282,16 +2287,17 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       <div style={topBar}>
+        <div />
         <input
           value={title}
           placeholder="请输入标题"
           className="dx-title-input"
-          style={{ flex: '0 1 300px', background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'left', padding: '6px 10px', outline: 'none', letterSpacing: .3 }}
+          style={{ width: '100%', background: 'transparent', border: '1px solid transparent', borderRadius: 10, color: '#f5f5f5', fontSize: 14.5, fontWeight: 600, textAlign: 'center', padding: '6px 10px', outline: 'none', letterSpacing: .3 }}
           onChange={event => { setTitle(event.target.value); titleRef.current = event.target.value; scheduleSave() }}
           onBlur={() => void saveNow()}
           title="画布标题"
         />
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ justifySelf: 'end', display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             className="dx-tool-icon"
             onClick={() => { setHistoryOpen(open => !open); if (!historyOpen) { void fetch('/directorx/canvas/snapshots').then(r => r.json()).then((data: { snapshots?: Array<{ id: string; at: number; label: string }> }) => setSnapshots(data.snapshots ?? [])).catch(() => {}) } }}
@@ -2315,14 +2321,99 @@ function CanvasTabInner(): ReactNode {
           <span style={{ ...saveChip, opacity: saveState === '已保存' ? 0 : 1, transition: 'opacity .3s ease' }}>{saveState}</span>
           <button
             className="dx-tool-icon"
-            style={{ ...iconBtn, width: 32, height: 32, ...(agentOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }}
+            style={{ ...iconBtn, width: 32, height: 32, position: 'relative', ...(agentOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }}
             onClick={() => setAgentOpen(open => !open)}
             title="导演 Agent 抽屉"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12z"/></svg>
+            {pendingIntents > 0 ? (
+              <span style={{ position: 'absolute', top: 4, right: 4, minWidth: 14, height: 14, padding: '0 3px', borderRadius: 999, background: '#4f9dff', color: '#fff', fontSize: 9, lineHeight: '14px', textAlign: 'center' }}>{pendingIntents}</span>
+            ) : null}
           </button>
         </div>
       </div>
+      {generateSheet !== undefined ? (
+        <div
+          className="dx-pop"
+          style={{
+            position: 'absolute', left: '50%', bottom: 68, transform: 'translateX(-50%)', zIndex: 12,
+            width: 560, maxWidth: 'calc(100% - 24px)', padding: 12, borderRadius: 18,
+            border: '1px solid rgba(255,255,255,.14)', background: '#141414',
+            boxShadow: '0 16px 40px rgba(0,0,0,.6)',
+          }}
+          onClick={event => event.stopPropagation()}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: '#c8c8c8' }}>
+              {generateSheet.sourceId !== undefined
+                ? `以 @${nodes.find(node => node.id === generateSheet.sourceId)?.data.label ?? generateSheet.sourceId} 为输入继续生成`
+                : '在画布上生成新节点'}
+            </span>
+            <button style={{ ...iconBtn, width: 28, height: 28 }} onClick={() => setGenerateSheet(undefined)} title="关闭">×</button>
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            {(['image', 'video'] as const).map(kind => (
+              <button
+                key={kind}
+                onClick={() => setGenerateSheet(current => current === undefined ? current : { ...current, kind })}
+                style={{
+                  padding: '4px 10px', borderRadius: 999, fontSize: 11.5, cursor: 'pointer',
+                  border: generateSheet.kind === kind ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.16)',
+                  background: generateSheet.kind === kind ? 'rgba(255,255,255,.12)' : 'transparent',
+                  color: '#f0f0f0',
+                }}
+              >
+                {kind === 'image' ? '图像' : '视频'}
+              </button>
+            ))}
+          </div>
+          <textarea
+            autoFocus
+            value={generateSheet.prompt}
+            placeholder="描述你想生成的画面、镜头或运动…"
+            onChange={event => setGenerateSheet(current => current === undefined ? current : { ...current, prompt: event.target.value })}
+            onKeyDown={event => {
+              if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+                event.preventDefault()
+                void submitGenerate()
+              }
+              if (event.key === 'Escape') setGenerateSheet(undefined)
+            }}
+            style={{
+              width: '100%', boxSizing: 'border-box', minHeight: 72, resize: 'vertical',
+              padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,.14)',
+              background: 'rgba(255,255,255,.04)', color: '#f5f5f5', fontSize: 13, lineHeight: 1.5, outline: 'none',
+            }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+            <span style={{ fontSize: 10.5, color: '#7a7a7a' }}>⌘↵ 交给 DSH · 画布由 DSH 用工具改写</span>
+            <button
+              disabled={generateBusy || generateSheet.prompt.trim() === ''}
+              onClick={() => { void submitGenerate() }}
+              style={{
+                ...pillBtn, width: 'auto', height: 36, padding: '0 16px', fontSize: 13, fontWeight: 600,
+                opacity: generateBusy || generateSheet.prompt.trim() === '' ? .5 : 1,
+              }}
+            >
+              {generateBusy ? '提交中…' : '交给 DSH'}
+            </button>
+          </div>
+        </div>
+      ) : selectedEdge === undefined ? (
+        <button
+          onClick={() => openGenerate(nodes.find(node => node.selected === true)?.id)}
+          style={{
+            position: 'absolute', left: '50%', bottom: 68, transform: 'translateX(-50%)', zIndex: 11,
+            width: 420, maxWidth: 'calc(100% - 24px)', height: 42, borderRadius: 999,
+            border: '1px solid rgba(255,255,255,.14)', background: 'rgba(20,20,20,.92)',
+            color: '#9b9b9b', fontSize: 13, cursor: 'pointer', textAlign: 'left', padding: '0 18px',
+            boxShadow: '0 8px 24px rgba(0,0,0,.45)',
+          }}
+          title="打开生成条（G）"
+        >
+          {selectedCount > 0 ? '描述下一步，交给 DSH 掌管画布…' : '描述画面，交给 DSH 开拍…'}
+        </button>
+      ) : null}
       <div style={toolbar}>
         <button style={pillBtn} onClick={() => void openPicker()} title="新建 / 媒体库">{ICONS.plus}</button>
         <button className="dx-tool-icon" style={iconBtn} onClick={() => void openPicker()} title="素材库">{ICONS.media}</button>
@@ -2337,13 +2428,16 @@ function CanvasTabInner(): ReactNode {
         <button className="dx-tool-icon" style={{ ...iconBtn, ...(helpOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setHelpOpen(open => !open)} title="操作帮助">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         </button>
+        <button className="dx-tool-icon" style={{ ...iconBtn, ...(moreOpen ? { background: 'rgba(255,255,255,.12)' } : {}) }} onClick={() => setMoreOpen(open => !open)} title="更多（导出 / 布局 / 对比）">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="6" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="18" cy="12" r="1.4" fill="currentColor"/></svg>
+        </button>
       {helpOpen ? (
         <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
           <div>左键空白拖动 = 框选 · 中键/右键 = 平移</div>
           <div>滚轮 = 平移 · ⌘ + 滚轮 = 缩放</div>
           <div>双击空白 = 创建菜单 · 右键空白 = 更多</div>
-          <div>选中节点 → 右侧 + = 继续生成</div>
+          <div>选中节点 → 右侧 + / G = 继续生成</div>
           <div>右键节点 = 锁定 / 状态 / 删除</div>
           <div>拖线到空白 = 新建并自动连线</div>
           <div>点击粗剪条 = 选中并定位镜头</div>
@@ -2392,37 +2486,14 @@ function CanvasTabInner(): ReactNode {
         </div>
       ) : null}
       {agentOpen ? (
-        <div className="dx-pop" style={agentDrawer}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', flex: 1 }}>画布上下文</span>
-            <button className="dx-tool-icon" style={{ ...iconBtn, width: 28, height: 28 }} onClick={() => setAgentOpen(false)} title="收起">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg>
-            </button>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, padding: 12, overflowY: 'auto' }}>
-            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>画布引用（当前选中节点）</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {selectedCount === 0 ? (
-                <span style={{ fontSize: 11.5, color: '#666' }}>画布上没有选中节点——选中节点即作为上下文引用。</span>
-              ) : nodes.filter(node => node.selected === true).map(selectedNode => {
-                const id = selectedNode.id
-                const node = nodes.find(candidate => candidate.id === id)
-                return <span key={id} style={{ fontSize: 10.5, padding: '3px 8px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.06)', color: '#e8e8e8' }}>@{node?.data?.label ?? id}</span>
-              })}
-            </div>
-            <div style={{ fontSize: 11, color: '#9b9b9b', lineHeight: 1.7, border: '1px solid rgba(79,157,255,.25)', background: 'rgba(79,157,255,.06)', borderRadius: 12, padding: '10px' }}>
-              目标与指令直接在 DSH 会话中提出——DSH 通过 directorx_canvas_* 与生成工具操作画布，改动实时同步到这里。选中节点 = 给 DSH 的精确引用。
-            </div>
-            <div style={{ fontSize: 11.5, color: '#9b9b9b' }}>建议卡</div>
-            <div style={{ fontSize: 11.5, color: '#8a8a8a', lineHeight: 1.7 }}>
-              下一步动作（由 DSH 判断与执行）：<br/>
-              1. 选中镜头组 → 让 DSH 生成该镜头的 Take 变体<br/>
-              2. 双击空白 → 建节点/素材，DSH 自动连线<br/>
-              3. 让 DSH 跑 shot_gate 质检再成片<br/>
-              4. 目标可先 brief 分诊再展开
-            </div>
-          </div>
-        </div>
+        <CanvasContextDrawer
+          open={agentOpen}
+          onClose={() => setAgentOpen(false)}
+          selectedLabels={nodes.filter(node => node.selected === true).map(node => String(node.data.label ?? node.id))}
+          onAskDsh={onAskDsh}
+          style={agentDrawer}
+          iconBtn={iconBtn}
+        />
       ) : (
         <button
           title="打开画布上下文面板"
@@ -2493,72 +2564,13 @@ function CanvasTabInner(): ReactNode {
       {connectMenu !== undefined ? (
         <div style={{ position: 'fixed', left: connectMenu.x, top: connectMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}>
           <div style={{ fontSize: 11, color: '#919191', padding: '4px 10px' }}>拖线到空白：新建并连线</div>
+          <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { const source = connectSourceRef.current; setConnectMenu(undefined); openGenerate(source) }}>生成下游</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddText}>文字节点</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={connectAddGroup}>分组</button>
           <button style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', borderRadius: 8, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={() => { setConnectMenu(undefined); void openPicker() }}>媒体库…</button>
         </div>
       ) : null}
-      {paletteOpen ? (
-        <div
-          style={{ position: 'fixed', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 9, width: 360, border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 8 }}
-          onClick={event => event.stopPropagation()}
-        >
-          <input
-            ref={paletteInputRef}
-            autoFocus
-            value={paletteQuery}
-            placeholder="输入命令…（⌘K 打开）"
-            style={{ width: '100%', boxSizing: 'border-box', padding: '9px 12px', borderRadius: 9, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(255,255,255,.05)', color: '#f5f5f5', fontSize: 13, marginBottom: 6 }}
-            onChange={event => { setPaletteQuery(event.target.value); setPaletteIndex(0) }}
-            onKeyDown={event => {
-              const matches = COMMANDS.filter(cmd => paletteQuery.trim() === '' || fuzzyMatch(paletteQuery, cmd.label))
-              if (event.key === 'ArrowDown' && matches.length > 0) {
-                event.preventDefault()
-                setPaletteIndex(index => (index + 1) % matches.length)
-              } else if (event.key === 'ArrowUp' && matches.length > 0) {
-                event.preventDefault()
-                setPaletteIndex(index => (index - 1 + matches.length) % matches.length)
-              } else if (event.key === 'Enter') {
-                const match = matches[paletteIndex] ?? matches[0]
-                if (match !== undefined) runCommand(match.id)
-              } else if (event.key === 'Escape') {
-                setPaletteOpen(false)
-              }
-            }}
-          />
-          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-            {COMMANDS.filter(cmd => paletteQuery.trim() === '' || fuzzyMatch(paletteQuery, cmd.label)).map((cmd, index) => (
-              <button
-                key={cmd.id}
-                style={{ display: 'flex', justifyContent: 'space-between', width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: index === paletteIndex ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }}
-                onMouseEnter={() => setPaletteIndex(index)}
-                onClick={() => runCommand(cmd.id)}
-              >
-                <span>{cmd.label}</span>
-                <span style={{ color: '#777', fontSize: 11 }}>{cmd.hint}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      {nodes.length === 0 ? (
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, pointerEvents: 'none', zIndex: 2 }}>
-          <div style={{ fontSize: 15, color: '#f5f5f5', fontWeight: 600 }}>开始搭你的分镜板</div>
-          <div style={{ fontSize: 12, color: '#919191', textAlign: 'center', lineHeight: 1.7, maxWidth: 340 }}>
-            从工具栏或右键添加素材节点；也可以直接让 DSH 用画布工具写分镜——<br />它会在这里同步生产视图。
-          </div>
-          <div style={{ display: 'flex', gap: 8, pointerEvents: 'auto' }}>
-            {[
-              { label: '添加文字', run: addTextNode },
-              { label: '打开媒体库', run: () => void openPicker() },
-              { label: '新建分组', run: addGroup },
-              { label: '导入本地媒体', run: importMedia },
-            ].map(item => (
-              <button key={item.label} style={{ padding: '8px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={item.run}>{item.label}</button>
-            ))}
-          </div>
-        </div>
-      ) : null}
+
       {compareGroup !== undefined ? (
         <div
           style={{ position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', zIndex: 9, width: 'min(720px, 90vw)', maxHeight: '72vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: '#3f3f46', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 14 }}
@@ -2626,6 +2638,7 @@ function CanvasTabInner(): ReactNode {
                 title: '节点',
                 items: [
                   ...(isMedia ? [{ label: '编辑', run: () => openEditor((target.data as MediaNodeData).kind, (target.data as MediaNodeData).path) }] : []),
+                  { label: '继续生成', run: () => openGenerate(target.id) },
                   { label: '复制', run: () => duplicateNode(target.id) },
                 ],
               },
@@ -2709,6 +2722,7 @@ function CanvasTabInner(): ReactNode {
           style={{ position: 'fixed', left: contextMenu.x, top: contextMenu.y, zIndex: 8, minWidth: 148, border: '1px solid rgba(255,255,255,.18)', borderRadius: 12, background: '#3f3f46', boxShadow: '0 12px 32px rgba(0,0,0,.6)', padding: 6 }}
         >
           {[
+            { label: '继续生成', action: () => openGenerate() },
             { label: '添加媒体', action: () => void openPicker() },
             { label: '导入本地媒体…', action: importMedia },
             { label: '添加文字', action: addTextNode },
@@ -2774,10 +2788,10 @@ function CanvasTabInner(): ReactNode {
 }
 
 /** Provider must be an ancestor of the hook callers, so it wraps the inner component. */
-export function CanvasTab(): ReactNode {
+export function CanvasTab(props: CanvasTabProps = {}): ReactNode {
   return (
     <ReactFlowProvider>
-      <CanvasTabInner />
+      <CanvasTabInner sessionId={props.sessionId} onAskDsh={props.onAskDsh} />
     </ReactFlowProvider>
   )
 }

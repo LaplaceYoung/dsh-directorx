@@ -6,6 +6,18 @@
 
 ### Added
 
+- **隔离开发回路**：`scripts/parallel-dev-loop.mjs` 以独立 cwd/`git -C` 推进本仓库；测试红则本树不提交，不碰 sibling agent 树。
+- **画布命令面板换成 cmdk**：两套手写 ⌘K 列表合并为 `CanvasCommandPalette`（pacocoursey/cmdk），分组过滤、方向键与 aria 由库负责。
+- **画布上下文抽屉**：列出 `GET /directorx/canvas/intent` 待领取/处理中指令（再交给 DSH / 取消），并接入角色库 `GET/POST /directorx/characters`（只写 `characters.json`，不改画布）。指令 POST 现在也可 `{id,status}` 取消。
+- **画布 TapNow 生成环（节点 + / 底部生成条）**：选中节点右侧 `+`、悬停「生成」、
+  快捷键 `G`、拖线到空白「生成下游」都会打开底部生成条（图像/视频 + 提示词）。
+  提交后写入 `directorx_canvas_intents` 并 `session.prompt` 交给 DSH；
+  DSH 用 `directorx_canvas_continue` / `directorx_canvas_*` 改画布，UI 不再自己写
+  generating 节点。`continueGenerate` 仍是 DSH 工具的规划器。自定义连线层
+  经 `ViewportPortal` 进入 xyflow 视口，端点按分组绝对坐标计算，平移/缩放后仍贴在节点上。单击媒体卡改为选中
+  （双击才进编辑器）；镜头状态循环 / 分组折叠按钮真正接线；保存不再丢掉
+  `shotStatus` / `selectedTakeId` / `continuityRules` / 边的 `sourceVariantIdx`。
+  标题栏居中（TapNow「请输入标题」）；滚轮平移、⌘+滚轮缩放，与帮助文案一致。
 - **扩充调研波（四方向，规则扩至 99 条 + 工具升级）**：
   - 平台运营 84-91（封面三件套/平台规格/标题公式/发布窗口/留存四时刻/
     封面质检/CTR SOP）→ brief 平台规格卡 + 标题变体 + 封面提示词；

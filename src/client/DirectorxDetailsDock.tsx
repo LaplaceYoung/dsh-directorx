@@ -16,6 +16,15 @@ interface EditRecord { path: string; bytes: number; mediaType: string; name: str
 interface DetailsDockProps {
   /** Injected close: drives the harness layout column closed. */
   closeDetails?: () => void
+  /** Framework-standard current session id (details slot is session-scoped). */
+  sessionId?: string
+  connection?: {
+    api?: {
+      sessions?: {
+        prompt: (payload: { sessionId: string; mode: 'queue' | 'steer'; content: Array<{ type: 'text'; text: string }> }) => Promise<{ result?: { ok?: boolean; error?: { message?: string } } }>
+      }
+    }
+  }
 }
 
 function mediaUrlOf(path: string): string {
@@ -218,7 +227,24 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
         ))}
       </div>
       {snapshot.tab === 'canvas' ? (
-        <div style={{ ...body, overflow: 'hidden' }}><EditorBoundary><CanvasTab /></EditorBoundary></div>
+        <div style={{ ...body, overflow: 'hidden' }}>
+          <EditorBoundary>
+            <CanvasTab
+              sessionId={props.sessionId}
+              onAskDsh={async (text) => {
+                const sessionId = props.sessionId
+                const prompt = props.connection?.api?.sessions?.prompt
+                if (sessionId === undefined || sessionId === '' || prompt === undefined) {
+                  throw new Error('没有活动的 DSH 会话，无法把画布交给 DSH')
+                }
+                const response = await prompt({ sessionId, mode: 'queue', content: [{ type: 'text', text }] })
+                if (response.result?.ok === false) {
+                  throw new Error(response.result.error?.message ?? 'DSH 未接受画布指令')
+                }
+              }}
+            />
+          </EditorBoundary>
+        </div>
       ) : saved !== undefined ? (
         <div style={{ padding: 12, fontSize: 12.5 }}>
           <div style={{ color: '#8fdc9f', marginBottom: 6 }}>已保存 ✓</div>

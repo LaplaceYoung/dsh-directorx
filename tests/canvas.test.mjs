@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { CharacterStore, DirectorxCanvasStore, ProjectStyleStore, ProposalStore, TermStore, registerCanvasRoute } from '../lib/testing.js'
+import { CanvasIntentStore, CharacterStore, DirectorxCanvasStore, formatDshCanvasPrompt, ProjectStyleStore, ProposalStore, TermStore, edgeHandlePoints, flowAbsolutePosition, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerProposalsRoute } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -566,6 +566,347 @@ test('canvas route GET/PUT round-trips with conflict handling', async () => {
 
     const reloaded = await fetch(base).then(response => response.json())
     assert.equal(reloaded.nodes.length, 1)
+  } finally {
+    server.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas write preserves shot status, continuity, and variant-bound edges', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    let doc = await store.addNode({ kind: 'group', label: '镜头1', x: 0, y: 0, shotStatus: 'review', selectedTakeId: 'take-a', continuityRules: ['同一外套'] })
+    const group = doc.nodes[0]
+    doc = await store.addNode({ kind: 'image', label: 'A', path: '/tmp/a.png', x: 40, y: 40, prompt: 'neon alley', shotStatus: 'generating' })
+    const imageA = doc.nodes.find(node => node.label === 'A')
+    doc = await store.addNode({ kind: 'video', label: 'B', path: '/tmp/b.mp4', x: 280, y: 40 })
+    const imageB = doc.nodes.find(node => node.label === 'B')
+    doc = await store.addEdge({ from: imageA.id, to: imageB.id, sourceVariantIdx: 2 })
+    const again = await store.read()
+    const savedGroup = again.nodes.find(node => node.id === group.id)
+    const savedImage = again.nodes.find(node => node.id === imageA.id)
+    assert.equal(savedGroup.shotStatus, 'review')
+    assert.equal(savedGroup.selectedTakeId, 'take-a')
+    assert.deepEqual(savedGroup.continuityRules, ['同一外套'])
+    assert.equal(savedImage.prompt, 'neon alley')
+    assert.equal(savedImage.shotStatus, 'generating')
+    assert.equal(again.edges[0].sourceVariantIdx, 2)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas client portals the custom wire layer into the xyflow viewport', async () => {
+  const source = await readFile(new URL('../src/client/CanvasTab.tsx', import.meta.url), 'utf8')
+  assert.match(source, /ViewportPortal/)
+  const portalAt = source.indexOf('<ViewportPortal>')
+  const edgesAt = source.indexOf('className="directorx-edges"')
+  const guidesAt = source.indexOf('className="directorx-guides"')
+  assert.ok(portalAt >= 0 && edgesAt > portalAt, 'directorx-edges is inside a ViewportPortal')
+  assert.ok(guidesAt > portalAt, 'guides also go through ViewportPortal')
+  assert.match(source, /edges=\{\[\]\}/)
+  assert.match(source, /flowAbsolutePosition/)
+  assert.match(source, /\/directorx\/canvas\/intent/)
+  assert.match(source, /onAskDsh/)
+  assert.match(source, /CanvasCommandPalette/)
+  assert.match(source, /CanvasContextDrawer/)
+  const palette = await readFile(new URL('../src/client/CanvasCommandPalette.tsx', import.meta.url), 'utf8')
+  assert.match(palette, /from 'cmdk'/)
+  const drawer = await readFile(new URL('../src/client/CanvasContextDrawer.tsx', import.meta.url), 'utf8')
+  assert.match(drawer, /\/directorx\/characters/)
+})
+
+test('flowAbsolutePosition and edgeHandlePoints attach wires to grouped nodes', () => {
+  const group = { id: 'g1', position: { x: 400, y: 80 } }
+  const child = { id: 'c1', position: { x: 46, y: 64 }, parentId: 'g1' }
+  const sibling = { id: 's1', position: { x: 900, y: 200 } }
+  const byId = new Map([group, child, sibling].map(node => [node.id, node]))
+  const childAbs = flowAbsolutePosition(child, byId)
+  assert.deepEqual(childAbs, { x: 446, y: 144 })
+  const handles = edgeHandlePoints(
+    { ...childAbs, width: 220, height: 188 },
+    { ...flowAbsolutePosition(sibling, byId), width: 220, height: 188 },
+  )
+  assert.equal(handles.sourceX, 446 + 220)
+  assert.equal(handles.sourceY, 144 + 94)
+  assert.equal(handles.targetX, 900)
+  assert.equal(handles.targetY, 200 + 94)
+  assert.equal(hitTestAbsolute({ x: 450, y: 150 }, [
+    { id: 'c1', x: childAbs.x, y: childAbs.y, width: 220, height: 188 },
+    { id: 's1', x: 900, y: 200, width: 220, height: 188 },
+  ]), 'c1')
+  assert.equal(hitTestAbsolute({ x: 10, y: 10 }, [
+    { id: 'c1', x: childAbs.x, y: childAbs.y, width: 220, height: 188 },
+  ]), undefined)
+})
+
+test('planContinueFromFlowNode places a grouped source placeholder in parent-absolute space', () => {
+  const nodes = [
+    { id: 'g1', position: { x: 400, y: 80 } },
+    { id: 'c1', position: { x: 46, y: 64 }, parentId: 'g1' },
+  ]
+  const planned = planContinueFromFlowNode({
+    source: { id: 'c1', position: { x: 46, y: 64 }, parentId: 'g1', width: 220, kind: 'image' },
+    nodes,
+    prompt: '同一人走出分组',
+  })
+  assert.equal(planned.node.x, 400 + 46 + 220 + 80)
+  assert.equal(planned.node.y, 80 + 64)
+  assert.equal(planned.edgeFrom, 'c1')
+  const handles = edgeHandlePoints(
+    { x: 400 + 46, y: 80 + 64, width: 220, height: 188 },
+    { x: planned.node.x, y: planned.node.y, width: planned.node.width, height: planned.node.height },
+  )
+  assert.equal(handles.sourceX, planned.node.x - 80)
+  assert.equal(handles.targetX, planned.node.x)
+})
+
+test('planContinueGenerate rejects empty prompt and wires a downstream placeholder', () => {
+  assert.throws(() => planContinueGenerate({ prompt: '   ' }), /prompt 不能为空/)
+  assert.equal(inferContinueKind('image'), 'video')
+  assert.equal(inferContinueKind('text'), 'image')
+  const planned = planContinueGenerate({
+    source: { id: 'src-1', x: 10, y: 20, width: 200, kind: 'image' },
+    prompt: '雨夜霓虹巷跟镜头',
+  })
+  assert.equal(planned.node.kind, 'video')
+  assert.equal(planned.node.shotStatus, 'generating')
+  assert.equal(planned.node.prompt, '雨夜霓虹巷跟镜头')
+  assert.equal(planned.node.x, 10 + 200 + 80)
+  assert.equal(planned.node.y, 20)
+  assert.equal(planned.edgeFrom, 'src-1')
+  assert.equal(planned.proposal.count, 1)
+  assert.equal(planned.proposal.note, 'from:src-1')
+})
+
+test('store continueGenerate writes a wired generating node the proposals route can bind', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-continue-'))
+  const handlers = new Map()
+  const server = createServer((request, response) => {
+    const handler = handlers.get(new URL(request.url ?? '/', 'http://x').pathname)
+    if (handler === undefined) { response.writeHead(404); response.end(); return }
+    void handler(request, response)
+  })
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const port = typeof server.address() === 'object' && server.address() !== null ? server.address().port : 0
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    let doc = await store.addNode({ kind: 'image', label: '定妆', path: '/tmp/a.png', x: 40, y: 80, width: 220 })
+    const source = doc.nodes[0]
+    const result = await store.continueGenerate({ sourceId: source.id, prompt: '同一人走入雨巷' })
+    assert.equal(result.doc.nodes.length, 2)
+    const created = result.doc.nodes.find(node => node.id === result.nodeId)
+    assert.equal(created.kind, 'video')
+    assert.equal(created.shotStatus, 'generating')
+    assert.equal(created.prompt, '同一人走入雨巷')
+    assert.equal(result.doc.edges.length, 1)
+    assert.equal(result.doc.edges[0].from, source.id)
+    assert.equal(result.doc.edges[0].to, result.nodeId)
+    assert.equal(result.proposal.canvasNodeId, result.nodeId)
+
+    const fakeCtx = {
+      get(name) {
+        if (name !== 'webServer') return undefined
+        return { register: route => { handlers.set(route.path, route.handler); return () => handlers.delete(route.path) } }
+      },
+    }
+    registerProposalsRoute(fakeCtx, () => dir)
+    const posted = await fetch(`http://127.0.0.1:${port}/directorx/proposals`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(result.proposal),
+    })
+    assert.equal(posted.status, 200)
+    const body = await posted.json()
+    assert.equal(body.ok, true)
+    assert.equal(body.proposal.canvasNodeId, result.nodeId)
+    assert.equal(body.proposal.prompt, '同一人走入雨巷')
+    assert.equal(body.proposal.status, 'proposed')
+  } finally {
+    server.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas intents are DSH-owned: enqueue does not write canvas nodes', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-intent-'))
+  try {
+    const canvas = new DirectorxCanvasStore(dir)
+    const store = new CanvasIntentStore(dir)
+    await canvas.addNode({ kind: 'image', label: '定妆', path: '/tmp/a.png', x: 10, y: 10 })
+    await assert.rejects(() => store.enqueue({ kind: 'image', prompt: '  ' }), /prompt 不能为空/)
+    const intent = await store.enqueue({ kind: 'video', prompt: '雨巷跟镜头', sourceId: 'src-1', selectedIds: ['src-1'] })
+    assert.equal(intent.status, 'pending')
+    const after = await canvas.read()
+    assert.equal(after.nodes.length, 1, 'intent enqueue must not add canvas nodes')
+    const text = formatDshCanvasPrompt(intent, { sourceLabel: '定妆' })
+    assert.match(text, /请由你掌管画布/)
+    assert.match(text, /directorx_canvas_continue/)
+    assert.match(text, /src-1/)
+    assert.match(text, /不要让画布 UI 自己写 generating 节点/)
+    const taken = await store.ack(intent.id, 'taken')
+    assert.equal(taken.status, 'taken')
+    const done = await store.ack(intent.id, 'done')
+    assert.equal(done.status, 'done')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('POST /directorx/canvas/intent queues a directive without mutating the board', async () => {
+  const handlers = new Map()
+  const server = createServer((request, response) => {
+    const handler = handlers.get(new URL(request.url ?? '/', 'http://x').pathname)
+    if (handler === undefined) { response.writeHead(404); response.end(); return }
+    void handler(request, response)
+  })
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-intent-http-'))
+  const port = typeof server.address() === 'object' && server.address() !== null ? server.address().port : 0
+  try {
+    const canvas = new DirectorxCanvasStore(dir)
+    await canvas.addNode({ kind: 'text', label: '场记', x: 0, y: 0 })
+    const fakeCtx = {
+      get(name) {
+        if (name !== 'webServer') return undefined
+        return { register: route => { handlers.set(route.path, route.handler); return () => handlers.delete(route.path) } }
+      },
+    }
+    registerCanvasIntentRoute(fakeCtx, () => dir)
+    const missing = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'image' }),
+    })
+    assert.equal(missing.status, 400)
+    const created = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'image', prompt: '霓虹巷', sourceId: 'n1' }),
+    })
+    assert.equal(created.status, 200)
+    const body = await created.json()
+    assert.equal(body.ok, true)
+    assert.equal(body.intent.prompt, '霓虹巷')
+    assert.match(body.prompt, /掌管画布/)
+    const board = await canvas.read()
+    assert.equal(board.nodes.length, 1)
+    assert.equal(board.nodes[0].kind, 'text')
+
+    const listed = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`).then(r => r.json())
+    assert.equal(listed.intents.length, 1)
+    assert.equal(listed.intents[0].status, 'pending')
+
+    const cancelled = await fetch(`http://127.0.0.1:${port}/directorx/canvas/intent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: body.intent.id, status: 'cancelled' }),
+    })
+    assert.equal(cancelled.status, 200)
+    const afterCancel = await cancelled.json()
+    assert.equal(afterCancel.intent.status, 'cancelled')
+  } finally {
+    server.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('GET/POST /directorx/characters is a library write, not a canvas write', async () => {
+  const handlers = new Map()
+  const server = createServer((request, response) => {
+    const handler = handlers.get(new URL(request.url ?? '/', 'http://x').pathname)
+    if (handler === undefined) { response.writeHead(404); response.end(); return }
+    void handler(request, response)
+  })
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-chars-'))
+  const port = typeof server.address() === 'object' && server.address() !== null ? server.address().port : 0
+  try {
+    const canvas = new DirectorxCanvasStore(dir)
+    await canvas.addNode({ kind: 'text', label: '场记', x: 0, y: 0 })
+    const fakeCtx = {
+      get(name) {
+        if (name !== 'webServer') return undefined
+        return { register: route => { handlers.set(route.path, route.handler); return () => handlers.delete(route.path) } }
+      },
+    }
+    registerCharactersRoute(fakeCtx, () => dir)
+    const base = `http://127.0.0.1:${port}/directorx/characters`
+    const missing = await fetch(base, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: '阿宁' }),
+    })
+    assert.equal(missing.status, 400)
+    const created = await fetch(base, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: '阿宁', refPath: '/tmp/ning.png', description: '短发红外套' }),
+    })
+    assert.equal(created.status, 200)
+    const listed = await fetch(base).then(r => r.json())
+    assert.equal(listed.characters.length, 1)
+    assert.equal(listed.characters[0].name, '阿宁')
+    const board = await canvas.read()
+    assert.equal(board.nodes.length, 1, 'character register must not add canvas nodes')
+    const removed = await fetch(base, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: '阿宁', remove: true }),
+    })
+    assert.equal(removed.status, 200)
+    const empty = await fetch(base).then(r => r.json())
+    assert.equal(empty.characters.length, 0)
+  } finally {
+    server.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('proposals route POST creates a canvas-bound proposal', async () => {
+  const handlers = new Map()
+  const server = createServer((request, response) => {
+    const handler = handlers.get(new URL(request.url ?? '/', 'http://x').pathname)
+    if (handler === undefined) { response.writeHead(404); response.end(); return }
+    void handler(request, response)
+  })
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-proposals-'))
+  const port = typeof server.address() === 'object' && server.address() !== null ? server.address().port : 0
+  try {
+    const fakeCtx = {
+      get(name) {
+        if (name !== 'webServer') return undefined
+        return { register: route => { handlers.set(route.path, route.handler); return () => handlers.delete(route.path) } }
+      },
+    }
+    registerProposalsRoute(fakeCtx, () => dir)
+    const base = `http://127.0.0.1:${port}/directorx/proposals`
+
+    const missing = await fetch(base, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'image' }),
+    })
+    assert.equal(missing.status, 400)
+
+    const created = await fetch(base, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: 'image', prompt: '雨夜霓虹巷', canvasNodeId: 'image-abc', count: 1 }),
+    })
+    assert.equal(created.status, 200)
+    const body = await created.json()
+    assert.equal(body.ok, true)
+    assert.equal(body.proposal.kind, 'image')
+    assert.equal(body.proposal.prompt, '雨夜霓虹巷')
+    assert.equal(body.proposal.canvasNodeId, 'image-abc')
+    assert.equal(body.proposal.status, 'proposed')
+
+    const listed = await fetch(base).then(response => response.json())
+    assert.equal(listed.proposals.length, 1)
+    assert.equal(listed.proposals[0].canvasNodeId, 'image-abc')
   } finally {
     server.close()
     await rm(dir, { recursive: true, force: true })

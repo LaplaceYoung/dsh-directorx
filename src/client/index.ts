@@ -65,7 +65,10 @@ export function apply(ctx: ClientContext): void {
     ctx.slots.register({
       name: 'details',
       priority: -1,
-      inject: () => ({ closeDetails: () => layout()?.closeDetails() }),
+      inject: () => ({
+        closeDetails: () => layout()?.closeDetails(),
+        connection: ctx.get('connection'),
+      }),
     }, DirectorxDetailsDock),
   )
 

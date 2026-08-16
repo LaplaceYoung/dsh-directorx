@@ -8,6 +8,8 @@ import { pipeline } from 'node:stream/promises'
 import { join, resolve } from 'node:path'
 import type { Context } from 'cordis'
 import { ProposalStore } from './proposals.ts'
+import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
+import { CharacterStore } from './characters.ts'
 
 function sendJsonLocal(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -576,6 +578,64 @@ export function registerCanvasRestoreRoute(ctx: Context, getOutputDir: () => str
   })
 }
 
+/** POST /directorx/canvas/intent: enqueue a DSH-owned generate directive (no canvas mutation). */
+export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/canvas/intent',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const store = new CanvasIntentStore(getOutputDir())
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        const intents = await store.list()
+        sendJsonLocal(response, 200, { intents })
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      const body = await readBodyLocal(request, 64 * 1024)
+      const ackStatus = body.status
+      if (typeof body.id === 'string' && body.id !== '' && (ackStatus === 'taken' || ackStatus === 'done' || ackStatus === 'cancelled')) {
+        try {
+          const intent = await store.ack(body.id, ackStatus)
+          sendJsonLocal(response, 200, { ok: true, intent })
+        } catch (cause) {
+          sendJsonLocal(response, 404, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+        }
+        return
+      }
+      const kind = body.kind === 'image' || body.kind === 'video' ? body.kind : ''
+      const prompt = typeof body.prompt === 'string' ? body.prompt : ''
+      if (kind === '' || prompt.trim() === '') {
+        sendJsonLocal(response, 400, { ok: false, message: 'kind 与 prompt 必填' })
+        return
+      }
+      try {
+        const intent = await store.enqueue({
+          kind,
+          prompt,
+          ...(typeof body.sourceId === 'string' && body.sourceId !== '' ? { sourceId: body.sourceId } : {}),
+          ...(Array.isArray(body.selectedIds) ? { selectedIds: body.selectedIds as string[] } : {}),
+        })
+        sendJsonLocal(response, 200, { ok: true, intent, prompt: formatDshCanvasPrompt(intent) })
+      } catch (cause) {
+        sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+      }
+    },
+  })
+}
+
 /** 提案面板路由：画布顶栏显示待批准提案并可批准/拒绝（人机确认环的 UI 侧）。 */
 export function registerProposalsRoute(ctx: Context, getOutputDir: () => string): () => void {
   const webServer = ctx.get('webServer') as
@@ -592,6 +652,37 @@ export function registerProposalsRoute(ctx: Context, getOutputDir: () => string)
         return
       }
       const store = new ProposalStore(getOutputDir())
+      if (request.method === 'POST') {
+        const body = await readBodyLocal(request, 64 * 1024)
+        const kind = body.kind === 'image' || body.kind === 'video' || body.kind === 'audio' ? body.kind : ''
+        const prompt = typeof body.prompt === 'string' ? body.prompt : ''
+        if (kind === '' || prompt.trim() === '') {
+          sendJsonLocal(response, 400, { ok: false, message: 'kind 与 prompt 必填' })
+          return
+        }
+        try {
+          const proposal = await store.propose({
+            kind,
+            prompt: prompt.slice(0, 2000),
+            count: typeof body.count === 'number' && Number.isFinite(body.count) ? body.count : 1,
+            ...(typeof body.model === 'string' && body.model !== '' ? { model: body.model.slice(0, 80) } : {}),
+            ...(typeof body.size === 'string' && body.size !== '' ? { size: body.size.slice(0, 40) } : {}),
+            ...(typeof body.duration === 'number' && Number.isFinite(body.duration) ? { duration: body.duration } : {}),
+            ...(typeof body.note === 'string' && body.note !== '' ? { note: body.note.slice(0, 400) } : {}),
+            ...(typeof body.canvasNodeId === 'string' && body.canvasNodeId !== '' ? { canvasNodeId: body.canvasNodeId.slice(0, 100) } : {}),
+            ...(typeof body.estimatedCost === 'string' && body.estimatedCost !== '' ? { estimatedCost: body.estimatedCost.slice(0, 80) } : {}),
+          })
+          sendJsonLocal(response, 200, { ok: true, proposal })
+        } catch (cause) {
+          sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+        }
+        return
+      }
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
       const ledger = await store.read()
       sendJsonLocal(response, 200, { proposals: ledger.proposals })
     },
@@ -635,6 +726,63 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
         }
       }
       sendJsonLocal(response, 200, { ok: true, proposal: updated })
+    },
+  })
+}
+
+/** GET/POST /directorx/characters: subject-consistency library (not canvas mutation). */
+export function registerCharactersRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = ctx.get('webServer') as
+    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
+    | undefined
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/characters',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const store = new CharacterStore(getOutputDir())
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        sendJsonLocal(response, 200, { characters: await store.list() })
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      const body = await readBodyLocal(request, 64 * 1024)
+      const name = typeof body.name === 'string' ? body.name : ''
+      if (name.trim() === '') {
+        sendJsonLocal(response, 400, { ok: false, message: 'name 必填' })
+        return
+      }
+      if (body.remove === true) {
+        try {
+          await store.remove(name)
+          sendJsonLocal(response, 200, { ok: true })
+        } catch (cause) {
+          sendJsonLocal(response, 404, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+        }
+        return
+      }
+      const refPath = typeof body.refPath === 'string' ? body.refPath : ''
+      try {
+        const character = await store.register({
+          name,
+          refPath,
+          ...(typeof body.description === 'string' ? { description: body.description } : {}),
+          ...(typeof body.outfit === 'string' ? { outfit: body.outfit } : {}),
+          ...(typeof body.props === 'string' ? { props: body.props } : {}),
+        })
+        sendJsonLocal(response, 200, { ok: true, character })
+      } catch (cause) {
+        sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+      }
     },
   })
 }

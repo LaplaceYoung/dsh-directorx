@@ -24,7 +24,10 @@ DeepSeek Harness
 │   view_image / generate_image / generate_video       │
 │   generate_audio / knowledge_search / knowledge_read │
 │   task_status / cancel_task（任务账本）               │
+│   directorx_canvas_*（DSH 掌管无限画布）              │
 │ web route: GET /directorx/media (流式媒体供给)        │
+│            GET/POST /directorx/canvas/intent          │
+│            GET/POST /directorx/characters             │
 │ task ledger: <outputDir>/tasks.jsonl (append-only)   │
 │ bundled corpus: knowledge/ skills/ recipes/          │
 └──────────────────────────────────────────────────────┘

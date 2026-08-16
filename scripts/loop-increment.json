@@ -1,0 +1,25 @@
+{
+  "name": "plugin",
+  "test": ["npm", "test"],
+  "allow": [
+    "src/",
+    "tests/",
+    "scripts/dev-loop.mjs",
+    "scripts/parallel-loop-lib.mjs",
+    "scripts/parallel-dev-loop.mjs",
+    "scripts/loop-increment.json",
+    "package.json",
+    "package-lock.json",
+    "CHANGELOG.md",
+    "docs/architecture.md",
+    "docs/community-radar.md",
+    "lib/"
+  ],
+  "deny": [
+    "node_modules/",
+    "directorx_output/",
+    ".env",
+    "configs/"
+  ],
+  "message": "feat(canvas): DSH-owned generate intents, cmdk palette, and isolated dev loop"
+}

@@ -66,6 +66,16 @@ export class CharacterStore {
     return ledger.characters.slice().reverse()
   }
 
+  async remove(name: string): Promise<void> {
+    const trimmed = name.trim()
+    const ledger = await this.read()
+    const next = ledger.characters.filter(card => card.name !== trimmed)
+    if (next.length === ledger.characters.length) throw new Error(`character "${trimmed}" not found`)
+    ledger.characters = next
+    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await writeFile(this.filePath(), JSON.stringify(ledger, null, 2), 'utf8')
+  }
+
   async get(names: string[]): Promise<CharacterCard[]> {
     const ledger = await this.read()
     return names.map(name => ledger.characters.find(card => card.name === name)).filter((card): card is CharacterCard => card !== undefined)

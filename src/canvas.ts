@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { planContinueGenerate, type ContinueGenerateKind } from './canvas-generate.ts'
 
 /**
  * Durable canvas document shared between the WebUI infinite canvas and the
@@ -202,6 +203,44 @@ export class DirectorxCanvasStore {
     const current = await this.read()
     mutator(current)
     return this.write(current, current.updatedAt)
+  }
+
+  /**
+   * Tapflow continue-generate: drop a generating placeholder (and an inbound
+   * wire when a source exists) using the same planner as the WebUI sheet.
+   */
+  async continueGenerate(input: { sourceId?: string; kind?: ContinueGenerateKind; prompt: string }): Promise<{
+    doc: CanvasDocument
+    nodeId: string
+    proposal: { kind: ContinueGenerateKind; prompt: string; count: 1; canvasNodeId: string; note?: string }
+  }> {
+    const current = await this.read()
+    const source = input.sourceId !== undefined ? current.nodes.find(node => node.id === input.sourceId) : undefined
+    if (input.sourceId !== undefined && source === undefined) throw new Error(`canvas node "${input.sourceId}" not found`)
+    const plan = planContinueGenerate({
+      ...(source !== undefined ? { source: { id: source.id, x: source.x, y: source.y, width: source.width, kind: source.kind } } : {}),
+      ...(input.kind !== undefined ? { kind: input.kind } : {}),
+      prompt: input.prompt,
+    })
+    let nodeId = ''
+    const doc = await this.mutate(draft => {
+      const node = sanitizeNode({ id: newId(plan.node.kind), ...plan.node })
+      nodeId = node.id
+      draft.nodes.push(node)
+      if (plan.edgeFrom !== undefined) {
+        const edge = sanitizeEdge({ id: newId('edge'), from: plan.edgeFrom, to: node.id })
+        this.validateEdgeForDoc(draft, edge)
+        draft.edges.push(edge)
+      }
+    })
+    return {
+      doc,
+      nodeId,
+      proposal: {
+        ...plan.proposal,
+        canvasNodeId: nodeId,
+      },
+    }
   }
 
   async addNode(input: Record<string, unknown>): Promise<CanvasDocument> {
