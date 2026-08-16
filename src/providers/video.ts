@@ -40,12 +40,33 @@ function withTaskId(error: unknown, taskId: string): Error {
   return wrapped
 }
 
-export async function openaiVideo(ctx: ProviderContext, prompt: string, seconds?: number, size?: string): Promise<VideoResult> {
+export async function openaiVideo(
+  ctx: ProviderContext,
+  prompt: string,
+  seconds?: number,
+  size?: string,
+  options: { firstFramePath?: string; characterIds?: string[] } = {},
+): Promise<VideoResult> {
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_VIDEO_API_KEY', 'OPENAI_API_KEY'], baseURL)
   const payload: Record<string, unknown> = { model: ctx.capability.model, prompt }
-  if (seconds !== undefined && seconds > 0) payload.seconds = seconds
+  if (seconds !== undefined && seconds > 0) {
+    // Sora 2 takes seconds as a STRING enum; clamp to the method-reference
+    // values (4/8/12 — the guide's 16/20 claim is unverified, documented
+    // in the community radar).
+    const allowed = [4, 8, 12]
+    const nearest = allowed.reduce((best, candidate) => Math.abs(candidate - seconds) < Math.abs(best - seconds) ? candidate : best, 8)
+    payload.seconds = String(nearest)
+  }
   if (size !== undefined && size !== '') payload.size = size
+  if (options.firstFramePath !== undefined) {
+    const dataUrl = await mediaSourceToDataUrl(options.firstFramePath)
+    if (dataUrl.startsWith('data:')) payload.input_reference = { image_url: dataUrl }
+    else payload.input_reference = { image_url: options.firstFramePath }
+  }
+  if (options.characterIds !== undefined && options.characterIds.length > 0) {
+    payload.characters = options.characterIds.map(id => ({ id }))
+  }
   const response = await fetch(`${baseURL}/videos`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -149,7 +170,7 @@ export async function runVideo(
 ): Promise<VideoResult> {
   try {
     if (ctx.capability.mode === 'mock') return mockVideo(ctx, prompt)
-    if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size)
+    if (ctx.capability.mode === 'openai-videos') return openaiVideo(ctx, prompt, options.seconds, options.size, { firstFramePath: options.firstFramePath })
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'kling') return klingVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'runway') return runwayVideo(ctx, prompt, options)

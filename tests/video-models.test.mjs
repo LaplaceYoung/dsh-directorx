@@ -5,7 +5,7 @@ import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, runVideo, veoVideo, viduVideo } from '../lib/testing.js'
+import { klingJwt, klingV3Video, klingVideo, minimaxH3Video, openaiVideo, runVideo, veoVideo, viduVideo } from '../lib/testing.js'
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -161,6 +161,42 @@ test('kling-v3 mode uses the new-standard protocol', async () => {
     assert.equal(createPayload.settings.audio, 'native')
     assert.equal(createPayload.settings.muti_shot, true)
     assert.ok(pollPath.includes('/tasks?task_ids=kv1'), 'GET /tasks polling')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+    server.close()
+  }
+})
+
+test('openai-videos sends string seconds and input_reference for Sora 2', async () => {
+  let createPayload = null
+  const server = createServer(async (req, res) => {
+    if (req.url === '/videos' && req.method === 'POST') {
+      createPayload = await readJson(req)
+      sendJson(res, 200, { id: 'sora1', status: 'queued' })
+      return
+    }
+    if (req.url?.includes('/videos/sora1')) {
+      sendJson(res, 200, { id: 'sora1', status: 'completed', output: { videos: [] } })
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+  await new Promise(resolve => server.listen(0, resolve))
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-sora-'))
+  try {
+    const ctx = {
+      capability: { mode: 'openai-videos', model: 'sora-2', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '', auth: {}, apiKey: 'sk-test', apiKeyEnv: [] },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      signal: AbortSignal.timeout(8000),
+      ledger: undefined,
+    }
+    // seconds as string + input_reference; expect the completed poll to
+    // surface "no videos" error — the payload assertions matter here.
+    await openaiVideo(ctx, '测试镜头', 11, '1280x720', { firstFramePath: 'https://example.com/frame.png' }).catch(() => {})
+    assert.equal(createPayload.seconds, '12', 'clamped to the nearest allowed enum as a string')
+    assert.equal(createPayload.input_reference.image_url, 'https://example.com/frame.png')
+    assert.equal(createPayload.size, '1280x720')
   } finally {
     await rm(dir, { recursive: true, force: true })
     server.close()
