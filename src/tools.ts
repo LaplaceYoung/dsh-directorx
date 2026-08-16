@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import type { Context } from 'cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-tools'
@@ -9,6 +10,7 @@ import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
 import { routeModel } from './model-matrix.ts'
 import { ProjectStyleStore } from './style-constants.ts'
+import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
@@ -23,7 +25,7 @@ import { preflight } from './providers/preflight.ts'
 import { planStoryboard } from './providers/storyboard.ts'
 import { qaCheck, videoAnalyze } from './providers/video-analyze.ts'
 import { brief } from './providers/brief.ts'
-import { audioSync, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, subtitleCut } from './providers/timeline.ts'
+import { audioSync, clipRank, editsToScenes, parseEditInstructions, renderTimeline, smartCut, srtLint, subtitleCut } from './providers/timeline.ts'
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
@@ -1150,6 +1152,32 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_terms_set',
+    description: '项目术语字典：设置术语 → 期望读法/写法（terms.json）。配音/字幕阶段按句命中注入——专有名词读音、品牌名大小写等跨集一致。',
+    parameters: {
+      entries: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: '[{term: 原文术语, reading: 期望读法/写法}]' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return new TermStore(settings.outputDir).set(Array.isArray(args.entries) ? args.entries as never[] : [])
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_terms_match',
+    description: '按句命中术语字典：返回文本中出现的术语及其期望读法（配音时写进 TTS 文本或 instructions）。',
+    parameters: {
+      text: { type: 'string', required: true, description: 'The narration/subtitle text to match against.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return new TermStore(settings.outputDir).match(String(args.text))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_style_get',
     description: '读取当前项目的风格常量锁（style.json）。生成提示词时把返回字段逐字并入对应位置（camera/palette/lighting/sceneAnchors/negativeBaseline）。',
     parameters: {},
@@ -1195,6 +1223,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         needsLastFrame: args.needsLastFrame === true,
         needsAudio: args.needsAudio === true,
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_srt_lint',
+    description: 'SRT 规范化检查：把字幕质量标准变成确定性 lint——单行 ≤16 字、≤17 字/秒、单条最短 0.83s、序号/时间戳连续合法。翻译/本地化/成片前跑一遍，问题逐条带 cue 号与建议。',
+    parameters: {
+      srt: { type: 'string', required: true, description: 'Absolute path of the .srt file.' },
+      maxLineChars: { type: 'number', description: '单行字数上限（默认 16）。' },
+      maxCps: { type: 'number', description: '每秒字数上限（默认 17）。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return srtLint(readFileSync(String(args.srt), 'utf8'), { maxLineChars: args.maxLineChars, maxCps: args.maxCps })
     },
   })))
 

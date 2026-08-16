@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { CharacterStore, DirectorxCanvasStore, ProjectStyleStore, ProposalStore, registerCanvasRoute } from '../lib/testing.js'
+import { CharacterStore, DirectorxCanvasStore, ProjectStyleStore, ProposalStore, TermStore, registerCanvasRoute } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -262,6 +262,28 @@ test('edge type matrix and deterministic shot ordering', async () => {
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
+})
+
+test('srt lint and term dictionary serve the localization checks', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-terms-'))
+  try {
+    const store = new TermStore(dir)
+    await store.set([{ term: 'DirectorX', reading: 'Director X' }, { term: '可灵', reading: 'Kling' }])
+    const hits = await store.match('今天用 DirectorX 和可灵做视频')
+    assert.equal(hits.length, 2, 'both terms hit by sentence')
+    assert.equal(hits.find(entry => entry.term === 'DirectorX').reading, 'Director X')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('srt lint flags line width, cps, duration and ordering', async () => {
+  const { srtLint } = await import('../lib/testing.js')
+  const content = '2\n00:00:01,000 --> 00:00:01,500\n这是一条超过十六个字的超长字幕行用来测试单行宽度限制的问题\n\n4\n00:00:03,000 --> 00:00:04,000\n短\n'
+  const out = srtLint(content)
+  assert.ok(out.issues.some(issue => issue.kind === 'line-width'), 'long line flagged')
+  assert.ok(out.issues.some(issue => issue.kind === 'duration'), 'short duration flagged')
+  assert.ok(out.issues.some(issue => issue.kind === 'ordering'), 'gap in numbering flagged')
 })
 
 test('style constants lock merges and persists across set calls', async () => {

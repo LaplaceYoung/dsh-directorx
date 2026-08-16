@@ -609,3 +609,40 @@ export function editsToScenes(commands: EditCommand[], duration: number): Array<
   return scenes
     .map(scene => ({ source: '', trim: scene.trim, ...(scene.speed !== undefined ? { speed: scene.speed } : {}), ...(scene.reverse ? { reverse: true } : {}) }))
 }
+
+export interface SrtLintIssue {
+  cue: number
+  kind: 'line-width' | 'cps' | 'duration' | 'ordering' | 'timestamp'
+  detail: string
+}
+
+export interface SrtLintOutput {
+  totalCues: number
+  issues: SrtLintIssue[]
+  ok: boolean
+}
+
+/**
+ * SRT 规范化检查：把字幕质量标准（单行 ≤16 字、≤17 CPS、单条最短
+ * 0.83s、序号/时间戳连续合法）变成确定性 lint，翻译/本地化/成片前跑。
+ */
+export function srtLint(content: string, options: { maxLineChars?: number; maxCps?: number } = {}): SrtLintOutput {
+  const cues = parseSrt(content)
+  const issues: SrtLintIssue[] = []
+  const maxLine = options.maxLineChars ?? 16
+  const maxCps = options.maxCps ?? 17
+  cues.forEach((cue, index) => {
+    const lines = cue.text.split('\\n')
+    for (const line of lines) {
+      if (line.length > maxLine) issues.push({ cue: cue.index, kind: 'line-width', detail: `第 ${cue.index} 条单行 ${line.length} 字 > ${maxLine}（建议拆行）` })
+    }
+    const duration = cue.end - cue.start
+    if (duration < 0.83) issues.push({ cue: cue.index, kind: 'duration', detail: `第 ${cue.index} 条时长 ${duration.toFixed(2)}s < 0.83s（最短展示时长）` })
+    const chars = cue.text.replace(/\\s/g, '').length
+    const cps = chars / Math.max(0.1, duration)
+    if (cps > maxCps) issues.push({ cue: cue.index, kind: 'cps', detail: `第 ${cue.index} 条 ${cps.toFixed(1)} 字/秒 > ${maxCps}（阅读速率超标）` })
+    if (index > 0 && cue.index !== cues[index - 1].index + 1) issues.push({ cue: cue.index, kind: 'ordering', detail: `第 ${cue.index} 条序号不连续（上一序号 ${cues[index - 1].index}）` })
+    if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end) || cue.end < cue.start) issues.push({ cue: cue.index, kind: 'timestamp', detail: `第 ${cue.index} 条时间戳非法` })
+  })
+  return { totalCues: cues.length, issues, ok: issues.length === 0 }
+}
