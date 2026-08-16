@@ -68,6 +68,9 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
   const [matteStatus, setMatteStatus] = useState<string | undefined>(undefined)
   const [matte, setMatte] = useState<{ url: string } | undefined>(undefined)
   const [exportFormat, setExportFormat] = useState<'png' | 'jpg'>('png')
+  const [exportQuality, setExportQuality] = useState<'low' | 'medium' | 'high' | 'max'>('high')
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportResult, setExportResult] = useState<{ blob: Blob; url: string } | undefined>(undefined)
 
   useEffect(() => {
     const container = containerRef.current
@@ -152,22 +155,51 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
     setMatte(undefined)
   }
 
-  const exportPng = () => {
+  const qualityValue = exportQuality === 'low' ? 0.5 : exportQuality === 'medium' ? 0.7 : exportQuality === 'high' ? 0.92 : 1
+  const renderExport = async (): Promise<{ blob: Blob; url: string } | undefined> => {
     const editor = editorRef.current
-    if (editor === null || busy) return
+    if (editor === null) return undefined
+    const format = exportFormat === 'jpg' ? 'jpeg' : 'png'
+    const dataUrl = editor.toDataURL({ format, quality: format === 'jpeg' ? qualityValue : 1 })
+    const blob = await (await fetch(dataUrl)).blob()
+    return { blob, url: URL.createObjectURL(blob) }
+  }
+
+  const exportPng = () => {
+    if (busy) return
+    setExportResult(undefined)
+    setExportOpen(true)
+  }
+
+  const commitExport = async () => {
+    if (busy) return
     setBusy(true)
     setError(undefined)
     try {
-      const format = exportFormat === 'jpg' ? 'jpeg' : 'png'
-      const dataUrl = editor.toDataURL({ format, quality: exportFormat === 'jpg' ? 0.92 : 1 })
-      void fetch(dataUrl).then(response => response.blob()).then(blob => {
-        props.onExport(blob, exportFormat === 'jpg' ? 'image/jpeg' : 'image/png')
-      }).catch(cause => {
-        setError(cause instanceof Error ? cause.message : String(cause))
-      }).finally(() => setBusy(false))
+      const result = await renderExport()
+      if (result === undefined) throw new Error('编辑器尚未就绪')
+      setExportResult(result)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
+    } finally {
       setBusy(false)
+    }
+  }
+
+  const downloadExport = async () => {
+    if (exportResult === undefined) return
+    const link = document.createElement('a')
+    link.href = exportResult.url
+    link.download = `${(props.path.split('/').pop() ?? 'image').replace(/\.[^.]+$/, '')}-编辑.${exportFormat}`
+    link.click()
+  }
+
+  const copyExport = async () => {
+    if (exportResult === undefined) return
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ [exportResult.blob.type]: exportResult.blob })])
+    } catch {
+      setError('复制到剪贴板失败（浏览器限制？）')
     }
   }
 
@@ -181,21 +213,50 @@ export function ImageEditBody(props: EditBodyProps): ReactNode {
         <button style={toolChip} disabled={matting} onClick={() => void matteImage()}>
           {matting ? '处理中…' : '智能抠图'}
         </button>
-        <div style={{ display: 'flex', padding: 3, borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(18,18,18,.85)' }}>
-          {(['png', 'jpg'] as const).map(format => (
-            <button
-              key={format}
-              onClick={() => setExportFormat(format)}
-              style={{ padding: '4px 10px', borderRadius: 999, border: 'none', background: exportFormat === format ? '#f5f5f5' : 'transparent', color: exportFormat === format ? '#171717' : '#d8d8d8', fontSize: 11, fontWeight: 600, cursor: 'pointer', textTransform: 'uppercase' }}
-            >
-              {format}
-            </button>
-          ))}
-        </div>
         <button style={exportBtn} disabled={busy || matting} onClick={exportPng}>
-          {busy ? '导出中…' : `导出 ${exportFormat.toUpperCase()}`}
+          {busy ? '导出中…' : '导出'}
         </button>
       </div>
+      {exportOpen ? (
+        <div style={overlay}>
+          <div style={{ ...overlayCard, width: 340, maxWidth: '92%', alignItems: 'stretch' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', textAlign: 'center' }}>导出图片</div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+              {(['png', 'jpg'] as const).map(format => (
+                <button key={format} onClick={() => setExportFormat(format)} style={{ flex: 1, padding: '6px 10px', borderRadius: 9, border: exportFormat === format ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: exportFormat === format ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'uppercase' }}>{format}</button>
+              ))}
+            </div>
+            {exportFormat === 'jpg' ? (
+              <>
+                <div style={{ fontSize: 11, color: '#9b9b9b' }}>质量</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {([['low', '低'], ['medium', '中'], ['high', '高'], ['max', '极大']] as const).map(([value, label]) => (
+                    <button key={value} onClick={() => setExportQuality(value)} style={{ flex: 1, padding: '6px 8px', borderRadius: 9, border: exportQuality === value ? '1px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', background: exportQuality === value ? 'rgba(255,255,255,.12)' : 'transparent', color: '#f0f0f0', fontSize: 11.5, cursor: 'pointer' }}>{label}</button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 10.5, color: '#666' }}>PNG 无损：适合透明背景（智能抠图结果）。</div>
+            )}
+            {exportResult !== undefined ? (
+              <>
+                <img src={exportResult.url} alt="导出预览" style={{ maxHeight: 200, objectFit: 'contain', borderRadius: 10, border: '1px solid rgba(255,255,255,.16)', background: '#000' }} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button style={exportBtn} onClick={() => { props.onExport(exportResult.blob, exportFormat === 'jpg' ? 'image/jpeg' : 'image/png'); setExportOpen(false); setExportResult(undefined) }}>保存到 DirectorX</button>
+                  <button style={toolChip} onClick={() => void downloadExport()}>下载本地</button>
+                  <button style={toolChip} onClick={() => void copyExport()}>复制</button>
+                  <button style={toolChip} onClick={() => { setExportOpen(false); setExportResult(undefined) }}>继续编辑</button>
+                </div>
+              </>
+            ) : (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={exportBtn} disabled={busy} onClick={() => void commitExport()}>{busy ? '生成中…' : `生成 ${exportFormat.toUpperCase()}`}</button>
+                <button style={toolChip} onClick={() => setExportOpen(false)}>取消</button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
       {matteStatus !== undefined ? (
         <div style={overlay}>
           <div style={overlayCard}>{matteStatus}</div>

@@ -262,7 +262,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
         // 吸附：播放头 / 0 / 片长 / 其他片段边界（±10px）。
         const video = videoRef.current
         const playheadUs = video !== null ? video.currentTime * 1e6 : -1
-        const anchors = [0, meta.durationUs, playheadUs, ...current.flatMap(other => other.id === state.id ? [] : [other.startUs, other.endUs])]
+        const anchors = [playheadUs, ...current.flatMap(other => other.id === state.id ? [] : [other.startUs, other.endUs]), 0, meta.durationUs]
         const hit = anchors.find(anchor => anchor >= 0 && Math.abs(anchor - next) <= snapWindowUs)
         if (hit !== undefined) next = hit
         if (state.edge === 'start') return { ...segment, startUs: next }
@@ -290,6 +290,8 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
             onKeyDown={event => {
               if (event.code !== 'Space') return
+              const tag = (event.target as HTMLElement | null)?.tagName
+              if (tag === 'INPUT' || tag === 'TEXTAREA') return
               event.preventDefault()
               const video = videoRef.current
               if (video === null) return
@@ -318,16 +320,31 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             <button style={btn} onClick={() => setScale(current => Math.min(MAX_SCALE, current + 8))} title="放大时间线">＋</button>
             <span style={{ fontSize: 11, opacity: .5 }}>空格播放/暂停 · 拖动片段边缘裁剪（自动吸附边界/播放头）</span>
           </div>
-          <div style={{ ...lane, position: 'relative', minHeight: 56 }}>
-            <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', gap: 2, overflowX: 'auto', paddingBottom: 4, alignItems: 'stretch' }}>
+          <div
+            style={{ ...lane, position: 'relative', minHeight: 56 }}
+            onClick={event => {
+              // 点击时间线空白处：预览跳转到该时间点（播放头三态单向同步）。
+              const target = event.target as HTMLElement
+              if (target.closest('[data-segment]') !== null) return
+              const laneEl = event.currentTarget as HTMLElement
+              const scroll = laneEl.querySelector('[data-lane-scroll]') as HTMLElement | null
+              const x = event.clientX - laneEl.getBoundingClientRect().left + (scroll?.scrollLeft ?? 0)
+              const video = videoRef.current
+              if (video === null || meta === undefined) return
+              video.currentTime = Math.min(meta.durationUs / 1e6, Math.max(0, x / scale))
+              setCurrentTime(video.currentTime)
+            }}
+          >
+            <div data-lane-scroll style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', gap: 2, overflowX: 'auto', paddingBottom: 4, alignItems: 'stretch' }}>
             <div style={{ position: 'absolute', left: Math.min(Math.max(currentTime * scale, 0), (meta.durationUs / 1e6) * scale), top: 0, bottom: 0, width: 1, background: 'rgba(245,245,245,.75)', pointerEvents: 'none', zIndex: 2, boxShadow: '0 0 4px rgba(0,0,0,.6)' }} title="播放头" />
             {segments.map(segment => {
               const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
               return (
                 <div
                   key={segment.id}
+                  data-segment="true"
                   style={{ ...(selected === segment.id ? segSelected : segStyle), width, textAlign: 'center', overflow: 'hidden', position: 'relative' }}
-                  onClick={() => setSelected(segment.id)}
+                  onClick={event => { event.stopPropagation(); setSelected(segment.id) }}
                   onDoubleClick={() => {
                     const video = videoRef.current
                     if (video === null) return
