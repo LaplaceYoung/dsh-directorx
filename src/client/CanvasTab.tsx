@@ -468,6 +468,8 @@ function CanvasTabInner(): ReactNode {
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string; label: string } | undefined>(undefined)
   const [alignMenu, setAlignMenu] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [compareGroup, setCompareGroup] = useState<CanvasFlowNode | undefined>(undefined)
+  const [comparePick, setComparePick] = useState<string | undefined>(undefined)
   const [quickAdd, setQuickAdd] = useState<{ x: number; y: number } | undefined>(undefined)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('')
@@ -1535,6 +1537,27 @@ function CanvasTabInner(): ReactNode {
     scheduleSave()
   }, [setEdges, scheduleSave, pushHistory])
 
+  const openCompare = useCallback(() => {
+    const group = nodesRef.current.find(candidate => {
+      if (candidate.type !== 'group') return false
+      const members = nodesRef.current.filter(node => node.parentId === candidate.id && node.type === 'media')
+      return members.length >= 2
+    })
+    setCompareGroup(group)
+    setComparePick(undefined)
+  }, [])
+
+  const confirmComparePick = useCallback(() => {
+    if (comparePick === undefined) return
+    pushHistory()
+    setNodes(current => current.map(node => node.id === comparePick
+      ? { ...node, data: { ...node.data, label: `${String(node.data.label ?? '')} ★选定`.trim() } }
+      : node))
+    setCompareGroup(undefined)
+    setComparePick(undefined)
+    saveRef.current()
+  }, [comparePick, setNodes, pushHistory])
+
   const deleteSelectedEdge = useCallback(() => {
     if (selectedEdge === undefined) return
     deleteSelectedEdgeById(selectedEdge)
@@ -1719,6 +1742,7 @@ function CanvasTabInner(): ReactNode {
         <button style={iconBtn} onClick={addTextNode} title="添加文字（双击画布同效）">{ICONS.text}</button>
         <button style={iconBtn} onClick={addGroup} title="新建分组">{ICONS.group}</button>
         <button style={iconBtn} onClick={arrangeGrid} title="网格整理">{ICONS.arrange}</button>
+        <button style={iconBtn} onClick={openCompare} title="对比分支版本"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="6" width="8" height="12" rx="1.5"/><rect x="13" y="6" width="8" height="12" rx="1.5"/><path d="M7 10v4M17 10v4"/></svg></button>
         <button style={iconBtn} onClick={() => void exportPng()} title="导出 PNG 分镜板">{ICONS.export}</button>
         <button style={iconBtn} onClick={undo} title="撤销 (⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v1"/></svg></button>
         <button style={iconBtn} onClick={redo} title="重做 (⇧⌘Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v1"/></svg></button>
@@ -1815,6 +1839,37 @@ function CanvasTabInner(): ReactNode {
             ].map(item => (
               <button key={item.label} style={{ padding: '8px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.06)', color: '#f5f5f5', fontSize: 12.5, cursor: 'pointer' }} onClick={item.run}>{item.label}</button>
             ))}
+          </div>
+        </div>
+      ) : null}
+      {compareGroup !== undefined ? (
+        <div
+          style={{ position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', zIndex: 9, width: 'min(720px, 90vw)', maxHeight: '72vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,.18)', borderRadius: 14, background: 'rgba(20,20,20,.97)', boxShadow: '0 18px 48px rgba(0,0,0,.65)', padding: 14 }}
+          onClick={event => event.stopPropagation()}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <strong style={{ fontSize: 13 }}>{String(compareGroup.data.label ?? '分支对比')}</strong>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button style={{ padding: '5px 12px', borderRadius: 8, border: '1px solid rgba(245,245,245,.5)', background: 'rgba(245,245,245,.12)', color: '#f5f5f5', fontSize: 12, cursor: 'pointer', opacity: comparePick === undefined ? .5 : 1 }} onClick={confirmComparePick}>设为选定</button>
+              <button style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,.25)', background: 'transparent', color: '#f5f5f5', fontSize: 12, cursor: 'pointer' }} onClick={() => setCompareGroup(undefined)}>关闭</button>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
+            {nodes.filter(node => node.parentId === compareGroup.id && node.type === 'media').map(node => {
+              const data = node.data as unknown as MediaNodeData
+              return (
+                <button
+                  key={node.id}
+                  style={{ background: 'rgba(255,255,255,.04)', border: node.id === comparePick ? '2px solid rgba(245,245,245,.9)' : '1px solid rgba(255,255,255,.14)', borderRadius: 12, padding: 6, cursor: 'pointer', textAlign: 'left' }}
+                  onClick={() => setComparePick(node.id)}
+                >
+                  {data.kind === 'image'
+                    ? <img src={mediaUrl(data.path)} alt={data.label} style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 8 }} />
+                    : <video src={mediaUrl(data.path)} muted preload="metadata" style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 8 }} />}
+                  <div style={{ fontSize: 11, color: '#d8d8d8', padding: '6px 2px 2px', wordBreak: 'break-all' }}>{data.label}</div>
+                </button>
+              )
+            })}
           </div>
         </div>
       ) : null}

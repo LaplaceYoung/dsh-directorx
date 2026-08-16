@@ -177,6 +177,24 @@ test('character registry registers, lists and resolves anchors', async () => {
   }
 })
 
+test('canvas branch clones a node into a labelled variant group', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-branch-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    const doc = await store.addNode({ id: 'shot1', kind: 'video', label: '镜头1', path: '/tmp/a.mp4', x: 100, y: 100 })
+    const branched = await store.branch('shot1', ['暖调', '冷调', '霓虹'])
+    const group = branched.nodes.find(node => node.kind === 'group')
+    assert.ok(group !== undefined, 'branch group created')
+    const members = branched.nodes.filter(node => node.parent === group.id)
+    assert.equal(members.length, 3, 'three variants')
+    assert.ok(members.every(member => member.label.includes('变体')), 'variants labelled')
+    const original = branched.nodes.find(node => node.id === 'shot1')
+    assert.ok(original !== undefined, 'source preserved')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('proposal ledger queues, filters and updates without spending', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-prop-'))
   try {

@@ -266,6 +266,40 @@ export class DirectorxCanvasStore {
     })
   }
 
+  /**
+   * Branch a node into labelled variants (multi-version comparison): clones
+   * the source node N times, labels each with its variation tag, and places
+   * them in a new「名称 分支探索」group. Edges pointing at the source are
+   * re-pointed to a hub note... (kept simple: edges to the source stay;
+   * callers decide which variant wins later).
+   */
+  async branch(sourceId: string, variations: string[]): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const source = doc.nodes.find(node => node.id === sourceId)
+      if (source === undefined) throw new Error(`canvas node "${sourceId}" not found`)
+      const groupId = newId('group')
+      const originX = source.x
+      const originY = source.y
+      doc.nodes.push({
+        id: groupId, kind: 'group',
+        label: `${source.label.slice(0, 24)} 分支探索`,
+        x: originX, y: originY, width: 620, height: Math.max(240, variations.length * 190 + 60),
+      })
+      variations.forEach((variation, index) => {
+        doc.nodes.push({
+          id: newId(source.kind),
+          kind: source.kind,
+          label: `${source.label}｜变体${index + 1} ${variation}`.slice(0, 200),
+          ...(source.path !== undefined ? { path: source.path } : {}),
+          parent: groupId,
+          x: originX + 56,
+          y: originY + 56 + index * 190,
+          ...(source.width !== undefined ? { width: source.width } : {}),
+        })
+      })
+    })
+  }
+
   /** Set the document title. */
   async setTitle(title: string): Promise<CanvasDocument> {
     return this.mutate(doc => {
