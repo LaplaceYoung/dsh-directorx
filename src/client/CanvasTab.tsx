@@ -206,7 +206,7 @@ function MediaNodeComponent(props: NodeProps): ReactNode {
         </div>
       ) : null}
       {zoom >= 0.6 ? <RenameLabel id={props.id} value={data.label !== '' ? data.label : baseName(data.path)} onRename={data.onRename} style={flowStyles.label} /> : null}
-      <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
+      <Handle id="out" type="source" position={Position.Right} title="输出：从此处拖线到下游节点或空白" style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {selected ? (
         <button
           title="以该节点为输入继续生成"
@@ -240,7 +240,7 @@ function TextNodeComponent(props: NodeProps): ReactNode {
       ) : null}
       <Handle id="in" type="target" position={Position.Left} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {zoom >= 0.6 ? <RenameLabel id={props.id} value={data.label || '文本节点'} onRename={data.onRename} style={{ fontSize: 12.5, lineHeight: 1.5 }} /> : <span style={{ fontSize: 12.5, lineHeight: 1.5, color: '#ececec' }}>·</span>}
-      <Handle id="out" type="source" position={Position.Right} style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
+      <Handle id="out" type="source" position={Position.Right} title="输出：从此处拖线到下游节点或空白" style={{ ...flowStyles.handle, opacity: hovered || selected ? 1 : 0, transition: 'opacity .15s ease' }} />
       {selected ? (
         <button
           title="以该节点为输入继续生成"
@@ -439,16 +439,24 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
 }): ReactNode {
   const lookup = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes])
   const [hoveredId, setHoveredId] = useState<string | undefined>(undefined)
+  const [candidateId, setCandidateId] = useState<string | undefined>(undefined)
   const { screenToFlowPosition } = useReactFlow()
 
   const dragEndpoint = (edge: Edge, side: 'source' | 'target') => (event: React.PointerEvent) => {
     event.stopPropagation()
     event.preventDefault()
     const move = (moveEvent: PointerEvent) => {
-      // Visual feedback while dragging: nothing needed — the pointer affordance suffices.
-      void moveEvent
+      // 拖拽连线时高亮指针下的候选节点（命中即反馈）。
+      const flowPos = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY })
+      const hit = nodes.find(node => {
+        const m = nodeMetrics(node)
+        return flowPos.x >= node.position.x && flowPos.x <= node.position.x + m.width
+          && flowPos.y >= node.position.y && flowPos.y <= node.position.y + m.height
+      })
+      setCandidateId(hit?.id)
     }
     const up = (upEvent: PointerEvent) => {
+      setCandidateId(undefined)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       const flowPos = screenToFlowPosition({ x: upEvent.clientX, y: upEvent.clientY })
@@ -465,6 +473,8 @@ function DirectorxEdges({ nodes, edges, selectedId, onSelect, onContext, onRecon
     window.addEventListener('pointerup', up)
   }
 
+  const candidate = candidateId !== undefined ? lookup.get(candidateId) : undefined
+  const candidateMetrics = candidate !== undefined ? nodeMetrics(candidate) : undefined
   const paths = edges.map(edge => {
     const source = lookup.get(edge.source)
     const target = lookup.get(edge.target)
