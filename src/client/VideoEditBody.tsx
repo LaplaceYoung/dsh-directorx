@@ -75,6 +75,24 @@ function fmt(us: number): string {
   return `${minutes}:${seconds.padStart(4, '0')}`
 }
 
+/** 解析时间码：'m:ss.s' 或纯秒数 → 秒（非法返回 null）。 */
+function parseTimecode(text: string): number | null {
+  const trimmed = text.trim()
+  if (trimmed === '') return null
+  const parts = trimmed.split(':')
+  if (parts.length === 1) {
+    const seconds = Number(trimmed)
+    return Number.isFinite(seconds) && seconds >= 0 ? seconds : null
+  }
+  if (parts.length === 2) {
+    const minutes = Number(parts[0])
+    const seconds = Number(parts[1])
+    if (!Number.isFinite(minutes) || !Number.isFinite(seconds) || minutes < 0 || seconds < 0 || seconds >= 60) return null
+    return minutes * 60 + seconds
+  }
+  return null
+}
+
 function fmtBytes(bytes: number): string {
   return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`
 }
@@ -92,6 +110,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
   const [exported, setExported] = useState<{ blob: Blob; url: string } | undefined>(undefined)
   const [currentTime, setCurrentTime] = useState(0)
   const [trimPreview, setTrimPreview] = useState<string | undefined>(undefined)
+  const [timeInput, setTimeInput] = useState<string | undefined>(undefined)
   const videoRef = useRef<HTMLVideoElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const waveInstanceRef = useRef<WaveSurfer | null>(null)
@@ -395,7 +414,35 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             {audio !== undefined ? ` · 音频 ${audio.name}` : ''}
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 11.5, color: '#e8e8e8', fontVariantNumeric: 'tabular-nums', padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)' }}>{fmt(currentTime * 1e6)} / {fmt(meta.durationUs)}</span>
+            {timeInput !== undefined ? (
+              <input
+                autoFocus
+                value={timeInput}
+                placeholder={fmt(currentTime * 1e6)}
+                onChange={event => setTimeInput(event.target.value)}
+                onBlur={() => {
+                  const parsed = parseTimecode(timeInput)
+                  if (parsed !== null && videoRef.current !== null && meta !== undefined) {
+                    videoRef.current.currentTime = Math.min(meta.durationUs / 1e6, parsed)
+                    setCurrentTime(videoRef.current.currentTime)
+                  }
+                  setTimeInput(undefined)
+                }}
+                onKeyDown={event => {
+                  if (event.key === 'Enter') event.currentTarget.blur()
+                  if (event.key === 'Escape') { setTimeInput(undefined) }
+                }}
+                style={{ width: 92, fontSize: 11.5, fontVariantNumeric: 'tabular-nums', padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(245,245,245,.5)', color: '#f5f5f5', outline: 'none' }}
+              />
+            ) : (
+              <button
+                onClick={() => setTimeInput(fmt(currentTime * 1e6))}
+                title="点击输入时间码精确跳转（m:ss.s 或秒）"
+                style={{ fontSize: 11.5, color: '#e8e8e8', fontVariantNumeric: 'tabular-nums', padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', cursor: 'text' }}
+              >
+                {fmt(currentTime * 1e6)} / {fmt(meta.durationUs)}
+              </button>
+            )}
             <button style={btn} onClick={() => setScale(current => Math.max(MIN_SCALE, current - 8))} title="缩小时间线">−</button>
             <span style={{ fontSize: 11, opacity: .65, minWidth: 44, textAlign: 'center' }}>{Math.round(scale)} px/s</span>
             <button style={btn} onClick={() => setScale(current => Math.min(MAX_SCALE, current + 8))} title="放大时间线">＋</button>
