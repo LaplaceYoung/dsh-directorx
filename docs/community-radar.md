@@ -176,3 +176,13 @@
 | 模型路由 | 10 模型 × 8 协议能力矩阵 + 需求过滤排序 + 排除原因（计划期暴露参数问题） |
 | 字幕本地化 | srt_lint（行宽/CPS/时长/序号 + CJK 加权宽度）、srt_normalize（间隙吞并/最短时长/格式归一）、speech_clean、terms 字典、speech_duration 语速预算、localize recipe（转写→规范→质检→翻译→预算→配音→对齐→组装） |
 | 数字人口播 | 权重不内置（编排层内置）：TTS speed 参数、分句单元化口播模板、无对口型降级纪律、identityRef/poseRef 场景字段 |
+
+
+## 导演技巧 AIGC 应用波（2026-08-18，生成强化四件套）
+
+| 工具 | 能力 |
+|---|---|
+| directorx_shot | 镜头语言→生成提示词确定性翻译器（景别/角度/运镜/布光/构图表驱动，规则引用+负面基线） |
+| directorx_shot_sequence | 分镜批量承接链（承接变量/首尾帧接力计划/反单调校验） |
+| directorx_preset | 6 参数预设包（画幅×时长×运镜轮换×风格语法 × 模型路由联动） |
+| directorx_shot_gate | 生成前规则 gate（ECU 惜用/承接必填/词表反单调/路由可用，逐项规则编号）——与 qa_report 成前后一对 |
