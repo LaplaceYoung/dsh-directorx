@@ -318,7 +318,9 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
             <button style={btn} onClick={() => setScale(current => Math.min(MAX_SCALE, current + 8))} title="放大时间线">＋</button>
             <span style={{ fontSize: 11, opacity: .5 }}>空格播放/暂停 · 拖动片段边缘裁剪（自动吸附边界/播放头）</span>
           </div>
-          <div style={lane}>
+          <div style={{ ...lane, position: 'relative', minHeight: 56 }}>
+            <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', gap: 2, overflowX: 'auto', paddingBottom: 4, alignItems: 'stretch' }}>
+            <div style={{ position: 'absolute', left: Math.min(Math.max(currentTime * scale, 0), (meta.durationUs / 1e6) * scale), top: 0, bottom: 0, width: 1, background: 'rgba(245,245,245,.75)', pointerEvents: 'none', zIndex: 2, boxShadow: '0 0 4px rgba(0,0,0,.6)' }} title="播放头" />
             {segments.map(segment => {
               const width = Math.max(40, Math.round((segment.endUs - segment.startUs) / 1e6 * scale))
               return (
@@ -353,6 +355,7 @@ export function VideoEditBody(props: VideoEditBodyProps): ReactNode {
                 </div>
               )
             })}
+            </div>
           </div>
           <div style={audioLane}>
             <div style={audioLabel}>
