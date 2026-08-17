@@ -100,18 +100,69 @@ test('fl2v without a last frame is blocked', () => {
   assert.ok(report.missing.some(item => item.need === 'last-frame'))
 })
 
+const LANDSCAPE = 'Extreme long shot, golden hour, empty Qin palace construction site, dust and timber scaffolds, static camera, no people, cinematic 35mm, five seconds of wind.'
+
+function populatedBoard() {
+  return {
+    characters: [{ name: '林工', refPath: '/tmp/lin-sheet.png' }],
+    nodes: [
+      { id: 'video-s08', kind: 'video', label: 'S08 秦兵押队', path: '/tmp/s08.mp4', shotIndex: 8, characters: ['林工'] },
+      { id: 'video-s09', kind: 'video', label: 'S09 被架走', path: '/tmp/s09.mp4', shotIndex: 9, characters: ['林工'] },
+      { id: 'video-s10', kind: 'video', label: 'S10 工地全景', path: '/tmp/s10.mp4', shotIndex: 10 },
+    ],
+    edges: [
+      { from: 'video-s08', to: 'video-s09' },
+    ],
+  }
+}
+
 test('empty landscape t2v with a detailed prompt is ready', () => {
   const report = assessGenerateReady({
     kind: 'video',
     intent: '阿房宫工地全景空镜',
-    prompt: 'Extreme long shot, golden hour, empty Qin palace construction site, dust and timber scaffolds, static camera, no people, cinematic 35mm, five seconds of wind.',
+    prompt: LANDSCAPE,
     snapshot: emptySnap(),
   })
   assert.equal(report.strategy, 't2v')
   assert.equal(report.verdict, 'ready')
 })
 
-test('registered character upgrades t2v to ref2v', () => {
+test('populated storyboard does not force i2v on a new landscape unit', () => {
+  const snapshot = populatedBoard()
+  const inferred = assessGenerateReady({
+    kind: 'video',
+    intent: '阿房宫工地全景空镜',
+    prompt: LANDSCAPE,
+    snapshot,
+  })
+  assert.equal(inferred.strategy, 't2v')
+  assert.equal(inferred.verdict, 'ready')
+  assert.equal(inferred.missing.some(item => item.need === 'first-frame'), false)
+
+  const declared = assessGenerateReady({
+    kind: 'video',
+    intent: '阿房宫工地全景空镜',
+    prompt: LANDSCAPE,
+    strategy: 't2v',
+    sourceId: 'video-s10',
+    snapshot,
+  })
+  assert.equal(declared.strategy, 't2v')
+  assert.equal(declared.verdict, 'ready')
+
+  const inbound = assessGenerateReady({
+    kind: 'video',
+    intent: '林工被架走的下一镜',
+    prompt: DETAILED,
+    nodeId: 'video-s09',
+    snapshot,
+  })
+  assert.equal(inbound.strategy, 'i2v')
+  assert.equal(inbound.verdict, 'blocked')
+  assert.match(inbound.missing.find(item => item.need === 'first-frame').detail, /extract_frames/)
+})
+
+test('declared t2v is not upgraded when a character sheet exists', () => {
   const snapshot = { characters: [{ name: '林工', refPath: '/tmp/lin-sheet.png' }], nodes: [], edges: [] }
   assert.equal(classifyGenerateStrategy({
     kind: 'video',
@@ -120,7 +171,7 @@ test('registered character upgrades t2v to ref2v', () => {
     characters: ['林工'],
     strategy: 't2v',
     snapshot,
-  }), 'ref2v')
+  }), 't2v')
   const report = assessGenerateReady({
     kind: 'video',
     intent: '林工发呆',
@@ -129,7 +180,19 @@ test('registered character upgrades t2v to ref2v', () => {
     strategy: 't2v',
     snapshot,
   })
+  assert.equal(report.strategy, 't2v')
   assert.equal(report.verdict, 'ready')
+})
+
+test('inferred ref2v still applies when strategy is omitted and a sheet exists', () => {
+  const snapshot = { characters: [{ name: '林工', refPath: '/tmp/lin-sheet.png' }], nodes: [], edges: [] }
+  assert.equal(classifyGenerateStrategy({
+    kind: 'video',
+    intent: '林工发呆',
+    prompt: DETAILED,
+    characters: ['林工'],
+    snapshot,
+  }), 'ref2v')
 })
 
 test('cannot waive a registered character that has no usable sheet path', () => {

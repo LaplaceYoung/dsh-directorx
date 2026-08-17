@@ -162,15 +162,11 @@ function previousMedia(input: AssessReadyInput): ReadySnapshotNode | undefined {
   const source = nodeById(input.snapshot, input.sourceId)
   if (source !== undefined && (source.kind === 'image' || source.kind === 'video')) return source
   const self = nodeById(input.snapshot, input.nodeId)
-  if (self !== undefined) {
-    const inbound = input.snapshot.edges.find(edge => edge.to === self.id)
-    const from = inbound !== undefined ? nodeById(input.snapshot, inbound.from) : undefined
-    if (from !== undefined && (from.kind === 'image' || from.kind === 'video')) return from
-  }
-  const media = input.snapshot.nodes
-    .filter(node => (node.kind === 'image' || node.kind === 'video') && node.id !== input.nodeId && hasPath(node.path))
-    .sort((left, right) => (right.shotIndex ?? -1) - (left.shotIndex ?? -1))
-  return media[0]
+  if (self === undefined) return undefined
+  const inbound = input.snapshot.edges.find(edge => edge.to === self.id)
+  const from = inbound !== undefined ? nodeById(input.snapshot, inbound.from) : undefined
+  if (from !== undefined && (from.kind === 'image' || from.kind === 'video')) return from
+  return undefined
 }
 
 function sheetHit(name: string, snapshot: ReadySnapshot): ReadySnapshotNode | undefined {
@@ -198,14 +194,13 @@ export function classifyGenerateStrategy(input: AssessReadyInput): GenerateStrat
     return 't2i'
   }
   if (declared === 'fl2v' || (hasPath(input.firstFrame) && hasPath(input.lastFrame)) || FL_HINT.test(text)) return 'fl2v'
+  if (declared === 't2v' || declared === 'ref2v') return declared
   const source = previousMedia(input)
   if (declared === 'i2v' || hasPath(input.firstFrame) || I2V_HINT.test(text)) return 'i2v'
   if (source?.kind === 'image' && hasPath(source.path)) return 'i2v'
   if (source?.kind === 'video' && hasPath(source.path)) return 'i2v'
-  if (declared === 'ref2v') return 'ref2v'
   const names = detectNamedCharacters(text, input.snapshot, input.characters)
   if (names.length > 0 && snapshotHasCharacterRef(names, input.snapshot) && !hasPath(input.firstFrame)) return 'ref2v'
-  if (declared === 't2v') return 't2v'
   return 't2v'
 }
 
@@ -222,10 +217,7 @@ function needsFor(strategy: GenerateStrategy, names: string[], input: AssessRead
   if (strategy === 'keyframe' && names.length > 0) needs.push('character-sheet')
   if (strategy === 't2i' && names.length > 0) needs.push('character-sheet')
   if (strategy === 't2v') {
-    if (names.length > 0 || PERSON_LOCK.test(blob(input))) {
-      needs.push('character-sheet')
-      needs.push('first-frame')
-    }
+    if (names.length > 0 || PERSON_LOCK.test(blob(input))) needs.push('character-sheet')
   }
   if (strategy === 'ref2v') needs.push('character-sheet')
   if (strategy === 'i2v') {
