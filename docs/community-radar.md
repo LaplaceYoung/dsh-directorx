@@ -138,7 +138,8 @@
 | DSH `ctx.commands` + Web `ui-command` | 源码：`packages/interaction/commands`、`packages/client/ui-command`（`command.list` / slash `/`） | **adopt**：`/directorx` 进宿主命令表；裸命令用 `command.decorate` popupSelect |
 | DSH `ctx.userInteraction.ask` | `packages/interaction/user-interaction` + `tool-ask-user` | **adopt**：`directorx_confirm` 自己 `ask()`，按答案写提案账本；不再让模型另调一遍通用提问 |
 | Runway Agent Skills（2026-07-02 changelog） | r.jina.ai/runway.com/en/changelog | **adapt**「simple command」开战役/广告；不嵌第二套 agent |
-| Kling Agent/Canvas 一键分镜 | kling.ai release-note + storyboard 博客（搜索摘要；部分页 SSRF） | **skip** 第二套 canvas agent；**adapt**「更少轮次批准」→ 一次 DSH ask 签整表 |
+| Kling Agent（release-note s568cuscq1，jina 2026-08-17） | 官方页四块：①大纲/剧本→分镜剧本+元素图+分镜图+分镜视频 ②一镜扩多机位/景别且保主体 ③电商套图 ④多轮对话改图/批量出图上画布 | **skip** 第二套 canvas agent 与电商套图；**adapt**「少轮批准」已落 `directorx_confirm`；多机位展开 / 工业分镜剧本格式（SCENE / Shot N-M (Xs): [景别, 运镜] + Sound）下一波 |
+| Kling 动态分镜博客（2026-06-26） | 官方文：审批轮次减少；运镜预演（dolly/pan/tilt/zoom）；不重建序列即可拉长时间；I2V 统一造型 + 短延镜 | **adapt** 已有 shot-builder 运镜词表 + shotlist 时长预算；延镜/不重建改时长仍走 `directorx_edit` / timeline，不另起预演引擎 |
 | Google Flow Scenebuilder | r.jina.ai/blog.google Flow 文（2025-05-20）：Camera / Scenebuilder / Asset Management | **skip** 嵌入 Flow；compose 的 Plan/Create/Refine 已对齐 |
 | FLORA FAUNA（2026-03-31） | ppc.land 发布稿：画布上可见地加节点/连模型，用户边看边 steer | **skip** 再做一个画布 agent；**adapt**「看得见的工作台」= `/directorx` 零 token 看板 |
 | Boords features | r.jina.ai/boords.com/features：脚本→板→分享签字；Boords Agent 管导入/版本 | **adapt** 签字层；生成仍走占位 + DSH 批准 |
