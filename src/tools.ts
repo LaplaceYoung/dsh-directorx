@@ -5,7 +5,7 @@ import type {} from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
-import { chengpianPersonaText, parseInitiative, runChengpianEvent } from './persona.ts'
+import { chengpianPersonaText, parseInitiative, planPlaceholderEnqueue, resolveGenerateAuthorization, runChengpianEvent } from './persona.ts'
 import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
@@ -52,12 +52,21 @@ function combinedSignal(execSignal: AbortSignal, timeoutMs: number): AbortSignal
   return AbortSignal.any([execSignal, AbortSignal.timeout(timeoutMs)])
 }
 
-function generationGate(settings: DirectorxSettings, prompt: string) {
-  return runChengpianEvent({
+async function generationGate(
+  settings: DirectorxSettings,
+  store: ProposalStore,
+  args: { prompt?: string; text?: string; proposalId?: string },
+) {
+  const proposalId = typeof args.proposalId === 'string' ? args.proposalId.trim() : ''
+  const proposal = proposalId === '' ? null : await store.get(proposalId)
+  if (proposalId !== '' && proposal === null) {
+    return { generate: false as const, prompt: '', reason: `proposal "${proposalId}" not found`, authorized: false, refused: true }
+  }
+  return resolveGenerateAuthorization({
     mode: settings.initiative,
-    event: 'generate',
-    prompt,
+    prompt: String(args.prompt ?? args.text ?? ''),
     inBudget: true,
+    proposal,
   })
 }
 
@@ -67,6 +76,7 @@ function toolContext(settings: DirectorxSettings, capability: DirectorxSettings[
 
 export function syncTools(ctx: Context, settings: DirectorxSettings): () => void {
   const disposers: Array<() => void> = []
+  const proposals = new ProposalStore(settings.outputDir)
 
   if (settings.vision.enabled) {
     disposers.push(ctx.tools.register(defineTool({
@@ -98,14 +108,15 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         quality: { type: 'string', enum: ['auto', 'low', 'medium', 'high'], description: 'Quality hint for providers that support it.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
+        proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       isConcurrencySafe: () => true,
       async execute(args: any, exec: any) {
-        const gate = generationGate(settings, String(args.prompt ?? ''))
+        const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+          return { ...gate, refused: true, next: gate.authorized ? 'directorx_propose' : '严格/协同：ask_user_question 选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
@@ -116,7 +127,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
-        const prompt = blocks.length > 0 ? `${args.prompt}\n\n${blocks.join('；')}` : args.prompt
+        const prompt = blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt
         return runImage(toolContext(settings, settings.image, signal), prompt, {
           size: args.size,
           quality: args.quality,
@@ -140,13 +151,14 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional reference image paths/URLs for character/appearance consistency.' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         negative_prompt: { type: 'string', description: 'Optional negative prompt (基线见 directorx-methodology 规则 26：模糊/解剖错误/水印/闪烁四类)。Provider 支持时透传（如 kling legacy）。' },
+        proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
       timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * settings.maxPollAttempts),
       async execute(args: any, exec: any) {
-        const gate = generationGate(settings, String(args.prompt ?? ''))
+        const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+          return { ...gate, refused: true, next: '严格/协同：选定提示词后 directorx_propose chosen:true，用户批准后再带 proposalId 执行生成' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
@@ -157,7 +169,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
-        const prompt = blocks.length > 0 ? `${args.prompt}\n\n${blocks.join('；')}` : args.prompt
+        const prompt = blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt
         const negative = [typeof args.negative_prompt === 'string' ? args.negative_prompt : '', style?.negativeBaseline ?? ''].filter(part => part !== '').join(', ')
         return runVideo(toolContext(settings, settings.video, signal), prompt, {
           seconds: args.seconds,
@@ -183,16 +195,17 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         format: { type: 'string', enum: ['mp3', 'wav', 'opus', 'aac'], description: 'Audio format. Default mp3.' },
         instructions: { type: 'string', description: 'Performance instructions (gpt-4o-mini-tts 官方七维：口音/情绪幅度/语调/模仿/语速/语气/耳语)。示例：「Speak in a calm documentary tone; pause before numbers; end sentences level.」不透传时表演走 text 标点协议（directorx-methodology 规则 92-99）。' },
         speed: { type: 'number', description: '语速（0.25-4.0，口播 1.0-1.2；极端值损害音质，微调优先靠文本节奏）。' },
+        proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅.' },
       },
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       async execute(args: any, exec: any) {
-        const gate = generationGate(settings, String(args.text ?? ''))
+        const gate = await generationGate(settings, proposals, { prompt: args.text, proposalId: args.proposalId })
         if (!gate.generate) {
-          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+          return { ...gate, refused: true, next: '严格/协同：选定后 directorx_propose chosen:true，批准后再带 proposalId 执行' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        return runAudio(toolContext(settings, settings.audio, signal), args.text, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
+        return runAudio(toolContext(settings, settings.audio, signal), gate.prompt, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
       },
     })))
 
@@ -882,13 +895,14 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  const proposals = new ProposalStore(settings.outputDir)
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_propose',
-    description: 'Queue a fully-specified generation unit as a PLACEHOLDER (成片 严格/协同). Stores the plan in proposals.json and does NOT spend quota. 严格 expands one task into 二到四个提示词变体 for the user to pick via ask_user_question. 协同 queues 提示词和占位 for later 审阅.',
+    description: 'Queue a PLACEHOLDER (成片 严格/协同). 严格 without chosen expands into 二到四个提示词. After the user picks, call again with chosen=true and that exact prompt to enqueue one 占位. 协同 queues 提示词和占位. Does not spend quota.',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true, description: 'Generation kind.' },
-      prompt: { type: 'string', required: true, description: 'Full generation prompt.' },
+      prompt: { type: 'string', required: true, description: 'Task wording, or the exact chosen prompt when chosen=true.' },
+      chosen: { type: 'boolean', description: 'true after the user picked one of the 严格 variants — enqueue that single line, do not re-expand.' },
+      variantCount: { type: 'number', description: '严格 options count, clamped 2–4. Ignored when chosen=true.' },
       model: { type: 'string', description: 'Model key, if chosen.' },
       size: { type: 'string', description: 'Size/aspect.' },
       duration: { type: 'number', description: 'Duration seconds (video/audio).' },
@@ -900,15 +914,15 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      const decision = runChengpianEvent({
+      const plan = planPlaceholderEnqueue({
         mode: settings.initiative,
-        event: args.variants === true || parseInitiative(settings.initiative) === '严格' ? 'generate' : 'placeholder-batch',
         prompt: String(args.prompt ?? ''),
+        chosen: args.chosen === true,
         variantCount: typeof args.variantCount === 'number' ? args.variantCount : undefined,
       })
-      if (decision.mode === '严格' && decision.prompts.length >= 2) {
+      if (plan.expand) {
         const queued = []
-        for (const [index, prompt] of decision.prompts.entries()) {
+        for (const [index, prompt] of plan.prompts.entries()) {
           queued.push(await proposals.propose({
             kind: args.kind,
             prompt,
@@ -917,13 +931,24 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
             duration: args.duration,
             count: 1,
             estimatedCost: args.estimatedCost,
-            note: `严格变体 ${index + 1}/${decision.prompts.length}；用户选择后再执行生成。${args.note ?? ''}`,
+            note: `严格变体 ${index + 1}/${plan.prompts.length}；选定后 directorx_propose chosen:true。${args.note ?? ''}`,
             canvasNodeId: args.canvasNodeId,
           }))
         }
-        return { ...decision, ask: 'ask_user_question', proposals: queued }
+        return { ...plan, ask: 'ask_user_question', proposals: queued }
       }
-      return proposals.propose({ ...args, count: args.count ?? 1, note: args.note })
+      const prompt = plan.prompts[0] ?? String(args.prompt ?? '')
+      return proposals.propose({
+        kind: args.kind,
+        prompt,
+        model: args.model,
+        size: args.size,
+        duration: args.duration,
+        count: args.count ?? 1,
+        estimatedCost: args.estimatedCost,
+        note: args.note,
+        canvasNodeId: args.canvasNodeId,
+      })
     },
   })))
 
@@ -1258,7 +1283,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (ask_user_question), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
     parameters: {
       event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
-      prompt: { type: 'string', description: 'Generation task wording (导演角度的镜头/画面描述).' },
+      prompt: { type: 'string', description: 'Generation task wording, or the exact chosen prompt.' },
+      chosen: { type: 'boolean', description: 'true after the user picked one 严格 variant.' },
+      proposalStatus: { type: 'string', description: 'If executing: proposed/approved/rejected/done of the queued 占位.' },
       inBudget: { type: 'boolean', description: '自动 only: false if this unit would exceed the agreed budget.' },
       necessaryAsk: { type: 'boolean', description: '自动 only: true if this ambiguity must be asked.' },
       variantCount: { type: 'number', description: '严格: how many of 二到四个提示词 (clamped 2–4).' },
@@ -1266,7 +1293,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     output: objectOutput(),
     timeoutMs: 15_000,
     async execute(args: any) {
-      return runChengpianEvent({
+      const decision = runChengpianEvent({
         mode: settings.initiative,
         event: args.event,
         prompt: args.prompt,
@@ -1274,6 +1301,27 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         necessaryAsk: args.necessaryAsk,
         variantCount: args.variantCount,
       })
+      const enqueue = args.event === 'unclear'
+        ? undefined
+        : planPlaceholderEnqueue({
+          mode: settings.initiative,
+          prompt: String(args.prompt ?? ''),
+          chosen: args.chosen === true,
+          variantCount: args.variantCount,
+        })
+      const auth = args.proposalStatus !== undefined
+        ? resolveGenerateAuthorization({
+          mode: settings.initiative,
+          prompt: args.prompt,
+          inBudget: args.inBudget,
+          proposal: { status: String(args.proposalStatus), prompt: String(args.prompt ?? '') },
+        })
+        : resolveGenerateAuthorization({
+          mode: settings.initiative,
+          prompt: args.prompt,
+          inBudget: args.inBudget,
+        })
+      return { ...decision, enqueue, auth }
     },
   })))
 

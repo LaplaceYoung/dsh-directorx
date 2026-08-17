@@ -146,6 +146,69 @@ export function decideChengpian(mode: InitiativeMode, event: ChengpianEvent): Ch
   }
 }
 
+/**
+ * 严格未选定 → 二到四个提示词；用户选定（chosen）或 协同 → 单条占位。
+ * 自动走生成闸，这里只规划占位文案。
+ */
+export function planPlaceholderEnqueue(input: {
+  mode?: unknown
+  prompt: string
+  chosen?: boolean
+  variantCount?: number
+}): { expand: boolean; prompts: string[]; reason: string } {
+  const mode = parseInitiative(input.mode)
+  const prompt = input.prompt.trim()
+  if (mode === '严格' && input.chosen !== true) {
+    const prompts = draftDirectorPrompts(prompt === '' ? '主体在场，完成一个可观察的动作' : prompt, input.variantCount)
+    return { expand: true, prompts, reason: '严格：每个生成任务先出二到四个提示词供用户选择' }
+  }
+  return {
+    expand: false,
+    prompts: prompt === '' ? [] : [prompt],
+    reason: input.chosen === true ? '用户已选定提示词，入队单条占位' : '提示词和占位，供审阅后执行生成',
+  }
+}
+
+/** 只有已批准占位，或自动+预算内，才允许执行生成。 */
+export function resolveGenerateAuthorization(input: {
+  mode?: unknown
+  prompt?: string
+  inBudget?: boolean
+  proposal?: { status: string; prompt: string } | null
+}): { generate: boolean; prompt: string; reason: string; authorized: boolean } {
+  const mode = parseInitiative(input.mode)
+  if (input.proposal !== undefined && input.proposal !== null) {
+    if (input.proposal.status === 'approved') {
+      return {
+        generate: true,
+        prompt: input.proposal.prompt,
+        reason: '用户已审阅并批准占位，执行生成',
+        authorized: true,
+      }
+    }
+    return {
+      generate: false,
+      prompt: input.proposal.prompt,
+      reason: `提案 ${input.proposal.status}，尚未批准，不得执行生成`,
+      authorized: false,
+    }
+  }
+  if (mode === '自动' && input.inBudget !== false) {
+    return {
+      generate: true,
+      prompt: (input.prompt ?? '').trim(),
+      reason: '自动：预算范围内直接执行生成',
+      authorized: false,
+    }
+  }
+  return {
+    generate: false,
+    prompt: (input.prompt ?? '').trim(),
+    reason: '未授权：严格/协同不得自行执行生成，先占位并经用户审阅',
+    authorized: false,
+  }
+}
+
 /** Shipped entry: mode + event → confirm / generate / 2–4 prompts / 占位. */
 export function runChengpianEvent(input: {
   mode?: unknown
@@ -169,8 +232,8 @@ export function chengpianPersonaText(mode: InitiativeMode): string {
     '## 成片 persona',
     `- You are DirectorX in the dedicated **成片** persona. Analyse every request from a **导演角度** (blocking, continuity, light, lens, emotion, cut). Do not guess craft: actively load 成片-related **知识库** via \`directorx_knowledge_search\` / \`directorx_knowledge_read\` and the matching **skill** body (\`directorx-chengpian\`, \`directorx-methodology\`, \`directorx-production-lead\`) before planning or generating.`,
     `- Initiative mode is **${mode}**. Call \`directorx_chengpian\` on unclear events and before every generation unit.`,
-    '- **严格**: 第一个不明确的事件及时向用户确认；确认次数较多；绝不自己执行生成；每个生成任务提供**二到四个提示词**让用户选择。',
+    '- **严格**: 第一个不明确的事件及时向用户确认；确认次数较多；绝不自己执行生成；每个生成任务提供**二到四个提示词**让用户选择；选定后 `directorx_propose` chosen=true 入队单条占位；批准后带 `proposalId` 执行生成。',
     '- **自动**: 非必要不会询问用户；在预算范围内会直接干，**直接执行生成**。',
-    '- **协同**: 也会问用户，但比较主动；不直接执行生成；工作到最后产出视频计划；每次遇到生成任务只给出**提示词和占位**，用户最后从头开始一个个审阅然后执行生成。',
+    '- **协同**: 也会问用户，但比较主动；不直接执行生成；工作到最后产出视频计划；每次遇到生成任务只给出**提示词和占位**，用户最后从头开始一个个审阅然后带 `proposalId` 执行生成。',
   ].join('\n')
 }

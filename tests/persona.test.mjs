@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { mkdtemp } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { chengpianPersonaText, draftDirectorPrompts, runChengpianEvent } from '../lib/testing.js'
+import { chengpianPersonaText, draftDirectorPrompts, planPlaceholderEnqueue, ProposalStore, resolveGenerateAuthorization, runChengpianEvent } from '../lib/testing.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -97,4 +99,37 @@ test('chengpianPersonaText names 成片 modes and 导演角度 knowledge/skill r
   assert.match(tools, /name: 'directorx:chengpian'/)
   assert.match(tools, /order: 5/)
   assert.match(tools, /ask_user_question/)
+})
+
+test('严格: chosen prompt enqueues that one line, does not re-expand', () => {
+  const options = planPlaceholderEnqueue({ mode: '严格', prompt: '雨夜巷口推近女人回头', variantCount: 3 })
+  assert.equal(options.expand, true)
+  assert.equal(options.prompts.length, 3)
+  const picked = options.prompts[1]
+  assert.ok(typeof picked === 'string' && picked.length > 0)
+  const single = planPlaceholderEnqueue({ mode: '严格', prompt: picked, chosen: true })
+  assert.equal(single.expand, false)
+  assert.deepEqual(single.prompts, [picked])
+})
+
+test('generate is allowed only after approved 占位 (or 自动 in-budget)', async () => {
+  const task = '码头雾中女人站住'
+  const options = planPlaceholderEnqueue({ mode: '严格', prompt: task })
+  const picked = options.prompts[0]
+  assert.equal(resolveGenerateAuthorization({ mode: '严格', prompt: picked }).generate, false)
+  assert.equal(resolveGenerateAuthorization({ mode: '协同', prompt: picked }).generate, false)
+  assert.equal(resolveGenerateAuthorization({ mode: '严格', proposal: { status: 'proposed', prompt: picked } }).generate, false)
+
+  const dir = await mkdtemp(join(tmpdir(), 'dx-auth-'))
+  const store = new ProposalStore(dir)
+  const queued = await store.propose({ kind: 'video', prompt: picked, count: 1 })
+  const approved = await store.update(queued.id, 'approved')
+  const fetched = await store.get(approved.id)
+  const auth = resolveGenerateAuthorization({ mode: '严格', proposal: fetched })
+  assert.equal(auth.generate, true)
+  assert.equal(auth.prompt, picked)
+  assert.equal(auth.authorized, true)
+
+  const auto = resolveGenerateAuthorization({ mode: '自动', prompt: task, inBudget: true })
+  assert.equal(auto.generate, true)
 })

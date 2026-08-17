@@ -112,6 +112,11 @@ export class ProposalStore {
     return executable ?? null
   }
 
+  async get(id: string): Promise<GenerationProposal | null> {
+    const ledger = await this.read()
+    return ledger.proposals.find(proposal => proposal.id === id) ?? null
+  }
+
   async list(status?: GenerationProposal['status'], limit = 50): Promise<GenerationProposal[]> {
     const ledger = await this.read()
     const filtered = status === undefined ? ledger.proposals : ledger.proposals.filter(proposal => proposal.status === status)

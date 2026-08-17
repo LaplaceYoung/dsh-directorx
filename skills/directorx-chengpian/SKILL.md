@@ -20,7 +20,9 @@ user-invocable: true
 - 第一个不明确的事件及时向用户确认。
 - 确认次数较多，不替用户拍板。
 - **绝不自己执行生成**。
-- 每个生成任务提供 **二到四个提示词**，让用户选择后再入队占位。
+- 每个生成任务提供 **二到四个提示词**，用 `ask_user_question` 让用户选。
+- 选定后 `directorx_propose` `chosen: true` 入队**那一条**占位，不要再展开变体。
+- 用户审阅批准后，`directorx_generate_*` 必须带 `proposalId`。
 
 ## 自动
 
