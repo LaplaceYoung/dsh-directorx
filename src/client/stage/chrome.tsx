@@ -445,7 +445,7 @@ export function EmptyHero(props: { onGenerate: () => void }): ReactNode {
         </div>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.7, color: dx.ink }}>今天拍什么？</div>
         <div style={{ marginTop: 10, color: dx.mute, fontSize: 13, lineHeight: 1.7 }}>
-          双击空白处添加 · 从端口拖到节点连线 · 拖到空白选择下游类型
+          双击节点居中 · 双击空白处添加 · 从端口拖线
         </div>
         <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', gap: 8, color: dx.dim, fontSize: 11 }}>
           <span style={kbd}>G</span><span>生成</span>
@@ -1041,6 +1041,7 @@ const SHORTCUTS: Array<{ keys: string; label: string }> = [
   { keys: 'G', label: '打开生成栏' },
   { keys: 'S', label: '循环镜头状态' },
   { keys: 'F', label: '适配所选' },
+  { keys: '双击节点', label: '居中并缩放到合适位置' },
   { keys: 'L', label: '锁定 / 解锁' },
   { keys: '⌘K / ⌘F', label: '搜索节点' },
   { keys: '⌘J', label: 'DSH 会话' },

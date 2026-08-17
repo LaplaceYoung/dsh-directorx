@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  alignBoxes, asClipPayload, characterBucket, clampMenu, distributeBoxes, incomingRefIds, libraryBucket,
+  alignBoxes, asClipPayload, characterBucket, clampMenu, displayCardTitle, distributeBoxes, focusViewOptions, incomingRefIds, isAssetSlug, libraryBucket, nextCardLabel, resolveStoredLabel,
   nearestAspect, nudgeBoxes, packClip, sizeFromAspect, specPrompt, takePeers,
 } from '../lib/testing.js'
 
@@ -95,4 +95,29 @@ test('libraryBucket and characterBucket split the subject library', () => {
 test('clampMenu keeps a menu inside the viewport', () => {
   assert.deepEqual(clampMenu(2000, 2000, 200, 160, { w: 800, h: 600 }), { left: 588, top: 428 })
   assert.deepEqual(clampMenu(-20, 8, 200, 160, { w: 800, h: 600 }), { left: 12, top: 12 })
+})
+
+test('asset slugs are not shown as shot titles', () => {
+  assert.equal(isAssetSlug('vast-desolate-wilderness-in-ancient-chin-2026-08'), true)
+  assert.equal(isAssetSlug('shot.png'), true)
+  assert.equal(isAssetSlug('S01 荒原独行'), false)
+  assert.equal(displayCardTitle('vast-desolate-wilderness-in-ancient-chin-2026-08', '古道独行，尘土飞扬。远山。', 3), '古道独行，尘土飞扬')
+  assert.equal(displayCardTitle('vast-desolate-wilderness-in-ancient-chin-2026-08-17T11-47-56Z.png'), 'vast desolate wilderness in ancient chin')
+  assert.equal(displayCardTitle('S01 荒原独行', 'other'), 'S01 荒原独行')
+  assert.equal(nextCardLabel('S01 荒原独行', 'vast-desolate-wilderness-in-ancient-chin-2026-08'), 'S01 荒原独行')
+  assert.equal(nextCardLabel('镜头1', '镜头1·改'), '镜头1·改')
+  assert.equal(nextCardLabel('图片', 'cover.png'), 'cover.png')
+  assert.equal(isAssetSlug('林工设定.png'), false)
+  assert.equal(displayCardTitle('林工设定.png'), '林工设定')
+  assert.equal(resolveStoredLabel('S01 荒原独行', 'vast-desolate-wilderness-in-ancient-chin-2026-08'), 'S01 荒原独行')
+  assert.equal(resolveStoredLabel('图片', 'vast-desolate-wilderness-in-ancient-chin-2026-08', '古道独行，尘土飞扬。远山。', 3), '古道独行，尘土飞扬')
+})
+
+test('focusViewOptions frames a card tighter than a group', () => {
+  const card = focusViewOptions('card')
+  const group = focusViewOptions('group')
+  assert.ok(card.padding > group.padding)
+  assert.ok(card.maxZoom > group.maxZoom)
+  assert.equal(card.duration, 280)
+  assert.ok(card.minZoom > 0)
 })

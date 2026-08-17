@@ -11,6 +11,8 @@ import {
   resolveLiveSession,
   type AskItem, type AskWait, type ApprovalWait, type DockLine, type LiveWait,
 } from './session-live.ts'
+import { mediaFromToolResult, type SessionMedia } from './session-media.ts'
+import { mediaUrl } from './nodes.tsx'
 
 export type { SessionClient }
 
@@ -28,6 +30,7 @@ export interface SessionDockProps {
   onLeave?: () => void
   selectedNode?: { id: string; label: string; kind?: string; path?: string }
   onClearSelected?: () => void
+  onAddMedia?: (media: SessionMedia) => void
 }
 
 const POLL_OPEN_MS = 1400
@@ -260,6 +263,7 @@ export function SessionDock(props: SessionDockProps): ReactNode {
           starting={starting}
           selectedNode={props.selectedNode}
           onClearSelected={props.onClearSelected}
+          onAddMedia={props.onAddMedia}
           confirmFirst={confirmFirst}
           onConfirmFirst={setConfirmFirst}
           onChip={text => { void sendText(text).catch(() => {}) }}
@@ -342,6 +346,7 @@ function SessionPanel(props: {
   starting?: boolean
   selectedNode?: { id: string; label: string; kind?: string; path?: string }
   onClearSelected?: () => void
+  onAddMedia?: (media: SessionMedia) => void
   confirmFirst: boolean
   onConfirmFirst: (value: boolean) => void
   onChip: (text: string) => void
@@ -414,7 +419,7 @@ function SessionPanel(props: {
           <EmptyLine text="这个工作区还没有 DSH 会话。发一条消息会在此工作区开谈。" />
         ) : props.lines.length === 0 ? (
           <EmptyLine text="和 DSH 说话，编排这一画布。生成仍走底部输入框。" />
-        ) : props.lines.map(line => <LineView key={line.id} line={line} />)}
+        ) : props.lines.map(line => <LineView key={line.id} line={line} onAddMedia={props.onAddMedia} />)}
         {props.running && props.lines.at(-1)?.kind !== 'thinking' && props.lines.at(-1)?.status !== 'running' && props.lines.at(-1)?.streaming !== true ? <EmptyLine text="DSH 正在处理…" pulse /> : null}
         {props.blocked ? <EmptyLine text="DSH 在等批准或回答。" /> : null}
         {props.error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12, lineHeight: 1.45 }}>{props.error}</div> : null}
@@ -516,8 +521,8 @@ function SessionPanel(props: {
   )
 }
 
-function LineView(props: { line: DockLine }): ReactNode {
-  if (props.line.kind === 'tool') return <ToolLine line={props.line} />
+function LineView(props: { line: DockLine; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
+  if (props.line.kind === 'tool') return <ToolLine line={props.line} onAddMedia={props.onAddMedia} />
   if (props.line.kind === 'notice') {
     return <div style={{ fontSize: 12, color: dx.mute, lineHeight: 1.45 }}>{props.line.text}</div>
   }
@@ -551,17 +556,51 @@ function LineView(props: { line: DockLine }): ReactNode {
   )
 }
 
-function ToolLine(props: { line: DockLine }): ReactNode {
+function ToolLine(props: { line: DockLine; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
   const status = props.line.status ?? 'ok'
+  const media = status === 'ok' ? mediaFromToolResult(props.line.result, props.line.name) : []
   return (
     <div className="dx-tool-line" data-status={status}>
-      {status === 'running' ? (
-        <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.16)', borderTopColor: 'rgba(255,255,255,.75)' }} />
-      ) : (
-        <span className="dx-tool-dot" data-error={status === 'error' || undefined} />
-      )}
-      <span>{props.line.text}</span>
+      <div className="dx-tool-line-head">
+        {status === 'running' ? (
+          <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.16)', borderTopColor: 'rgba(255,255,255,.75)' }} />
+        ) : (
+          <span className="dx-tool-dot" data-error={status === 'error' || undefined} />
+        )}
+        <span>{props.line.text}</span>
+      </div>
+      {media.length > 0 ? (
+        <div className="dx-tool-thumbs">
+          {media.map(item => (
+            <SessionMediaThumb key={item.path} media={item} onAdd={props.onAddMedia} />
+          ))}
+        </div>
+      ) : null}
     </div>
+  )
+}
+
+function SessionMediaThumb(props: { media: SessionMedia; onAdd?: (media: SessionMedia) => void }): ReactNode {
+  const src = mediaUrl(props.media.path)
+  return (
+    <button
+      type="button"
+      className="nodrag nopan dx-tool-thumb"
+      title="双击加入画布"
+      data-tip="双击加入画布"
+      onDoubleClick={event => {
+        event.preventDefault()
+        event.stopPropagation()
+        props.onAdd?.(props.media)
+      }}
+    >
+      {props.media.kind === 'video' ? (
+        <video src={src} muted loop playsInline preload="metadata" />
+      ) : (
+        <img src={src} alt={props.media.label} />
+      )}
+      {props.media.kind === 'video' ? <span className="dx-tool-thumb-kind">视频</span> : null}
+    </button>
   )
 }
 
@@ -781,14 +820,45 @@ const SESSION_CSS = `
 }
 .dx-tool-line {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   font-size: 12px;
   line-height: 1.4;
   color: ${dx.mute};
   letter-spacing: 0.1px;
 }
+.dx-tool-line-head { display: flex; align-items: center; gap: 8px; }
 .dx-tool-line[data-status="error"] { color: #ff9b8f; }
+.dx-tool-thumbs { display: flex; flex-wrap: wrap; gap: 6px; }
+.dx-tool-thumb {
+  position: relative;
+  width: 112px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111;
+  cursor: pointer;
+}
+.dx-tool-thumb img, .dx-tool-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.dx-tool-thumb-kind {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(8,8,8,.7);
+  color: #f2f2f2;
+  font-size: 9px;
+  letter-spacing: .2px;
+}
 .dx-tool-dot {
   width: 6px;
   height: 6px;

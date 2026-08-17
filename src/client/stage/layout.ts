@@ -32,6 +32,19 @@ export interface ClipPayload {
 
 export const CLIP_MARK = 'directorx-canvas-clip' as const
 
+/** Padding and zoom for centering a double-clicked node in the viewport. */
+export function focusViewOptions(kind: 'group' | 'card'): {
+  padding: number
+  duration: number
+  maxZoom: number
+  minZoom: number
+} {
+  if (kind === 'group') {
+    return { padding: 0.16, duration: 280, maxZoom: 0.95, minZoom: 0.18 }
+  }
+  return { padding: 0.38, duration: 280, maxZoom: 1.2, minZoom: 0.22 }
+}
+
 export function alignBoxes(boxes: LayoutBox[], kind: AlignKind): Array<{ id: string; x: number; y: number }> {
   if (boxes.length === 0) return []
   const minX = Math.min(...boxes.map(box => box.x))

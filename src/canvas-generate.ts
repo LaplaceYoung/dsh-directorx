@@ -191,7 +191,7 @@ const TITLE_CLEAR = 34
 const STACK_GAP = 18
 const GROUP_INSET_X = 28
 const GROUP_INSET_TOP = 52
-const GROUP_INSET_BOT = 24
+const GROUP_INSET_BOT = 36
 
 function fallbackCardSize(kind: string): { width: number; height: number } {
   if (kind === 'group') return { width: 640, height: 460 }
@@ -236,8 +236,8 @@ export function tidyOverlappingGroups<T extends StackableNode>(nodes: T[]): T[] 
     const collide = boxes.some((box, index) => boxes.some((other, otherIndex) => {
       if (otherIndex <= index) return false
       return boxesOverlap(
-        { ...box, y: box.y - TITLE_CLEAR, height: box.height + TITLE_CLEAR },
-        { ...other, y: other.y - TITLE_CLEAR, height: other.height + TITLE_CLEAR },
+        { ...box, height: box.height + TITLE_CLEAR },
+        { ...other, height: other.height + TITLE_CLEAR },
       )
     }))
     if (!overflow && !collide) continue

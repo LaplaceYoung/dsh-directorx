@@ -1,4 +1,5 @@
 import { type Edge, type Node } from '@xyflow/react'
+import { displayCardTitle } from '../../card-label.ts'
 import { tidyOverlappingGroups } from '../../canvas-generate.ts'
 import { sizeFromAspect } from './workstation.ts'
 
@@ -190,7 +191,7 @@ export function fromFlow(nodes: StageNode[], edges: Edge[], title: string, updat
       return {
         id: node.id,
         kind,
-        label: node.data.label,
+        label: displayCardTitle(node.data.label, node.data.prompt, node.data.shotIndex) || node.data.label,
         ...(kind === 'image' || kind === 'video' ? { path: node.data.path ?? '' } : {}),
         ...(node.data.prompt !== undefined ? { prompt: node.data.prompt } : {}),
         ...(node.data.shotIndex !== undefined ? { shotIndex: node.data.shotIndex } : {}),

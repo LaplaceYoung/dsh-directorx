@@ -6,6 +6,7 @@
 
 ### Changed
 
+- **画布卡片**：成图铺满卡片，不再叠齿孔/角标/底栏；文件名 slug 不当标题；双击节点居中缩放到合适位置。DSH 会话里生成结果出小图预览，双击加入画布（已在画布上则聚焦）。
 - **适配 DeepSeek Harness 0.1.0-rc.7**：浏览器半侧同时注册 `settings.section` 与 `settings.plugin.item`（`id`/`key`=`directorx`）。现网 plugin.item 是 list 槽，必须带 `options.id`。RC.7 起 Host 服务全部已注册 settings 命名空间。
 - **README**：补入画布截图与成片演示（`docs/assets/`），并按当前画布会话、确认后落板、调色台、90 工具、DSH 0.1.0-rc.7 对齐说明。
 - **ffmpeg 8**：`delogo` 去掉已删除的 `band` 选项；烧录字幕改走 `subtitles` 滤镜（`ass` 不再读 SRT）。

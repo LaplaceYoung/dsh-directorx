@@ -7,6 +7,7 @@ import { MarkdownView } from './MarkdownView.tsx'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { incomingRefIds, takePeers, type GenerateSpec } from './workstation.ts'
 import { withProject } from './project.ts'
+import { displayCardTitle } from './card-label.ts'
 
 export type StageKind = 'image' | 'video' | 'text' | 'group'
 
@@ -28,16 +29,16 @@ const card: CSSProperties = {
 
 const handleBox: CSSProperties = {
   position: 'absolute',
-  width: 28,
-  height: 28,
+  width: 22,
+  height: 22,
   background: 'transparent',
   border: 'none',
   zIndex: 6,
 }
-const handleLeft: CSSProperties = { ...handleBox, left: -14, right: 'auto', top: '50%', transform: 'translateY(-50%)' }
-const handleRight: CSSProperties = { ...handleBox, right: -14, left: 'auto', top: '50%', transform: 'translateY(-50%)' }
-const handleTop: CSSProperties = { ...handleBox, top: -14, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' }
-const handleBottom: CSSProperties = { ...handleBox, bottom: -14, top: 'auto', left: '50%', transform: 'translateX(-50%)' }
+const handleLeft: CSSProperties = { ...handleBox, left: -20, right: 'auto', top: '50%', transform: 'translateY(-50%)' }
+const handleRight: CSSProperties = { ...handleBox, right: -20, left: 'auto', top: '50%', transform: 'translateY(-50%)' }
+const handleTop: CSSProperties = { ...handleBox, top: -18, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' }
+const handleBottom: CSSProperties = { ...handleBox, bottom: -18, top: 'auto', left: '50%', transform: 'translateX(-50%)' }
 
 function Ports(): ReactNode {
   return (
@@ -104,15 +105,20 @@ function NodeFrame(props: {
   generating?: boolean
   failed?: boolean
   kind?: string
+  filled?: boolean
   title?: ReactNode
   dock?: ReactNode
-  upload?: () => void
   children: ReactNode
   toolbar: ReactNode
 }): ReactNode {
   const [hot, setHot] = useState(false)
   const active = props.selected === true || hot
-  const faceClass = ['dx-card-face', props.kind !== undefined ? `dx-kind-${props.kind}` : '', props.generating === true ? 'dx-face-live' : ''].filter(part => part !== '').join(' ')
+  const faceClass = [
+    'dx-card-face',
+    props.kind !== undefined ? `dx-kind-${props.kind}` : '',
+    props.generating === true ? 'dx-face-live' : '',
+    props.filled === true ? 'dx-face-fill' : '',
+  ].filter(part => part !== '').join(' ')
   return (
     <div
       className={props.generating === true ? 'dx-generating' : undefined}
@@ -121,27 +127,12 @@ function NodeFrame(props: {
       style={{ width: '100%', height: '100%', overflow: 'visible' }}
     >
       <Ports />
-      {props.title !== undefined ? (
-        <div className="nodrag nopan" style={{ position: 'absolute', left: 2, right: 2, top: -30, zIndex: 5 }}>
-          {props.title}
-        </div>
-      ) : null}
-      {props.upload !== undefined && props.selected === true && props.generating !== true ? (
-        <button
-          className="nodrag nopan dx-hit dx-empty-upload dx-float-upload"
-          title="上传"
-          data-tip="上传到此节点"
-          onClick={event => { event.stopPropagation(); props.upload?.() }}
-        >
-          <IconUpload size={12} />上传
-        </button>
-      ) : null}
       <div
         className="nodrag nopan dx-node-toolbar"
         style={{
           position: 'absolute',
           left: '50%',
-          top: props.title !== undefined ? -70 : -44,
+          top: -40,
           transform: 'translateX(-50%)',
           zIndex: 7,
           opacity: active ? 1 : 0,
@@ -160,8 +151,13 @@ function NodeFrame(props: {
       >
         {props.children}
       </div>
+      {props.title !== undefined ? (
+        <div className="nodrag nopan dx-card-caption" style={{ position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 6, zIndex: 5 }}>
+          {props.title}
+        </div>
+      ) : null}
       {props.dock !== undefined && props.selected === true ? (
-        <div className="nodrag nopan" style={{ position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 8, zIndex: 8 }}>
+        <div className="nodrag nopan" style={{ position: 'absolute', left: 0, right: 0, top: '100%', marginTop: props.title !== undefined ? 34 : 8, zIndex: 8 }}>
           {props.dock}
         </div>
       ) : null}
@@ -184,7 +180,7 @@ function useNearViewport(): [RefObject<HTMLDivElement>, boolean] {
   return [ref, near]
 }
 
-function VideoPreview(props: { src: string; active?: boolean; onEdit?: () => void }): ReactNode {
+function VideoPreview(props: { src: string; active?: boolean }): ReactNode {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [playing, setPlaying] = useState(false)
   useEffect(() => {
@@ -195,10 +191,6 @@ function VideoPreview(props: { src: string; active?: boolean; onEdit?: () => voi
   return (
     <div
       className="nodrag nopan"
-      onDoubleClick={event => {
-        event.stopPropagation()
-        props.onEdit?.()
-      }}
       onClick={event => {
         event.stopPropagation()
         const video = videoRef.current
@@ -211,7 +203,7 @@ function VideoPreview(props: { src: string; active?: boolean; onEdit?: () => voi
           setPlaying(false)
         }
       }}
-      style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}
+      style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, cursor: 'pointer' }}
     >
       <video
         ref={videoRef}
@@ -294,8 +286,12 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
     graph.edges,
   )
   const peers = [props.id, ...peerIds].map(id => graph.nodes.find(node => node.id === id)).filter((node): node is typeof graph.nodes[number] => node !== undefined)
+  const promptKey = (data.prompt ?? '').trim()
+  const takes = peers.filter(peer => peer.path !== '' && (peer.prompt ?? '').trim() === promptKey && promptKey !== '')
   const kind = data.kind === 'video' ? 'video' as const : 'image' as const
   const generating = data.shotStatus === 'generating'
+  const filled = !empty && !generating
+  const title = displayCardTitle(data.label, data.prompt, data.shotIndex)
   const spec: GenerateSpec = {
     kind: data.kind === 'video' ? 'video' : 'image',
     prompt: data.prompt ?? '',
@@ -313,19 +309,24 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       generating={generating}
       failed={data.shotStatus === 'failed'}
       kind={kind}
-      upload={empty && data.onUpload !== undefined ? () => data.onUpload?.(props.id) : undefined}
+      filled={filled}
       title={(
-        <input
-          className="dx-node-title nodrag nopan"
-          value={data.label}
-          placeholder="请输入标题"
-          onChange={event => data.onRename?.(props.id, event.target.value)}
-          style={{
-            width: '100%', height: 26, padding: '0 8px', borderRadius: 8,
-            border: '1px solid transparent', background: 'transparent',
-            color: dx.ink, fontSize: 12, fontFamily: dx.font, outline: 'none',
-          }}
-        />
+        <div className="dx-card-meta">
+          <input
+            className="dx-node-title nodrag nopan"
+            value={title}
+            placeholder="请输入标题"
+            onChange={event => data.onRename?.(props.id, event.target.value)}
+            style={{
+              flex: 1, minWidth: 0, height: 22, padding: '0 2px', borderRadius: 6,
+              border: '1px solid transparent', background: 'transparent',
+              color: '#dedede', fontSize: 11, fontFamily: dx.font, outline: 'none',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}
+          />
+          {data.locked === true ? <span className="dx-card-lock" title="已锁定"><IconLock size={11} /></span> : null}
+          <StatusChip status={data.shotStatus} onClick={() => data.onCycleStatus?.(props.id)} />
+        </div>
       )}
       dock={props.selected === true ? (
         <NodeWorkstation
@@ -347,6 +348,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       toolbar={(
         <>
           <ToolBtn title={generating ? '生成中' : '生成'} onClick={() => { if (!generating) data.onGenerate?.(props.id) }}><IconSpark size={14} /></ToolBtn>
+          {empty && data.onUpload !== undefined ? <ToolBtn title="上传" onClick={() => data.onUpload?.(props.id)}><IconUpload size={14} /></ToolBtn> : null}
           {empty ? null : <ToolBtn title="编辑" onClick={() => data.onEdit?.(props.id)}><IconEdit size={14} /></ToolBtn>}
           {empty ? null : <ToolBtn title="下载" onClick={() => data.onDownload?.(props.id)}><IconDownload size={14} /></ToolBtn>}
           <ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={14} /></ToolBtn>
@@ -362,20 +364,19 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
         keepAspectRatio={data.aspect !== undefined && data.aspect !== ''}
         color="rgba(255,255,255,.45)"
         lineStyle={{ border: 'none' }}
-        handleStyle={{ width: 7, height: 7, borderRadius: 2, background: '#f3f3f3', border: 'none' }}
+        handleStyle={{ width: 6, height: 6, borderRadius: 1, background: '#f3f3f3', border: 'none' }}
       />
       <div
         ref={shellRef}
-        className={kind === 'video' ? 'dx-media-well dx-film' : 'dx-media-well'}
-        onDoubleClick={() => { if (!empty && !generating) data.onEdit?.(props.id) }}
-        style={{ height: '100%', position: 'relative', overflow: 'hidden' }}
+        className={`dx-media-well${kind === 'video' && !filled ? ' dx-film' : ''}${filled ? ' dx-media-fill' : ''}`}
+        style={{ overflow: 'hidden' }}
       >
         {empty && !generating ? (
           <EmptyPlate kind={kind} />
         ) : empty ? null : kind === 'video' ? (
-          <div style={{ height: '100%', opacity: generating ? 0.38 : 1, transition: 'opacity .2s ease' }}>
+          <div className="dx-media-bleed" style={{ opacity: generating ? 0.38 : 1 }}>
             {near ? (
-              <VideoPreview src={src} active={props.selected === true} onEdit={() => data.onEdit?.(props.id)} />
+              <VideoPreview src={src} active={props.selected === true} />
             ) : (
               <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
                 <IconVideo size={22} />
@@ -383,9 +384,9 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             )}
           </div>
         ) : (
-          <div style={{ height: '100%', opacity: generating ? 0.38 : 1, transition: 'opacity .2s ease' }}>
+          <div className="dx-media-bleed" style={{ opacity: generating ? 0.38 : 1 }}>
             {near ? (
-              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <img src={src} alt="" className="dx-media-img" />
             ) : (
               <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
                 <IconImage size={22} />
@@ -394,16 +395,13 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
           </div>
         )}
         {generating ? <GeneratingHud kind={kind} prompt={data.prompt} /> : null}
-        <span className="dx-kind-badge">
-          <KindGlyph kind={kind} size={11} />
-          {data.shotIndex !== undefined ? <span>#{String(data.shotIndex).padStart(2, '0')}</span> : null}
-          {kind === 'video' && data.durationSec !== undefined ? <span>{data.durationSec}s</span> : null}
-        </span>
-        {data.locked === true ? (
-          <span className="dx-kind-badge" style={{ left: 'auto', right: 8 }} title="已锁定">
-            <IconLock size={11} />
+        {filled ? null : (
+          <span className="dx-kind-badge">
+            <KindGlyph kind={kind} size={11} />
+            {data.shotIndex !== undefined ? <span>#{String(data.shotIndex).padStart(2, '0')}</span> : null}
+            {kind === 'video' && data.durationSec !== undefined ? <span>{data.durationSec}s</span> : null}
           </span>
-        ) : null}
+        )}
         {data.shotStatus === 'failed' ? (
           <div className="nodrag nopan" style={{
             position: 'absolute', inset: 0, background: 'rgba(20,8,8,.62)',
@@ -415,9 +413,9 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             </div>
           </div>
         ) : null}
-        {peers.length >= 2 ? (
-          <div className="nodrag nopan" style={{ position: 'absolute', left: 8, right: 8, bottom: 36, display: 'flex', gap: 4 }}>
-            {peers.slice(0, 6).map(peer => {
+        {takes.length >= 2 ? (
+          <div className="nodrag nopan dx-take-row" style={{ position: 'absolute', left: 8, right: 8, bottom: 8, display: 'flex', gap: 4 }}>
+            {takes.slice(0, 6).map(peer => {
               const path = peer.path
               return (
                 <button
@@ -436,14 +434,6 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             })}
           </div>
         ) : null}
-        <div style={{
-          position: 'absolute', left: 0, right: 0, bottom: 0,
-          padding: '20px 12px 8px',
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,.72) 80%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-        }}>
-          <StatusChip status={data.shotStatus} onClick={() => data.onCycleStatus?.(props.id)} />
-        </div>
       </div>
     </NodeFrame>
   )
@@ -549,7 +539,7 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
         ) : (
           <div
             style={{ fontSize: 13, lineHeight: 1.55, minHeight: 40, color: data.label ? dx.ink : dx.dim }}
-            onDoubleClick={event => { event.stopPropagation(); setEditing(true) }}
+            onDoubleClick={() => setEditing(true)}
           >
             {data.label ? <MarkdownView text={data.label} /> : '双击开始编辑...'}
           </div>
@@ -579,7 +569,7 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
       }}>
         <div
           className="nodrag nopan"
-          onDoubleClick={event => { event.stopPropagation(); setEditing(true) }}
+          onDoubleClick={() => setEditing(true)}
           style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           color: dx.ink, fontWeight: 500, fontSize: 12,

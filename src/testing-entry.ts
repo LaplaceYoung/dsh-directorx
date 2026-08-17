@@ -46,12 +46,14 @@ export {
 export {
   answerQuestion, dockItemsFromSnapshot, resolveLiveSession, linesFromFold,
 } from './client/stage/session-live.ts'
+export { mediaFromToolResult, mediaKindOf } from './client/stage/session-media.ts'
 export { wantsCharacterSheet, withCharacterSheetSpec } from './providers/sheet-prompt.ts'
 export { parseInline, parseMarkdown, safeHref } from './client/stage/markdown.ts'
 export {
   aspectRatio, characterBucket, incomingRefIds, libraryBucket, nearestAspect, sizeFromAspect, specPrompt, takePeers,
 } from './client/stage/workstation.ts'
-export { alignBoxes, asClipPayload, clampMenu, distributeBoxes, nudgeBoxes, packClip } from './client/stage/layout.ts'
+export { alignBoxes, asClipPayload, clampMenu, distributeBoxes, focusViewOptions, nudgeBoxes, packClip } from './client/stage/layout.ts'
+export { displayCardTitle, isAssetSlug, nextCardLabel, resolveStoredLabel } from './card-label.ts'
 export { registerSubagentSetup } from './subagents.ts'
 export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH, MEDIA_LIST_ROUTE_PATH, MEDIA_TASKS_ROUTE_PATH, STUDIO_ROUTE_PATH, inspectMediaFile, mediaTypeExt, MEDIA_ROUTE_PATH, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerStudioRoute } from './media-server.ts'
 export { losslessJsonObject, MAX_MEDIA_BYTES, parseMediaQuery, parseRangeHeader, resolveMediaPath, resolveOutputDir } from './support.ts'

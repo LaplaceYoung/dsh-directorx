@@ -271,12 +271,14 @@ export function dockItemsFromSnapshot(raw: unknown): LiveDockModel {
       seenCalls.add(callId)
       const err = rec.isError === true
       const args = pretty(call?.argsRaw)
+      const result = textFromBlocks(rec.content) || textFromBlocks(rec.output) || pretty(rec.result)
       lines.push({
         id: `tool-${seq}`,
         kind: 'tool',
         name,
         text: toolCaption(name, typeof call?.argsRaw === 'string' ? call.argsRaw : args),
         ...(args !== undefined ? { args } : {}),
+        ...(result !== undefined && result !== '' ? { result } : {}),
         status: err ? 'error' : 'ok',
       })
       continue

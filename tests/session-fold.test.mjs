@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  answerQuestion, createdSessionId, dockItemsFromSnapshot, foldSessionHistory, parseSessionList,
+  answerQuestion, createdSessionId, dockItemsFromSnapshot, foldSessionHistory, mediaFromToolResult, parseSessionList,
   parseWorkspaceList, pickWorkspaceSession, resolveLiveSession, rpcOk, sessionRunningFromList,
   summarizeToolName, textFromBlocks, toolCaption, wantsCharacterSheet, withCharacterSheetSpec,
 } from '../lib/testing.js'
@@ -212,6 +212,40 @@ test('question respond keeps PendingWait this so #settled is readable', async ()
   })
   assert.equal(model.waits[0]?.kind, 'question')
   await answerQuestion(model.waits[0], [{ id: 'style', selected: ['荒土'] }])
+})
+
+test('mediaFromToolResult reads generate image and video files', () => {
+  const images = mediaFromToolResult(JSON.stringify({
+    prompt: '古道独行，尘土飞扬。远山。',
+    files: [{ path: 'directorx_output/vast-desolate-wilderness-in-ancient-chin-2026-08.png', mimeType: 'image/png' }],
+  }), 'directorx_generate_image')
+  assert.equal(images.length, 1)
+  assert.equal(images[0].kind, 'image')
+  assert.equal(images[0].label, '古道独行，尘土飞扬')
+  const videos = mediaFromToolResult(JSON.stringify({
+    files: [{ path: '/tmp/shot.mp4', mimeType: 'video/mp4' }],
+  }), 'directorx_generate_video')
+  assert.equal(videos[0].kind, 'video')
+  assert.equal(mediaFromToolResult('{"ok":true}', 'directorx_canvas_add').length, 0)
+})
+
+test('dockItemsFromSnapshot keeps generate result for session thumbs', () => {
+  const model = dockItemsFromSnapshot({
+    openState: 'open',
+    running: false,
+    nodes: [{
+      kind: 'tool-result',
+      seq: 4,
+      callId: 'g1',
+      call: { name: 'directorx_generate_image', argsRaw: '{"prompt":"desert"}' },
+      content: [{ kind: 'text', text: '{"files":[{"path":"/tmp/a.png","mimeType":"image/png"}]}' }],
+      isError: false,
+    }],
+  })
+  const tool = model.lines.find(line => line.kind === 'tool')
+  assert.equal(tool?.name, 'directorx_generate_image')
+  assert.match(String(tool?.result), /a\.png/)
+  assert.equal(mediaFromToolResult(tool?.result, tool?.name)[0]?.kind, 'image')
 })
 
 test('character sheet prompts stay sheets, not stills', () => {

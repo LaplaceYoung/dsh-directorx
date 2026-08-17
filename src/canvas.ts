@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { resolveStoredLabel } from './card-label.ts'
 import { resolveOutputDir } from './support.ts'
 import { planContinueGenerate, type ContinueGenerateKind } from './canvas-generate.ts'
 
@@ -139,18 +140,20 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
   const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'text' || input.kind === 'group' ? input.kind : 'text'
   const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
   const rawParent = input.parent
+  const prompt = typeof input.prompt === 'string' && input.prompt !== '' ? input.prompt.slice(0, 2000) : undefined
+  const shotIndex = typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? Math.floor(input.shotIndex) : undefined
   const node: CanvasNode = {
     id: typeof input.id === 'string' && input.id !== '' ? input.id : newId(kind),
     kind,
-    label: typeof input.label === 'string' ? input.label.slice(0,200) : '',
+    label: resolveStoredLabel(undefined, typeof input.label === 'string' ? input.label.slice(0, 200) : '', prompt, shotIndex).slice(0, 200),
     ...(typeof input.path === 'string' && input.path !== '' ? { path: input.path.slice(0, 1000) } : {}),
     ...(typeof rawParent === 'string' && rawParent !== '' ? { parent: rawParent.slice(0, 100) } : {}),
     x: numberOr(input.x, 0),
     y: numberOr(input.y, 0),
     ...(input.width !== undefined ? { width: Math.max(60, Math.min(kind === 'group' ? 3200 : 1600, numberOr(input.width, 240))) } : {}),
     ...(input.height !== undefined ? { height: Math.max(60, Math.min(kind === 'group' ? 2400 : 1200, numberOr(input.height, 160))) } : {}),
-    ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
-    ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
+    ...(shotIndex !== undefined ? { shotIndex } : {}),
+    ...(prompt !== undefined ? { prompt } : {}),
     ...(input.locked === true ? { locked: true } : {}),
     ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
     ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked', 'failed'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
@@ -384,7 +387,16 @@ export class DirectorxCanvasStore {
             throw new Error(`节点 ${id} 已锁定（定妆用途）：拒改提示词/内容/分组；解锁 = 先 update 该节点 patch {locked: false}。位置调整放行。`)
           }
         }
-        const merged = { ...doc.nodes[nodeIndex], ...patch, id } as unknown as Record<string, unknown>
+        const existing = doc.nodes[nodeIndex]
+        if (typeof patch.label === 'string') {
+          patch.label = resolveStoredLabel(
+            existing.label,
+            patch.label,
+            typeof patch.prompt === 'string' ? patch.prompt : existing.prompt,
+            typeof patch.shotIndex === 'number' ? patch.shotIndex : existing.shotIndex,
+          )
+        }
+        const merged = { ...existing, ...patch, id } as unknown as Record<string, unknown>
         // Explicitly ungroup: parent null clears membership.
         if (patch.parent === null) delete merged.parent
         doc.nodes[nodeIndex] = sanitizeNode(merged)

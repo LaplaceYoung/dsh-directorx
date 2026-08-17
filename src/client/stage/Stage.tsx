@@ -16,6 +16,7 @@ import {
   MultiSelectBar, NodeMenu, SearchPalette, ShortcutsSheet, StageRail, Toast, TopBar, ZoomHud, type AddKind,
 } from './chrome.tsx'
 import { cycleShotStatus, defaultSize, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
+import { displayCardTitle, nextCardLabel } from './card-label.ts'
 import { mediaUrl, stageNodeTypes } from './nodes.tsx'
 import { SessionDock, type SessionClient } from './SessionDock.tsx'
 import {
@@ -25,7 +26,7 @@ import {
 import { createLiveSession } from './session-live.ts'
 import { boxPort, closestHandleId, WireDragLayer, WireEdge, WirePreview } from './WireEdge.tsx'
 import { getClientProject, pickDefaultProject, projectHeaders, setClientProject, withProject, type ProjectInfo } from './project.ts'
-import { alignBoxes, asClipPayload, distributeBoxes, nudgeBoxes, packClip, type AlignKind } from './layout.ts'
+import { alignBoxes, asClipPayload, distributeBoxes, focusViewOptions, nudgeBoxes, packClip, type AlignKind } from './layout.ts'
 import { incomingRefIds, nearestAspect, sizeFromAspect, specPrompt, type GenerateSpec } from './workstation.ts'
 
 export interface StageProps {
@@ -51,46 +52,64 @@ const STAGE_CSS = `
 .dx-stage .react-flow__background { pointer-events: none !important; }
 .dx-stage .react-flow__pane { cursor: grab; }
 .dx-stage .react-flow__pane:active { cursor: grabbing; }
-.dx-stage .react-flow__node { position: absolute !important; overflow: visible !important; }
+.dx-stage .react-flow__node,
+.dx-stage .react-flow__node-media,
+.dx-stage .react-flow__node-text,
+.dx-stage .react-flow__node-group {
+  position: absolute !important;
+  overflow: visible !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 .dx-stage .react-flow__handle {
   position: absolute !important;
-  width: 28px !important; height: 28px !important; min-width: 28px; min-height: 28px;
+  width: 22px !important; height: 22px !important; min-width: 22px; min-height: 22px;
   background: transparent !important; border: none !important; opacity: 1;
   pointer-events: all !important; z-index: 6;
 }
 .dx-stage .react-flow__handle.react-flow__handle-left {
-  left: -14px !important; right: auto !important; top: 50% !important;
+  left: -20px !important; right: auto !important; top: 50% !important;
   transform: translate(0, -50%) !important;
 }
 .dx-stage .react-flow__handle.react-flow__handle-right {
-  right: -14px !important; left: auto !important; top: 50% !important;
+  right: -20px !important; left: auto !important; top: 50% !important;
   transform: translate(0, -50%) !important;
 }
 .dx-stage .react-flow__handle.react-flow__handle-top {
-  top: -14px !important; bottom: auto !important; left: 50% !important;
+  top: -18px !important; bottom: auto !important; left: 50% !important;
   transform: translate(-50%, 0) !important;
 }
 .dx-stage .react-flow__handle.react-flow__handle-bottom {
-  bottom: -14px !important; top: auto !important; left: 50% !important;
+  bottom: -18px !important; top: auto !important; left: 50% !important;
   transform: translate(-50%, 0) !important;
 }
+.dx-stage .react-flow__handle-top .dx-port-plus,
+.dx-stage .react-flow__handle-bottom .dx-port-plus,
+.dx-stage .react-flow__handle-top .dx-port-dot,
+.dx-stage .react-flow__handle-bottom .dx-port-dot { opacity: 0; }
+.dx-stage.dx-wiring .react-flow__handle-top .dx-port-dot,
+.dx-stage.dx-wiring .react-flow__handle-bottom .dx-port-dot,
+.dx-stage .react-flow__node:hover .react-flow__handle-top .dx-port-dot,
+.dx-stage .react-flow__node:hover .react-flow__handle-bottom .dx-port-dot { opacity: .7; }
 .dx-port-dot {
   display: block; width: 10px; height: 10px; border-radius: 99px;
   background: #f3f3f3; border: 2px solid #111;
   opacity: 0; transition: opacity .15s ease, transform .15s ease;
 }
 .dx-port-plus {
-  display: grid; place-items: center; width: 22px; height: 22px; border-radius: 99px;
+  display: grid; place-items: center; width: 16px; height: 16px; border-radius: 99px;
   background: #f3f3f3; color: #141414; box-shadow: 0 4px 14px rgba(0,0,0,.35);
   opacity: 0; transition: opacity .15s ease, transform .15s ease;
 }
-.dx-stage .react-flow__node:hover .dx-port-dot,
-.dx-stage .react-flow__node.selected .dx-port-dot,
-.dx-stage .react-flow__handle-connecting .dx-port-dot,
-.dx-stage .react-flow__handle-valid .dx-port-dot,
 .dx-stage .react-flow__node:hover .dx-port-plus,
 .dx-stage .react-flow__node.selected .dx-port-plus,
 .dx-stage .react-flow__handle-connecting .dx-port-plus { opacity: 1; }
+.dx-stage .react-flow__node.selected .react-flow__handle-left .dx-port-dot,
+.dx-stage .react-flow__node.selected .react-flow__handle-right .dx-port-dot,
+.dx-stage .react-flow__node:hover .react-flow__handle-left .dx-port-dot,
+.dx-stage .react-flow__node:hover .react-flow__handle-right .dx-port-dot { opacity: 1; }
 .dx-stage.dx-wiring .dx-port-dot,
 .dx-stage.dx-wiring .dx-port-plus { opacity: 1; }
 .dx-stage.dx-wiring .react-flow__node { cursor: crosshair; }
@@ -199,44 +218,53 @@ const STAGE_CSS = `
   border-color: rgba(255,255,255,.16) !important;
   background: rgba(12,12,12,.72) !important;
 }
+.dx-card-caption { pointer-events: auto; }
+.dx-card-meta {
+  display: flex; align-items: center; gap: 6px; width: 100%; min-height: 22px;
+}
+.dx-card-lock { color: rgba(255,255,255,.72); display: grid; place-items: center; flex-shrink: 0; }
+.dx-face-fill { background: #0a0a0a !important; }
 .dx-kind-badge {
   position: absolute; top: 8px; left: 8px; height: 22px; min-width: 22px; padding: 0 7px;
   border-radius: 7px; display: inline-flex; align-items: center; gap: 5px;
   color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.2px;
   background: rgba(10,10,10,.55); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px);
 }
-.dx-kind-image { background: #0b0c0e; }
-.dx-kind-video { background: #0c0a09; }
+.dx-kind-image { background: #121214; }
+.dx-kind-video { background: #121110; }
 .dx-kind-text { background: linear-gradient(180deg, #17140f 0%, #100e0c 100%); }
-.dx-media-well { height: 100%; background: #090909; }
-.dx-kind-image .dx-media-well { background: #08090b; }
-.dx-kind-video .dx-media-well { background: #0a0908; }
+.dx-stage .react-flow__node .dx-card-face {
+  position: relative;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.dx-stage .react-flow__node:hover .dx-card-face {
+  border-color: rgba(255,255,255,.22);
+}
+.dx-media-well {
+  position: absolute; inset: 0; height: auto; width: auto; background: #111;
+}
+.dx-kind-image .dx-media-well, .dx-kind-video .dx-media-well { background: #111; }
+.dx-media-fill { background: #0a0a0a; }
+.dx-media-bleed, .dx-media-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+.dx-media-img, .dx-media-bleed video {
+  object-fit: cover; display: block; width: 100%; height: 100%;
+}
 .dx-film::before, .dx-film::after {
-  content: ''; position: absolute; top: 0; bottom: 0; width: 9px; z-index: 2; pointer-events: none;
-  background: repeating-linear-gradient(180deg, rgba(255,255,255,.14) 0 3px, transparent 3px 10px);
-  opacity: .42;
+  content: ''; position: absolute; top: 0; bottom: 0; width: 8px; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.1) 0 3px, transparent 3px 11px);
+  opacity: .28;
 }
 .dx-film::before { left: 0; }
 .dx-film::after { right: 0; }
 .dx-empty-plate {
-  height: 100%; display: grid; place-items: center; align-content: center; gap: 8px;
-  color: #6a6a6a; font-size: 12px; font-family: inherit; position: relative;
+  height: 100%; display: grid; place-items: center; color: rgba(255,255,255,.28);
 }
-.dx-empty-glyph {
-  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
-  background: rgba(255,255,255,.035); border: 1px dashed rgba(255,255,255,.16);
-}
-.dx-kind-video .dx-empty-glyph { border-radius: 12px; }
+.dx-empty-glyph { display: grid; place-items: center; color: rgba(255,255,255,.3); }
+.dx-empty-glyph svg { width: 28px; height: 28px; }
 .dx-empty-title { color: #c8c8c8; font-size: 12px; }
 .dx-empty-hint { color: #6a6a6a; font-size: 10.5px; }
-.dx-empty-upload {
-  height: 26px; padding: 0 10px; border-radius: 999px; gap: 5px; font-size: 11px;
-  border: 1px solid rgba(255,255,255,.1); background: rgba(12,12,12,.78); color: #f4f4f4;
-  display: flex; align-items: center; cursor: pointer; font-family: inherit;
-}
-.dx-float-upload {
-  position: absolute; right: 8px; top: -30px; z-index: 6; pointer-events: auto;
-}
 .dx-text-sheet {
   background:
     linear-gradient(180deg, rgba(232,214,176,.06), transparent 38%),
@@ -333,12 +361,23 @@ const STAGE_CSS = `
 .dx-stage.dx-hide-wires .dx-wire-label,
 .dx-stage.dx-hide-wires .dx-wire-halo { opacity: 0 !important; pointer-events: none !important; }
 .dx-stage .react-flow__node { outline: none !important; }
-.dx-stage .react-flow__node:not(.selected):not(.dx-can-connect) { box-shadow: none !important; }
-.dx-stage .react-flow__resize-control.line { border: none !important; background: transparent !important; }
+.dx-stage .react-flow__node:not(.dx-can-connect) { box-shadow: none !important; }
+.dx-stage .react-flow__resize-control { position: absolute !important; }
+.dx-stage .react-flow__resize-control.line { display: none !important; }
 .dx-stage .react-flow__resize-control.handle {
-  width: 7px !important; height: 7px !important; border-radius: 2px;
+  width: 6px !important; height: 6px !important; border-radius: 1px;
   background: #f3f3f3 !important; border: none !important;
 }
+.dx-stage .react-flow__resize-control.handle-top,
+.dx-stage .react-flow__resize-control.handle-right,
+.dx-stage .react-flow__resize-control.handle-bottom,
+.dx-stage .react-flow__resize-control.handle-left {
+  display: none !important;
+}
+.dx-stage .react-flow__resize-control.top.left { top: 0 !important; left: 0 !important; }
+.dx-stage .react-flow__resize-control.top.right { top: 0 !important; right: 0 !important; }
+.dx-stage .react-flow__resize-control.bottom.left { bottom: 0 !important; left: 0 !important; }
+.dx-stage .react-flow__resize-control.bottom.right { bottom: 0 !important; right: 0 !important; }
 `
 
 interface MediaFile { path: string; name: string; mediaType: string; size: number; at?: number }
@@ -961,7 +1000,7 @@ function StageInner(props: StageProps): ReactNode {
     const record = await saveBlob(blob, snapshot.path?.split('/').pop() ?? 'edit', mediaType)
     const kind: 'image' | 'video' = mediaType.startsWith('video/') ? 'video' : 'image'
     if (selected !== undefined && selected.type === 'media') {
-      patchSelected({ path: record.path, label: record.name, kind })
+      patchSelected({ path: record.path, label: nextCardLabel(selected.data.label, record.name) ?? record.name, kind })
     } else {
       addNode(kind, { path: record.path, label: record.name })
     }
@@ -1038,12 +1077,16 @@ function StageInner(props: StageProps): ReactNode {
     scheduleSave()
   }, [scheduleSave])
 
-  const focusTake = useCallback((id: string) => {
+  const focusNode = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
     if (node === undefined) return
     setNodes(current => current.map(item => ({ ...item, selected: item.id === id })))
-    void fitView({ nodes: [node], padding: 0.35, duration: 220, maxZoom: 1.15 })
+    void fitView({ nodes: [node], ...focusViewOptions(node.type === 'group' ? 'group' : 'card') })
   }, [fitView])
+
+  const focusTake = useCallback((id: string) => {
+    focusNode(id)
+  }, [focusNode])
 
   const adoptTake = useCallback((id: string) => {
     const chosen = nodesRef.current.find(node => node.id === id)
@@ -1193,7 +1236,7 @@ function StageInner(props: StageProps): ReactNode {
       if (!usedTarget && targetId !== undefined) {
         const node = nodesRef.current.find(item => item.id === targetId)
         if (node?.type === 'media') {
-          patchNode(targetId, { path: record.path, label: record.name, kind })
+          patchNode(targetId, { path: record.path, label: nextCardLabel(node.data.label, record.name) ?? record.name, kind })
           usedTarget = true
           continue
         }
@@ -1532,7 +1575,8 @@ function StageInner(props: StageProps): ReactNode {
       if (event.key.toLowerCase() === 'f' && !event.metaKey && !event.ctrlKey) {
         event.preventDefault()
         const focus = nodesRef.current.filter(node => node.selected === true)
-        void fitView({ nodes: focus.length > 0 ? focus : undefined, padding: 0.24, duration: 240, maxZoom: 1.15 })
+        const kind = focus.length === 1 && focus[0]?.type === 'group' ? 'group' : 'card'
+        void fitView({ nodes: focus.length > 0 ? focus : undefined, ...focusViewOptions(kind) })
         return
       }
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) && !event.metaKey && !event.ctrlKey) {
@@ -1669,11 +1713,11 @@ function StageInner(props: StageProps): ReactNode {
           }}
           edgeTypes={edgeTypes}
           connectionLineComponent={WirePreview}
-          onNodeDoubleClick={(_event, node) => {
-            const data = node.data
-            if ((data.kind === 'image' || data.kind === 'video') && typeof data.path === 'string' && data.path !== '') {
-              openStudio(data.kind, data.path)
-            }
+          onNodeDoubleClick={(event, node) => {
+            const target = event.target as HTMLElement
+            if (target.closest('input, textarea, [contenteditable="true"]') !== null) return
+            event.preventDefault()
+            focusNode(node.id)
           }}
           onPaneClick={() => {
             setPicker(false)
@@ -1900,17 +1944,14 @@ function StageInner(props: StageProps): ReactNode {
               .map(node => ({
                 id: node.id,
                 kind: node.data.kind ?? node.type ?? 'text',
-                label: node.data.label,
+                label: displayCardTitle(node.data.label, node.data.prompt, node.data.shotIndex) || node.data.label,
               }))}
             onQuery={setSearchQuery}
             onFilter={setSearchFilter}
             onPick={id => {
-              const node = nodes.find(item => item.id === id)
               setSearchOpen(false)
               setSearchQuery('')
-              if (node === undefined) return
-              setNodes(current => current.map(item => ({ ...item, selected: item.id === id })))
-              void fitView({ nodes: [node], padding: 0.35, duration: 240, maxZoom: 1.15 })
+              focusNode(id)
             }}
             onClose={() => setSearchOpen(false)}
           />
@@ -1999,6 +2040,17 @@ function StageInner(props: StageProps): ReactNode {
             ...(selected.data.path !== undefined ? { path: selected.data.path } : {}),
           } : undefined}
           onClearSelected={() => setNodes(current => current.map(node => ({ ...node, selected: false })))}
+          onAddMedia={file => {
+            const existing = nodesRef.current.find(node => node.data.path === file.path)
+            if (existing !== undefined) {
+              setNodes(current => current.map(node => ({ ...node, selected: node.id === existing.id })))
+              focusNode(existing.id)
+              showToast('已在画布上打开')
+              return
+            }
+            addNode(file.kind, { path: file.path, label: file.label, kind: file.kind })
+            showToast('已加入画布')
+          }}
         />
         {helpOpen && !studioOpen ? <ShortcutsSheet onClose={() => setHelpOpen(false)} /> : null}
         {picker ? (
@@ -2014,7 +2066,7 @@ function StageInner(props: StageProps): ReactNode {
             onPick={file => {
               const kind: 'image' | 'video' = file.mediaType.startsWith('video/') ? 'video' : 'image'
               const empty = selected?.type === 'media' && (selected.data.path === undefined || selected.data.path === '')
-              if (empty && selected !== undefined) patchNode(selected.id, { path: file.path, label: file.name, kind })
+              if (empty && selected !== undefined) patchNode(selected.id, { path: file.path, label: nextCardLabel(selected.data.label, file.name) ?? file.name, kind })
               else addNode(kind, { path: file.path, label: file.name })
               setPicker(false)
             }}

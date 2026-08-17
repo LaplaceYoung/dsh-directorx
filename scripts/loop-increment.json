@@ -22,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(brief): compose a recipe-backed tool sequence without requiring orchestrate"
+  "message": "feat(canvas): center a double-clicked node and hide file-slug titles"
 }
