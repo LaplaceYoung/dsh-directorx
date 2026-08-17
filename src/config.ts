@@ -43,11 +43,17 @@ export interface ModeAuth {
   runwayVersion: string
 }
 
+export type InitiativeMode = '严格' | '自动' | '协同'
+
 export interface DirectorxSettings {
   outputDir: string
   timeoutMs: number
   pollIntervalMs: number
   maxPollAttempts: number
+  /** Dedicated 成片 persona — analysis is from a 导演角度. */
+  persona: '成片'
+  /** Initiative: 严格 / 自动 / 协同. */
+  initiative: InitiativeMode
   vision: CapabilitySettings
   image: CapabilitySettings
   video: CapabilitySettings
@@ -84,6 +90,8 @@ export const DirectorxSettings = z.object({
   timeoutMs: z.number().step(1).min(1_000).max(3_600_000).default(120_000).description('HTTP timeout for one provider request.'),
   pollIntervalMs: z.number().step(1).min(500).max(60_000).default(5_000).description('Async task polling interval.'),
   maxPollAttempts: z.number().step(1).min(1).max(2_000).default(360).description('Maximum async task polling attempts.'),
+  persona: z.union(['成片']).default('成片').description('成片 persona：导演角度分析，积极调用知识库与 skill。'),
+  initiative: z.union(['严格', '自动', '协同']).default('协同').description('严格：多确认、不生成、二到四个提示词。自动：预算内直接执行生成。协同：提示词和占位，用户审阅后执行生成。'),
   vision: capability(VISION_MODES, 'openai-chat', 'https://api.modelverse.cn/v1', 'gpt-5.6-luna'),
   image: capability(IMAGE_MODES, 'openai-images', 'https://api.modelverse.cn/v1', 'gpt-image-2'),
   video: capability(VIDEO_MODES, 'modelverse-tasks', 'https://api.modelverse.cn/v1', 'doubao-seedance-2-0-260128', '2K'),

@@ -5,6 +5,7 @@ import type {} from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
+import { chengpianPersonaText, parseInitiative, runChengpianEvent } from './persona.ts'
 import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
@@ -51,6 +52,15 @@ function combinedSignal(execSignal: AbortSignal, timeoutMs: number): AbortSignal
   return AbortSignal.any([execSignal, AbortSignal.timeout(timeoutMs)])
 }
 
+function generationGate(settings: DirectorxSettings, prompt: string) {
+  return runChengpianEvent({
+    mode: settings.initiative,
+    event: 'generate',
+    prompt,
+    inBudget: true,
+  })
+}
+
 function toolContext(settings: DirectorxSettings, capability: DirectorxSettings['vision'], signal: AbortSignal) {
   return { settings, capability, signal, ledger: new DirectorxTaskLedger(settings.outputDir) }
 }
@@ -93,6 +103,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       timeoutMs: settings.timeoutMs,
       isConcurrencySafe: () => true,
       async execute(args: any, exec: any) {
+        const gate = generationGate(settings, String(args.prompt ?? ''))
+        if (!gate.generate) {
+          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+        }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
@@ -130,6 +144,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       output: objectOutput(),
       timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * settings.maxPollAttempts),
       async execute(args: any, exec: any) {
+        const gate = generationGate(settings, String(args.prompt ?? ''))
+        if (!gate.generate) {
+          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+        }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
@@ -169,6 +187,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       async execute(args: any, exec: any) {
+        const gate = generationGate(settings, String(args.text ?? ''))
+        if (!gate.generate) {
+          return { ...gate, refused: true, next: gate.mode === '严格' ? 'ask_user_question 让用户从 prompts 里选一条，再 directorx_propose' : 'directorx_propose 排队提示词和占位' }
+        }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         return runAudio(toolContext(settings, settings.audio, signal), args.text, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
       },
@@ -863,7 +885,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   const proposals = new ProposalStore(settings.outputDir)
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_propose',
-    description: 'Queue a fully-specified generation unit as a PLACEHOLDER proposal (manual/interaction control mode): stores the plan in proposals.json and does NOT spend any API quota. The user reviews the proposal list and approves; only approved proposals get executed with the real generation tools.',
+    description: 'Queue a fully-specified generation unit as a PLACEHOLDER (成片 严格/协同). Stores the plan in proposals.json and does NOT spend quota. 严格 expands one task into 二到四个提示词变体 for the user to pick via ask_user_question. 协同 queues 提示词和占位 for later 审阅.',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true, description: 'Generation kind.' },
       prompt: { type: 'string', required: true, description: 'Full generation prompt.' },
@@ -878,7 +900,30 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return proposals.propose({ ...args, count: args.count ?? 1 })
+      const decision = runChengpianEvent({
+        mode: settings.initiative,
+        event: args.variants === true || parseInitiative(settings.initiative) === '严格' ? 'generate' : 'placeholder-batch',
+        prompt: String(args.prompt ?? ''),
+        variantCount: typeof args.variantCount === 'number' ? args.variantCount : undefined,
+      })
+      if (decision.mode === '严格' && decision.prompts.length >= 2) {
+        const queued = []
+        for (const [index, prompt] of decision.prompts.entries()) {
+          queued.push(await proposals.propose({
+            kind: args.kind,
+            prompt,
+            model: args.model,
+            size: args.size,
+            duration: args.duration,
+            count: 1,
+            estimatedCost: args.estimatedCost,
+            note: `严格变体 ${index + 1}/${decision.prompts.length}；用户选择后再执行生成。${args.note ?? ''}`,
+            canvasNodeId: args.canvasNodeId,
+          }))
+        }
+        return { ...decision, ask: 'ask_user_question', proposals: queued }
+      }
+      return proposals.propose({ ...args, count: args.count ?? 1, note: args.note })
     },
   })))
 
@@ -1204,6 +1249,30 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         request: String(args.request),
         outputDir: settings.outputDir,
         materials: Array.isArray(args.materials) ? args.materials.map(String) : [],
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_chengpian',
+    description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (ask_user_question), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
+    parameters: {
+      event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
+      prompt: { type: 'string', description: 'Generation task wording (导演角度的镜头/画面描述).' },
+      inBudget: { type: 'boolean', description: '自动 only: false if this unit would exceed the agreed budget.' },
+      necessaryAsk: { type: 'boolean', description: '自动 only: true if this ambiguity must be asked.' },
+      variantCount: { type: 'number', description: '严格: how many of 二到四个提示词 (clamped 2–4).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return runChengpianEvent({
+        mode: settings.initiative,
+        event: args.event,
+        prompt: args.prompt,
+        inBudget: args.inBudget,
+        necessaryAsk: args.necessaryAsk,
+        variantCount: args.variantCount,
       })
     },
   })))
@@ -1589,14 +1658,21 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     ...(settings.audio.enabled ? ['directorx_generate_audio', 'directorx_transcribe_audio'] : []),
     'directorx_probe_media',
     'directorx_extract_frames',
+    'directorx_chengpian',
   ]
-  return ctx.systemPrompt.section({
+  const initiative = parseInitiative(settings.initiative)
+  const disposePersona = ctx.systemPrompt.section({
+    name: 'directorx:chengpian',
+    order: 5,
+    text: chengpianPersonaText(initiative),
+  })
+  const disposeTools = ctx.systemPrompt.section({
     name: 'tool:directorx',
     order: 117,
     text: [
-      '## DirectorX persona',
-      '- You are DirectorX (DX), the AI film-director form of this assistant: a production lead who plans, confirms, generates, inspects, edits, and delivers visual media. The WebUI (canvas / editors / cards) is your working surface, not decoration.',
-      '- Work style: triage every media request (simple → generate directly; complex → load `directorx-production-lead`, match a recipe, compose research / confirm / placeholders yourself); publish a plan before batch generation (cost guardrail); keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
+      '## DirectorX media tools',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm with DSH `ask_user_question`.',
+      '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, claim the oldest pending intent with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
@@ -1616,4 +1692,8 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- If a tool fails with a Base URL / API Key / mode error, tell the user to open WebUI Settings → DirectorX and configure the matching capability.',
     ].filter(Boolean).join('\n'),
   })
+  return () => {
+    disposePersona()
+    disposeTools()
+  }
 }

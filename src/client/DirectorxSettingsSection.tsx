@@ -224,6 +224,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   const [canvasInfo, setCanvasInfo] = useState<{ nodes: number; edges: number; title?: string } | undefined>(undefined)
   const [canvasAction, setCanvasAction] = useState<string | undefined>(undefined)
   const [confirmReset, setConfirmReset] = useState(false)
+  const [initiative, setInitiative] = useState<'严格' | '自动' | '协同'>('协同')
 
   async function refreshCanvas(): Promise<void> {
     try {
@@ -264,6 +265,8 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
       }
       setView(target)
       setDraft(readDraft(target.value))
+      const mode = target.value.initiative
+      setInitiative(mode === '严格' || mode === '自动' || mode === '协同' ? mode : '协同')
       setWritable(response.result.value.writable)
       setStatus('ready')
       void refreshCanvas()
@@ -283,7 +286,10 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     setSaved(false)
     setError(undefined)
     try {
-      const ops: Array<{ op: 'set' | 'unset'; path: string[]; value?: unknown }> = []
+      const ops: Array<{ op: 'set' | 'unset'; path: string[]; value?: unknown }> = [
+        { op: 'set', path: ['persona'], value: '成片' },
+        { op: 'set', path: ['initiative'], value: initiative },
+      ]
       for (const key of Object.keys(draft) as Array<keyof Draft>) {
         const capability = draft[key]
         ops.push(
@@ -330,6 +336,18 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     <div style={{ padding: 18 }}>
       <h2 style={sectionTitle}>DirectorX 模型</h2>
       <p style={hint}>为视觉、图像生成、视频生成、音频生成分别配置 Base URL、API Key、配置方式与能力开关。配置保存到 DSH settings（`directorx` 命名空间），无需重启即时生效。</p>
+      <div style={card}>
+        <strong>成片 persona · 主动性</strong>
+        <p style={hint}>分析从导演角度出发，并积极加载知识库与 skill。DSH 持有 agent loop。严格：多确认、不生成、二到四个提示词。自动：预算内直接执行生成。协同：提示词和占位，用户审阅后执行生成。</p>
+        <div style={row}>
+          <span style={label}>主动性</span>
+          <select style={input} value={initiative} onChange={event => setInitiative(event.target.value as '严格' | '自动' | '协同')}>
+            <option value="严格">严格</option>
+            <option value="自动">自动</option>
+            <option value="协同">协同</option>
+          </select>
+        </div>
+      </div>
       {!writable ? <p style={hint}>当前 settings 后端只读，无法保存修改。</p> : null}
       {error !== undefined ? <p role="alert" style={{ color: '#ff9b8f', fontSize: 12 }}>{error}</p> : null}
       {saved ? <p role="status" style={{ color: '#8fdc9f', fontSize: 12 }}>已保存并热更新工具注册。</p> : null}
