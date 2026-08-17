@@ -1,4 +1,8 @@
 export { corpus } from './corpus.ts'
+export { normalizeAskQuestions } from './ask.ts'
+export { ProductionStageStore, STAGE_IDS } from './stage.ts'
+export { SkillIndex, skillIndex } from './skill-index.ts'
+export { chengpianAskQuestions } from './persona.ts'
 export { DirectorxEditLedger, MAX_EDIT_LINES } from './edits.ts'
 export { DirectorxTaskLedger, MAX_LEDGER_LINES } from './tasks.ts'
 export { openaiTts, runAudio, mockAudio } from './providers/audio.ts'
@@ -52,6 +56,15 @@ export { TermStore } from './terms.ts'
 export { LIMITS, clampRange } from './limits.ts'
 export { contactSheet } from './providers/contact-sheet.ts'
 export { MODEL_MATRIX, routeModel } from './model-matrix.ts'
+export {
+  parseAdapterSpec, classifyProviderDoc, buildBody, readPath, adapterIdFor, collectUrls,
+} from './providers/adapter-spec.ts'
+export { AdapterStore } from './providers/adapter-store.ts'
+export { genericGenerate, authHeaders } from './providers/generic-rest.ts'
+export {
+  ingestProvider, classifyProvider, draftProvider, smokeProvider, commitProvider,
+  contractSmoke, resolveGenerateCapability, adapterCapabilities,
+} from './providers/provider-onboard.ts'
 export { generationPreset, listPresets } from './presets.ts'
 export { buildShotPrompt, buildShotSequence, gateShotSequence } from './providers/shot-builder.ts'
 export { orchestrateProduction, inferProductionKind, extractEntities, parseDurationSeconds } from './orchestrate/run.ts'

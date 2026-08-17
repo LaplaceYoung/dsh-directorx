@@ -14,6 +14,7 @@ export type CapabilityMode =
   | 'kling-v3'
   | 'vidu'
   | 'veo'
+  | 'generic-rest'
   | 'mock'
 
 export interface CapabilitySettings {
@@ -61,9 +62,9 @@ export interface DirectorxSettings {
 }
 
 export const VISION_MODES = ['openai-chat', 'mock'] as const
-export const IMAGE_MODES = ['openai-images', 'modelverse-tasks', 'mock'] as const
-export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'mock'] as const
-export const AUDIO_MODES = ['openai-tts', 'mock'] as const
+export const IMAGE_MODES = ['openai-images', 'modelverse-tasks', 'generic-rest', 'mock'] as const
+export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'generic-rest', 'mock'] as const
+export const AUDIO_MODES = ['openai-tts', 'generic-rest', 'mock'] as const
 
 function modeAuth() {
   return z.object({

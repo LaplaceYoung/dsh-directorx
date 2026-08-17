@@ -5,7 +5,7 @@ import type {} from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import type { DirectorxSettings } from './config.ts'
-import { chengpianPersonaText, parseInitiative, planPlaceholderEnqueue, resolveGenerateAuthorization, runChengpianEvent } from './persona.ts'
+import { chengpianAskQuestions, chengpianPersonaText, parseInitiative, planPlaceholderEnqueue, resolveGenerateAuthorization, runChengpianEvent } from './persona.ts'
 import { corpus } from './corpus.ts'
 import { listMediaFiles } from './media-server.ts'
 import { contactSheet } from './providers/contact-sheet.ts'
@@ -41,7 +41,22 @@ import { applyGrade, inferMediaKind, listGradeLabels, resolveGradeLook } from '.
 import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
 import { StudioTicketStore } from './studio-intent.ts'
 import { runInProject, sessionProjectRoot } from './project.ts'
-export {} // CharacterStore imported below
+import { normalizeAskQuestions, presentAsk } from './ask.ts'
+import { ProductionStageStore, parseStageId } from './stage.ts'
+import { defaultSkillRoot, skillIndex } from './skill-index.ts'
+
+import {
+  adapterCapabilities,
+  classifyProvider,
+  commitProvider,
+  draftProvider,
+  ingestProvider,
+  listProviders,
+  resolveGenerateCapability,
+  smokeProvider,
+  type ApplyCapability,
+} from './providers/provider-onboard.ts'
+import type { AdapterCapability } from './providers/adapter-spec.ts'
 
 function asJsonObject(value: unknown): Record<string, unknown> {
   return losslessJsonObject(value)
@@ -91,11 +106,21 @@ async function generationGate(
   })
 }
 
-function toolContext(settings: DirectorxSettings, capability: DirectorxSettings['vision'], signal: AbortSignal) {
-  return { settings, capability, signal, ledger: new DirectorxTaskLedger(settings.outputDir) }
+function toolContext(settings: DirectorxSettings, capability: DirectorxSettings['vision'], signal: AbortSignal, adapter?: import('./providers/adapter-spec.ts').AdapterSpec) {
+  return { settings, capability, signal, ledger: new DirectorxTaskLedger(settings.outputDir), adapter }
 }
 
-export function syncTools(ctx: Context, settings: DirectorxSettings): () => void {
+async function generateContext(
+  settings: DirectorxSettings,
+  capability: AdapterCapability,
+  signal: AbortSignal,
+  modelOverride?: string,
+) {
+  const resolved = await resolveGenerateCapability(settings, capability, modelOverride)
+  return toolContext(settings, resolved.capability, signal, resolved.spec)
+}
+
+export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapability?: ApplyCapability): () => void {
   const disposers: Array<() => void> = []
   const proposals = new ProposalStore(settings.outputDir)
 
@@ -129,6 +154,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         quality: { type: 'string', enum: ['auto', 'low', 'medium', 'high'], description: 'Quality hint for providers that support it.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
+        model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
@@ -149,7 +175,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
         const prompt = withCharacterSheetSpec(blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt)
-        return runImage(toolContext(settings, settings.image, signal), prompt, {
+        return runImage(await generateContext(settings, 'image', signal, typeof args.model === 'string' ? args.model : undefined), prompt, {
           size: args.size,
           quality: args.quality,
           referenceImagePaths: refs,
@@ -172,6 +198,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional reference image paths/URLs for character/appearance consistency.' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         negative_prompt: { type: 'string', description: 'Optional negative prompt (基线见 directorx-methodology 规则 26：模糊/解剖错误/水印/闪烁四类)。Provider 支持时透传（如 kling legacy）。' },
+        model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
@@ -193,7 +220,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
         const prompt = blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt
         const negative = [typeof args.negative_prompt === 'string' ? args.negative_prompt : '', style?.negativeBaseline ?? ''].filter(part => part !== '').join(', ')
-        return runVideo(toolContext(settings, settings.video, signal), prompt, {
+        return runVideo(await generateContext(settings, 'video', signal, typeof args.model === 'string' ? args.model : undefined), prompt, {
           seconds: args.seconds,
           size: args.size,
           aspectRatio: args.aspect_ratio,
@@ -217,6 +244,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         format: { type: 'string', enum: ['mp3', 'wav', 'opus', 'aac'], description: 'Audio format. Default mp3.' },
         instructions: { type: 'string', description: 'Performance instructions (gpt-4o-mini-tts 官方七维：口音/情绪幅度/语调/模仿/语速/语气/耳语)。示例：「Speak in a calm documentary tone; pause before numbers; end sentences level.」不透传时表演走 text 标点协议（directorx-methodology 规则 92-99）。' },
         speed: { type: 'number', description: '语速（0.25-4.0，口播 1.0-1.2；极端值损害音质，微调优先靠文本节奏）。' },
+        model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅.' },
       },
       output: objectOutput(),
@@ -227,7 +255,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，批准后再带 proposalId 执行' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        return runAudio(toolContext(settings, settings.audio, signal), gate.prompt, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
+        return runAudio(await generateContext(settings, 'audio', signal, typeof args.model === 'string' ? args.model : undefined), gate.prompt, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
       },
     })))
 
@@ -250,31 +278,75 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_search',
-    description: 'Search the bundled DirectorX film/AI-video knowledge corpus (350+ Chinese craft articles). Returns ranked article ids, titles, paths, and snippets. Call directorx_knowledge_read for the full article.',
+    description: 'Search the bundled DirectorX film/AI-video knowledge corpus (350+ Chinese craft articles). Ranks title/slug/group first, then body; expands craft synonyms (首尾帧/三视图/分镜…). Always search before claiming the corpus lacks a topic. Then directorx_knowledge_read.',
     parameters: {
       query: { type: 'string', required: true, description: 'Search query, e.g. "图生视频 首尾帧 提示词" or "camera movement semantics".' },
       max_results: { type: 'number', description: 'Maximum results (default 8, max 20).' },
+      group: { type: 'string', description: 'Optional inventory group: foundation / production / consistency / synthesis.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
       const maxResults = Math.min(20, Math.max(1, Math.round(args.max_results ?? 8)))
-      return { query: args.query, results: await corpus.search(args.query, maxResults) }
+      const group = typeof args.group === 'string' ? args.group : undefined
+      return { query: args.query, group: group ?? null, results: await corpus.search(args.query, maxResults, { group }) }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_read',
-    description: 'Read one bundled DirectorX knowledge article by id, slug, numeric id, or package-relative path returned by directorx_knowledge_search.',
+    description: 'Read bundled knowledge article(s) by id/slug/number/path from directorx_knowledge_search. Pass refs[] to read several. Returns related ids to keep researching.',
     parameters: {
-      ref: { type: 'string', required: true, description: 'Article id/slug/path from directorx_knowledge_search, e.g. "114" or "ai-video-model-matrix".' },
+      ref: { type: 'string', description: 'One article id/slug/path, e.g. "116".' },
+      refs: { type: 'array', items: { type: 'string' }, description: 'Read up to 3 articles in one call.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      return corpus.readArticle(args.ref)
+      const refs = [
+        ...(typeof args.ref === 'string' && args.ref.trim() !== '' ? [args.ref] : []),
+        ...(Array.isArray(args.refs) ? args.refs.map(String) : []),
+      ].slice(0, 3)
+      if (refs.length === 0) throw new Error('directorx_knowledge_read 需要 ref 或 refs')
+      const articles = []
+      for (const ref of refs) articles.push(await corpus.readArticle(ref))
+      const related = await corpus.related(refs[0] as string, 3).catch(() => [])
+      return { articles, related }
+    },
+  })))
+
+  skillIndex.setRoot(defaultSkillRoot())
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_skill_search',
+    description: 'Search bundled DirectorX skills (name, description, headings, reference files). Use before guessing a workflow. Then directorx_skill_read the full SKILL.md.',
+    parameters: {
+      query: { type: 'string', required: true, description: 'Craft term, e.g. "三视图 角色" or "seedance prompt".' },
+      max_results: { type: 'number', description: 'Default 8, max 20.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 20_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const maxResults = Math.min(20, Math.max(1, Math.round(args.max_results ?? 8)))
+      return { query: args.query, results: await skillIndex.search(String(args.query), maxResults) }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_skill_read',
+    description: 'Read a bundled skill SKILL.md (or a references/*.md file). The DSH skill manifest is only a summary — read the body before executing that craft.',
+    parameters: {
+      name: { type: 'string', required: true, description: 'Skill name from directorx_skill_search, e.g. novel-characters.' },
+      file: { type: 'string', description: 'Optional relative file inside the skill folder, e.g. references/sheet.md.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 20_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return skillIndex.read(String(args.name), typeof args.file === 'string' ? args.file : undefined)
     },
   })))
 
@@ -1155,6 +1227,70 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_ask',
+    description: 'Pause on a DSH question card for any fork the user must own (时长/画幅/风格/接入协议/是否打最短测试). NEVER write a numbered 1.2.3 menu in assistant text — call this instead. Up to 6 questions, each with options and a recommended default.',
+    parameters: {
+      question: { type: 'string', description: 'Single-question shorthand.' },
+      options: { type: 'array', items: { type: 'object', additionalProperties: true }, description: '[{label, description?}]' },
+      recommended: { type: 'string', description: 'Default option label.' },
+      header: { type: 'string' },
+      detail: { type: 'string' },
+      multiSelect: { type: 'boolean' },
+      questions: { type: 'array', items: { type: 'object', additionalProperties: true }, description: 'Full card list if you need more than one fork.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any, exec: any) {
+      const userInteraction = ctx.get('userInteraction') as {
+        ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+      } | undefined
+      if (userInteraction === undefined) {
+        throw new Error('directorx_ask requires DSH userInteraction (Web UI or TUI).')
+      }
+      const questions = normalizeAskQuestions(args.questions ?? args)
+      return presentAsk({
+        questions,
+        ask: request => userInteraction.ask(request),
+        agent: exec.agent,
+        signal: exec.signal,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_stage',
+    description: '成片阶段账本（outputDir/stage.json）：brief→research→forks→script→cast→storyboard→place→generate→assemble→qa→deliver。记录阶段性产物，过闸用提问卡。不要静默跳阶段。',
+    parameters: {
+      action: { type: 'string', enum: ['get', 'record', 'advance'], description: 'Default get.' },
+      stage: { type: 'string', description: 'record/advance 的阶段 id。' },
+      kind: { type: 'string', description: 'record: 产物类型，如 outline / cast / shotlist / cut。' },
+      path: { type: 'string', description: 'record: 产物路径。' },
+      note: { type: 'string', description: 'record: 一句话说明。' },
+      skip: { type: 'boolean', description: 'advance 时跳过当前阶段。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      const store = new ProductionStageStore(settings.outputDir)
+      const action = args.action === 'record' || args.action === 'advance' ? args.action : 'get'
+      if (action === 'record') {
+        return store.record({
+          stage: parseStageId(args.stage),
+          kind: String(args.kind ?? 'note'),
+          path: typeof args.path === 'string' ? args.path : undefined,
+          note: typeof args.note === 'string' ? args.note : undefined,
+        })
+      }
+      if (action === 'advance') {
+        const to = parseStageId(args.stage)
+        if (to === undefined) throw new Error('advance 需要合法 stage id')
+        return store.advance(to, args.skip === true ? 'skip' : 'done')
+      }
+      return store.get()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_proposal_next',
     description: '审批门循环：返回队列中最旧的一条待执行提案——优先返回已批准且未回填 taskId 的（画布 UI 批准后由 DSH 承接执行），否则返回最旧待批准提案；配合 directorx_proposal_update 走 提案→批准→执行→完成 的人机审批环。',
     parameters: {},
@@ -1535,7 +1671,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_chengpian',
-    description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (directorx_confirm / DSH ask), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
+    description: '成片 persona decision. Call before asking or generating. When confirm=true it also returns `ask` cards — pass them to directorx_ask (or set present:true to pause now). Pair with directorx_knowledge_search / directorx_skill_read / directorx_stage.',
     parameters: {
       event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
       prompt: { type: 'string', description: 'Generation task wording, or the exact chosen prompt.' },
@@ -1544,10 +1680,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       inBudget: { type: 'boolean', description: '自动 only: false if this unit would exceed the agreed budget.' },
       necessaryAsk: { type: 'boolean', description: '自动 only: true if this ambiguity must be asked.' },
       variantCount: { type: 'number', description: '严格: how many of 二到四个提示词 (clamped 2–4).' },
+      present: { type: 'boolean', description: 'true = 立刻弹出提问卡，不要只返回 JSON。' },
     },
     output: objectOutput(),
-    timeoutMs: 15_000,
-    async execute(args: any) {
+    timeoutMs: 300_000,
+    async execute(args: any, exec: any) {
       const decision = runChengpianEvent({
         mode: settings.initiative,
         event: args.event,
@@ -1576,7 +1713,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           prompt: args.prompt,
           inBudget: args.inBudget,
         })
-      return { ...decision, enqueue, auth }
+      const ask = decision.confirm ? chengpianAskQuestions(decision, args.event) : []
+      let answers
+      if (args.present === true && ask.length > 0) {
+        const userInteraction = ctx.get('userInteraction') as {
+          ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+        } | undefined
+        if (userInteraction === undefined) throw new Error('directorx_chengpian present 需要 DSH userInteraction')
+        answers = (await presentAsk({
+          questions: normalizeAskQuestions(ask),
+          ask: request => userInteraction.ask(request),
+          agent: exec.agent,
+          signal: exec.signal,
+        })).answers
+      }
+      return { ...decision, enqueue, auth, ask, answers, next: ask.length > 0 && answers === undefined ? 'directorx_ask' : undefined }
     },
   })))
 
@@ -1781,7 +1932,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         needsLastFrame: args.needsLastFrame === true,
         needsAudio: args.needsAudio === true,
         needsMultiRef: args.needsMultiRef === true,
-      })
+      }, await adapterCapabilities(settings.outputDir))
     },
   })))
 
@@ -1947,6 +2098,113 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_ingest',
+    description: '入驻新生成模型第 1 步：收 model + API 文档（粘贴或 URL）+ 可选 Key/Base URL。Key 只写入本机 secret，不回传到会话。下一步 directorx_provider_classify。',
+    parameters: {
+      model: { type: 'string', required: true, description: '上游 model id。' },
+      capability: { type: 'string', enum: ['image', 'video', 'audio', 'vision'], required: true, description: '挂到哪一个能力。' },
+      apiDoc: { type: 'string', description: 'API 文档正文（推荐粘贴关键章节）。' },
+      apiDocUrl: { type: 'string', description: '用户给出的文档 URL。插件只拉取这一次。' },
+      baseURL: { type: 'string', description: 'API Base URL。' },
+      displayName: { type: 'string', description: '设置页显示名。' },
+      apiKey: { type: 'string', description: 'API Key。不会出现在工具返回里。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return ingestProvider({
+        outputDir: settings.outputDir,
+        model: String(args.model),
+        capability: args.capability,
+        apiDoc: typeof args.apiDoc === 'string' ? args.apiDoc : undefined,
+        apiDocUrl: typeof args.apiDocUrl === 'string' ? args.apiDocUrl : undefined,
+        baseURL: typeof args.baseURL === 'string' ? args.baseURL : undefined,
+        displayName: typeof args.displayName === 'string' ? args.displayName : undefined,
+        apiKey: typeof args.apiKey === 'string' ? args.apiKey : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_classify',
+    description: '入驻第 2 步：用固定指纹判断文档是已有协议（A）还是新 HTTP（B/generic-rest）。不调用模型。',
+    parameters: {
+      id: { type: 'string', required: true, description: 'ingest 返回的 id。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return classifyProvider(settings.outputDir, String(args.id))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_draft',
+    description: '入驻第 3 步：写入/补全 AdapterSpec。只允许封闭字段（mode/baseURL/auth/create/poll/syncResult/caps）。缺字段返回 issues，不要发明协议。A 类通常只需 baseURL+caps；B 类必须有 create 与 poll 或 syncResult。',
+    parameters: {
+      id: { type: 'string', required: true, description: 'ingest id。' },
+      spec: { type: 'object', additionalProperties: true, required: true, description: 'AdapterSpec 补丁。create.body 的值必须是 {type:"from",field:"prompt"} 或 {type:"const",value}。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return draftProvider(settings.outputDir, String(args.id), args.spec !== null && typeof args.spec === 'object' ? args.spec as Record<string, unknown> : {})
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_smoke',
+    description: '入驻第 5 步：最小回归。默认契约+探活。live:true 才打一发最短真调用（B 类 generic-rest），必须先 directorx_confirm。',
+    parameters: {
+      id: { type: 'string', required: true, description: 'ingest id。' },
+      live: { type: 'boolean', description: 'true 时打最短付费调用。默认 false。' },
+      createFixture: { type: 'object', additionalProperties: true, description: '文档里的 create 响应示例，用于契约校验。' },
+      pollFixture: { type: 'object', additionalProperties: true, description: '文档里的 poll 响应示例。' },
+    },
+    output: objectOutput(),
+    timeoutMs: Math.max(settings.timeoutMs, 120_000),
+    async execute(args: any) {
+      return smokeProvider({
+        settings,
+        id: String(args.id),
+        live: args.live === true,
+        createFixture: args.createFixture,
+        pollFixture: args.pollFixture,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_commit',
+    description: '入驻第 6 步：smoke 通过后写入 Settings（mode/model/baseURL/key）并点亮 catalog。设置 live 热更新；请用户刷新页面。',
+    parameters: {
+      id: { type: 'string', required: true, description: 'ingest id。' },
+      force: { type: 'boolean', description: '用户明确跳过回归时才允许。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return commitProvider({
+        settings,
+        id: String(args.id),
+        apply: applyCapability,
+        force: args.force === true,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_provider_list',
+    description: '列出本项目已入驻的生成模型（不含 Key）。',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    async execute() {
+      return listProviders(settings.outputDir)
+    },
+  })))
+
   return () => {
     for (const dispose of disposers.reverse()) dispose()
   }
@@ -1975,7 +2233,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     order: 117,
     text: [
       '## DirectorX media tools',
-      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm generation batches with `directorx_confirm` (DSH userInteraction). The user can inspect the board with `/directorx` without spending tokens.',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (question cards). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. The user can inspect the board with `/directorx` without spending tokens.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` (acts→groups, shots→nodes, 承接 edges) then `directorx_canvas_arrange`. Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
@@ -1988,13 +2246,14 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
       '- Multi-unit work: `directorx_brief` then follow its `compose` stages — research (knowledge/skill, then external facts) → `directorx_propose` (prompt + recommended model + spec) → `directorx_canvas_shotlist` → `directorx_confirm` (DSH ask UI signs the board). Do not generate until the batch is confirmed. Recipes are prior art, not a job catalog. `directorx_orchestrate` is optional.',
-      '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
+      '- Before media generation, `directorx_skill_search` / `directorx_skill_read` the matching skill body (manifest is only a summary) and `directorx_knowledge_search` / `directorx_knowledge_read` the corpus. Never claim the library lacks a topic without searching. For production requests, load `directorx-production-lead` first and triage simple vs complex. Record each stage artifact with `directorx_stage`.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
       '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',
       '- Agentic orchestration: for multi-unit goals, compose existing tools against the matching recipe. Use the `workflow` tool only when you need parallel subagents; `directorx-workflow` templates are prior art, not the default path.',
       '- Frame-level QA: extract stills with `directorx_extract_frames`, then inspect them with `directorx_view_image` (multi-frame comparisons) before accepting a video result.',
       '- Subtitle pipeline: `directorx_transcribe_audio` (format srt) produces subtitle files the video editor can overlay; keep transcripts in the output dir for reuse.',
+      '- New provider: user gives model + API doc + key. Load skill `directorx-provider-onboard`. Fixed path: `directorx_provider_ingest` → `classify` → `draft` (AdapterSpec only, never write code) → `directorx_ask` (确认协议/是否最短真调用) → `smoke` → `commit`. Never echo the API key. After commit, ask the user to refresh; generate_* stays the only entry.',
       '- If a tool fails with a Base URL / API Key / mode error, tell the user to open WebUI Settings → DirectorX and configure the matching capability.',
     ].filter(Boolean).join('\n'),
   })

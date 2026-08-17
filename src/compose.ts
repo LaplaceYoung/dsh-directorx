@@ -65,8 +65,8 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
   }
   const ask: ComposeStage = {
     name: '问',
-    purpose: '一次澄清真正的分叉（时长/画幅/改编幅度/替换范围），每项带推荐默认',
-    tools: [],
+    purpose: '一次澄清真正的分叉（时长/画幅/改编幅度/替换范围），每项带推荐默认。必须 directorx_ask 提问卡，禁止正文菜单。',
+    tools: ['directorx_ask'],
     phase: 'plan',
   }
   if (kind === 'promo') {

@@ -14,6 +14,9 @@ import { registerMcpRoute } from './mcp.ts'
 import { registerDirectorxCommands } from './commands.ts'
 import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
+import { registerAdaptersRoute } from './adapters-route.ts'
+import type { AdapterCapability } from './providers/adapter-spec.ts'
+import type { CapabilitySettings } from './config.ts'
 
 export { corpus } from './corpus.ts'
 export { runAudio, mockAudio } from './providers/audio.ts'
@@ -61,10 +64,22 @@ export function apply(ctx: Context): void {
   let disposeTools: (() => void) | undefined
   let disposePrompt: (() => void) | undefined
 
+  const applyCapability = async (capability: AdapterCapability, patch: Partial<CapabilitySettings>): Promise<void> => {
+    const current = scope.get() as DirectorxSettingsType
+    const prev = current[capability]
+    await scope.update({
+      [capability]: {
+        ...prev,
+        ...patch,
+        auth: { ...prev.auth, ...(patch.auth ?? {}) },
+      },
+    })
+  }
+
   const sync = (settings: DirectorxSettingsType): void => {
     disposeTools?.()
     disposePrompt?.()
-    disposeTools = syncTools(ctx, settings)
+    disposeTools = syncTools(ctx, settings, applyCapability)
     disposePrompt = registerSystemPrompt(ctx, settings)
   }
 
@@ -86,6 +101,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerProposalsRoute(ctx, () => scope.get().outputDir), 'directorx proposals route')
   ctx.effect(() => registerProposalUpdateRoute(ctx, () => scope.get().outputDir), 'directorx proposal update route')
   ctx.effect(() => registerSettingsTestRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx settings test route')
+  ctx.effect(() => registerAdaptersRoute(ctx, () => scope.get().outputDir), 'directorx adapters route')
   ctx.effect(() => registerMcpRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx mcp route')
   ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
   ctx.effect(() => registerDirectorxCommands(ctx, () => scope.get().outputDir), 'directorx commands')

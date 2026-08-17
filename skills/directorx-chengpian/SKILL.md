@@ -40,6 +40,7 @@ user-invocable: true
 
 ## 落画布与角色图
 
-- 剧本 / 分镜 / 角色表先问清分叉，用提问或 `directorx_confirm` 签字。**未签字不要** `directorx_canvas_plan` 或批量 `directorx_canvas_add` 铺空卡。
+- 剧本 / 分镜 / 角色表先问清分叉，用 `directorx_ask` 提问卡（禁止正文 1.2.3. 菜单），再用 `directorx_confirm` 签字。**未签字不要** `directorx_canvas_plan` 或批量 `directorx_canvas_add` 铺空卡。
+- 每过一阶段 `directorx_stage` `record` 产物路径，再 `advance`。先 `directorx_skill_read` / `directorx_knowledge_search`，不要空口编排。
 - 签字后落画布，立刻 `directorx_canvas_arrange`（幕为行、镜为横条）。
 - 角色出图 load `novel-characters`：一张 16:9 设定表（左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。

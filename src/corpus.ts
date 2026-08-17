@@ -40,6 +40,25 @@ function normPath(value: string): string {
   return value.replaceAll('\\', '/').replace(/^\/+/, '')
 }
 
+const SYNONYMS: Array<[RegExp, string]> = [
+  [/首尾帧|首帧|尾帧|first.?frame|last.?frame/i, '图生视频 image-to-video i2v 首帧 尾帧'],
+  [/图生视频|i2v|image.to.video/i, '首尾帧 首帧 参考图'],
+  [/三视图|设定图|正侧背|turnaround|character sheet/i, '角色 设定 三视图 正视 侧视 背视'],
+  [/分镜|storyboard|镜号/i, '分镜 镜头 景别 运镜'],
+  [/调色|lut|grade|色板|配色/i, '调色 色彩 胶片 青橙'],
+  [/一致性|continuity|锚点/i, '角色一致性 跨镜 参考图'],
+  [/口播|配音|tts|旁白/i, '音频 语音 口播 字幕'],
+  [/质检|qa|黑场|响度/i, '成片质检 时长 画幅'],
+]
+
+function expandQuery(query: string): string {
+  let extra = ''
+  for (const [pattern, words] of SYNONYMS) {
+    if (pattern.test(query)) extra += ` ${words}`
+  }
+  return `${query} ${extra}`.trim()
+}
+
 function textTokens(value: string): Set<string> {
   const tokens = new Set<string>()
   const words = value.toLowerCase().match(/[a-z0-9][a-z0-9_-]{1,}/g)
@@ -48,7 +67,10 @@ function textTokens(value: string): Set<string> {
     if (word.length > 3) tokens.add(word.slice(0, 4))
   }
   const han = value.replace(/[^\u4e00-\u9fff]/g, '')
-  for (let i = 0; i < han.length - 1; i += 1) tokens.add(han.slice(i, i + 2))
+  for (let i = 0; i < han.length; i += 1) {
+    tokens.add(han[i] ?? '')
+    if (i + 1 < han.length) tokens.add(han.slice(i, i + 2))
+  }
   return tokens
 }
 
@@ -58,12 +80,16 @@ function overlapScore(a: Set<string>, b: Set<string>): number {
   return hit
 }
 
-function scoreQuery(queryTokens: Set<string>, title: string, body: string): number {
-  const titleTokens = textTokens(title)
-  const bodyTokens = textTokens(body)
-  let score = overlapScore(queryTokens, titleTokens) * 8
-  score += overlapScore(queryTokens, bodyTokens)
-  // Prefer articles explicitly authored around generation and prompting.
+function scoreMeta(query: string, queryTokens: Set<string>, article: KnowledgeArticle): number {
+  const title = article.title
+  const slug = article.slug
+  const group = article.group ?? ''
+  const lower = query.toLowerCase()
+  let score = overlapScore(queryTokens, textTokens(`${title} ${slug} ${group}`)) * 6
+  score += overlapScore(queryTokens, textTokens(title)) * 4
+  if (title.toLowerCase().includes(lower) || slug.toLowerCase().includes(lower)) score += 80
+  if (title.toLowerCase().startsWith(lower) || slug.startsWith(lower.replace(/\s+/g, '-'))) score += 40
+  if (group !== '' && overlapScore(queryTokens, textTokens(group)) > 0) score += 8
   if (/prompt|提示词|generation|生成|模型/.test(title)) score += 2
   return score
 }
@@ -158,37 +184,40 @@ export class DirectorxCorpus {
     return this.loadInventory()
   }
 
-  async search(query: string, maxResults = 8): Promise<KnowledgeSearchHit[]> {
+  async search(query: string, maxResults = 8, options: { group?: string } = {}): Promise<KnowledgeSearchHit[]> {
     const q = query.trim()
     if (q === '') return []
-    const queryTokens = textTokens(q)
+    const expanded = expandQuery(q)
+    const queryTokens = textTokens(expanded)
     if (queryTokens.size === 0) return []
-    const articles = await this.loadInventory()
-    const scored: Array<{ article: KnowledgeArticle; score: number }> = []
-    const exactTitle: KnowledgeSearchHit[] = []
+    const groupFilter = options.group?.trim().toLowerCase()
+    const articles = (await this.loadInventory()).filter(article => (
+      groupFilter === undefined || groupFilter === '' || (article.group ?? '').toLowerCase() === groupFilter
+    ))
+    const prelim: Array<{ article: KnowledgeArticle; score: number }> = []
     for (const article of articles) {
-      if (article.title.toLowerCase().includes(q.toLowerCase())) {
-        exactTitle.push({ ...article, score: 10_000, snippet: article.title })
-        continue
-      }
-      const body = await this.read(article.path).catch(() => '')
-      const score = scoreQuery(queryTokens, article.title, body)
-      if (score > 0) scored.push({ article, score })
+      const score = scoreMeta(q, queryTokens, article)
+      if (score > 0) prelim.push({ article, score })
     }
-    const ranked = exactTitle
-      .concat(scored.sort((a, b) => b.score - a.score).map(item => ({
+    prelim.sort((a, b) => b.score - a.score)
+    const shortlist = prelim.slice(0, Math.max(24, maxResults * 4))
+    const refined: KnowledgeSearchHit[] = []
+    for (const item of shortlist) {
+      const body = await this.read(item.article.path).catch(() => '')
+      const score = item.score + overlapScore(queryTokens, textTokens(body.slice(0, 4_000)))
+      refined.push({
         ...item.article,
-        score: item.score,
-        snippet: '',
-      })))
-      .slice(0, Math.max(1, maxResults))
-    for (const hit of ranked) {
-      if (hit.snippet === '' || hit.snippet === hit.title) {
-        const body = await this.read(hit.path).catch(() => '')
-        hit.snippet = makeSnippet(body, queryTokens)
-      }
+        score,
+        snippet: makeSnippet(body, textTokens(q)),
+      })
     }
-    return ranked
+    return refined.sort((a, b) => b.score - a.score).slice(0, Math.max(1, maxResults))
+  }
+
+  async related(ref: string, maxResults = 3): Promise<KnowledgeSearchHit[]> {
+    const { article } = await this.readArticle(ref)
+    const hits = await this.search(`${article.title} ${article.group ?? ''}`, maxResults + 1)
+    return hits.filter(hit => hit.id !== article.id).slice(0, maxResults)
   }
 
   async readArticle(ref: string): Promise<{ article: KnowledgeArticle; content: string; redirectedFrom?: string }> {

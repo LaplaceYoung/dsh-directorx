@@ -7,6 +7,7 @@ import { minimaxH3Video } from './minimax.ts'
 import { klingV3Video } from './kling-v3.ts'
 import { viduVideo } from './vidu.ts'
 import { veoVideo } from './veo.ts'
+import { genericAsVideo } from './generic-rest.ts'
 import type { MediaFile, ProviderContext, VideoResult } from './types.ts'
 
 interface VideoCreateEnvelope {
@@ -178,6 +179,10 @@ export async function runVideo(
     if (ctx.capability.mode === 'kling-v3') return klingV3Video(ctx, prompt, options)
     if (ctx.capability.mode === 'vidu') return viduVideo(ctx, prompt, options)
     if (ctx.capability.mode === 'veo') return veoVideo(ctx, prompt, options)
+    if (ctx.capability.mode === 'generic-rest') {
+      if (ctx.adapter === undefined) throw new Error('generic-rest 需要已 commit 的 AdapterSpec（directorx_provider_commit）')
+      return genericAsVideo(ctx, ctx.adapter, { prompt, ...options })
+    }
     throw new Error(`Unsupported video mode: ${ctx.capability.mode}`)
   } catch (error) {
     // 失败分流：4xx（鉴权/参数）重试无效，5xx/超时（上游临时）可重试——

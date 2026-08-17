@@ -44,10 +44,17 @@ export interface RouteResult {
 }
 
 /** 按需求过滤并排序（命中项越全越靠前）。 */
-export function routeModel(request: RouteRequest): RouteResult {
+export function routeModel(request: RouteRequest, extras: ModelCapability[] = []): RouteResult {
   const eligible: ModelCapability[] = []
   const excluded: Array<{ model: string; reasons: string[] }> = []
-  for (const capability of MODEL_MATRIX) {
+  const seen = new Set<string>()
+  const matrix: ModelCapability[] = []
+  for (const capability of [...MODEL_MATRIX, ...extras]) {
+    if (seen.has(`${capability.mode}:${capability.model}`)) continue
+    seen.add(`${capability.mode}:${capability.model}`)
+    matrix.push(capability)
+  }
+  for (const capability of matrix) {
     const reasons: string[] = []
     if (request.durationSec !== undefined && (request.durationSec < capability.minDurationSec || request.durationSec > capability.maxDurationSec)) {
       reasons.push(`时长 ${request.durationSec}s 超出 [${capability.minDurationSec},${capability.maxDurationSec}]`)

@@ -64,6 +64,11 @@ const TOOL_LABEL: Record<string, string> = {
   directorx_canvas_batch: '画布：批量',
   directorx_canvas_shotlist: '画布：分镜表',
   directorx_confirm: '确认提案',
+  directorx_ask: '提问',
+  directorx_stage: '阶段',
+  directorx_skill_search: '检索技能',
+  directorx_skill_read: '读技能',
+  directorx_provider_ingest: '接入模型',
 }
 
 export function summarizeToolName(name: string): string {

@@ -227,16 +227,50 @@ export function runChengpianEvent(input: {
   })
 }
 
+export function chengpianAskQuestions(decision: ChengpianDecision, event: ChengpianEventKind): Array<{
+  id: string
+  header?: string
+  question: string
+  options?: Array<{ label: string; description?: string }>
+  recommended?: string
+}> {
+  if (event === 'generate' && decision.prompts.length > 0) {
+    return [{
+      id: 'prompt',
+      header: '选提示词',
+      question: '选一条导演角度提示词入队。不要在正文里再列一遍菜单。',
+      options: decision.prompts.map((line, index) => ({
+        label: `角度 ${index + 1}`,
+        description: line.slice(0, 160),
+      })),
+      recommended: '角度 1',
+    }]
+  }
+  return [{
+    id: 'forks',
+    header: '成片分叉',
+    question: '先定会影响后面所有镜头的分叉。推荐值已标出，可改。',
+    options: [
+      { label: '15秒 16:9 电影感', description: '短片默认：横屏、15 秒内、电影光影' },
+      { label: '30秒 9:16 竖屏', description: '短视频默认' },
+      { label: '多镜叙事横屏', description: '要剧本/分镜/角色表，确认后再落画布' },
+      { label: '我补充约束', description: '时长/画幅/改编幅度我自己说' },
+    ],
+    recommended: '15秒 16:9 电影感',
+  }]
+}
+
 export function chengpianPersonaText(mode: InitiativeMode): string {
   return [
     '## 成片 persona',
-    `- You are DirectorX in the dedicated **成片** persona. Analyse every request from a **导演角度** (blocking, continuity, light, lens, emotion, cut). Do not guess craft: actively load 成片-related **知识库** via \`directorx_knowledge_search\` / \`directorx_knowledge_read\` and the matching **skill** body (\`directorx-chengpian\`, \`directorx-methodology\`, \`directorx-production-lead\`) before planning or generating.`,
+    `- You are DirectorX in the dedicated **成片** persona. Analyse every request from a **导演角度** (blocking, continuity, light, lens, emotion, cut). Do not guess craft: actively load 成片-related **知识库** via \`directorx_knowledge_search\` / \`directorx_knowledge_read\` and the matching **skill** body via \`directorx_skill_search\` / \`directorx_skill_read\` (\`directorx-chengpian\`, \`directorx-methodology\`, \`directorx-production-lead\`) before planning or generating.`,
     `- Initiative mode is **${mode}**. Call \`directorx_chengpian\` on unclear events and before every generation unit.`,
-    '- **严格**: 第一个不明确的事件及时向用户确认；确认次数较多；绝不自己执行生成；每个生成任务提供**二到四个提示词**，用 `directorx_confirm` 让用户选择；选定后 `directorx_propose` chosen=true 入队单条占位；批准后带 `proposalId` 执行生成。',
+    '- **严格**: 第一个不明确的事件及时向用户确认；确认次数较多；绝不自己执行生成；每个生成任务提供**二到四个提示词**，用 `directorx_ask` 提问卡让用户选（禁止在正文里写 1.2.3. 菜单）；选定后 `directorx_propose` chosen=true 入队单条占位；批准后带 `proposalId` 执行生成。',
     '- **自动**: 非必要不会询问用户；在预算范围内会直接干，**直接执行生成**。',
     '- **协同**: 也会问用户，但比较主动；不直接执行生成；工作到最后产出视频计划；每次遇到生成任务只给出**提示词和占位**，用户最后从头开始一个个审阅然后带 `proposalId` 执行生成。',
-    '- 流程闸：先 `directorx_brief` / `directorx_chengpian` → 真正的分叉问清（时长/画幅/改编幅度/角色）→ 剧本与分镜草案用提问或 `directorx_confirm` 签字 → **签字后才** `directorx_canvas_plan` / 批量 `directorx_canvas_add`。禁止一上来把空卡铺满画布。',
-    '- 角色出图：先 load `novel-characters`。一张图必须是 16:9 设定表（左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。',
+    '- 流程闸：先 `directorx_brief` / `directorx_chengpian` → 真正的分叉用 `directorx_ask` 提问卡问清 → 剧本与分镜草案用 `directorx_confirm` 签字 → **签字后才** `directorx_canvas_plan`。阶段产物写入 `directorx_stage`。禁止一上来把空卡铺满画布。',
+    '- NEVER write a numbered 1. 2. 3. choice menu in assistant text. Call `directorx_ask` so the WebUI renders a card.',
+    '- 角色出图：先 `directorx_skill_read` `novel-characters`。一张图必须是 16:9 设定表（左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。',
     '- 落画布后立刻 `directorx_canvas_arrange`，保证分镜横条可读，不要叠在原点。',
   ].join('\n')
 }

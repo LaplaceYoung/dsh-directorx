@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { apiKeyOf, ensureOutputDir, readJsonResponse, slugify } from '../support.ts'
+import { genericAsAudio } from './generic-rest.ts'
 import type { AudioResult, MediaFile, ProviderContext } from './types.ts'
 
 interface SpeechEnvelope {
@@ -87,5 +88,9 @@ export async function openaiTts(ctx: ProviderContext, text: string, voice?: stri
 export async function runAudio(ctx: ProviderContext, text: string, options: { voice?: string; format?: string; instructions?: string; speed?: number }): Promise<AudioResult> {
   if (ctx.capability.mode === 'mock') return mockAudio(ctx, text)
   if (ctx.capability.mode === 'openai-tts') return openaiTts(ctx, text, options.voice, options.format, options.instructions, options.speed)
+  if (ctx.capability.mode === 'generic-rest') {
+    if (ctx.adapter === undefined) throw new Error('generic-rest 需要已 commit 的 AdapterSpec（directorx_provider_commit）')
+    return genericAsAudio(ctx, ctx.adapter, { prompt: text, text, voice: options.voice })
+  }
   throw new Error(`Unsupported audio mode: ${ctx.capability.mode}`)
 }

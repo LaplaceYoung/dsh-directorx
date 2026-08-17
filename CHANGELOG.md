@@ -16,6 +16,8 @@
 
 ### Added
 
+- **生成模型自接入（A+B）**：用户只交模型 id、API 文档、Key。固定工具链 `directorx_provider_ingest` → `classify` → `draft` → `smoke` → `commit`。已有协议复用现成适配器；对不上的新 HTTP 走 `generic-rest`（JSON create/poll，禁止生成代码）。设置页「接入新模型」，`generate_*` 可带 `model` 覆盖，路由表合并用户 catalog。README 将自适应接入作为首页能力。
+- **提问卡 / 检索 / 阶段账本**：`directorx_ask` 把分叉做成 DSH 提问卡（禁止正文菜单）；知识检索加同义词与分组，并增加 `directorx_skill_search` / `directorx_skill_read`；`directorx_stage` 记录 brief→deliver 的阶段性产物。
 - **画布交互（一手 fiber）**：左键拖节点移动、空白框选、中键/右键/空格平移、滚轮平移、捏合+左下角滑条缩放（10%–300%）；画布打开时收起「DirectorX 编辑」把手；details 列按剩余宽度改 grid。WebUI 仍不写 generating 节点。
 - **画布 agent 工具面（DSH 增删改查/分组/编排）**：`canvas_add` 可写 prompt/shotIndex/状态/连续性；新增 `canvas_node`（单条读写上下文）、`canvas_groups` / `canvas_group`（收组）、`canvas_disconnect`（按端点删边）、`canvas_sequence`（写镜号+承接）、`canvas_plan`（幕/镜一次落画布，不生成）。MCP 同步。WebUI 仍不得写 generating 节点。
 - **DSH 人机平面（命令 + 原生提问）**：宿主注册 `/directorx`（`ctx.commands`，Web 斜杠菜单 / TUI，零 token）；`directorx_confirm` 直接调用 `ctx.userInteraction.ask()` 对下一条 / 提案队列 / 分镜表签字并写回账本。不再只返回 `ask: ask_user_question` hints。客户端给裸 `/directorx` 挂 popupSelect。

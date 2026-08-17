@@ -21,6 +21,7 @@
 <br>
 
 <p align="center">
+  <a href="#自适应接入"><strong>自适应接入</strong></a> ·
   <a href="#它做什么"><strong>能力</strong></a> ·
   <a href="#成片"><strong>成片</strong></a> ·
   <a href="#快速开始"><strong>安装</strong></a> ·
@@ -39,6 +40,31 @@
 <p align="center">
   <sub>项目「临界点：看见之后」——节点是镜头，连线是承接。右侧 DSH 浮窗绑定当前画布工作区，生成条只投递意图。</sub>
 </p>
+
+---
+
+## 自适应接入
+
+**用户只给三样东西：模型 id、API 文档、API Key。** DSH 按固定流程自己完成配置、最小回归，刷新页面后即可生成。不需要你改插件代码，也不为每家厂商加新工具。
+
+这是 DirectorX 的接入面：已有协议走捷径（A），对不上的新 HTTP 走 `generic-rest`（B，主路径）。
+
+```text
+ingest 收文档和 Key（Key 不进会话）
+  → classify 判断 A / B
+  → draft 只填封闭 AdapterSpec（禁止写代码）
+  → ask 提问卡确认协议 / 是否打最短真调用
+  → smoke 契约 + 探活（可选一发最短生成）
+  → commit 写入 Settings，热挂工具
+```
+
+| | A 已有协议 | B 新提供商 |
+| --- | --- | --- |
+| 什么时候 | 文档对上 OpenAI 兼容 / ModelVerse / 可灵 / Runway / Vidu / Veo / MiniMax | 对不上任何现成 mode |
+| 你要填的 | baseURL + caps | create.body 映射 + poll 或 syncResult |
+| 生成入口 | 仍是 `directorx_generate_image` / `video` / `audio`，可带 `model` | 同左，mode=`generic-rest` |
+
+设置页有「接入新模型」表单；或直接对会话说「接入这个模型」。分叉一律走 **提问卡**（`directorx_ask`），不要在聊天里列 1. 2. 3.
 
 ---
 
@@ -133,10 +159,13 @@ dsh web
 
 然后打开 **Settings → DirectorX**，四个能力各自开关：Vision / Image / Video / Audio。RC.7 起设置项按命名空间 `directorx` 挂到 Host，不再依赖模型供应商白名单。
 
+复杂任务的分叉（时长、画幅、提示词、落画布、是否付费测试）一律用 **提问卡**，不要在正文里写编号菜单。知识用 `directorx_knowledge_search` / `read`（同义词 + 分组），技能用 `directorx_skill_search` / `read` 读全文。阶段产物写入 `directorx_stage`（brief → … → deliver）。
+
 | 阶段 | 做什么 |
 | --- | --- |
 | 现在 | 四个能力都切 `mock`，先把 brief → 确认 → 画布 → 时间线跑通 |
 | 有 Key 之后 | 填 Base URL 与 API Key，再开对应能力 |
+| 新厂商 | 交文档和 Key，走入驻六步，不要手写适配器 |
 
 开发与自测：
 
@@ -193,7 +222,7 @@ flowchart LR
 
 ## 工具箱里有什么
 
-90 个 `directorx_*` 工具，按工作面分组：
+100+ 个 `directorx_*` 工具，按工作面分组：
 
 | 工作面 | 代表工具 | 作用 |
 | --- | --- | --- |
@@ -201,7 +230,11 @@ flowchart LR
 | 镜头 | `directorx_shot` / `shot_sequence` / `shot_gate` | 景别运镜布光 → 提示词；相邻镜承接；生成前门禁 |
 | 占位 | `directorx_propose` / `canvas_shotlist` / `directorx_confirm` | 完整规格入队；编号分镜表；DSH 提问卡片签字。人也可 `/directorx` 看制片板 |
 | 画布 | `canvas_plan` / `group` / `sequence` / `node` / `intents` | 确认后落板；增删改查、分组、按幕写分镜；领取 UI 意图 |
-| 生成 | `generate_image` / `generate_video` / `generate_audio` | 文生图/视频/音频；角色锚点与三视图规格 |
+| 生成 | `generate_image` / `generate_video` / `generate_audio` | 文生图/视频/音频；角色锚点与三视图规格；可选 `model` 覆盖 |
+| 入驻 | `provider_ingest` / `classify` / `draft` / `smoke` / `commit` | 用户给模型+文档+Key；A 复用已有协议，B 走 generic-rest |
+| 提问 | `directorx_ask` / `directorx_confirm` | 分叉与签字都走 DSH 提问卡，禁止正文菜单 |
+| 检索 | `knowledge_search` / `read` · `skill_search` / `read` | 同义词检索语料；技能读全文和 references |
+| 阶段 | `directorx_stage` | 成片阶段账本与产物路径，过闸再进下一阶段 |
 | 剪辑 | `directorx_timeline` / `edit` / `smart_cut` / `studio` | 场景、转场、混音、人话改时间线；打开编辑台并套 16 调色 |
 | 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
 | 知识 | `directorx_knowledge_search` / `read` | 351 篇语料，按工艺检索 |
@@ -277,6 +310,13 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 <summary><b>画布右侧的会话是另一套 agent 吗？</b></summary>
 
 不是。那是当前工作区绑定的 DSH 会话：流式输出、提问卡、批准、新会话都走官方 Session。插件不另起 loop。
+
+</details>
+
+<details>
+<summary><b>怎么加一个文档里的新厂商？</b></summary>
+
+给 DSH 模型 id、API 文档（粘贴或 URL）和 Key。它会填一份封闭的 AdapterSpec，做最小回归，再写入 Settings。刷新后仍用 <code>directorx_generate_*</code>，不要为每家厂商加新工具。
 
 </details>
 

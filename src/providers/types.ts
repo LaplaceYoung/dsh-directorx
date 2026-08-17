@@ -1,5 +1,6 @@
 import type { CapabilitySettings, DirectorxSettings } from '../config.ts'
 import type { DirectorxTaskLedger } from '../tasks.ts'
+import type { AdapterSpec } from './adapter-spec.ts'
 
 export interface ProviderContext {
   settings: DirectorxSettings
@@ -7,6 +8,8 @@ export interface ProviderContext {
   signal: AbortSignal
   /** Optional append-only task ledger; async modes record their transitions here. */
   ledger?: DirectorxTaskLedger
+  /** Present when this call is bound to a user-onboarded adapter. */
+  adapter?: AdapterSpec
 }
 
 export interface MediaFile {

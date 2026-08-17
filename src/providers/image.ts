@@ -2,6 +2,7 @@ import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { apiKeyOf, downloadToFile, ensureOutputDir, mediaSourceToDataUrl, readJsonResponse, saveBase64ToFile, slugify } from '../support.ts'
 import { pollModelverseTask, submitModelverseTask } from './tasks.ts'
+import { genericAsImage } from './generic-rest.ts'
 import type { ImageResult, MediaFile, ProviderContext } from './types.ts'
 
 interface ImagesEnvelope {
@@ -120,6 +121,10 @@ export async function runImage(
     if (ctx.capability.mode === 'mock') return mockImage(ctx, prompt, options.size ?? '1024x1024')
     if (ctx.capability.mode === 'openai-images') return openaiImage(ctx, prompt, options.size, options.quality)
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseImage(ctx, prompt, options.size, options.referenceImagePaths ?? [])
+    if (ctx.capability.mode === 'generic-rest') {
+      if (ctx.adapter === undefined) throw new Error('generic-rest 需要已 commit 的 AdapterSpec（directorx_provider_commit）')
+      return genericAsImage(ctx, ctx.adapter, { prompt, size: options.size })
+    }
     throw new Error(`Unsupported image mode: ${ctx.capability.mode}`)
   } catch (error) {
     const taskId = (error as { taskId?: string } | null)?.taskId

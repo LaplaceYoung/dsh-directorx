@@ -64,9 +64,9 @@ const DEFAULT_DRAFT: Draft = {
 
 const MODES: Record<keyof Draft, string[]> = {
   vision: ['openai-chat', 'mock'],
-  image: ['openai-images', 'modelverse-tasks', 'mock'],
-  video: ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'mock'],
-  audio: ['openai-tts', 'mock'],
+  image: ['openai-images', 'modelverse-tasks', 'generic-rest', 'mock'],
+  video: ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'generic-rest', 'mock'],
+  audio: ['openai-tts', 'generic-rest', 'mock'],
 }
 
 const CAPABILITY_LABEL: Record<keyof Draft, string> = {
@@ -116,6 +116,7 @@ function CapabilityCard(props: {
   capability: 'vision' | 'image' | 'video' | 'audio'
   draft: CapabilityDraft
   modes: string[]
+  extraModels?: string[]
   onChange: (next: CapabilityDraft) => void
 }): ReactNode {
   const { draft } = props
@@ -174,7 +175,7 @@ function CapabilityCard(props: {
                 onChange={event => props.onChange({ ...draft, model: event.target.value })}
               />
               <datalist id={`dx-models-${props.capability}`}>
-                {MODELVERSE_BY_CAPABILITY[props.capability].map(id => <option key={id} value={id} />)}
+                {[...MODELVERSE_BY_CAPABILITY[props.capability], ...(props.extraModels ?? [])].filter((id, index, all) => all.indexOf(id) === index).map(id => <option key={id} value={id} />)}
               </datalist>
             </span>
           </div>
@@ -205,6 +206,9 @@ function CapabilityCard(props: {
                   </div>
                   <p style={hint}>可灵（Kling）模式使用 AK/SK 做 JWT 签名鉴权，不使用上面的 API Key；Base URL 填 https://api-beijing.klingai.com（国内）或 https://api.klingai.com（全球）。模型建议 kling-v2。</p>
                 </>
+              ) : null}
+              {draft.mode === 'generic-rest' ? (
+                <p style={hint}>generic-rest 走用户入驻的 AdapterSpec。在下方「接入新模型」或会话里交给 DSH：ingest → classify → draft → smoke → commit。</p>
               ) : null}
               {draft.mode === 'runway' ? (
                 <>
@@ -238,6 +242,38 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   const [canvasAction, setCanvasAction] = useState<string | undefined>(undefined)
   const [confirmReset, setConfirmReset] = useState(false)
   const [initiative, setInitiative] = useState<'严格' | '自动' | '协同'>('协同')
+  const [adapters, setAdapters] = useState<Array<{ id: string; model: string; capability: string; mode: string; status: string }>>([])
+  const [onboard, setOnboard] = useState({ capability: 'video', model: '', baseURL: '', apiDoc: '', apiDocUrl: '', apiKey: '' })
+  const [onboardMsg, setOnboardMsg] = useState<string | undefined>(undefined)
+
+  async function refreshAdapters(): Promise<void> {
+    try {
+      const response = await fetch(withProject('/directorx/adapters'), { headers: projectHeaders() })
+      if (!response.ok) return
+      const body = await response.json() as { adapters?: Array<{ id: string; model: string; capability: string; mode: string; status: string }> }
+      setAdapters(Array.isArray(body.adapters) ? body.adapters : [])
+    } catch {
+      // Non-blocking.
+    }
+  }
+
+  async function submitOnboard(): Promise<void> {
+    setOnboardMsg('提交中…')
+    try {
+      const response = await fetch(withProject('/directorx/adapters'), {
+        method: 'POST',
+        headers: { ...projectHeaders(), 'content-type': 'application/json' },
+        body: JSON.stringify(onboard),
+      })
+      const body = await response.json() as { ok?: boolean; id?: string; hint?: string; message?: string }
+      if (!response.ok || body.ok === false) throw new Error(body.message ?? String(response.status))
+      setOnboardMsg(body.hint ?? `已收料 ${body.id}。在会话里说：继续接入 ${body.id}`)
+      setOnboard(current => ({ ...current, apiKey: '' }))
+      await refreshAdapters()
+    } catch (cause) {
+      setOnboardMsg(`失败：${cause instanceof Error ? cause.message : String(cause)}`)
+    }
+  }
 
   async function refreshCanvas(): Promise<void> {
     try {
@@ -283,6 +319,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
       setWritable(response.result.value.writable)
       setStatus('ready')
       void refreshCanvas()
+      void refreshAdapters()
     } catch (loadError) {
       setStatus('error')
       setError(messageOf(loadError))
@@ -373,10 +410,44 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
             capability={capabilityKey}
             draft={draft[capabilityKey]}
             modes={MODES[capabilityKey]}
+            extraModels={adapters.filter(item => item.capability === capabilityKey).map(item => item.model)}
             onChange={(next) => { setDraft(current => ({ ...current, [capabilityKey]: next })) }}
           />
         )
       })}
+      <div style={{ ...card, marginTop: 12 }}>
+        <strong>接入新模型</strong>
+        <p style={hint}>给模型 id、API 文档、Key。这里只收料；DSH 按 ingest → classify → draft → smoke → commit 配完。提交后请到会话说「继续接入」该 id。</p>
+        <div style={row}><span style={label}>能力</span>
+          <select style={input} value={onboard.capability} onChange={event => setOnboard(current => ({ ...current, capability: event.target.value }))}>
+            <option value="video">视频</option>
+            <option value="image">图像</option>
+            <option value="audio">音频</option>
+          </select>
+        </div>
+        <div style={row}><span style={label}>Model</span>
+          <input style={input} value={onboard.model} placeholder="上游 model id" onChange={event => setOnboard(current => ({ ...current, model: event.target.value }))} />
+        </div>
+        <div style={row}><span style={label}>Base URL</span>
+          <input style={input} value={onboard.baseURL} placeholder="https://api.example.com/v1" onChange={event => setOnboard(current => ({ ...current, baseURL: event.target.value }))} />
+        </div>
+        <div style={row}><span style={label}>文档 URL</span>
+          <input style={input} value={onboard.apiDocUrl} placeholder="可选" onChange={event => setOnboard(current => ({ ...current, apiDocUrl: event.target.value }))} />
+        </div>
+        <div style={row}><span style={label}>文档正文</span>
+          <textarea style={{ ...input, minHeight: 88 }} value={onboard.apiDoc} placeholder="粘贴 API 文档关键章节" onChange={event => setOnboard(current => ({ ...current, apiDoc: event.target.value }))} />
+        </div>
+        <div style={row}><span style={label}>API Key</span>
+          <input style={input} type="password" autoComplete="off" value={onboard.apiKey} placeholder="不会回写到会话" onChange={event => setOnboard(current => ({ ...current, apiKey: event.target.value }))} />
+        </div>
+        <button style={{ ...button, marginBottom: 8 }} onClick={() => void submitOnboard()}>交给 DSH 入驻</button>
+        {onboardMsg !== undefined ? <p style={hint}>{onboardMsg}</p> : null}
+        {adapters.length > 0 ? (
+          <ul style={{ fontSize: 12, opacity: .8, paddingLeft: 18, margin: '8px 0 0' }}>
+            {adapters.map(item => <li key={item.id}>{item.model} · {item.capability} · {item.mode} · {item.status}</li>)}
+          </ul>
+        ) : null}
+      </div>
       <div style={{ ...card, marginTop: 12 }}>
         <strong>画布</strong>
         <div style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.7, opacity: .85 }}>
