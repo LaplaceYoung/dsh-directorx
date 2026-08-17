@@ -48,11 +48,14 @@ export function apply(ctx: ClientContext): void {
   const settingsCard = (name: 'settings.section' | 'settings.plugin.item') => {
     const connection = ctx.get('connection') as { api: { settings: unknown } } | undefined
     if (connection === undefined) return () => {}
+    // settings.section is a list (id + label). Live settings.plugin.item is
+    // also a list (id + order); older hosts keyed it on the namespace.
     return ctx.slots.register({
       name,
-      ...(name === 'settings.section'
-        ? { id: 'directorx', order: 30, label: 'DirectorX' }
-        : { key: 'directorx' }),
+      id: 'directorx',
+      key: 'directorx',
+      order: 30,
+      label: 'DirectorX',
       inject: () => ({ api: connection.api.settings }),
     }, DirectorxSettingsSection)
   }

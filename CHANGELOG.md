@@ -6,7 +6,7 @@
 
 ### Changed
 
-- **适配 DeepSeek Harness 0.1.0-rc.7**：浏览器半侧同时注册 `settings.section` 与按命名空间配对的 `settings.plugin.item`（key=`directorx`），并在 `dsh.client.inject` 声明 `@deepseek-ai/dsh-client-ui-settings-plugins`。RC.7 起 Host 服务全部已注册 settings 命名空间，不再依赖模型供应商白名单。
+- **适配 DeepSeek Harness 0.1.0-rc.7**：浏览器半侧同时注册 `settings.section` 与 `settings.plugin.item`（`id`/`key`=`directorx`）。现网 plugin.item 是 list 槽，必须带 `options.id`。RC.7 起 Host 服务全部已注册 settings 命名空间。
 - **README**：补入画布截图与成片演示（`docs/assets/`），并按当前画布会话、确认后落板、调色台、90 工具、DSH 0.1.0-rc.7 对齐说明。
 - **ffmpeg 8**：`delogo` 去掉已删除的 `band` 选项；烧录字幕改走 `subtitles` 滤镜（`ass` 不再读 SRT）。
 
