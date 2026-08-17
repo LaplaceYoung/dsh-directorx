@@ -81,3 +81,5 @@ export { formatProductionBoard, formatProposalList, countProposals } from './boa
 export { parseDirectorxCommand, runDirectorxCommand, registerDirectorxCommands } from './commands.ts'
 export { buildConfirmQuestions, applyConfirmAnswers, confirmProduction } from './confirm.ts'
 export { registerMcpRoute } from './mcp.ts'
+export { syncTools } from './tools.ts'
+export { collectToolSpecs, defaultContractSettings } from './tool-collect.ts'

@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import type { Context } from 'cordis'
 import type { SettingsNamespace } from '@deepseek-ai/dsh-settings'
 import type {} from '@deepseek-ai/dsh-settings'
+import { defineTool } from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
@@ -79,7 +80,7 @@ export function apply(ctx: Context): void {
   const sync = (settings: DirectorxSettingsType): void => {
     disposeTools?.()
     disposePrompt?.()
-    disposeTools = syncTools(ctx, settings, applyCapability)
+    disposeTools = syncTools(ctx, settings, applyCapability, defineTool)
     disposePrompt = registerSystemPrompt(ctx, settings)
   }
 

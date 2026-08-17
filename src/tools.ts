@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs'
 import type { Context } from 'cordis'
-import { defineTool } from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-tools'
 import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
@@ -71,9 +70,13 @@ function renderJson(_args: unknown, value: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(asJsonObject(value), null, 2) }]
 }
 
+type ToolDefine = (def: Record<string, unknown>) => unknown
+
+let defineRegistered: ToolDefine = def => def
+
 function safeDefine(def: any) {
   const run = def.execute as (args: unknown, exec: unknown) => Promise<unknown>
-  return defineTool({
+  return defineRegistered({
     ...def,
     execute: async (args: never, exec: never) => {
       const root = sessionProjectRoot(exec)
@@ -145,7 +148,9 @@ async function generateContext(
   return toolContext(settings, resolved.capability, signal, resolved.spec)
 }
 
-export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapability?: ApplyCapability): () => void {
+export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapability?: ApplyCapability, define: ToolDefine = def => def): () => void {
+  const previous = defineRegistered
+  defineRegistered = define
   const disposers: Array<() => void> = []
   const proposals = new ProposalStore(settings.outputDir)
 
@@ -404,7 +409,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     parameters: {
       intent: { type: 'string', required: true, description: '用户原句 / 画布生成条意图。' },
       prompt: { type: 'string', required: true, description: '调研后的成稿：主体动作 + 景别运镜 + 环境光 + 风格焦段，正说，具体运动。' },
-      kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true },
+      kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true, description: '成稿用于出图、出视频还是出声音。' },
       knowledgeRefs: { type: 'array', items: { type: 'string' }, required: true, description: '已 read 的知识库 id。' },
       skillNames: { type: 'array', items: { type: 'string' }, required: true, description: '已 read 的技能名。' },
       externalNotes: { type: 'string', description: '外部调研摘要；语料已够就写 corpus-sufficient。' },
@@ -443,7 +448,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     name: 'directorx_generate_ready',
     description: '生成前参考齐备闸。读画布和角色库，判定本任务该走设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧 / 文生。缺参考就 blocked，并用提问卡让用户选路。commit:true 只在齐备时发 readyId；generate/propose/canvas_continue 必带。',
     parameters: {
-      kind: { type: 'string', enum: ['image', 'video'], required: true },
+      kind: { type: 'string', enum: ['image', 'video'], required: true, description: '本任务出图还是出视频。' },
       intent: { type: 'string', required: true, description: '用户原句 / 画布意图。' },
       prompt: { type: 'string', required: true, description: 'prompt_craft 成稿。不齐时也可先拿来诊断。' },
       craftId: { type: 'string', description: 'commit 时必填。' },
@@ -2385,6 +2390,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   return () => {
     for (const dispose of disposers.reverse()) dispose()
+    defineRegistered = previous
   }
 }
 
