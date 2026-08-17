@@ -6,11 +6,11 @@
 
 ### Added
 
-- **画布交互对齐 TapNow（一手 fiber）**：左键拖节点移动、空白框选、中键/右键/空格平移、滚轮平移、捏合+左下角滑条缩放（10%–300%）；画布打开时收起「DirectorX 编辑」把手；details 列按剩余宽度改 grid。WebUI 仍不写 generating 节点。
+- **画布交互（一手 fiber）**：左键拖节点移动、空白框选、中键/右键/空格平移、滚轮平移、捏合+左下角滑条缩放（10%–300%）；画布打开时收起「DirectorX 编辑」把手；details 列按剩余宽度改 grid。WebUI 仍不写 generating 节点。
 - **画布 agent 工具面（DSH 增删改查/分组/编排）**：`canvas_add` 可写 prompt/shotIndex/状态/连续性；新增 `canvas_node`（单条读写上下文）、`canvas_groups` / `canvas_group`（收组）、`canvas_disconnect`（按端点删边）、`canvas_sequence`（写镜号+承接）、`canvas_plan`（幕/镜一次落画布，不生成）。MCP 同步。WebUI 仍不得写 generating 节点。
 - **DSH 人机平面（命令 + 原生提问）**：宿主注册 `/directorx`（`ctx.commands`，Web 斜杠菜单 / TUI，零 token）；`directorx_confirm` 直接调用 `ctx.userInteraction.ask()` 对下一条 / 提案队列 / 分镜表签字并写回账本。不再只返回 `ask: ask_user_question` hints。客户端给裸 `/directorx` 挂 popupSelect。调研见 community-radar「2026-08-17 DSH 人机平面」。
 - **成片 persona + 严格/自动/协同**：`directorx:chengpian` 进 DSH system prompt（order 5，人格带）；`directorx_chengpian` 决策确认/生成/二到四个提示词/占位。严格先出选项，`chosen:true` 入队选定的一条；批准后 generate 带 `proposalId` 才执行。自动预算内放行。确认走 `directorx_confirm`（DSH `userInteraction`）。
-- **画布 UI（libtv / tapnow）**：近黑 `#141414` 幽灵层、Inter、卡片内联操作、空态一颗白胶囊「交给 DSH 开拍」。生成条只入队 intent，不写 generating 节点。
+- **画布 UI**：近黑 `#141414` 幽灵层、Inter、卡片内联操作、空态一颗白胶囊「交给 DSH 开拍」。生成条只入队 intent，不写 generating 节点。
 - **README**：按常见高星仓库结构重排（徽章、能力表、流程、对比、FAQ），数字与当前工具/语料对齐。
 - **可组合生产流程**：`directorx_brief.compose` 按类型给出配方 + 阶段 + 工具序列（调研 → 澄清 → 占位 → 分镜表签字）。agent 用现有工具自己编排；`directorx_orchestrate` 仍是可选加速。
 - **画布分镜表**：`directorx_canvas_shotlist` 按 `shotIndex` 导出编号分镜（时长/连续性/状态/时长预算），给用户签字后再花钱。形态来自 Storyboarder / Boords，不生成媒体。
@@ -18,7 +18,7 @@
 - **隔离开发回路**：`scripts/parallel-dev-loop.mjs` 以独立 cwd/`git -C` 推进本仓库；测试红则本树不提交，不碰 sibling agent 树。
 - **画布命令面板换成 cmdk**：两套手写 ⌘K 列表合并为 `CanvasCommandPalette`（pacocoursey/cmdk），分组过滤、方向键与 aria 由库负责。
 - **画布上下文抽屉**：列出 `GET /directorx/canvas/intent` 待领取/处理中指令（再交给 DSH / 取消），并接入角色库 `GET/POST /directorx/characters`（只写 `characters.json`，不改画布）。指令 POST 现在也可 `{id,status}` 取消。
-- **画布 TapNow 生成环（节点 + / 底部生成条）**：选中节点右侧 `+`、悬停「生成」、
+- **画布生成环（节点 + / 底部生成条）**：选中节点右侧 `+`、悬停「生成」、
   快捷键 `G`、拖线到空白「生成下游」都会打开底部生成条（图像/视频 + 提示词）。
   提交后写入 `directorx_canvas_intents` 并 `session.prompt` 交给 DSH；
   DSH 用 `directorx_canvas_continue` / `directorx_canvas_*` 改画布，UI 不再自己写
@@ -26,7 +26,7 @@
   经 `ViewportPortal` 进入 xyflow 视口，端点按分组绝对坐标计算，平移/缩放后仍贴在节点上。单击媒体卡改为选中
   （双击才进编辑器）；镜头状态循环 / 分组折叠按钮真正接线；保存不再丢掉
   `shotStatus` / `selectedTakeId` / `continuityRules` / 边的 `sourceVariantIdx`。
-  标题栏居中（TapNow「请输入标题」）；滚轮平移、⌘+滚轮缩放，与帮助文案一致。
+  标题栏居中（「请输入标题」）；滚轮平移、⌘+滚轮缩放，与帮助文案一致。
 - **扩充调研波（四方向，规则扩至 99 条 + 工具升级）**：
   - 平台运营 84-91（封面三件套/平台规格/标题公式/发布窗口/留存四时刻/
     封面质检/CTR SOP）→ brief 平台规格卡 + 标题变体 + 封面提示词；
@@ -109,7 +109,7 @@
     镜头节点+顺序连线）；
   - 内置技能 directorx-production-lead（分诊/三控制模式/单元级生产/工作流
     推导协议），并接入 systemPrompt。
-- **无限画布**（libtv/tapnow 设计语言对齐 + DSH 完全掌控）：
+- **无限画布**（自研视觉语言 + DSH 完全掌控）：
   - Tab 化编辑坞（画布/图片编辑/视频编辑）入驻布局右栏（挤压主会话、
     窄屏自动收起、原生拖宽）；纯黑画布、16px 幽灵卡片、白 95% 选中描边、
     图标幽灵工具栏+白色胶囊主按钮、画布标题栏；

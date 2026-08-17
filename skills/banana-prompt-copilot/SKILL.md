@@ -1,7 +1,7 @@
 
 name: banana-prompt-copilot
-description: Use when the user names Banana, Nano Banana, Gemini image generation, or asks for a high-quality TapNow image prompt, image edit prompt, reference-aware image brief, visual variant set, prompt rewrite, or failed-image diagnosis.
-tags: [imported, tapnow, prompt, video, image]
+description: Use when the user names Banana, Nano Banana, Gemini image generation, or asks for a high-quality DirectorX image prompt, image edit prompt, reference-aware image brief, visual variant set, prompt rewrite, or failed-image diagnosis.
+tags: [prompt, video, image]
 
 # banana-prompt-copilot
 

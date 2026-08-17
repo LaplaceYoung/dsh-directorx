@@ -1,7 +1,7 @@
 
 name: seedance-2-prompt-copilot
-description: Use when the user names Seedance, Dreamina, or ByteDance video generation, or asks for a high-quality TapNow video prompt, storyboard, reference-aware video brief, dialogue-led clip, prompt rewrite, or failed-video diagnosis.
-tags: [imported, tapnow, prompt, video, image]
+description: Use when the user names Seedance, Dreamina, or ByteDance video generation, or asks for a high-quality DirectorX video prompt, storyboard, reference-aware video brief, dialogue-led clip, prompt rewrite, or failed-video diagnosis.
+tags: [prompt, video, image]
 
 # seedance-2-prompt-copilot
 

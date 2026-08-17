@@ -1,7 +1,7 @@
 
 name: seedance-2-5-prompt-copilot
 description: Use for every Seedance 2.5 video task: prompt creation or rewrite, large multimodal reference packs, R2V, storyboards and animatics, first/last-frame interpolation, short drama, one-take and action previs, ads and ecommerce, fashion, music and performance, game cinematics, explainers, training, localization, digital humans, factual or regulated content, architecture, automotive, travel, source-video editing, local-region repair, and failed-output diagnosis. This is the single Seedance 2.5 skill; do not route to separate Seedance 2.5 specialist skills.
-tags: [imported, tapnow, prompt, video, image]
+tags: [prompt, video, image]
 
 # seedance-2-5-prompt-copilot
 

@@ -1,7 +1,7 @@
 
 name: skill-creator
 description: Create, update, and refine skills. Use when users want to capture a workflow as a reusable skill, create or edit SKILL.md and reference files, install a skill for immediate use, or optionally run evals, benchmarks, and description optimization for high-risk or quality-sensitive skills.
-tags: [imported, tapnow, prompt, video, image]
+tags: [prompt, video, image]
 
 # skill-creator
 

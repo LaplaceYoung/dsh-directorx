@@ -51,7 +51,7 @@ export interface CanvasEdge {
 export interface CanvasDocument {
   version: 1
   updatedAt: number
-  /** Optional project title (tapnow-style canvas header). */
+  /** Optional project title (canvas header). */
   title?: string
   nodes: CanvasNode[]
   edges: CanvasEdge[]

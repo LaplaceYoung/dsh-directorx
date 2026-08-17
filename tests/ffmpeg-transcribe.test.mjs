@@ -39,7 +39,7 @@ test('qaCheck gates duration/aspect/audio against the brief', async () => {
     const clip = join(dir, 'clip.mp4')
     const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=3', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', '-c:v', 'libx264', '-c:a', 'aac', '-shortest', clip], { encoding: 'utf8' })
     if (make.status !== 0) throw new Error('clip gen failed')
-    const settings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }
+    const settings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {} }
     const pass = await qaCheck({ source: clip, outputDir: dir, expect: { targetSeconds: 3, aspectRatio: '16:9', hasAudio: true, minShots: 1 } }, settings, settings.vision)
     assert.equal(pass.verdict, 'pass', JSON.stringify(pass.checks))
     const fail = await qaCheck({ source: clip, outputDir: dir, expect: { targetSeconds: 10 } }, settings, settings.vision)
@@ -83,7 +83,7 @@ test('openaiTts passes instructions through when provided', async () => {
     await new Promise(resolve => server.listen(0, resolve))
     const ctx = {
       capability: { mode: 'openai-tts', model: 'gpt-4o-mini-tts', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '', auth: {}, apiKey: 'sk-test', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
     }
     await openaiTts(ctx, '测试旁白', 'onyx', 'mp3', 'Speak in a calm documentary tone; pause before numbers.', 1.2)
@@ -142,7 +142,7 @@ test('videoAnalyze detects frozen frames', async () => {
     if (make.status !== 0) throw new Error('freeze src gen failed')
     const loop = spawnSync('ffmpeg', ['-hide_banner', '-y', '-stream_loop', '2', '-i', join(dir, 'src.mp4'), '-t', '2', '-c:v', 'libx264', clip], { encoding: 'utf8' })
     if (loop.status !== 0) throw new Error('freeze clip gen failed')
-    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
     assert.ok(analysis.freezeCount > 0, 'static loop counts as frozen')
   } finally {
     await rm(dir, { recursive: true, force: true })
@@ -156,7 +156,7 @@ test('videoAnalyze detects luminance flicker', async () => {
     // 交替黑白帧：2fps 持续 2s 制造强闪烁。
     const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', "nullsrc=s=64x64:r=2:d=2,geq=r='if(mod(N,2),255,0)':g='if(mod(N,2),255,0)':b='if(mod(N,2),255,0)',format=yuv420p", '-c:v', 'libx264', clip], { encoding: 'utf8' })
     if (make.status !== 0) throw new Error('flicker clip gen failed')
-    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
     assert.ok(analysis.flickerCount > 0, 'alternating luminance counts as flicker')
   } finally {
     await rm(dir, { recursive: true, force: true })
@@ -276,7 +276,7 @@ test('probeMedia parses fractional frame rates to numbers', async () => {
     assert.equal(typeof videoStream.fps, 'number', 'fps is numeric')
     assert.equal(videoStream.fps, 12, '12fps clip parsed as 12')
     // 分析层应使用该数值（非 24 兜底）——直接校验 analyze 输出的 fps。
-    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
+    const analysis = await videoAnalyze({ source: clip, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' } })
     assert.equal(analysis.fps, 12, 'analyzer uses the real frame rate')
   } finally {
     await rm(dir, { recursive: true, force: true })
@@ -439,7 +439,7 @@ test('videoAnalyze detects a hard cut between two clips', async () => {
     const joined = join(dir, 'joined.mp4')
     const joinResult = spawnSync('ffmpeg', ['-hide_banner', '-y', '-i', a, '-i', b, '-filter_complex', '[0:v][1:v]concat=n=2:v=1[out]', '-map', '[out]', '-c:v', 'libx264', joined], { encoding: 'utf8' })
     if (joinResult.status !== 0) throw new Error('join failed')
-    const analysis = await videoAnalyze({ source: joined, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {}, openlib: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, cutThreshold: 20 })
+    const analysis = await videoAnalyze({ source: joined, outputDir: dir, settings: { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, image: {}, video: {}, audio: {} }, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: '' }, cutThreshold: 20 })
     assert.ok(analysis.shots.length >= 2, `black/white cut detected, got ${analysis.shots.length} shots`)
     assert.ok(analysis.shots.every(shot => shot.framePath !== undefined), 'representative frames present')
   } finally {
@@ -467,7 +467,7 @@ test('videoUnderstand samples frames and degrades without vision', async () => {
     const clip = join(dir, 'clip.mp4')
     const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=12:duration=3', '-c:v', 'libx264', clip], { encoding: 'utf8' })
     if (make.status !== 0) throw new Error('clip gen failed')
-    const mockSettings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: 'mock' }, image: {}, video: {}, audio: {}, openlib: {} }
+    const mockSettings = { outputDir: dir, timeoutMs: 10000, pollIntervalMs: 1000, maxPollAttempts: 10, vision: { enabled: false, mode: 'mock', baseURL: '', apiKey: '', model: 'mock' }, image: {}, video: {}, audio: {} }
     const out = await videoUnderstand({ source: clip, outputDir: dir, settings: mockSettings, vision: mockSettings.vision, frames: 4 })
     assert.equal(out.frames.length, 4)
     assert.ok(out.frames.every(frame => frame.path !== '' && frame.path.includes('frames/')), 'frame paths present')

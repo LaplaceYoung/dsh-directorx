@@ -13,7 +13,7 @@ import { CanvasContextDrawer } from './CanvasContextDrawer.tsx'
 import { dx, dxChrome, dxZ } from './canvas-theme.ts'
 
 /**
- * Infinite canvas tab (libtv / tapnow style): media nodes with live
+ * Infinite canvas tab: media nodes with live
  * previews, text cards, bezier connections, minimap, dot-grid background.
  * The document is durable — GET/PUT /directorx/canvas — and the agent mutates
  * the same document through directorx_canvas_* tools; a light poll reflects
@@ -92,7 +92,7 @@ function RenameLabel({ value, id, onRename, style }: { value: string; id: string
   return <div style={style} onDoubleClick={event => { event.stopPropagation(); setEditing(true) }}>{value}</div>
 }
 
-/** Hover action bar: ghost buttons on the card face (tapnow inline actions). */
+/** Hover action bar: ghost buttons on the card face (inline actions). */
 function NodeActions({ actions, face = 'thumb' }: { actions: Array<{ label: string; hint: string; run: () => void }>; face?: 'thumb' | 'card' }): ReactNode {
   const wrap: CSSProperties = face === 'thumb'
     ? {
@@ -1218,7 +1218,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
         return data.groupHover === flag ? candidate : { ...candidate, data: { ...candidate.data, groupHover: flag } }
       }))
     }
-    // LibTV-style alignment snapping (<=6px): pull the dragged node to the
+    // Alignment snapping (<=6px): pull the dragged node to the
     // nearest edge/center alignment and show guide lines.
     const snap = 6
     const width = nodeMetrics(node).width
@@ -1526,7 +1526,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
 
   const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
     // Dropped on the empty pane (no target handle): offer to create a node
-    // and auto-connect from the source (LibTV-style quick build).
+    // and auto-connect from the source (quick build).
     const point = 'clientX' in event ? { x: event.clientX, y: event.clientY }
       : event.touches.length > 0 ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
       : undefined

@@ -1,7 +1,7 @@
 
 name: gpt-image2-prompt-copilot
-description: Use when the user names GPT Image 2, GPT image, OpenAI image generation, ChatGPT image, or asks for a high-quality TapNow image prompt, image edit prompt, typography/layout image brief, prompt rewrite, or failed-image diagnosis.
-tags: [imported, tapnow, prompt, video, image]
+description: Use when the user names GPT Image 2, GPT image, OpenAI image generation, ChatGPT image, or asks for a high-quality DirectorX image prompt, image edit prompt, typography/layout image brief, prompt rewrite, or failed-image diagnosis.
+tags: [prompt, video, image]
 
 # gpt-image2-prompt-copilot
 

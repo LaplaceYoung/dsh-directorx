@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 
 /**
- * Canvas stage tokens. Visual language is tapnow: pure black field,
+ * Canvas stage tokens. Visual language: pure black field,
  * 6% ghost cards, 16px radius, white 95% selection, Inter.
  * Agent work stays in DSH — these tokens are visual only.
  */

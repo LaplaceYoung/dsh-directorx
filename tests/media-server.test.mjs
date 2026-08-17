@@ -37,7 +37,7 @@ test('MCP endpoint speaks initialize / tools/list / tools/call', async () => {
       return response.json()
     }
     // register on the same fake server path is fine: the handler serves all POSTs.
-    const dispose = registerMcpRoute({ get: () => fakeServer }, () => ({ outputDir: dir, vision: {}, image: {}, video: {}, audio: {}, openlib: {} }))
+    const dispose = registerMcpRoute({ get: () => fakeServer }, () => ({ outputDir: dir, vision: {}, image: {}, video: {}, audio: {} }))
     const init = await call({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} })
     assert.equal(init.result.protocolVersion, '2025-03-26')
     const tools = await call({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} })

@@ -1,7 +1,7 @@
 
 name: kling-prompt-copilot
-description: Use when the user names Kling or asks for a high-quality video generation prompt, storyboard, prompt rewrite, reference-aware video brief, dialogue-led video brief, or failed-video prompt diagnosis for TapNow.
-tags: [imported, tapnow, prompt, video, image]
+description: Use when the user names Kling or asks for a high-quality video generation prompt, storyboard, prompt rewrite, reference-aware video brief, dialogue-led video brief, or failed-video prompt diagnosis.
+tags: [prompt, video, image]
 
 # kling-prompt-copilot
 

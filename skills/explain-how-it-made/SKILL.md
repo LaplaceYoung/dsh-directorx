@@ -1,11 +1,11 @@
 
 name: explain-how-it-made
-description: Give a one-time, read-only explanation of how an existing TapNow Canvas or cloned TapTV project was made: its creative intent, workflow, key nodes, model choices, prompt and retry patterns, and transferable methods. Use whenever the user asks to explain how a canvas was made, interpret a creator's process, understand the creation logic, or invokes 'Explain How It’s Made' / '解读创作思路'. Do not use for an interactive course, exercises, progress recovery, canvas editing, generation, or writing a production prompt on the user's behalf.
-tags: [imported, tapnow, prompt, video, image]
+description: Give a one-time, read-only explanation of how an existing DirectorX canvas or cloned project was made: its creative intent, workflow, key nodes, model choices, prompt and retry patterns, and transferable methods. Use whenever the user asks to explain how a canvas was made, interpret a creator's process, understand the creation logic, or invokes 'Explain How It’s Made' / '解读创作思路'. Do not use for an interactive course, exercises, progress recovery, canvas editing, generation, or writing a production prompt on the user's behalf.
+tags: [prompt, video, image]
 
 # explain-how-it-made
 
-> Give a one-time, read-only explanation of how an existing DirectorX Canvas or cloned TapTV project was made: its creative intent, workflow, key nodes, model choices, prompt and retry patterns, and transferable methods. Use whenever the user asks to explain how a canvas was made, interpret a creator's process, understand the creation logic, or invokes 'Explain How It’s Made' / '解读创作思路'. Do not use for an interactive course, exercises, progress recovery, canvas editing, generation, or writing a production prompt on the user's behalf.
+> Give a one-time, read-only explanation of how an existing DirectorX canvas or cloned project was made: its creative intent, workflow, key nodes, model choices, prompt and retry patterns, and transferable methods. Use whenever the user asks to explain how a canvas was made, interpret a creator's process, understand the creation logic, or invokes 'Explain How It’s Made' / '解读创作思路'. Do not use for an interactive course, exercises, progress recovery, canvas editing, generation, or writing a production prompt on the user's behalf.
 
 # Explain How It's Made
 

@@ -1,7 +1,7 @@
 
 name: minimax-h3-prompt-copilot
 description: Use for every MiniMax H3, Hailuo H3, or Hailuo 3 video task: prompt creation or rewrite, multimodal reference planning, first/last-frame interpolation, storyboards, ads, product and UI films, dialogue or music video, performance, camera or VFX transfer, source-video editing, flat-game visuals, trailers, and failed-output repair. This is the single H3 skill; do not route to separate H3 specialist skills.
-tags: [imported, tapnow, prompt, video, image]
+tags: [prompt, video, image]
 
 # minimax-h3-prompt-copilot
 

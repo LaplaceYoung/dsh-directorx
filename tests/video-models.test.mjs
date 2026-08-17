@@ -44,7 +44,7 @@ test('klingVideo payload supports 15s duration and native audio', async () => {
   try {
     const ctx = {
       capability: { mode: 'kling', model: 'kling-v3', baseURL: `http://127.0.0.1:${port}`, auth: { klingAk: 'ak', klingSk: 'sk' }, apiKey: '', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 20, maxPollAttempts: 2, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 20, maxPollAttempts: 2, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
     }
     await klingVideo(ctx, '测试', { seconds: 15, generateAudio: true, voiceIds: ['v1'] }).catch(() => {})
@@ -150,7 +150,7 @@ test('kling-v3 mode uses the new-standard protocol', async () => {
   try {
     const ctx = {
       capability: { mode: 'kling-v3', model: 'kling-3.0', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '1080p', auth: {}, apiKey: 'k-key', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
       ledger: undefined,
     }
@@ -187,7 +187,7 @@ test('openai-videos sends string seconds and input_reference for Sora 2', async 
   try {
     const ctx = {
       capability: { mode: 'openai-videos', model: 'sora-2', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '', auth: {}, apiKey: 'sk-test', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
       ledger: undefined,
     }
@@ -232,7 +232,7 @@ test('veo mode runs the Gemini generateVideos LRO flow', async () => {
   try {
     const ctx = {
       capability: { mode: 'veo', model: 'veo-3.1-generate-preview', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '720p', auth: {}, apiKey: 'g-key', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
       ledger: undefined,
     }
@@ -277,7 +277,7 @@ test('vidu mode uses Token auth and subject references', async () => {
   try {
     const ctx = {
       capability: { mode: 'vidu', model: 'viduq3', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '720p', auth: {}, apiKey: 'vidu-token', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
       ledger: undefined,
     }
@@ -329,7 +329,7 @@ test('minimax-h3 mode round-trips through the v2 protocol', async () => {
   try {
     const ctx = {
       capability: { mode: 'minimax-h3', model: 'MiniMax-H3', baseURL: `http://127.0.0.1:${server.address().port}`, resolution: '2K', auth: {}, apiKey: 'mm-key', apiKeyEnv: [] },
-      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {}, openlib: {} },
+      settings: { outputDir: dir, timeoutMs: 5000, pollIntervalMs: 10, maxPollAttempts: 3, vision: {}, image: {}, video: {}, audio: {} },
       signal: AbortSignal.timeout(8000),
       ledger: undefined,
     }

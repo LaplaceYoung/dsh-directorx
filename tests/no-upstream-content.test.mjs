@@ -50,3 +50,16 @@ test('README presents the content as original plugin features', async () => {
   assert.match(readme, /dsh-plugin/)
   assert.doesNotMatch(readme.replace(/github\.com\/LaplaceYoung\/dsh-directorx/gi, ''), /github\.com|api\.github\.com/i)
 })
+
+test('shipped prose does not name other canvas products', async () => {
+  const files = await walk(root)
+  const marks = ['tap' + 'now', 'tap' + 'tv', 'lib' + 'tv', 'liblib\\.tv', '\\b' + 'open' + 'lib' + '\\b']
+  const banned = new RegExp(marks.join('|'), 'i')
+  const offenders = []
+  for (const file of files) {
+    if (file.endsWith('no-upstream-content.test.mjs')) continue
+    const content = await readFile(file, 'utf8')
+    if (banned.test(content)) offenders.push(file.slice(root.length + 1))
+  }
+  assert.deepEqual(offenders, [])
+})
