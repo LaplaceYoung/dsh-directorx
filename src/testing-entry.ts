@@ -1,6 +1,10 @@
 export { corpus } from './corpus.ts'
 export { ResearchLedger } from './research-ledger.ts'
 export { craftPrompt, isThinPrompt, requireCraft, PromptCraftStore } from './prompt-craft.ts'
+export {
+  assessGenerateReady, classifyGenerateStrategy, commitGenerateReady, detectNamedCharacters,
+  parseStrategy, requireReady, GenerateReadyStore,
+} from './generate-ready.ts'
 export { normalizeAskQuestions } from './ask.ts'
 export { ProductionStageStore, STAGE_IDS } from './stage.ts'
 export { SkillIndex, skillIndex } from './skill-index.ts'
@@ -34,7 +38,7 @@ export { DirectorxCanvasStore } from './canvas.ts'
 export { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
 export { applyGrade, inferMediaKind, isGradeLook, listGradeLabels, resolveGradeLook, GRADE_LOOK_LIST, GRADE_LOOKS, GRADE_TABLE } from './providers/grade.ts'
 export { StudioTicketStore } from './studio-intent.ts'
-export { closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portPoint, portsForHandles } from './canvas-generate.ts'
+export { closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portPoint, portsForHandles, routeDisplayPorts, sideToHandle, tidyOverlappingGroups } from './canvas-generate.ts'
 export {
   createdSessionId, foldSessionHistory, parseArchivedIds, parseSessionList, parseWorkspaceList,
   pickWorkspaceSession, rpcOk, sessionRunningFromList, summarizeToolName, textFromBlocks, toolCaption,

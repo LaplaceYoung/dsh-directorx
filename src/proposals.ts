@@ -26,6 +26,8 @@ export interface GenerationProposal {
   canvasNodeId?: string
   /** Researched prompt receipt from directorx_prompt_craft. */
   craftId?: string
+  /** Reference-ready receipt from directorx_generate_ready. */
+  readyId?: string
   status: 'proposed' | 'approved' | 'rejected' | 'done'
   at: number
   /** 生产阶段（阶段门控：前一阶段未清，后一阶段不入执行队列）。 */

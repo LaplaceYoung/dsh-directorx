@@ -100,6 +100,12 @@ export function handleToSide(handle?: string | null): PortSide | undefined {
   return undefined
 }
 
+export function sideToHandle(side: PortSide): string {
+  if (side === 'left') return 'in'
+  if (side === 'right') return 'out'
+  return side
+}
+
 export function portsForHandles(
   source: FlowPoint & { width: number; height: number },
   target: FlowPoint & { width: number; height: number },
@@ -112,6 +118,12 @@ export function portsForHandles(
   const from = portPoint(source, sourceSide)
   const to = portPoint(target, targetSide)
   return { sourceSide, targetSide, sourceX: from.x, sourceY: from.y, targetX: to.x, targetY: to.y }
+}
+
+function gapAfter(start: number, end: number, otherStart: number, otherEnd: number): number | undefined {
+  if (otherStart >= end) return otherStart - end
+  if (start >= otherEnd) return start - otherEnd
+  return undefined
 }
 
 export function closestPorts(
@@ -127,7 +139,15 @@ export function closestPorts(
 } {
   const dx = target.x + target.width / 2 - (source.x + source.width / 2)
   const dy = target.y + target.height / 2 - (source.y + source.height / 2)
-  const horizontal = Math.abs(dx) >= Math.abs(dy)
+  const gapX = gapAfter(source.x, source.x + source.width, target.x, target.x + target.width)
+  const gapY = gapAfter(source.y, source.y + source.height, target.y, target.y + target.height)
+  const horizontal = gapX !== undefined && gapY !== undefined
+    ? gapX <= gapY
+    : gapX !== undefined
+      ? true
+      : gapY !== undefined
+        ? false
+        : Math.abs(dx) >= Math.abs(dy)
   const sourceSide: PortSide = horizontal ? (dx >= 0 ? 'right' : 'left') : (dy >= 0 ? 'bottom' : 'top')
   const targetSide: PortSide = horizontal ? (dx >= 0 ? 'left' : 'right') : (dy >= 0 ? 'top' : 'bottom')
   const from = portPoint(source, sourceSide)
@@ -140,6 +160,101 @@ export function closestPorts(
     targetX: to.x,
     targetY: to.y,
   }
+}
+
+/** Draw with facing sides unless the user explicitly picked top/bottom. */
+export function routeDisplayPorts(
+  source: FlowPoint & { width: number; height: number },
+  target: FlowPoint & { width: number; height: number },
+  sourceHandle?: string | null,
+  targetHandle?: string | null,
+): ReturnType<typeof closestPorts> {
+  const sourceSide = handleToSide(sourceHandle)
+  const targetSide = handleToSide(targetHandle)
+  const explicit = sourceSide === 'top' || sourceSide === 'bottom' || targetSide === 'top' || targetSide === 'bottom'
+  if (explicit) return portsForHandles(source, target, sourceHandle, targetHandle)
+  return closestPorts(source, target)
+}
+
+export interface StackableNode {
+  id: string
+  kind: string
+  parent?: string
+  x: number
+  y: number
+  width?: number
+  height?: number
+  shotIndex?: number
+}
+
+const TITLE_CLEAR = 34
+const STACK_GAP = 18
+const GROUP_INSET_X = 28
+const GROUP_INSET_TOP = 52
+const GROUP_INSET_BOT = 24
+
+function fallbackCardSize(kind: string): { width: number; height: number } {
+  if (kind === 'group') return { width: 640, height: 460 }
+  if (kind === 'text') return { width: 250, height: 180 }
+  return { width: 400, height: 220 }
+}
+
+function stackBox(node: StackableNode): { x: number; y: number; width: number; height: number } {
+  const size = fallbackCardSize(node.kind)
+  return {
+    x: node.x,
+    y: node.y,
+    width: node.width ?? size.width,
+    height: node.height ?? size.height,
+  }
+}
+
+function boxesOverlap(
+  left: { x: number; y: number; width: number; height: number },
+  right: { x: number; y: number; width: number; height: number },
+): boolean {
+  return left.x < right.x + right.width
+    && left.x + left.width > right.x
+    && left.y < right.y + right.height
+    && left.y + left.height > right.y
+}
+
+/** Restack group children that overlap or spill out of the act frame. */
+export function tidyOverlappingGroups<T extends StackableNode>(nodes: T[]): T[] {
+  const next = nodes.map(node => ({ ...node }))
+  for (const group of next.filter(node => node.kind === 'group')) {
+    const members = next.filter(node => node.parent === group.id)
+    if (members.length === 0) continue
+    const boxes = members.map(stackBox)
+    const frame = stackBox(group)
+    const overflow = boxes.some(box =>
+      box.x < frame.x - 1
+      || box.y < frame.y - 1
+      || box.x + box.width > frame.x + frame.width + 1
+      || box.y + box.height > frame.y + frame.height + 1
+    )
+    const collide = boxes.some((box, index) => boxes.some((other, otherIndex) => {
+      if (otherIndex <= index) return false
+      return boxesOverlap(
+        { ...box, y: box.y - TITLE_CLEAR, height: box.height + TITLE_CLEAR },
+        { ...other, y: other.y - TITLE_CLEAR, height: other.height + TITLE_CLEAR },
+      )
+    }))
+    if (!overflow && !collide) continue
+    members.sort((left, right) => (left.shotIndex ?? 1e9) - (right.shotIndex ?? 1e9) || left.y - right.y || left.x - right.x)
+    const cardWidth = Math.max(...members.map(member => stackBox(member).width))
+    let cursor = group.y + GROUP_INSET_TOP
+    const left = group.x + GROUP_INSET_X
+    for (const member of members) {
+      const size = stackBox(member)
+      member.x = left
+      member.y = cursor
+      cursor += size.height + TITLE_CLEAR + STACK_GAP
+    }
+    group.width = Math.max(frame.width, GROUP_INSET_X * 2 + cardWidth)
+    group.height = Math.max(frame.height, cursor - group.y - STACK_GAP + GROUP_INSET_BOT)
+  }
+  return next
 }
 
 export function hitTestAbsolute(

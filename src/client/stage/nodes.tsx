@@ -43,7 +43,7 @@ function Ports(): ReactNode {
   return (
     <>
       <Handle id="in" type="target" position={Position.Left} className="dx-port" isConnectable style={handleLeft}>
-        <span className="dx-port-dot" />
+        <span className="dx-port-plus"><IconPlus size={13} /></span>
       </Handle>
       <Handle id="top" type="source" position={Position.Top} className="dx-port" isConnectable style={handleTop}>
         <span className="dx-port-dot" />
@@ -103,13 +103,16 @@ function NodeFrame(props: {
   selected?: boolean
   generating?: boolean
   failed?: boolean
+  kind?: string
   title?: ReactNode
   dock?: ReactNode
+  upload?: () => void
   children: ReactNode
   toolbar: ReactNode
 }): ReactNode {
   const [hot, setHot] = useState(false)
   const active = props.selected === true || hot
+  const faceClass = ['dx-card-face', props.kind !== undefined ? `dx-kind-${props.kind}` : '', props.generating === true ? 'dx-face-live' : ''].filter(part => part !== '').join(' ')
   return (
     <div
       className={props.generating === true ? 'dx-generating' : undefined}
@@ -122,6 +125,16 @@ function NodeFrame(props: {
         <div className="nodrag nopan" style={{ position: 'absolute', left: 2, right: 2, top: -30, zIndex: 5 }}>
           {props.title}
         </div>
+      ) : null}
+      {props.upload !== undefined && props.selected === true && props.generating !== true ? (
+        <button
+          className="nodrag nopan dx-hit dx-empty-upload dx-float-upload"
+          title="上传"
+          data-tip="上传到此节点"
+          onClick={event => { event.stopPropagation(); props.upload?.() }}
+        >
+          <IconUpload size={12} />上传
+        </button>
       ) : null}
       <div
         className="nodrag nopan dx-node-toolbar"
@@ -138,11 +151,11 @@ function NodeFrame(props: {
         {props.toolbar}
       </div>
       <div
-        className="dx-card-face"
+        className={faceClass}
         style={{
           ...card,
           boxShadow: props.selected === true ? dx.glow : card.boxShadow,
-          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.selected === true ? 'rgba(255,255,255,.55)' : dx.hairline,
+          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.generating === true ? 'rgba(240,195,106,.62)' : props.selected === true ? 'rgba(255,255,255,.55)' : dx.hairline,
         }}
       >
         {props.children}
@@ -230,11 +243,35 @@ function VideoPreview(props: { src: string; active?: boolean; onEdit?: () => voi
   )
 }
 
+function GeneratingHud(props: { kind: 'image' | 'video'; prompt?: string }): ReactNode {
+  const video = props.kind === 'video'
+  const line = (props.prompt ?? '').trim()
+  return (
+    <div className="dx-gen-overlay" aria-live="polite">
+      <span className="dx-gen-scan" />
+      <div className="dx-gen-core">
+        <span className="dx-gen-ring" />
+        {video ? <span className="dx-gen-bars"><i /><i /><i /><i /></span> : null}
+        <div className="dx-gen-copy">{video ? '正在出片' : '正在出图'}</div>
+        {line !== '' ? <div className="dx-gen-prompt">{line.length > 52 ? `${line.slice(0, 52)}…` : line}</div> : null}
+      </div>
+    </div>
+  )
+}
+
+function EmptyPlate(props: { kind: 'image' | 'video' }): ReactNode {
+  return (
+    <div className="dx-empty-plate">
+      <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={18} /> : <IconImage size={18} />}</span>
+    </div>
+  )
+}
+
 export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
   const data = props.data as {
     kind?: string; label?: string; path?: string; shotStatus?: string; locked?: boolean
     prompt?: string; model?: string; aspect?: string; count?: number; durationSec?: number; lastError?: string
-    characters?: string[]
+    characters?: string[]; shotIndex?: number
   } & CardActions
   const empty = data.path === undefined || data.path === ''
   const [shellRef, near] = useNearViewport()
@@ -257,6 +294,8 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
     graph.edges,
   )
   const peers = [props.id, ...peerIds].map(id => graph.nodes.find(node => node.id === id)).filter((node): node is typeof graph.nodes[number] => node !== undefined)
+  const kind = data.kind === 'video' ? 'video' as const : 'image' as const
+  const generating = data.shotStatus === 'generating'
   const spec: GenerateSpec = {
     kind: data.kind === 'video' ? 'video' : 'image',
     prompt: data.prompt ?? '',
@@ -271,8 +310,10 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
   return (
     <NodeFrame
       selected={props.selected}
-      generating={data.shotStatus === 'generating'}
+      generating={generating}
       failed={data.shotStatus === 'failed'}
+      kind={kind}
+      upload={empty && data.onUpload !== undefined ? () => data.onUpload?.(props.id) : undefined}
       title={(
         <input
           className="dx-node-title nodrag nopan"
@@ -305,7 +346,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       ) : undefined}
       toolbar={(
         <>
-          <ToolBtn title="生成" onClick={() => data.onGenerate?.(props.id)}><IconSpark size={14} /></ToolBtn>
+          <ToolBtn title={generating ? '生成中' : '生成'} onClick={() => { if (!generating) data.onGenerate?.(props.id) }}><IconSpark size={14} /></ToolBtn>
           {empty ? null : <ToolBtn title="编辑" onClick={() => data.onEdit?.(props.id)}><IconEdit size={14} /></ToolBtn>}
           {empty ? null : <ToolBtn title="下载" onClick={() => data.onDownload?.(props.id)}><IconDownload size={14} /></ToolBtn>}
           <ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={14} /></ToolBtn>
@@ -325,57 +366,38 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       />
       <div
         ref={shellRef}
-        onDoubleClick={() => { if (!empty) data.onEdit?.(props.id) }}
-        style={{ height: '100%', background: '#090909', position: 'relative' }}
+        className={kind === 'video' ? 'dx-media-well dx-film' : 'dx-media-well'}
+        onDoubleClick={() => { if (!empty && !generating) data.onEdit?.(props.id) }}
+        style={{ height: '100%', position: 'relative', overflow: 'hidden' }}
       >
-        {empty ? (
-          <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.dim, fontSize: 12, gap: 8 }}>
-            {data.onUpload !== undefined ? (
-              <button
-                className="nodrag nopan dx-hit"
-                title="上传"
-                data-tip="上传到此节点"
-                onClick={event => { event.stopPropagation(); data.onUpload?.(props.id) }}
-                style={{
-                  position: 'absolute', top: 8, right: 8, zIndex: 3,
-                  height: 28, padding: '0 10px', borderRadius: 999, gap: 5, fontSize: 11,
-                  border: `1px solid ${dx.hairline}`, background: 'rgba(12,12,12,.78)', color: dx.ink,
-                  display: 'flex', alignItems: 'center', cursor: 'pointer', fontFamily: dx.font,
-                }}
-              >
-                <IconUpload size={12} />上传
-              </button>
-            ) : null}
-            <span style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              display: 'grid',
-              placeItems: 'center',
-              background: 'rgba(255,255,255,.035)',
-              border: `1px dashed ${dx.hairlineStrong}`,
-            }}>
-              {data.kind === 'video' ? <IconVideo size={18} /> : <IconImage size={18} />}
-            </span>
-            <span>{data.kind === 'video' ? '空视频' : '空图片'}</span>
+        {empty && !generating ? (
+          <EmptyPlate kind={kind} />
+        ) : empty ? null : kind === 'video' ? (
+          <div style={{ height: '100%', opacity: generating ? 0.38 : 1, transition: 'opacity .2s ease' }}>
+            {near ? (
+              <VideoPreview src={src} active={props.selected === true} onEdit={() => data.onEdit?.(props.id)} />
+            ) : (
+              <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
+                <IconVideo size={22} />
+              </div>
+            )}
           </div>
-        ) : data.kind === 'video' ? (
-          near ? (
-            <VideoPreview src={src} active={props.selected === true} onEdit={() => data.onEdit?.(props.id)} />
-          ) : (
-            <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
-              <IconVideo size={22} />
-            </div>
-          )
-        ) : near ? (
-          <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         ) : (
-          <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
-            <IconImage size={22} />
+          <div style={{ height: '100%', opacity: generating ? 0.38 : 1, transition: 'opacity .2s ease' }}>
+            {near ? (
+              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            ) : (
+              <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
+                <IconImage size={22} />
+              </div>
+            )}
           </div>
         )}
+        {generating ? <GeneratingHud kind={kind} prompt={data.prompt} /> : null}
         <span className="dx-kind-badge">
-          <KindGlyph kind={data.kind === 'video' ? 'video' : 'image'} size={11} />
+          <KindGlyph kind={kind} size={11} />
+          {data.shotIndex !== undefined ? <span>#{String(data.shotIndex).padStart(2, '0')}</span> : null}
+          {kind === 'video' && data.durationSec !== undefined ? <span>{data.durationSec}s</span> : null}
         </span>
         {data.locked === true ? (
           <span className="dx-kind-badge" style={{ left: 'auto', right: 8 }} title="已锁定">
@@ -436,7 +458,7 @@ function StatusChip(props: { status?: string; onClick: () => void }): ReactNode 
       onClick={event => { event.stopPropagation(); props.onClick() }}
       style={{
         flexShrink: 0,
-        padding: '2px 7px',
+        padding: '2px 8px',
         borderRadius: 999,
         border: `1px solid ${SHOT_STATUS_COLOR[status]}33`,
         background: `${SHOT_STATUS_COLOR[status]}14`,
@@ -445,8 +467,12 @@ function StatusChip(props: { status?: string; onClick: () => void }): ReactNode 
         fontWeight: 500,
         cursor: 'pointer',
         fontFamily: dx.font,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
       }}
     >
+      {status === 'generating' ? <span className="dx-spin" style={{ width: 8, height: 8, borderWidth: 1.4, borderColor: 'rgba(240,195,106,.25)', borderTopColor: '#f0c36a' }} /> : null}
       {SHOT_STATUS_LABEL[status]}
     </button>
   )
@@ -472,6 +498,7 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
   return (
     <NodeFrame
       selected={props.selected}
+      kind="text"
       toolbar={(
         <>
           <ToolBtn title="粗体" onClick={() => wrap('**')}><span style={{ fontWeight: 700, fontSize: 12 }}>B</span></ToolBtn>
@@ -492,9 +519,9 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
         lineStyle={{ border: 'none' }}
         handleStyle={{ width: 7, height: 7, borderRadius: 2, background: '#f3f3f3', border: 'none' }}
       />
-      <div style={{ padding: 16, height: '100%', boxSizing: 'border-box', background: 'linear-gradient(180deg, rgba(255,255,255,.03), transparent 42%)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: dx.dim, fontSize: 10, letterSpacing: 0.35, marginBottom: 8, textTransform: 'uppercase' }}>
-          <IconText size={11} />文本
+      <div className="dx-text-sheet" style={{ padding: '14px 16px 16px', height: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#c8b896', fontSize: 10, letterSpacing: 0.4, marginBottom: 10, textTransform: 'uppercase' }}>
+          <IconText size={11} />文本 / 剧本
         </div>
         {editing ? (
           <textarea
@@ -535,10 +562,10 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
 export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
   const data = props.data as { label?: string } & CardActions
   const [editing, setEditing] = useState(false)
+  const childCount = useStore(state => state.nodes.filter(node => node.parentId === props.id).length)
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-      <Ports />
-      <div style={{
+      <div className="dx-act-frame" style={{
         width: '100%',
         height: '100%',
         borderRadius: 22,
@@ -562,6 +589,7 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
           backdropFilter: 'blur(12px)',
         }}>
           <KindGlyph kind="group" size={13} />
+          <span style={{ color: dx.dim, fontSize: 10, letterSpacing: 0.4 }}>幕</span>
           {editing ? (
             <input
               autoFocus
@@ -580,6 +608,7 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
               }}
             />
           ) : (data.label || '分组')}
+          {childCount > 0 ? <span style={{ color: dx.mute, fontSize: 10 }}>{childCount} 镜</span> : null}
         </div>
       </div>
     </div>

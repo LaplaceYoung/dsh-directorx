@@ -1,10 +1,11 @@
-import { MarkerType, type Edge, type Node } from '@xyflow/react'
+import { type Edge, type Node } from '@xyflow/react'
+import { tidyOverlappingGroups } from '../../canvas-generate.ts'
 import { sizeFromAspect } from './workstation.ts'
 
 export const MEDIA_W = 400
 export const MEDIA_H = 220
 export const TEXT_W = 250
-export const TEXT_H = 180
+export const TEXT_H = 250
 export const GROUP_W = 640
 export const GROUP_H = 460
 
@@ -116,8 +117,9 @@ export function defaultSize(kind: string, aspect?: string): { width: number; hei
 }
 
 export function toFlowNodes(doc: CanvasDoc): StageNode[] {
-  const byId = new Map(doc.nodes.map(node => [node.id, node]))
-  return doc.nodes.map(node => {
+  const nodes = tidyOverlappingGroups(doc.nodes)
+  const byId = new Map(nodes.map(node => [node.id, node]))
+  return nodes.map(node => {
     const isMedia = node.kind === 'image' || node.kind === 'video'
     const isGroup = node.kind === 'group'
     const parent = node.parent !== undefined ? byId.get(node.parent) : undefined
@@ -156,17 +158,20 @@ export function toFlowNodes(doc: CanvasDoc): StageNode[] {
 }
 
 export function toFlowEdges(doc: CanvasDoc): Edge[] {
-  return doc.edges.map(edge => ({
-    id: edge.id,
-    source: edge.from,
-    target: edge.to,
-    type: 'wire',
-    sourceHandle: edge.sourceHandle ?? 'out',
-    targetHandle: edge.targetHandle ?? 'in',
-    label: edge.label,
-    markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, color: 'rgba(255,255,255,.5)' },
-    ...(edge.sourceVariantIdx !== undefined ? { data: { sourceVariantIdx: edge.sourceVariantIdx } } : {}),
-  }))
+  const ids = new Set(doc.nodes.map(node => node.id))
+  return doc.edges.flatMap(edge => {
+    if (!ids.has(edge.from) || !ids.has(edge.to)) return []
+    return [{
+      id: edge.id,
+      source: edge.from,
+      target: edge.to,
+      type: 'wire',
+      ...(typeof edge.sourceHandle === 'string' && edge.sourceHandle !== '' ? { sourceHandle: edge.sourceHandle } : {}),
+      ...(typeof edge.targetHandle === 'string' && edge.targetHandle !== '' ? { targetHandle: edge.targetHandle } : {}),
+      ...(typeof edge.label === 'string' && edge.label !== '' ? { label: edge.label } : {}),
+      ...(edge.sourceVariantIdx !== undefined ? { data: { sourceVariantIdx: edge.sourceVariantIdx } } : {}),
+    }]
+  })
 }
 
 export function fromFlow(nodes: StageNode[], edges: Edge[], title: string, updatedAt: number): CanvasDoc {

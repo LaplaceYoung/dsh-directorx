@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import {
   Background, BackgroundVariant, ConnectionLineType, ConnectionMode, MiniMap, ReactFlow, ReactFlowProvider,
   SelectionMode, addEdge, applyEdgeChanges, applyNodeChanges, reconnectEdge, useReactFlow, useViewport,
-  MarkerType,
   type Connection, type Edge, type EdgeChange, type NodeChange, type OnConnectStartParams,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -10,7 +9,7 @@ import { editorSnapshot, openEditor, setEditorTab, subscribeEditor } from '../ed
 import { ImageStudio } from './ImageStudio.tsx'
 import { VideoStudio } from './VideoStudio.tsx'
 import { StudioErrorBoundary } from './studio-chrome.tsx'
-import { flowAbsolutePosition, inferContinueKind } from '../../canvas-generate.ts'
+import { closestPorts, flowAbsolutePosition, inferContinueKind, sideToHandle } from '../../canvas-generate.ts'
 import { INTER_HREF, dx } from '../canvas-theme.ts'
 import {
   AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet,
@@ -39,7 +38,6 @@ export interface StageProps {
   onClose?: () => void
 }
 
-const EDGE_MARK = { type: MarkerType.ArrowClosed, width: 18, height: 18, color: 'rgba(255,255,255,.7)' } as const
 const EDGE_STYLE = { stroke: 'rgba(255,255,255,.62)', strokeWidth: 2 }
 
 const shell: CSSProperties = {
@@ -125,6 +123,13 @@ const STAGE_CSS = `
   stroke: transparent !important;
   fill: none !important;
 }
+.dx-stage .react-flow__edgeupdater {
+  display: none !important;
+}
+.dx-stage .react-flow__arrowhead,
+.dx-stage marker {
+  display: none !important;
+}
 .dx-stage .react-flow__edge.selected .react-flow__edge-path,
 .dx-stage .react-flow__edge:focus .react-flow__edge-path {
   stroke: transparent !important;
@@ -195,17 +200,89 @@ const STAGE_CSS = `
   background: rgba(12,12,12,.72) !important;
 }
 .dx-kind-badge {
-  position: absolute; top: 8px; left: 8px; width: 22px; height: 22px; border-radius: 7px;
-  display: grid; place-items: center; color: #fff;
+  position: absolute; top: 8px; left: 8px; height: 22px; min-width: 22px; padding: 0 7px;
+  border-radius: 7px; display: inline-flex; align-items: center; gap: 5px;
+  color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.2px;
   background: rgba(10,10,10,.55); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px);
 }
-.dx-generating { position: relative; }
-.dx-generating::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.08) 50%, transparent 80%);
-  background-size: 220% 100%; animation: dx-shimmer 1.5s linear infinite;
+.dx-kind-image { background: #0b0c0e; }
+.dx-kind-video { background: #0c0a09; }
+.dx-kind-text { background: linear-gradient(180deg, #17140f 0%, #100e0c 100%); }
+.dx-media-well { height: 100%; background: #090909; }
+.dx-kind-image .dx-media-well { background: #08090b; }
+.dx-kind-video .dx-media-well { background: #0a0908; }
+.dx-film::before, .dx-film::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 9px; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.14) 0 3px, transparent 3px 10px);
+  opacity: .42;
 }
-@keyframes dx-shimmer { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+.dx-film::before { left: 0; }
+.dx-film::after { right: 0; }
+.dx-empty-plate {
+  height: 100%; display: grid; place-items: center; align-content: center; gap: 8px;
+  color: #6a6a6a; font-size: 12px; font-family: inherit; position: relative;
+}
+.dx-empty-glyph {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+  background: rgba(255,255,255,.035); border: 1px dashed rgba(255,255,255,.16);
+}
+.dx-kind-video .dx-empty-glyph { border-radius: 12px; }
+.dx-empty-title { color: #c8c8c8; font-size: 12px; }
+.dx-empty-hint { color: #6a6a6a; font-size: 10.5px; }
+.dx-empty-upload {
+  height: 26px; padding: 0 10px; border-radius: 999px; gap: 5px; font-size: 11px;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(12,12,12,.78); color: #f4f4f4;
+  display: flex; align-items: center; cursor: pointer; font-family: inherit;
+}
+.dx-float-upload {
+  position: absolute; right: 8px; top: -30px; z-index: 6; pointer-events: auto;
+}
+.dx-text-sheet {
+  background:
+    linear-gradient(180deg, rgba(232,214,176,.06), transparent 38%),
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(232,214,176,.05) 27px 28px);
+}
+.dx-act-frame { position: relative; }
+.dx-act-frame::before {
+  content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 99px;
+  background: rgba(255,255,255,.14);
+}
+.dx-generating { position: relative; }
+.dx-face-live {
+  box-shadow: 0 0 0 1px rgba(240,195,106,.28), 0 18px 40px rgba(0,0,0,.42) !important;
+}
+.dx-gen-overlay {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  display: grid; place-items: center;
+  background: radial-gradient(80% 70% at 50% 40%, rgba(20,16,8,.28), rgba(6,6,6,.72));
+  overflow: hidden;
+}
+.dx-gen-scan {
+  position: absolute; left: 0; right: 0; height: 34%;
+  background: linear-gradient(180deg, transparent, rgba(240,195,106,.2), transparent);
+  animation: dx-gen-scan 1.7s ease-in-out infinite;
+}
+@keyframes dx-gen-scan { 0% { top: -36%; } 100% { top: 102%; } }
+.dx-gen-core {
+  position: relative; z-index: 1; display: grid; place-items: center; gap: 8px; text-align: center;
+  padding: 0 18px;
+}
+.dx-gen-ring {
+  width: 36px; height: 36px; border-radius: 99px;
+  border: 2px solid rgba(240,195,106,.22); border-top-color: #f0c36a;
+  animation: dx-rotate .8s linear infinite;
+}
+.dx-gen-bars { display: flex; align-items: flex-end; gap: 3px; height: 14px; }
+.dx-gen-bars i {
+  display: block; width: 3px; height: 5px; border-radius: 2px; background: #f0c36a;
+  animation: dx-bar .62s ease-in-out infinite alternate;
+}
+.dx-gen-bars i:nth-child(2) { animation-delay: .1s; }
+.dx-gen-bars i:nth-child(3) { animation-delay: .2s; }
+.dx-gen-bars i:nth-child(4) { animation-delay: .3s; }
+@keyframes dx-bar { from { height: 4px; } to { height: 14px; } }
+.dx-gen-copy { color: #f0c36a; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+.dx-gen-prompt { color: #b9b0a0; font-size: 10.5px; line-height: 1.4; max-width: 92%; }
 .dx-spin {
   width: 12px; height: 12px; border-radius: 99px;
   border: 1.5px solid rgba(20,20,20,.25); border-top-color: #141414;
@@ -253,6 +330,7 @@ const STAGE_CSS = `
 .dx-stage .react-flow__node:hover .dx-port-dot { transform: scale(1.12); }
 .dx-stage.dx-hide-wires .react-flow__edge,
 .dx-stage.dx-hide-wires .dx-wire-edge,
+.dx-stage.dx-hide-wires .dx-wire-label,
 .dx-stage.dx-hide-wires .dx-wire-halo { opacity: 0 !important; pointer-events: none !important; }
 .dx-stage .react-flow__node { outline: none !important; }
 .dx-stage .react-flow__node:not(.selected):not(.dx-can-connect) { box-shadow: none !important; }
@@ -730,15 +808,17 @@ function StageInner(props: StageProps): ReactNode {
     if (locked) return false
     if (edgesRef.current.some(edge => edge.source === source && edge.target === target)) return true
     pushHistory()
+    const sourceBox = nodeAbsBox(source)
+    const targetBox = nodeAbsBox(target)
+    const routed = sourceBox !== undefined && targetBox !== undefined ? closestPorts(sourceBox, targetBox) : undefined
     const next = addEdge({
       id: newId('edge'),
       source,
       target,
-      sourceHandle: handles?.sourceHandle || 'out',
-      targetHandle: handles?.targetHandle || 'in',
+      sourceHandle: handles?.sourceHandle || (routed !== undefined ? sideToHandle(routed.sourceSide) : 'out'),
+      targetHandle: handles?.targetHandle || (routed !== undefined ? sideToHandle(routed.targetSide) : 'in'),
       type: 'wire',
       style: EDGE_STYLE,
-      markerEnd: EDGE_MARK,
     }, edgesRef.current)
     edgesRef.current = next
     setEdges(next)
@@ -764,7 +844,7 @@ function StageInner(props: StageProps): ReactNode {
       sourceHandle: connection.sourceHandle ?? oldEdge.sourceHandle ?? 'out',
       targetHandle: connection.targetHandle ?? oldEdge.targetHandle ?? 'in',
     }, current).map(edge => edge.id === oldEdge.id
-      ? { ...edge, type: 'wire', style: EDGE_STYLE, markerEnd: EDGE_MARK }
+      ? { ...edge, type: 'wire', style: EDGE_STYLE }
       : edge))
     scheduleSave()
   }, [pushHistory, scheduleSave])
@@ -1286,7 +1366,6 @@ function StageInner(props: StageProps): ReactNode {
         targetHandle: 'in',
         type: 'wire',
         style: EDGE_STYLE,
-        markerEnd: EDGE_MARK,
         ...(edge.label !== undefined ? { label: edge.label } : {}),
       })).filter(edge => edge.source !== '' && edge.target !== '')
       setNodes(current => [...current.map(node => ({ ...node, selected: false })), ...withParents])
@@ -1382,7 +1461,7 @@ function StageInner(props: StageProps): ReactNode {
         event.preventDefault()
         void zoomOut()
       }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      if ((event.metaKey || event.ctrlKey) && (event.key.toLowerCase() === 'k' || event.key.toLowerCase() === 'f')) {
         event.preventDefault()
         setSearchOpen(open => !open)
         return
@@ -1644,18 +1723,18 @@ function StageInner(props: StageProps): ReactNode {
           nodesDraggable
           nodesConnectable
           elementsSelectable
-          edgesReconnectable
+          edgesReconnectable={false}
           selectNodesOnDrag
           nodeDragThreshold={1}
           connectionMode={ConnectionMode.Loose}
-          connectionRadius={72}
+          connectionRadius={32}
           connectOnClick
           deleteKeyCode={null}
           onlyRenderVisibleElements={false}
           selectionOnDrag
           selectionKeyCode="Shift"
           multiSelectionKeyCode={['Shift', 'Meta']}
-          panOnDrag
+          panOnDrag={[1, 2]}
           panActivationKeyCode="Space"
           snapToGrid={snap}
           snapGrid={[16, 16]}
@@ -1678,7 +1757,6 @@ function StageInner(props: StageProps): ReactNode {
           defaultEdgeOptions={{
             type: 'wire',
             style: { stroke: 'rgba(236,236,236,.9)', strokeWidth: 2.15 },
-            markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: 'rgba(236,236,236,.9)' },
             interactionWidth: 28,
           }}
           proOptions={{ hideAttribution: true }}
@@ -1692,7 +1770,7 @@ function StageInner(props: StageProps): ReactNode {
           ) : null}
         </ReactFlow>
         <StageRail
-          onAdd={() => setAddMenu({ x: 68, y: 58 })}
+          onAdd={() => setAddMenu({ x: 68, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
           onSearch={() => setSearchOpen(true)}
           onAssets={() => { void openPicker() }}
           onUpload={() => uploadRef.current?.click()}

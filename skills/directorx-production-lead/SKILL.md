@@ -17,9 +17,9 @@ user-invocable: true
 ## 请求分诊（每个新请求的第一道闸门）
 
 - **简单请求** = 单张/一两张图；一个短镜头；无复制、无主体替换、无多镜头叙事、
-  无跨镜头一致性要求 → **直接生成**：保留用户原意（主体/动作/场景/要求），
-  只补全缺失的生成维度（风格锚点、光线、构图、时长、景别、氛围）后调用一次
-  `directorx_generate_image` / `directorx_generate_video`。不建计划、不追问确认。
+  无跨镜头一致性要求 → 仍要过 `directorx_generate_ready`：有人物就先设定图，
+  有场景一致性就先空镜，视频默认问清图生/首尾帧/文生。齐了才 `generate_*`。
+  不建长计划，但不得跳过参考闸。
 - **复杂请求** = 复制完整参考视频、跨镜头主体替换、多镜头叙事，或任何需要
   蓝图/一致性体系/逐镜编排 → `directorx_brief`，读匹配 recipe，用现有工具
   自己编排：调研 → 一次澄清 → 计划/分镜 → `directorx_propose` 占位（提示词 +
@@ -46,8 +46,9 @@ user-invocable: true
 
 ## 工具映射（DirectorX 工具集）
 
-- 生成：`directorx_generate_image` / `directorx_generate_video` /
-  `directorx_generate_audio`（简单请求、批准的 pilot unit 或返工）。
+- 生成：先 `directorx_generate_ready`，再 `directorx_generate_image` /
+  `directorx_generate_video` / `directorx_generate_audio`（简单请求、批准的
+  pilot unit 或返工）。ready 会告诉你缺设定图、场景、首帧还是尾帧。
 - 看图：`directorx_view_image` —— 生成前后都看像素，结论基于画面。
 - 分析/确定剪辑（免费且精确，优先于重新生成）：`directorx_probe_media`、
   `directorx_extract_frames`（frame-qa）、WebUI 右侧时间线编辑器

@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { CanvasIntentStore, CharacterStore, DirectorxCanvasStore, formatDshCanvasPrompt, ProjectStyleStore, ProposalStore, TermStore, closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portsForHandles, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerProposalsRoute, runInProject } from '../lib/testing.js'
+import { CanvasIntentStore, CharacterStore, DirectorxCanvasStore, formatDshCanvasPrompt, ProjectStyleStore, ProposalStore, TermStore, closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portsForHandles, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerProposalsRoute, routeDisplayPorts, runInProject, tidyOverlappingGroups } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -738,7 +738,8 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(stage, /ConnectMenu/)
   assert.match(stage, /linkNodes/)
   assert.match(stage, /dx-wiring/)
-  assert.match(stage, /connectionRadius=\{72\}/)
+  assert.match(stage, /connectionRadius=\{32\}/)
+  assert.match(stage, /panOnDrag=\{\[1, 2\]\}/)
   const nodesFile = await readFile(new URL('../src/client/stage/nodes.tsx', import.meta.url), 'utf8')
   assert.match(nodesFile, /id="top"/)
   assert.match(nodesFile, /id="bottom"/)
@@ -840,6 +841,7 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(stage, /\/directorx\/studio/)
   const tools = await readFile(new URL('../src/tools.ts', import.meta.url), 'utf8')
   assert.match(tools, /directorx_studio/)
+  assert.match(tools, /directorx_generate_ready/)
   assert.match(tools, /不要用生成模型重绘来完成调色/)
   assert.match(tools, /禁止批量占位|未向用户确认/)
   assert.match(tools, /novel-characters|设定表/)
@@ -854,13 +856,26 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(stage, /WireDragLayer/)
   assert.match(stage, /dx-can-connect/)
   assert.match(nodes, /dx-card-face/)
+  assert.match(nodes, /dx-gen-overlay/)
+  assert.match(nodes, /正在出片/)
+  assert.match(nodes, /正在出图/)
+  assert.match(nodes, /dx-film/)
+  assert.match(nodes, /kind="text"/)
+  assert.match(nodes, /dx-text-sheet/)
+  assert.match(stage, /dx-gen-scan/)
+  assert.match(stage, /dx-face-live/)
   const wire = await readFile(new URL('../src/client/stage/WireEdge.tsx', import.meta.url), 'utf8')
-  assert.match(wire, /portsForHandles/)
+  assert.match(wire, /routeDisplayPorts/)
   assert.match(wire, /ViewportPortal/)
   assert.match(wire, /dx-wire-drag/)
   assert.match(wire, /dx-wire-edge/)
+  assert.match(wire, /wireArrow/)
   assert.doesNotMatch(wire, /handleFlowPoint/)
+  assert.doesNotMatch(wire, /EdgeLabelRenderer/)
   assert.match(stage, /stroke: transparent !important/)
+  assert.match(stage, /react-flow__edgeupdater/)
+  assert.match(stage, /edgesReconnectable=\{false\}/)
+  assert.doesNotMatch(nodes, /function GroupCard[\s\S]*?<Ports/)
   const dock = await readFile(new URL('../src/client/EditorDock.tsx', import.meta.url), 'utf8')
   assert.match(dock, /from '\.\/stage\/Stage\.tsx'/)
   assert.match(dock, /position: 'fixed'/)
@@ -919,6 +934,50 @@ test('portsForHandles keep the chosen ports instead of always facing', () => {
   assert.equal(forced.targetSide, 'top')
   assert.equal(forced.sourceY, 100)
   assert.equal(forced.targetY, 20)
+})
+
+test('closestPorts prefers a clear horizontal gap over a longer vertical jump', () => {
+  const tail = { x: 48, y: 776, width: 400, height: 225 }
+  const nextAct = { x: 688, y: 56, width: 400, height: 225 }
+  const hop = closestPorts(tail, nextAct)
+  assert.equal(hop.sourceSide, 'right')
+  assert.equal(hop.targetSide, 'left')
+})
+
+test('routeDisplayPorts ignores default out/in on a vertical stack', () => {
+  const upper = { x: 48, y: 56, width: 400, height: 225 }
+  const lower = { x: 48, y: 320, width: 400, height: 225 }
+  const routed = routeDisplayPorts(upper, lower, 'out', 'in')
+  assert.equal(routed.sourceSide, 'bottom')
+  assert.equal(routed.targetSide, 'top')
+  const forced = routeDisplayPorts(upper, lower, 'bottom', 'top')
+  assert.equal(forced.sourceSide, 'bottom')
+  assert.equal(forced.targetSide, 'top')
+})
+
+test('tidyOverlappingGroups restacks colliding act children', () => {
+  const tidied = tidyOverlappingGroups([
+    { id: 'g', kind: 'group', x: 0, y: 0, width: 560, height: 400 },
+    { id: 'a', kind: 'video', parent: 'g', x: 0, y: 6, width: 400, height: 225, shotIndex: 1 },
+    { id: 'b', kind: 'video', parent: 'g', x: 100, y: 180, width: 400, height: 225, shotIndex: 2 },
+    { id: 'c', kind: 'video', parent: 'g', x: 48, y: 300, width: 400, height: 225, shotIndex: 3 },
+  ])
+  const a = tidied.find(node => node.id === 'a')
+  const b = tidied.find(node => node.id === 'b')
+  const c = tidied.find(node => node.id === 'c')
+  const group = tidied.find(node => node.id === 'g')
+  assert.ok(a.y < b.y)
+  assert.ok(b.y < c.y)
+  assert.ok(b.y >= a.y + 225 + 30, 'title clearance between stacked shots')
+  assert.equal(a.x, b.x)
+  assert.ok(group.height > 400)
+  const strip = tidyOverlappingGroups([
+    { id: 'g', kind: 'group', x: 48, y: 48, width: 900, height: 240 },
+    { id: 'a', kind: 'video', parent: 'g', x: 84, y: 104, width: 280, height: 158, shotIndex: 1 },
+    { id: 'b', kind: 'video', parent: 'g', x: 384, y: 104, width: 280, height: 158, shotIndex: 2 },
+  ])
+  assert.equal(strip.find(node => node.id === 'a').x, 84)
+  assert.equal(strip.find(node => node.id === 'b').x, 384)
 })
 
 test('flowAbsolutePosition and edgeHandlePoints attach wires to grouped nodes', () => {
@@ -1049,6 +1108,8 @@ test('canvas intents are DSH-owned: enqueue does not write canvas nodes', async 
     assert.equal(after.nodes.length, 1, 'intent enqueue must not add canvas nodes')
     const text = formatDshCanvasPrompt(intent, { sourceLabel: '定妆' })
     assert.match(text, /不是生成提示词/)
+    assert.match(text, /directorx_generate_ready/)
+    assert.match(text, /craftId 和 readyId/)
     assert.match(text, /directorx_canvas_continue/)
     assert.match(text, /src-1/)
     assert.match(text, /不要让画布 UI 自己写 generating 节点/)

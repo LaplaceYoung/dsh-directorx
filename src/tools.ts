@@ -41,6 +41,9 @@ import { applyGrade, inferMediaKind, listGradeLabels, resolveGradeLook } from '.
 import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
 import { ResearchLedger } from './research-ledger.ts'
 import { craftPrompt, requireCraft } from './prompt-craft.ts'
+import {
+  assessGenerateReady, commitGenerateReady, loadReadySnapshot, mergeReadyBind, parseStrategy, requireReady,
+} from './generate-ready.ts'
 import { StudioTicketStore } from './studio-intent.ts'
 import { runInProject, sessionProjectRoot } from './project.ts'
 import { normalizeAskQuestions, presentAsk } from './ask.ts'
@@ -93,7 +96,8 @@ function combinedSignal(execSignal: AbortSignal, timeoutMs: number): AbortSignal
 async function generationGate(
   settings: DirectorxSettings,
   store: ProposalStore,
-  args: { prompt?: string; text?: string; proposalId?: string; craftId?: string },
+  args: { prompt?: string; text?: string; proposalId?: string; craftId?: string; readyId?: string },
+  kind?: 'image' | 'video',
 ) {
   const proposalId = typeof args.proposalId === 'string' ? args.proposalId.trim() : ''
   const proposal = proposalId === '' ? null : await store.get(proposalId)
@@ -104,6 +108,20 @@ async function generationGate(
   const crafted = await requireCraft(settings.outputDir, craftId)
   if (!crafted.ok) {
     return { generate: false as const, prompt: '', reason: crafted.reason, authorized: false, refused: true, next: crafted.next }
+  }
+  const readyId = typeof args.readyId === 'string' ? args.readyId : (proposal as { readyId?: string } | null)?.readyId
+  if (kind === 'image' || kind === 'video') {
+    const ready = await requireReady(settings.outputDir, readyId, { craftId: crafted.craft.id, kind })
+    if (!ready.ok) {
+      return { generate: false as const, prompt: '', reason: ready.reason, authorized: false, refused: true, next: ready.next }
+    }
+    const auth = resolveGenerateAuthorization({
+      mode: settings.initiative,
+      prompt: crafted.craft.prompt,
+      inBudget: true,
+      proposal,
+    })
+    return { ...auth, ready: ready.brief }
   }
   return resolveGenerateAuthorization({
     mode: settings.initiative,
@@ -154,7 +172,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   if (settings.image.enabled) {
     disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_image',
-      description: 'Generate images. 必须带 craftId（directorx_prompt_craft）。禁止用画布短句当提示词。角色/设定/三视图按 novel-characters 设定表。严格/协同还要已批准 proposalId。',
+      description: 'Generate images. 必须带 craftId 和 readyId。先 generate_ready 判定设定图/场景/关键帧是否齐。禁止用画布短句当提示词。角色/设定/三视图按 novel-characters 设定表。严格/协同还要已批准 proposalId。',
       parameters: {
         prompt: { type: 'string', required: true, description: 'Text-to-image prompt. 角色设定写清半身基准+正侧背三视图同一人。Follow subject, action, environment, style, light, lens.' },
         size: { type: 'string', description: 'Size such as 1024x1024, 1536x1024, or 1024x1536. Optional; provider defaults apply.' },
@@ -163,19 +181,23 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。未调研成稿禁止生成。' },
+        readyId: { type: 'string', required: true, description: 'directorx_generate_ready 返回的 id。参考不齐禁止生成。' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
       timeoutMs: settings.timeoutMs,
       isConcurrencySafe: () => true,
       async execute(args: any, exec: any) {
-        const gate = await generationGate(settings, proposals, args)
+        const gate = await generationGate(settings, proposals, args, 'image')
         if (!gate.generate) {
-          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? (gate.authorized ? 'directorx_propose' : '先 directorx_prompt_craft，严格/协同再 directorx_confirm') }
+          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? (gate.authorized ? 'directorx_propose' : '先 directorx_prompt_craft → directorx_generate_ready') }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
-        const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
-        const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
+        const bind = 'ready' in gate && gate.ready !== undefined
+          ? mergeReadyBind(gate.ready, args)
+          : { characters: Array.isArray(args.characters) ? args.characters.map(String) : [], referenceImages: Array.isArray(args.reference_image_paths) ? args.reference_image_paths.map(String) : [] }
+        const characterCards = await new CharacterStore(settings.outputDir).get(bind.characters)
+        const refs = [...new Set([...bind.referenceImages, ...characterCards.map(card => card.refPath)])]
         const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
         const style = await new ProjectStyleStore(settings.outputDir).read()
         const styleNote = style !== null
@@ -195,32 +217,41 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   if (settings.video.enabled) {
     disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_video',
-      description: 'Generate video. 必须带 craftId。画布短句先 knowledge/skill/外部调研再 prompt_craft，禁止原文直出。音画同出优先原生音频模型。角色用 characters；相邻镜用上一镜末帧 first_frame。',
+      description: 'Generate video. 必须带 craftId 和 readyId。先 generate_ready：有人物要设定图，有场景要空镜，连续镜要首帧/上一镜末帧，转场要首尾帧。禁止原文直出。音画同出优先原生音频模型。',
       parameters: {
         prompt: { type: 'string', required: true, description: 'DirectorX video prompt: physical action first, then camera, environment, style, lighting. Positive language; concrete motion.' },
         seconds: { type: 'number', description: 'Target duration in seconds. Provider clamps unknown values.' },
         size: { type: 'string', description: 'Output size for providers that accept it, e.g. 1280x720 or 1920x1080.' },
         aspect_ratio: { type: 'string', description: 'Aspect ratio such as 16:9, 9:16, 1:1 (modelverse-tasks mode).' },
-        first_frame_path: { type: 'string', description: 'Optional first frame image path/URL for frame-locked generation.' },
-        last_frame_path: { type: 'string', description: 'Optional last frame image path/URL for frame-locked transition.' },
+        first_frame_path: { type: 'string', description: 'First frame. ready 已绑定时可省略。' },
+        last_frame_path: { type: 'string', description: 'Last frame for fl2v. ready 已绑定时可省略。' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional reference image paths/URLs for character/appearance consistency.' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         negative_prompt: { type: 'string', description: 'Optional negative prompt (基线见 directorx-methodology 规则 26：模糊/解剖错误/水印/闪烁四类)。Provider 支持时透传（如 kling legacy）。' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。画布短句不是提示词。' },
+        readyId: { type: 'string', required: true, description: 'directorx_generate_ready 返回的 id。参考不齐禁止生成。' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
       timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * Math.min(settings.maxPollAttempts, 120)),
       async execute(args: any, exec: any) {
-        const gate = await generationGate(settings, proposals, args)
+        const gate = await generationGate(settings, proposals, args, 'video')
         if (!gate.generate) {
-          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? '先 directorx_prompt_craft，再 confirm/generate' }
+          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? '先 directorx_prompt_craft → directorx_generate_ready' }
         }
         const budget = Math.max(settings.timeoutMs, settings.pollIntervalMs * Math.min(settings.maxPollAttempts, 120))
         const signal = combinedSignal(exec.signal, budget)
-        const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
-        const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
+        const bind = 'ready' in gate && gate.ready !== undefined
+          ? mergeReadyBind(gate.ready, args)
+          : {
+              characters: Array.isArray(args.characters) ? args.characters.map(String) : [],
+              referenceImages: Array.isArray(args.reference_image_paths) ? args.reference_image_paths.map(String) : [],
+              firstFrame: typeof args.first_frame_path === 'string' ? args.first_frame_path : undefined,
+              lastFrame: typeof args.last_frame_path === 'string' ? args.last_frame_path : undefined,
+            }
+        const characterCards = await new CharacterStore(settings.outputDir).get(bind.characters)
+        const refs = [...new Set([...bind.referenceImages, ...characterCards.map(card => card.refPath)])]
         const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
         const style = await new ProjectStyleStore(settings.outputDir).read()
         const styleNote = style !== null
@@ -234,8 +265,8 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           size: args.size,
           aspectRatio: args.aspect_ratio,
           resolution: settings.video.resolution,
-          firstFramePath: args.first_frame_path,
-          lastFramePath: args.last_frame_path,
+          firstFramePath: bind.firstFrame,
+          lastFramePath: bind.lastFrame,
           referenceImagePaths: refs,
           negativePrompt: negative !== '' ? negative : undefined,
         })
@@ -405,6 +436,74 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           composition: args.composition,
         },
       })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_generate_ready',
+    description: '生成前参考齐备闸。读画布和角色库，判定本任务该走设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧 / 文生。缺参考就 blocked，并用提问卡让用户选路。commit:true 只在齐备时发 readyId；generate/propose/canvas_continue 必带。',
+    parameters: {
+      kind: { type: 'string', enum: ['image', 'video'], required: true },
+      intent: { type: 'string', required: true, description: '用户原句 / 画布意图。' },
+      prompt: { type: 'string', required: true, description: 'prompt_craft 成稿。不齐时也可先拿来诊断。' },
+      craftId: { type: 'string', description: 'commit 时必填。' },
+      strategy: { type: 'string', enum: ['character-sheet', 'scene-still', 'keyframe', 't2i', 't2v', 'i2v', 'fl2v', 'ref2v'], description: '声明策略；不传则按意图/画布推断。' },
+      nodeId: { type: 'string', description: '要生成的画布节点。' },
+      sourceId: { type: 'string', description: '承接的上一镜。' },
+      characters: { type: 'array', items: { type: 'string' }, description: '本镜要锁的人物名。' },
+      scenes: { type: 'array', items: { type: 'string' }, description: '本镜要锁的场景名。' },
+      firstFrame: { type: 'string', description: '首帧路径。' },
+      lastFrame: { type: 'string', description: '尾帧路径。' },
+      referenceImages: { type: 'array', items: { type: 'string' } },
+      waivers: { type: 'array', items: { type: 'string' }, description: '用户确认后才可放弃的项：character-sheet / scene-still / first-frame / last-frame。已登记角色不能放弃设定图。' },
+      commit: { type: 'boolean', description: 'true = 齐备则写入 readyId。' },
+      present: { type: 'boolean', description: 'blocked 时立刻弹出提问卡。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any, exec: any) {
+      const crafted = await requireCraft(settings.outputDir, typeof args.craftId === 'string' ? args.craftId : undefined)
+      const snapshot = await loadReadySnapshot(settings.outputDir)
+      const input = {
+        kind: args.kind === 'image' ? 'image' as const : 'video' as const,
+        intent: String(args.intent ?? ''),
+        prompt: String(args.prompt ?? (crafted.ok ? crafted.craft.prompt : '')),
+        ...(crafted.ok ? { craftId: crafted.craft.id } : {}),
+        ...(typeof args.nodeId === 'string' ? { nodeId: args.nodeId } : {}),
+        ...(typeof args.sourceId === 'string' ? { sourceId: args.sourceId } : {}),
+        ...(Array.isArray(args.characters) ? { characters: args.characters.map(String) } : {}),
+        ...(Array.isArray(args.scenes) ? { scenes: args.scenes.map(String) } : {}),
+        ...(parseStrategy(args.strategy) !== undefined ? { strategy: parseStrategy(args.strategy) } : {}),
+        ...(typeof args.firstFrame === 'string' ? { firstFrame: args.firstFrame } : {}),
+        ...(typeof args.lastFrame === 'string' ? { lastFrame: args.lastFrame } : {}),
+        ...(Array.isArray(args.referenceImages) ? { referenceImages: args.referenceImages.map(String) } : {}),
+        ...(Array.isArray(args.waivers) ? { waivers: args.waivers.map(String) } : {}),
+        snapshot,
+      }
+      const diagnosis = assessGenerateReady(input)
+      if (args.commit === true && !crafted.ok) return { ...crafted, diagnosis }
+      const diagnosed = args.commit === true && crafted.ok
+        ? await commitGenerateReady({ ...input, outputDir: settings.outputDir, craftId: crafted.craft.id })
+        : { ok: diagnosis.verdict === 'ready', ...diagnosis }
+      let answers
+      const ask = (diagnosed as { ask?: unknown }).ask
+      if (args.present === true && Array.isArray(ask) && ask.length > 0) {
+        const userInteraction = ctx.get('userInteraction') as {
+          ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+        } | undefined
+        if (userInteraction === undefined) throw new Error('directorx_generate_ready present 需要 DSH userInteraction')
+        answers = (await presentAsk({
+          questions: normalizeAskQuestions(ask),
+          ask: request => userInteraction.ask(request),
+          agent: exec.agent,
+          signal: exec.signal,
+        })).answers
+      }
+      return {
+        ...diagnosed,
+        answers,
+        next: (diagnosed as { next?: unknown }).next ?? (Array.isArray(ask) && ask.length > 0 && answers === undefined ? 'directorx_ask' : undefined),
+      }
     },
   })))
 
@@ -1195,7 +1294,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_propose',
-    description: 'Queue a PLACEHOLDER (成片 严格/协同). 严格 without chosen expands into 二到四个提示词. After the user picks, call again with chosen=true and that exact prompt to enqueue one 占位. 协同 queues 提示词和占位. Does not spend quota.',
+    description: 'Queue a PLACEHOLDER (成片 严格/协同). 必须带 craftId+readyId。参考不齐先 generate_ready。严格 without chosen expands into 二到四个提示词. After the user picks, call again with chosen=true and that exact prompt to enqueue one 占位. Does not spend quota.',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true, description: 'Generation kind.' },
       prompt: { type: 'string', required: true, description: 'Task wording, or the exact chosen prompt when chosen=true.' },
@@ -1209,12 +1308,18 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       note: { type: 'string', description: 'Free-form note (continuity/anchors/references).' },
       canvasNodeId: { type: 'string', description: 'Canvas node this proposal is bound to (visible on the board).' },
       craftId: { type: 'string', required: true, description: 'directorx_prompt_craft id. 未调研成稿不能占位。' },
+      readyId: { type: 'string', required: true, description: 'directorx_generate_ready id. 参考不齐不能占位。' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
       const crafted = await requireCraft(settings.outputDir, typeof args.craftId === 'string' ? args.craftId : undefined)
       if (!crafted.ok) return crafted
+      const ready = await requireReady(settings.outputDir, typeof args.readyId === 'string' ? args.readyId : undefined, {
+        craftId: crafted.craft.id,
+        kind: args.kind === 'image' || args.kind === 'video' ? args.kind : undefined,
+      })
+      if (!ready.ok && (args.kind === 'image' || args.kind === 'video')) return ready
       const plan = planPlaceholderEnqueue({
         mode: settings.initiative,
         prompt: crafted.craft.prompt,
@@ -1235,6 +1340,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
             note: `严格变体 ${index + 1}/${plan.prompts.length}；选定后 directorx_propose chosen:true。${args.note ?? ''}`,
             canvasNodeId: args.canvasNodeId,
             craftId: crafted.craft.id,
+            ...(ready.ok ? { readyId: ready.brief.id } : {}),
           }))
         }
         return { ...plan, next: 'directorx_confirm', proposals: queued }
@@ -1251,6 +1357,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         note: args.note,
         canvasNodeId: args.canvasNodeId,
         craftId: crafted.craft.id,
+        ...(ready.ok ? { readyId: ready.brief.id } : {}),
       })
     },
   })))
@@ -1612,19 +1719,27 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_continue',
-    description: 'DSH-owned continue-generate: drop a generating placeholder wired from sourceId (absolute layout). Use this after taking a canvas intent — do not let the WebUI write the placeholder.',
+    description: 'DSH-owned continue-generate: drop a generating placeholder wired from sourceId. 必须带 readyId——参考不齐不许落 generating 节点。',
     parameters: {
       sourceId: { type: 'string', description: 'Existing node to wire from. Omit to place a free node.' },
       kind: { type: 'string', enum: ['image', 'video'], description: 'Defaults from the source kind (image/video → video, else image).' },
       prompt: { type: 'string', required: true, description: 'Generation prompt for the placeholder.' },
+      readyId: { type: 'string', required: true, description: 'directorx_generate_ready id.' },
+      craftId: { type: 'string', description: 'Optional craftId to pair with readyId.' },
     },
     output: objectOutput(),
     timeoutMs: 15_000,
     async execute(args: any) {
+      const kind = args.kind === 'image' || args.kind === 'video' ? args.kind : undefined
+      const ready = await requireReady(settings.outputDir, typeof args.readyId === 'string' ? args.readyId : undefined, {
+        ...(typeof args.craftId === 'string' ? { craftId: args.craftId } : {}),
+        ...(kind !== undefined ? { kind } : {}),
+      })
+      if (!ready.ok) return ready
       return canvas.continueGenerate({
-        prompt: String(args.prompt),
+        prompt: ready.brief.prompt || String(args.prompt),
         ...(typeof args.sourceId === 'string' && args.sourceId !== '' ? { sourceId: args.sourceId } : {}),
-        ...(args.kind === 'image' || args.kind === 'video' ? { kind: args.kind } : {}),
+        ...(kind !== undefined ? { kind } : { kind: ready.brief.kind }),
       })
     },
   })))
@@ -2283,6 +2398,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     ...(settings.audio.enabled ? ['directorx_generate_audio', 'directorx_transcribe_audio'] : []),
     'directorx_probe_media',
     'directorx_extract_frames',
+    'directorx_generate_ready',
     'directorx_chengpian',
   ]
   const initiative = parseInitiative(settings.initiative)
@@ -2300,7 +2416,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` (acts→groups, shots→nodes, 承接 edges) then `directorx_canvas_arrange`. Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
-      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → propose/confirm → generate with `craftId`. 严格/协同 still need an approved `proposalId`. 角色/设定/三视图先 `directorx_skill_read` `novel-characters`，成稿必须是 16:9 设定表。After a canvas intent, write results back with `directorx_canvas_update`.',
+      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, ask cards then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；转场要首尾帧。After a canvas intent, write results back with `directorx_canvas_update`.',
       '- Edit / grade: 用户要调色、改色调、打开编辑台时，调用 `directorx_studio`（prompt + 当前画布 nodeId 或 path）。它会 ffmpeg 调色、回写节点，并打开图片/视频编辑工作台。剪辑仍用 `directorx_edit` / `directorx_video_process` / `directorx_timeline` / `directorx_smart_cut`。不要用生成模型重绘来完成调色。',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',

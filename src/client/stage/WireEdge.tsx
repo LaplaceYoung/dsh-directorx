@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { BaseEdge, EdgeLabelRenderer, ViewportPortal, getBezierPath, Position, useInternalNode, type ConnectionLineComponentProps, type EdgeProps } from '@xyflow/react'
-import { handleToSide, portPoint, portsForHandles, type PortSide } from '../../canvas-generate.ts'
+import { BaseEdge, ViewportPortal, getBezierPath, Position, useInternalNode, type ConnectionLineComponentProps, type EdgeProps } from '@xyflow/react'
+import { handleToSide, portPoint, routeDisplayPorts, type PortSide } from '../../canvas-generate.ts'
 import { dx } from '../canvas-theme.ts'
 
 function sideToPosition(side: PortSide): Position {
@@ -42,22 +42,33 @@ function wirePath(
   })
 }
 
+function wireArrow(x: number, y: number, side: PortSide, fill: string): ReactNode {
+  const length = 8
+  const half = 5
+  const points = side === 'left'
+    ? `${x},${y} ${x - length},${y - half} ${x - length},${y + half}`
+    : side === 'right'
+      ? `${x},${y} ${x + length},${y - half} ${x + length},${y + half}`
+      : side === 'top'
+        ? `${x},${y} ${x - half},${y - length} ${x + half},${y - length}`
+        : `${x},${y} ${x - half},${y + length} ${x + half},${y + length}`
+  return <polygon points={points} fill={fill} />
+}
+
 export function WireEdge(props: EdgeProps): ReactNode {
   const source = useInternalNode(props.source)
   const target = useInternalNode(props.target)
   const from = source !== undefined ? nodeBox(source) : undefined
   const to = target !== undefined ? nodeBox(target) : undefined
-  const sourceHandle = props.sourceHandleId || 'out'
-  const targetHandle = props.targetHandleId || 'in'
   const routed = from !== undefined && to !== undefined
-    ? portsForHandles(from, to, sourceHandle, targetHandle)
+    ? routeDisplayPorts(from, to, props.sourceHandleId, props.targetHandleId)
     : {
         sourceX: props.sourceX,
         sourceY: props.sourceY,
         targetX: props.targetX,
         targetY: props.targetY,
-        sourceSide: handleToSide(sourceHandle) ?? 'right',
-        targetSide: handleToSide(targetHandle) ?? 'left',
+        sourceSide: handleToSide(props.sourceHandleId) ?? 'right',
+        targetSide: handleToSide(props.targetHandleId) ?? 'left',
       }
   const [path, labelX, labelY] = wirePath(
     routed.sourceX, routed.sourceY, routed.sourceSide,
@@ -65,12 +76,13 @@ export function WireEdge(props: EdgeProps): ReactNode {
   )
   const selected = props.selected === true
   const stroke = selected ? 'rgba(255,255,255,.96)' : 'rgba(236,236,236,.92)'
+  const label = typeof props.label === 'string' ? props.label.trim() : ''
+  const showLabel = selected && label !== '' && label !== '承接'
   return (
     <>
       <BaseEdge
         id={props.id}
         path={path}
-        markerEnd={props.markerEnd}
         interactionWidth={36}
         style={{ ...props.style, stroke: 'transparent', strokeWidth: 2 }}
       />
@@ -78,16 +90,17 @@ export function WireEdge(props: EdgeProps): ReactNode {
         <svg className="dx-wire-edge" width={1} height={1} style={{ position: 'absolute', overflow: 'visible', pointerEvents: 'none', left: 0, top: 0, zIndex: 3 }}>
           <path d={path} fill="none" stroke="rgba(0,0,0,.5)" strokeWidth={5} />
           <path d={path} fill="none" stroke={stroke} strokeWidth={selected ? 2.6 : 2.2} />
+          {wireArrow(routed.targetX, routed.targetY, routed.targetSide, stroke)}
         </svg>
-      </ViewportPortal>
-      {typeof props.label === 'string' && props.label !== '' ? (
-        <EdgeLabelRenderer>
+        {showLabel ? (
           <div
-            className="nodrag nopan"
+            className="dx-wire-label nodrag nopan"
             style={{
               position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              pointerEvents: 'all',
+              left: labelX,
+              top: labelY,
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none',
               padding: '2px 7px',
               borderRadius: 999,
               background: 'rgba(16,16,16,.86)',
@@ -98,10 +111,10 @@ export function WireEdge(props: EdgeProps): ReactNode {
               whiteSpace: 'nowrap',
             }}
           >
-            {props.label}
+            {label}
           </div>
-        </EdgeLabelRenderer>
-      ) : null}
+        ) : null}
+      </ViewportPortal>
     </>
   )
 }
