@@ -22,5 +22,5 @@
     ".env",
     "configs/"
   ],
-  "message": "feat(canvas): center a double-clicked node and hide file-slug titles"
+  "message": "fix(loop): re-stage scoped files after the green test run"
 }

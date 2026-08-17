@@ -176,6 +176,29 @@ test('leftover unicode paths survive hide/restore without a leftover stash', asy
   assert.deepEqual(loopGateStashes(plugin), [])
 })
 
+test('runTreeJob re-adds scoped files after the test command rewrites them', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'loop-readd-'))
+  const plugin = join(root, 'plugin')
+  const agent = join(root, 'agent')
+  initRepo(plugin, 'plugin')
+  initRepo(agent, 'agent')
+  mkdirSync(join(plugin, 'src'), { recursive: true })
+  writeFileSync(join(plugin, 'src', 'built.js'), 'before\n')
+  writeFileSync(join(plugin, 'scripts', 'loop-increment.json'), JSON.stringify({
+    name: 'plugin',
+    test: ['node', '-e', "require('node:fs').writeFileSync('src/built.js', 'after\\n')"],
+    allow: ['src/', 'scripts/loop-increment.json'],
+    deny: [],
+    message: 'readd after test',
+  }))
+  const record = runTreeJob({ tree: plugin, peer: agent, recordDir: join(root, 'record'), skipPush: true })
+  assert.equal(record.testsOk, true)
+  assert.ok(record.commit)
+  const shown = git(plugin, ['show', `${record.commit}:src/built.js`])
+  assert.equal(shown.stdout, 'after\n', 'commit must contain the post-test file, not the pre-test staging')
+  assert.deepEqual(loopGateStashes(plugin), [])
+})
+
 test('scopedPaths reads the real git status of the tree under test', async () => {
   const root = await mkdtemp(join(tmpdir(), 'loop-scope-'))
   const tree = join(root, 'tree')

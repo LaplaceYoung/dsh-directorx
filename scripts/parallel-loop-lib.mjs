@@ -247,6 +247,14 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
             record.skip = 'tests_red'
             git(tree, ['restore', '--staged', '.'], env)
           } else {
+            // pretest/build may rewrite allowlisted files (lib/). Re-stage
+            // the same scoped list so the commit matches the green run.
+            const readd = git(tree, ['add', '--', ...scoped], env)
+            if (readd.status !== 0) {
+              record.skip = 'git_add_failed'
+              record.addError = (readd.stderr || readd.stdout).slice(0, 2000)
+              git(tree, ['restore', '--staged', '.'], env)
+            } else {
             const commit = git(tree, ['commit', '-m', increment.message], env)
             if (commit.status !== 0) {
               record.skip = 'git_commit_failed'
@@ -266,6 +274,7 @@ export function runTreeJob({ tree, peer, recordDir, skipPush = false }) {
                   stderr: (pushed.stderr || '').slice(0, 4000),
                 }
               }
+            }
             }
           }
         } finally {
