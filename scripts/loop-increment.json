@@ -13,6 +13,7 @@
     "CHANGELOG.md",
     "docs/architecture.md",
     ".gitignore",
+    ".github/",
     "recipes/",
     "lib/",
     "skills/directorx-production-lead/"
@@ -23,5 +24,5 @@
     ".env",
     "configs/"
   ],
-  "message": "chore(loop): ignore the local .loop-record directory"
+  "message": "ci: run npm test on node 22.19 and pin lib/"
 }
