@@ -6,6 +6,7 @@
 
 ### Added
 
+- **画布舞台按 TapNow 重做**：全黑无限场、浮动标题、左侧竖栏、底部胶囊生成条；缩放 5%–400%；左键拖空白平移（Shift 框选）；卡片/分组层级与选中描边重画；details 列默认约半屏。WebUI 仍不写 generating 节点。
 - **画布 agent 工具面（DSH 增删改查/分组/编排）**：`canvas_add` 可写 prompt/shotIndex/状态/连续性；新增 `canvas_node`（单条读写上下文）、`canvas_groups` / `canvas_group`（收组）、`canvas_disconnect`（按端点删边）、`canvas_sequence`（写镜号+承接）、`canvas_plan`（幕/镜一次落画布，不生成）。MCP 同步。WebUI 仍不得写 generating 节点。
 - **DSH 人机平面（命令 + 原生提问）**：宿主注册 `/directorx`（`ctx.commands`，Web 斜杠菜单 / TUI，零 token）；`directorx_confirm` 直接调用 `ctx.userInteraction.ask()` 对下一条 / 提案队列 / 分镜表签字并写回账本。不再只返回 `ask: ask_user_question` hints。客户端给裸 `/directorx` 挂 popupSelect。调研见 community-radar「2026-08-17 DSH 人机平面」。
 - **成片 persona + 严格/自动/协同**：`directorx:chengpian` 进 DSH system prompt（order 5，人格带）；`directorx_chengpian` 决策确认/生成/二到四个提示词/占位。严格先出选项，`chosen:true` 入队选定的一条；批准后 generate 带 `proposalId` 才执行。自动预算内放行。确认走 `directorx_confirm`（DSH `userInteraction`）。

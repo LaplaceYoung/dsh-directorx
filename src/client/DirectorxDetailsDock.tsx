@@ -79,7 +79,7 @@ async function saveEdit(blob: Blob, name: string, mediaType: string): Promise<Ed
   return response.json() as Promise<EditRecord & { name: string }>
 }
 
-const column: CSSProperties = { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--dsw-alias-bg-base)' }
+const column: CSSProperties = { display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', background: 'var(--dsw-alias-bg-base)' }
 const headerBar: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid var(--dsw-alias-border-l1)', color: 'var(--dsw-alias-label-primary)' }
 const tabBar: CSSProperties = { display: 'flex', gap: 2, padding: '0 8px', borderBottom: '1px solid var(--dsw-alias-border-l1)', background: 'transparent' }
 const tabItemBase: CSSProperties = { padding: '9px 12px', fontSize: 12.5, cursor: 'pointer', background: 'transparent', border: 'none', color: 'var(--dsw-alias-label-secondary)' }
@@ -155,15 +155,14 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
   const [saved, setSaved] = useState<EditRecord | undefined>(undefined)
   const rootRef = useRef<HTMLDivElement | null>(null)
 
-  // 默认面板宽度：约浏览器窗口的 1/3（下限 480px），用户手动拖拽后尊重其调整；
-  // 窗口尺寸变化时按比例跟随。
+  // Canvas is a full stage: take about half the window (floor 720).
   useEffect(() => {
     const applyDefaultWidth = () => {
       const root = rootRef.current
       if (root === null) return
       const col = root.closest('[class*="detailsCol"]') as HTMLElement | null
       if (col === null) return
-      const target = Math.max(480, Math.round(window.innerWidth / 3))
+      const target = Math.max(720, Math.round(window.innerWidth * 0.56))
       if (col.clientWidth === 0 || col.clientWidth < target) {
         col.style.width = `${target}px`
       }
@@ -204,8 +203,28 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
 
   const title = snapshot.tab === 'canvas' ? 'DirectorX 画布' : snapshot.tab === 'video' ? '视频时间线编辑' : '图片编辑'
 
+  const canvasStage = snapshot.tab === 'canvas'
   return (
-    <div ref={rootRef} style={column}>
+    <div ref={rootRef} style={{ ...column, background: canvasStage ? '#000' : column.background }}>
+      {canvasStage ? (
+        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 50, display: 'flex', gap: 4, alignItems: 'center', padding: 4, borderRadius: 14, background: 'rgba(20,20,20,.72)', border: '1px solid rgba(255,255,255,.1)', backdropFilter: 'blur(16px)' }}>
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              style={{
+                padding: '6px 10px', border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 12,
+                background: snapshot.tab === tab.id ? 'rgba(255,255,255,.12)' : 'transparent',
+                color: snapshot.tab === tab.id ? '#f5f5f5' : '#9b9b9b',
+              }}
+              onClick={() => setEditorTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+          <button onClick={close} style={{ padding: '6px 10px', border: 'none', borderRadius: 10, background: 'transparent', color: '#9b9b9b', cursor: 'pointer', fontSize: 12 }}>关闭</button>
+        </div>
+      ) : (
+        <>
       <div style={headerBar}>
         <strong style={{ fontSize: 13 }}>{title}</strong>
         <button onClick={close} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}>关闭</button>
@@ -226,8 +245,10 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
           </button>
         ))}
       </div>
+        </>
+      )}
       {snapshot.tab === 'canvas' ? (
-        <div style={{ ...body, overflow: 'hidden' }}>
+        <div style={{ ...body, overflow: 'hidden', position: 'relative', height: '100%' }}>
           <EditorBoundary>
             <CanvasTab
               sessionId={props.sessionId}
