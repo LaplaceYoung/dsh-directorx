@@ -23,7 +23,7 @@ user-invocable: true
 - **复杂请求** = 复制完整参考视频、跨镜头主体替换、多镜头叙事，或任何需要
   蓝图/一致性体系/逐镜编排 → `directorx_brief`，读匹配 recipe，用现有工具
   自己编排：调研 → 一次澄清 → 计划/分镜 → `directorx_propose` 占位（提示词 +
-  推荐模型 + 规格）→ `directorx_canvas_shotlist` 签字 → 用户确认后才生成。
+  推荐模型 + 规格）→ `directorx_canvas_shotlist` → `directorx_confirm` 签字 → 用户确认后才生成。
   `directorx-workflow` 与 `directorx_orchestrate` 是加速器，不是必经入口。
 - 存疑时按复杂处理：复杂方向误判只多一次澄清，简单方向误判浪费整场生产。
 
@@ -34,8 +34,9 @@ user-invocable: true
 
 ## 成片主动性（严格 / 自动 / 协同）
 
-成片任务先加载 `directorx-chengpian`，用 `directorx_chengpian` 决策，确认走 DSH
-`ask_user_question`。不要另起一套 agent loop。
+成片任务先加载 `directorx-chengpian`，用 `directorx_chengpian` 决策，确认走
+`directorx_confirm`（DSH `userInteraction`）。用户也可 `/directorx` 直接看制片板。
+不要另起一套 agent loop。
 
 - **严格**：第一个不明确事件及时确认；确认次数较多；绝不自己执行生成；
   每个生成任务给出二到四个提示词供选择。
@@ -62,7 +63,8 @@ user-invocable: true
 - 知识：`directorx_knowledge_search` / `directorx_knowledge_read` +
   `directorx-playbook`（四道闸门：规格/内容/成本/权利）。
 - 分诊与占位：`directorx_brief`（含 compose 阶段图）、`directorx_propose`、
-  `directorx_canvas_shotlist`。配方在 `recipes/`。
+  `directorx_canvas_shotlist`、`directorx_confirm`。配方在 `recipes/`。
+  人机命令：`/directorx` `[shotlist|proposals|next]`。
 
 ## 工作流推导协议（复杂请求，配方只是先例不是枷锁）
 

@@ -1,116 +1,171 @@
 <div align="center">
 
-# dsh-directorx
+<img src="docs/logo.svg" width="88" alt="DirectorX">
 
-**DirectorX · AI 视频导演插件**
+# DirectorX
 
-*给 DeepSeek Harness 装上取景器、剪辑台和分镜板。*
+**AI video director plugin for DeepSeek Harness**
 
-<p>
-  <a href="https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license"></a>
-  <img src="https://img.shields.io/badge/dsh-plugin-v1-green" alt="dsh-plugin">
-  <img src="https://img.shields.io/badge/tests-105%2F105-brightgreen" alt="tests">
-  <img src="https://img.shields.io/badge/tools-60%2B-orange" alt="tools">
-  <img src="https://img.shields.io/badge/rules-99-purple" alt="craft rules">
-</p>
+给 DSH 装上取景器、剪辑台和无限分镜板。大脑仍是 DSH，插件只负责手脚。
 
-**DSH 会写代码，但不会拍片——除非你给它装上这个。**
+<br>
 
-导演的知识、剪辑的手艺、制片人的流程，压进一个插件：
-**生成 · 剪辑 · 质检 · 画布 · 知识库**，一次装齐。
-
-<sub>关键词：AI 视频生成 · 文生视频 · 图生视频 · 智能剪辑 · 视频 agent · 分镜 · storyboard · video agent</sub>
+[![license](https://img.shields.io/badge/license-Apache--2.0-0f172a?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/dsh-plugin-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+[![stars](https://img.shields.io/github/stars/LaplaceYoung/dsh-directorx?style=flat&color=f59e0b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+[![last commit](https://img.shields.io/github/last-commit/LaplaceYoung/dsh-directorx?color=64748b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+[![node](https://img.shields.io/badge/node-%3E%3D22.19-339933?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 
 </div>
 
----
+<br>
 
-## 它是谁
-
-一个把 DSH 变成「AI 电影导演」的插件。不抢 agent loop，不塞第二套 runtime——
-**大脑还是 DSH 的，我们只负责给它装上四肢：**
-
-> **会看** —— 拉片、逐镜描述、成片质检，全部确定性 ffmpeg 驱动，零幻觉。<br>
-> **会拍** —— 8 种视频模型协议、首尾帧、角色一致性锚点，一键生成。<br>
-> **会剪** —— 时间线渲染、智能精剪、混音、字幕，免费、可无限重跑。<br>
-> **会说** —— TTS 旁白带表演指令，音画同出，自动闪避混音。<br>
-> **有手艺** —— 99 条方法论规则、350+ 篇知识库，决策与质检都引用规则编号。
-
-**改计划 = 重渲染，永不重新生成、永不重复花钱。**
-这句值得再读一遍——这是它和「烧钱抽卡式 AI 工具」的根本区别。
+<p align="center">
+  <a href="#它做什么"><strong>能力</strong></a> ·
+  <a href="#快速开始"><strong>安装</strong></a> ·
+  <a href="#一次制作怎么走"><strong>流程</strong></a> ·
+  <a href="#和别的方案"><strong>对比</strong></a> ·
+  <a href="#faq"><strong>FAQ</strong></a> ·
+  <a href="#文档"><strong>文档</strong></a>
+</p>
 
 ---
 
-## 制作流水线
+## 它做什么
 
-```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "fontFamily": "system-ui, sans-serif"}}}%%
-flowchart LR
-  A["意图分诊 brief"] --> B["分镜规划 storyboard"]
-  B --> C["规则门 shot_gate"]
-  C --> D["参数预设 preset"]
-  D --> E["并行生成 generate"]
-  E --> F["智能剪辑 timeline"]
-  F --> G["成片质检 qa_report"]
-  G -->|fix| F
-  G -->|pass| H["画布成品板"]
-```
+DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent loop，也不改画布上的生成节点——DSH 负责想、批、跑；插件提供媒体工具、导演知识、配方和无限画布。
 
-## 五区画布
+改时间线是重渲染，不是重新生成。本地 ffmpeg 剪辑、混音、字幕、质检可以无限重跑，不花模型钱。
 
-```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "fontFamily": "system-ui, sans-serif"}}}%%
-flowchart LR
-  TOP["顶部项目条 标题 保存状态"] --> CANVAS["中央无限画布"]
-  LEFT["底部工具栏 新建 镜头列表 吸附 撤销"] --> CANVAS
-  RIGHT["画布上下文面板 引用 DSH 会话"] --> CANVAS
-  BOTTOM["底部粗剪条 镜头顺序 定位联动"] --> CANVAS
-  CANVAS --> SHOT["Shot 状态机 Take 归档 连续性锁"]
-```
+<table>
+<tr>
+<td width="50%" valign="top">
+
+#### 看
+
+拉片、抽帧、成片质检走确定性 ffmpeg，不靠模型「感觉过了」。
+
+</td>
+<td width="50%" valign="top">
+
+#### 拍
+
+图像 / 视频 / 音频生成，首尾帧与角色锚点写进规格。没有 Key 时用 `mock` 先跑通链路。
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 剪
+
+时间线、智能精剪、混音闪避、字幕。改哪一层只重渲哪一层。
+
+</td>
+<td width="50%" valign="top">
+
+#### 排
+
+无限画布是分镜板：节点是镜头，连线是承接。UI 只投递意图，节点由 DSH 写。
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+#### 编
+
+`directorx_brief` 给出配方和阶段（plan → create → refine）。用现有工具自己串，不必走单一入口。
+
+</td>
+<td width="50%" valign="top">
+
+#### 知
+
+351 篇知识库、99 条方法论、12 套配方。生成前检索，质检引用规则编号。
+
+</td>
+</tr>
+</table>
 
 ---
 
 ## 快速开始
 
+需要已安装的 DeepSeek Harness Web 配置，以及 Node.js 22.19+。
+
 ```bash
+# 在插件目录里装进 Web 配置
 dsh plugin --profile web add .
+
+# 打开 WebUI
 dsh web
 ```
 
-打开 WebUI **Settings → DirectorX**，四个能力独立配置。没有 Key 也不慌：
-全部切 `mock`，先把工具链跑通，拿到 Key 再填——**先上车，后补票**。
+然后打开 **Settings → DirectorX**，四个能力各自开关：Vision / Image / Video / Audio。
+
+| 阶段 | 做什么 |
+| --- | --- |
+| 现在 | 四个能力都切 `mock`，先把 brief → 画布 → 时间线跑通 |
+| 有 Key 之后 | 填 Base URL 与 API Key，再开对应能力 |
+
+开发与自测：
+
+```bash
+npm test          # typecheck + build + node:test
+```
 
 ---
 
-## 功能巡礼
+## 一次制作怎么走
 
-**① 意图分诊 —— 先问清楚「想拍什么」**
-`directorx_brief` 把你的需求翻译成简报：类型、平台、画幅、时长、风格、角色锚点，外加一份「只问一次」的澄清清单。标题、封面、平台规格卡顺手生成。
+复杂任务默认 **占位先行**：先排队完整规格（提示词 + 推荐模型 + 画幅/时长），分镜表签字后再花钱。
 
-**② 镜头语言翻译器 —— 导演话术直接变成提示词**
-`directorx_shot` 是表驱动的确定性翻译器：景别、机位、运镜、布光、构图，结构化输入 → 五轴装配提示词 + 负面基线 + 规则编号引用。**不靠感觉写 prompt，靠 99 条规则的沉淀。**
+```mermaid
+flowchart LR
+  A[brief 分诊] --> B[调研 / 配方]
+  B --> C[一次澄清]
+  C --> D[分镜 / 角色锚]
+  D --> E[propose 占位]
+  E --> F[shotlist + /directorx]
+  F --> G[directorx_confirm 签字]
+  G --> H[用户确认后生成]
+  H --> I[timeline 剪辑]
+  I --> J[qa 质检]
+  J -->|返修该镜| E
+```
 
-**③ 分镜承接链 —— 相邻镜头不再「各演各的」**
-`directorx_shot_sequence` 自动注入承接变量（上镜收于什么、下镜从什么开始）和首尾帧接力计划，反单调运镜校验一条条数给你看。批量生成前还有 `shot_gate` 把关——ECU 惜用律、词表、模型路由，先查再烧钱。
-
-**④ 确定性剪辑台 —— 剪一百遍也不花一分钱**
-`directorx_timeline` 是剪辑中枢：场景裁剪、变速、倒放、55 种逐对转场、混音闪避、字幕。改哪层只重渲哪层（场景指纹缓存）。`directorx_edit` 还能听懂人话：「去掉开头两秒」「只保留 3 到 10 秒」「5-8 秒放慢 2 倍」。
-
-**⑤ 成片质检 —— 让数据说话**
-`directorx_qa_report` 七门质检 + 帧级抽检，结论直接写成画布上的质检卡。黑场、音量、节奏、ASL……拍完不靠玄学，靠报告。
-
-**⑥ 无限画布 —— 分镜板、版本树、交付记录三合一**
-五区布局：顶栏项目条、底部工具与粗剪条、可折叠的上下文面板。Shot 状态机（想法→批准→生成→审阅→锁定）点击即转；Take 归档与连续性锁让长片项目不变成「连线意大利面」。
-
-**⑦ 导演知识包 —— 手艺可以下载**
-`directorx-methodology` 技能：99 条可执行规则 / 15 领域；7 个风格语法预设；350+ 篇知识库。每次生成前查一眼，每次质检引用规则编号——**像真导演一样工作，而不是像抽卡玩家。**
+简单请求（一张图、一个短镜头）可以直接生成。多镜头、复刻、改编走上面这条。
 
 ---
 
-## 和别的方案比
+## 工具箱里有什么
 
-纯提示词脚手架只能「建议你怎么写」；独立剪辑软件不会「理解你要什么」；商业成片平台把流程装进黑盒。
-**dsh-directorx 把三者缝在一起**：DSH 当导演（推导流程），画布当分镜板（全程镜像），ffmpeg 当剪辑台（确定性与免费）。
+80+ 个 `directorx_*` 工具，按工作面分组：
+
+| 工作面 | 代表工具 | 作用 |
+| --- | --- | --- |
+| 分诊 | `directorx_brief` | 类型、平台、时长、澄清问题、compose 阶段图 |
+| 镜头 | `directorx_shot` / `shot_sequence` / `shot_gate` | 景别运镜布光 → 提示词；相邻镜承接；生成前门禁 |
+| 占位 | `directorx_propose` / `canvas_shotlist` / `directorx_confirm` | 完整规格入队；编号分镜表；DSH 提问卡片签字。人也可 `/directorx` 直接看制片板 |
+| 画布 | `directorx_canvas_*` | 节点、连线、Take、连续性、意图领取（DSH 掌管） |
+| 剪辑 | `directorx_timeline` / `edit` / `smart_cut` | 场景、转场、混音、人话改时间线 |
+| 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
+| 知识 | `directorx_knowledge_search` / `read` | 351 篇语料，按工艺检索 |
+
+视频协议（设置页按能力配置，不绑死一家）：Sora 2、可灵（两代）、Runway、MiniMax H3、Vidu、Veo、Seedance。
+
+---
+
+## 和别的方案
+
+| | 提示词清单 | 剪辑软件 | 成片平台 | **DirectorX** |
+| --- | :---: | :---: | :---: | :---: |
+| 理解任务 | 靠人 | 否 | 黑盒 | DSH + `brief` |
+| 分镜可见、可改 | 否 | 部分 | 少 | 无限画布 |
+| 改计划不重花生成费 | — | 是 | 否 | 时间线重渲染 |
+| 知识可引用 | 否 | 否 | 否 | 规则编号 + 知识库 |
+| agent 归谁 | — | — | 平台 | **始终是 DSH** |
 
 ---
 
@@ -118,36 +173,74 @@ dsh web
 
 <details>
 <summary><b>没有 API Key 能用吗？</b></summary>
-能。四个能力都切 <code>mock</code> 跑通链路；拿到 Key 后回设置页填上即可。
+
+能。四个能力切 <code>mock</code> 即可跑通工具链、画布和剪辑。有 Key 再回设置页填写。
+
 </details>
 
 <details>
 <summary><b>支持哪些视频模型？</b></summary>
-Sora 2、可灵（新旧两代协议）、Runway Gen-4.5、MiniMax H3、Vidu Q3、Google Veo 3.1、豆包 Seedance——协议全部官方文档一手核实。
+
+Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、豆包 Seedance。协议按官方文档接入，在 Settings → DirectorX 里按能力配置。
+
 </details>
 
 <details>
-<summary><b>多镜头一致性怎么保证？</b></summary>
-<code>directorx_character_register</code> 注册角色锚点，生成时自动注入参考图与身份描述；配方法论规则 7（角色绑定三件套）与规则 63（参考池每 6-8 镜刷新）。
+<summary><b>多镜头怎么保持同一张脸？</b></summary>
+
+<code>directorx_character_register</code> 注册锚点；生成时带参考图和身份描述。相邻镜头用 <code>shot_sequence</code> 写承接，长片用画布连续性锁。
+
 </details>
 
 <details>
-<summary><b>剪辑会花 API 钱吗？</b></summary>
-不会。所有剪辑、混音、字幕、质检都是本地 ffmpeg 确定性执行——免费、精确、可无限重跑。
+<summary><b>剪辑会花模型钱吗？</b></summary>
+
+不会。剪辑、混音、字幕、质检都是本地 ffmpeg。花钱的只有你确认过的生成占位。
+
 </details>
 
 <details>
-<summary><b>为什么我的模型不听话？</b></summary>
-先让 DSH 查 <code>directorx-methodology</code>，再检查 mode 选对没有。模型不是不听，是嫌提示词不够导演。
+<summary><b>必须走 orchestrate 吗？</b></summary>
+
+不必。<code>directorx_brief.compose</code> 给出配方和工具序列，用现有工具自己编排。<code>directorx_orchestrate</code> 只是可选加速。
+
 </details>
+
+<details>
+<summary><b>画布上谁写生成中的节点？</b></summary>
+
+只有 DSH。生成条把意图推进 <code>directorx_canvas_intents</code>，DSH 领取后再改画布。UI 不绕过 agent。
+
+</details>
+
+---
+
+## 文档
+
+| 文档 | 内容 |
+| --- | --- |
+| [架构](docs/architecture.md) | 插件边界、画布归属、路由 |
+| [社区雷达](docs/community-radar.md) | 开源/商业能力取舍 |
+| [验证](docs/verification.md) | 测试与验收口径 |
+| [Changelog](CHANGELOG.md) | 用户可见变更 |
+| [配方](recipes/) | 宣传片 / 改编 / 拉片复刻 / 单元化制作 |
+
+```
+dsh-directorx
+├── src/           工具、画布、媒体、配方编排
+├── skills/        方法论、工坊、novel-* 门禁
+├── knowledge/     351 篇导演/生成语料
+├── recipes/       内容类型先例（按素材改，不是目录）
+├── workflows/     可选并行模板
+└── tests/         node:test
+```
 
 ---
 
 <div align="center">
 
-如果这个插件让你的 DSH 第一次说出「导演，这条过了」，请点个 **Star**；
-如果它生成了六个手指的超级英雄，也别慌——那是模型在提醒你：先读知识库，再锁提示词。
+Apache-2.0 · [License](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
 
-**Keep prompting. Keep shooting.**
+如果它让 DSH 第一次把一条片子剪完，点个 Star。
 
 </div>

@@ -129,6 +129,22 @@
 
 落地：`directorx_canvas_shotlist`（画布编号表 + 时长预算）。
 
+## 2026-08-17 DSH 人机平面调研（一手）
+
+上一轮把分镜表做成了**模型工具**。对照 DSH 官方缝和外部产品后，缺口是：人还要绕模型才能看板、签字只是一句 `ask: ask_user_question` hint，没有真正停在宿主提问 UI。
+
+| 项 | 源 | 判断 |
+|---|---|---|
+| DSH `ctx.commands` + Web `ui-command` | 源码：`packages/interaction/commands`、`packages/client/ui-command`（`command.list` / slash `/`） | **adopt**：`/directorx` 进宿主命令表；裸命令用 `command.decorate` popupSelect |
+| DSH `ctx.userInteraction.ask` | `packages/interaction/user-interaction` + `tool-ask-user` | **adopt**：`directorx_confirm` 自己 `ask()`，按答案写提案账本；不再让模型另调一遍通用提问 |
+| Runway Agent Skills（2026-07-02 changelog） | r.jina.ai/runway.com/en/changelog | **adapt**「simple command」开战役/广告；不嵌第二套 agent |
+| Kling Agent/Canvas 一键分镜 | kling.ai release-note + storyboard 博客（搜索摘要；部分页 SSRF） | **skip** 第二套 canvas agent；**adapt**「更少轮次批准」→ 一次 DSH ask 签整表 |
+| Google Flow Scenebuilder | r.jina.ai/blog.google Flow 文（2025-05-20）：Camera / Scenebuilder / Asset Management | **skip** 嵌入 Flow；compose 的 Plan/Create/Refine 已对齐 |
+| FLORA FAUNA（2026-03-31） | ppc.land 发布稿：画布上可见地加节点/连模型，用户边看边 steer | **skip** 再做一个画布 agent；**adapt**「看得见的工作台」= `/directorx` 零 token 看板 |
+| Boords features | r.jina.ai/boords.com/features：脚本→板→分享签字；Boords Agent 管导入/版本 | **adapt** 签字层；生成仍走占位 + DSH 批准 |
+
+未采用本轮：`ctx.tasks` 替换自研 `tasks.jsonl`（要声明 merge kind）、`ctx.attachments` 接管生成图、`tools/pre-execute` 再做一层生成闸（会与 execute 内 `generationGate` 双闸）。
+
 ## 视频模型 API 协议更新调研（2026-08-16，官方文档一手核对）
 
 | 模型 | 关键变化 | 我们适配器状态 |

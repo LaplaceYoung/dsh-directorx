@@ -25,6 +25,8 @@ DeepSeek Harness
 │   generate_audio / knowledge_search / knowledge_read │
 │   task_status / cancel_task（任务账本）               │
 │   directorx_canvas_*（DSH 掌管无限画布）              │
+│   directorx_confirm（ctx.userInteraction.ask 签字）   │
+│ commands: /directorx [shotlist|proposals|next]        │
 │ web route: GET /directorx/media (流式媒体供给)        │
 │            GET/POST /directorx/canvas/intent          │
 │            GET/POST /directorx/characters             │
@@ -50,9 +52,11 @@ export const inject = ['tools', 'skills', 'systemPrompt', 'settings', 'llm']
 
 | DSH 服务 | 用途 |
 |---|---|
-| `tools` | 注册 4 个媒体生成工具和 2 个知识库工具 |
+| `tools` | 注册媒体 / 画布 / 知识库工具；`directorx_confirm` 在执行时取 `userInteraction` |
 | `skills` | 注册内置 `SKILL.md` 为 DSH runtime skills |
 | `systemPrompt` | 注入媒体工具使用纪律，避免模型瞎猜协议 |
+| `commands`（可选 `ctx.inject`） | `/directorx` 制片板：直接 UI，不进模型 transcript |
+| `userInteraction`（可选） | `directorx_confirm` 暂停在 DSH 提问卡片上签字 |
 | `settings` | 注册 `directorx` 命名空间，保存四类模型配置 |
 | `llm` | 声明四个 configurable provider，让 WebUI 配置平面暴露 `directorx` 设置 |
 

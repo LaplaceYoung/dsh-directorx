@@ -30,9 +30,34 @@ declare module 'cordis' {
       }
     }
     get<T = any>(name: string): T
+    inject(deps: string[], callback: (ctx: Context) => (() => void) | void): () => void
     effect(callback: () => (() => void) | void, label?: string): () => void
     logger?: {
       error(...args: unknown[]): void
+    }
+    commands?: {
+      register(definition: {
+        name: string
+        description: string
+        input?: { hint: string }
+        handler: (invocation: { rawInput: string; signal?: AbortSignal }) =>
+          | { kind: 'success' | 'error'; text?: string }
+          | Promise<{ kind: 'success' | 'error'; text?: string }>
+      }): () => void
+    }
+    userInteraction?: {
+      ask(request: {
+        questions: Array<{
+          id: string
+          question: string
+          header?: string
+          detail?: string
+          options?: Array<{ label: string; description?: string }>
+          multiSelect?: boolean
+        }>
+        agent?: unknown
+        signal?: AbortSignal
+      }): Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
     }
     /** Present only in profiles that run the DSH web server. */
     webServer?: {

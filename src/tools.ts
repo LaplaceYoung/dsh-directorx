@@ -18,6 +18,7 @@ import { DirectorxCanvasStore } from './canvas.ts'
 import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
 import { orchestrateProduction } from './orchestrate/run.ts'
 import { formatCanvasShotlist } from './shotlist.ts'
+import { confirmProduction } from './confirm.ts'
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
@@ -116,7 +117,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: gate.authorized ? 'directorx_propose' : '严格/协同：ask_user_question 选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行' }
+          return { ...gate, refused: true, next: gate.authorized ? 'directorx_propose' : '严格/协同：directorx_confirm（DSH ask）选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
@@ -158,7 +159,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: '严格/协同：选定提示词后 directorx_propose chosen:true，用户批准后再带 proposalId 执行生成' }
+          return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行生成' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
@@ -202,7 +203,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, { prompt: args.text, proposalId: args.proposalId })
         if (!gate.generate) {
-          return { ...gate, refused: true, next: '严格/协同：选定后 directorx_propose chosen:true，批准后再带 proposalId 执行' }
+          return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，批准后再带 proposalId 执行' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         return runAudio(toolContext(settings, settings.audio, signal), gate.prompt, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
@@ -935,7 +936,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
             canvasNodeId: args.canvasNodeId,
           }))
         }
-        return { ...plan, ask: 'ask_user_question', proposals: queued }
+        return { ...plan, next: 'directorx_confirm', proposals: queued }
       }
       const prompt = plan.prompts[0] ?? String(args.prompt ?? '')
       return proposals.propose({
@@ -948,6 +949,40 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         estimatedCost: args.estimatedCost,
         note: args.note,
         canvasNodeId: args.canvasNodeId,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_confirm',
+    description: 'Pause on the DSH ask UI (ctx.userInteraction) to sign off the production board: next pending proposal, multi-select proposals, or the canvas shot list. Applies approve/reject to the ledger. Does not generate media. Prefer this over a free-form ask_user_question after directorx_propose / directorx_canvas_shotlist.',
+    parameters: {
+      scope: {
+        type: 'string',
+        enum: ['next', 'proposals', 'shotlist'],
+        description: 'next = oldest pending proposal; proposals = multi-select pending ids; shotlist = sign the whole board. Default next.',
+      },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any, exec: any) {
+      const userInteraction = ctx.get('userInteraction') as {
+        ask: (request: {
+          questions: unknown[]
+          agent?: unknown
+          signal?: AbortSignal
+        }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+      } | undefined
+      if (userInteraction === undefined) {
+        throw new Error('directorx_confirm requires DSH userInteraction (Web UI or TUI). This deployment has no ask provider.')
+      }
+      const scope = args.scope === 'proposals' || args.scope === 'shotlist' ? args.scope : 'next'
+      return confirmProduction({
+        scope,
+        outputDir: settings.outputDir,
+        ask: request => userInteraction.ask(request),
+        agent: exec.agent,
+        signal: exec.signal,
       })
     },
   })))
@@ -1280,7 +1315,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_chengpian',
-    description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (ask_user_question), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
+    description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (directorx_confirm / DSH ask), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
     parameters: {
       event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
       prompt: { type: 'string', description: 'Generation task wording, or the exact chosen prompt.' },
@@ -1719,7 +1754,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     order: 117,
     text: [
       '## DirectorX media tools',
-      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm with DSH `ask_user_question`.',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm generation batches with `directorx_confirm` (DSH userInteraction). The user can inspect the board with `/directorx` without spending tokens.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, claim the oldest pending intent with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
@@ -1729,7 +1764,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       `Enabled capabilities: ${enabled.length === 0 ? 'none (open Settings → DirectorX to enable)' : enabled.join(', ')}.`,
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
-      '- Multi-unit work: `directorx_brief` then follow its `compose` stages — research (knowledge/skill, then external facts) → confirm → `directorx_propose` (prompt + recommended model + spec) → `directorx_canvas_shotlist` for sign-off. Do not generate until the batch is confirmed. Recipes are prior art, not a job catalog. `directorx_orchestrate` is optional.',
+      '- Multi-unit work: `directorx_brief` then follow its `compose` stages — research (knowledge/skill, then external facts) → `directorx_propose` (prompt + recommended model + spec) → `directorx_canvas_shotlist` → `directorx_confirm` (DSH ask UI signs the board). Do not generate until the batch is confirmed. Recipes are prior art, not a job catalog. `directorx_orchestrate` is optional.',
       '- Before media generation, load the relevant DirectorX skill (`skill` tool) and search the knowledge corpus with `directorx_knowledge_search`; do not guess model capabilities. For production requests, load `directorx-production-lead` first and triage simple vs complex.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',

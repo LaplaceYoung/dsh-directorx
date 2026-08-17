@@ -2,6 +2,7 @@ import { DirectorxSettingsSection } from './DirectorxSettingsSection.tsx'
 import { DirectorxToolRow, DIRECTORX_TOOLVIEW_KEYS } from './DirectorxToolRow.tsx'
 import { EditorDock } from './EditorDock.tsx'
 import { DirectorxDetailsDock } from './DirectorxDetailsDock.tsx'
+import { registerDirectorxSlash } from './directorx-command.ts'
 import { closeEditor, editorSnapshot, openEditor, setEditorTab } from './editor.ts'
 
 interface LayoutFace {
@@ -12,6 +13,7 @@ interface LayoutFace {
 
 interface ClientContext {
   get(name: string): unknown
+  inject?(deps: string[], callback: (ctx: ClientContext) => void): void
   slots: {
     inject(name: string, callback: () => (() => void) | void): void
     register(entry: {
@@ -32,6 +34,7 @@ export const inject = ['slots', 'connection', 'layout']
 
 export function apply(ctx: ClientContext): void {
   const layout = (): LayoutFace | undefined => ctx.get('layout') as LayoutFace | undefined
+  registerDirectorxSlash(ctx)
 
   ctx.slots.inject('settings.section', () => {
     const connection = ctx.get('connection') as { api: { settings: unknown } } | undefined

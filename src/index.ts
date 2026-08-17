@@ -11,6 +11,7 @@ import { registerCanvasIntentRoute, registerCanvasResetRoute, registerCanvasRest
 import { registerBundledSkills } from './skills.ts'
 import { registerSettingsTestRoute } from './settings-test.ts'
 import { registerMcpRoute } from './mcp.ts'
+import { registerDirectorxCommands } from './commands.ts'
 import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
 
@@ -86,6 +87,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerSettingsTestRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx settings test route')
   ctx.effect(() => registerMcpRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx mcp route')
   ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
+  ctx.effect(() => registerDirectorxCommands(ctx, () => scope.get().outputDir), 'directorx commands')
 
   void registerBundledSkills(ctx).catch(error => {
     ctx.logger?.error('directorx: failed to register bundled skills: %s', error instanceof Error ? error.message : String(error))

@@ -98,7 +98,8 @@ test('chengpianPersonaText names 成片 modes and 导演角度 knowledge/skill r
   const tools = readFileSync(join(root, 'src/tools.ts'), 'utf8')
   assert.match(tools, /name: 'directorx:chengpian'/)
   assert.match(tools, /order: 5/)
-  assert.match(tools, /ask_user_question/)
+  assert.match(tools, /directorx_confirm/)
+  assert.match(tools, /\/directorx/)
 })
 
 test('严格: chosen prompt enqueues that one line, does not re-expand', () => {

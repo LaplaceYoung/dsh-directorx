@@ -41,7 +41,7 @@ function commonSignoff(): ComposeStage {
   return {
     name: '位',
     purpose: '每个生成单元排队完整占位（提示词 + 推荐模型 + 规格），导出分镜表给用户签字；确认前不生成',
-    tools: ['directorx_propose', 'directorx_canvas_shotlist'],
+    tools: ['directorx_propose', 'directorx_canvas_shotlist', 'directorx_confirm'],
     phase: 'refine',
   }
 }
@@ -149,7 +149,7 @@ export function composeProductionFlow(input: {
       if (stage.tools.length === 0) return [`${stage.name}：${stage.purpose}`]
       return [`${stage.name}：${stage.purpose} — ${stage.tools.join(' / ')}`]
     }),
-    '用户确认批次后再执行；directorx_orchestrate 是可选加速，不是必经入口',
+    '用户用 /directorx 看制片板，或 directorx_confirm 走 DSH 提问签字；确认前不生成。directorx_orchestrate 是可选加速，不是必经入口',
   ]
   const researchQueries = researchFor(kind, input.request)
   return {
