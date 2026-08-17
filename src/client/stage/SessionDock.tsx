@@ -308,7 +308,7 @@ const SESSION_CHIPS = [
   },
   {
     label: '继续当前画布',
-    text: '请用 directorx_canvas_intents { claim: true } 领取待办，再 directorx_canvas_continue 或按已有节点推进。生成前走 directorx_propose / directorx_confirm。不要让画布 UI 写 generating 节点。',
+    text: '请用 directorx_canvas_intents { claim: true } 领取待办。生成条里的字只是意图：先 knowledge_search/read 和 skill_search/read，必要时外部调研，再 directorx_prompt_craft，严格/协同再 propose/confirm，最后带 craftId 生成。不要把原句丢给 generate。',
   },
   {
     label: '整理当前分镜',

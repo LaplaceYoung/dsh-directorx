@@ -268,7 +268,7 @@ export function chengpianPersonaText(mode: InitiativeMode): string {
     '- **严格**: 第一个不明确的事件及时向用户确认；确认次数较多；绝不自己执行生成；每个生成任务提供**二到四个提示词**，用 `directorx_ask` 提问卡让用户选（禁止在正文里写 1.2.3. 菜单）；选定后 `directorx_propose` chosen=true 入队单条占位；批准后带 `proposalId` 执行生成。',
     '- **自动**: 非必要不会询问用户；在预算范围内会直接干，**直接执行生成**。',
     '- **协同**: 也会问用户，但比较主动；不直接执行生成；工作到最后产出视频计划；每次遇到生成任务只给出**提示词和占位**，用户最后从头开始一个个审阅然后带 `proposalId` 执行生成。',
-    '- 流程闸：先 `directorx_brief` / `directorx_chengpian` → 真正的分叉用 `directorx_ask` 提问卡问清 → 剧本与分镜草案用 `directorx_confirm` 签字 → **签字后才** `directorx_canvas_plan`。阶段产物写入 `directorx_stage`。禁止一上来把空卡铺满画布。',
+    '- 流程闸：先 `directorx_brief` / `directorx_chengpian` → 分叉用 `directorx_ask` → 剧本/分镜 `directorx_confirm` → **签字后才**落画布。生成前必须 knowledge_read + skill_read +（必要时外部调研）+ `directorx_prompt_craft`，禁止把用户原句当提示词。阶段产物写入 `directorx_stage`。',
     '- NEVER write a numbered 1. 2. 3. choice menu in assistant text. Call `directorx_ask` so the WebUI renders a card.',
     '- 角色出图：先 `directorx_skill_read` `novel-characters`。一张图必须是 16:9 设定表（左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。',
     '- 落画布后立刻 `directorx_canvas_arrange`，保证分镜横条可读，不要叠在原点。',

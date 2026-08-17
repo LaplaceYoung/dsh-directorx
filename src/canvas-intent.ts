@@ -38,10 +38,11 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
     : '（无，从空白开新节点）'
   return [
     '[DirectorX 画布指令]',
-    '请由你掌管画布：用 directorx_canvas_intents（claim: true）领取本条，再用 directorx_canvas_* / directorx_canvas_continue / directorx_propose / 生成工具执行。不要让画布 UI 自己写 generating 节点或 canvas.json。',
+    '下面「意图」只是用户原句，不是生成提示词。禁止拿它直接 generate。',
+    '用 directorx_canvas_intents { claim: true } 领取本条。固定顺序：claim → directorx_knowledge_search/read → directorx_skill_search/read（必要时外部调研）→ directorx_prompt_craft（intent=原句，prompt=成稿）→ 严格/协同 directorx_propose+confirm → 带 craftId 再 directorx_canvas_continue / generate。不要让画布 UI 自己写 generating 节点。',
     `- 意图 id: ${intent.id}`,
     `- 类型: ${intent.kind}`,
-    `- 提示词: ${intent.prompt}`,
+    `- 意图（未成稿）: ${intent.prompt}`,
     `- 源节点: ${source}`,
     intent.selectedIds.length > 0 ? `- 当前选中: ${intent.selectedIds.join(', ')}` : '',
     intent.model !== undefined && intent.model !== '' ? `- 模型: ${intent.model}` : '',

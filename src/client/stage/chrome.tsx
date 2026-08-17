@@ -767,7 +767,7 @@ export function InspectorSheet(props: {
       <div style={{ fontSize: 11, color: dx.mute, marginBottom: 6 }}>提示词</div>
       <textarea
         value={props.prompt}
-        placeholder="这一镜要看到什么"
+        placeholder="镜头意图，不是成稿。DSH 会先检索再写提示词"
         onChange={event => props.onPrompt(event.target.value)}
         style={{
           width: '100%',

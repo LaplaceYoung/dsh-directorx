@@ -188,7 +188,7 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
         <textarea
           ref={props.inputRef}
           value={props.spec.prompt}
-          placeholder="描述要生成的画面或镜头"
+          placeholder="这一镜的意图（DSH 会先检索再写成稿）"
           rows={2}
           onChange={event => props.onChange({ ...props.spec, prompt: event.target.value })}
           onKeyDown={event => {

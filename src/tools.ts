@@ -39,6 +39,8 @@ import { CharacterStore } from './characters.ts'
 import { losslessJsonObject, resolveMediaPath } from './support.ts'
 import { applyGrade, inferMediaKind, listGradeLabels, resolveGradeLook } from './providers/grade.ts'
 import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
+import { ResearchLedger } from './research-ledger.ts'
+import { craftPrompt, requireCraft } from './prompt-craft.ts'
 import { StudioTicketStore } from './studio-intent.ts'
 import { runInProject, sessionProjectRoot } from './project.ts'
 import { normalizeAskQuestions, presentAsk } from './ask.ts'
@@ -91,16 +93,21 @@ function combinedSignal(execSignal: AbortSignal, timeoutMs: number): AbortSignal
 async function generationGate(
   settings: DirectorxSettings,
   store: ProposalStore,
-  args: { prompt?: string; text?: string; proposalId?: string },
+  args: { prompt?: string; text?: string; proposalId?: string; craftId?: string },
 ) {
   const proposalId = typeof args.proposalId === 'string' ? args.proposalId.trim() : ''
   const proposal = proposalId === '' ? null : await store.get(proposalId)
   if (proposalId !== '' && proposal === null) {
     return { generate: false as const, prompt: '', reason: `proposal "${proposalId}" not found`, authorized: false, refused: true }
   }
+  const craftId = typeof args.craftId === 'string' ? args.craftId : (proposal as { craftId?: string } | null)?.craftId
+  const crafted = await requireCraft(settings.outputDir, craftId)
+  if (!crafted.ok) {
+    return { generate: false as const, prompt: '', reason: crafted.reason, authorized: false, refused: true, next: crafted.next }
+  }
   return resolveGenerateAuthorization({
     mode: settings.initiative,
-    prompt: String(args.prompt ?? args.text ?? ''),
+    prompt: crafted.craft.prompt,
     inBudget: true,
     proposal,
   })
@@ -147,7 +154,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   if (settings.image.enabled) {
     disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_image',
-      description: 'Generate images. 角色/设定/三视图必须按 novel-characters 设定表出图（一张 16:9 白底：左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。严格/协同必须带已批准 proposalId。',
+      description: 'Generate images. 必须带 craftId（directorx_prompt_craft）。禁止用画布短句当提示词。角色/设定/三视图按 novel-characters 设定表。严格/协同还要已批准 proposalId。',
       parameters: {
         prompt: { type: 'string', required: true, description: 'Text-to-image prompt. 角色设定写清半身基准+正侧背三视图同一人。Follow subject, action, environment, style, light, lens.' },
         size: { type: 'string', description: 'Size such as 1024x1024, 1536x1024, or 1024x1536. Optional; provider defaults apply.' },
@@ -155,6 +162,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
+        craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。未调研成稿禁止生成。' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
@@ -163,7 +171,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: gate.authorized ? 'directorx_propose' : '严格/协同：directorx_confirm（DSH ask）选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行' }
+          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? (gate.authorized ? 'directorx_propose' : '先 directorx_prompt_craft，严格/协同再 directorx_confirm') }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
@@ -187,7 +195,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   if (settings.video.enabled) {
     disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_video',
-      description: 'Generate an AI video through a configurable OpenAI /videos endpoint or a ModelVerse tasks endpoint. Supports first-frame, last-frame, and reference-image controls. 音画同出：优先选原生音频模型（kling-3.0/veo/vidu/seedance）；不支持音频的模型降级链 = 本工具静音出片 + generate_audio 旁白 + audio_sync 对齐。多镜头一致性：角色先 directorx_character_register 预注册，相邻镜头用上一镜末帧作 first_frame 接力。Configure the video Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
+      description: 'Generate video. 必须带 craftId。画布短句先 knowledge/skill/外部调研再 prompt_craft，禁止原文直出。音画同出优先原生音频模型。角色用 characters；相邻镜用上一镜末帧 first_frame。',
       parameters: {
         prompt: { type: 'string', required: true, description: 'DirectorX video prompt: physical action first, then camera, environment, style, lighting. Positive language; concrete motion.' },
         seconds: { type: 'number', description: 'Target duration in seconds. Provider clamps unknown values.' },
@@ -199,6 +207,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         negative_prompt: { type: 'string', description: 'Optional negative prompt (基线见 directorx-methodology 规则 26：模糊/解剖错误/水印/闪烁四类)。Provider 支持时透传（如 kling legacy）。' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
+        craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。画布短句不是提示词。' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
@@ -206,7 +215,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
-          return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行生成' }
+          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? '先 directorx_prompt_craft，再 confirm/generate' }
         }
         const budget = Math.max(settings.timeoutMs, settings.pollIntervalMs * Math.min(settings.maxPollAttempts, 120))
         const signal = combinedSignal(exec.signal, budget)
@@ -245,6 +254,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         instructions: { type: 'string', description: 'Performance instructions (gpt-4o-mini-tts 官方七维：口音/情绪幅度/语调/模仿/语速/语气/耳语)。示例：「Speak in a calm documentary tone; pause before numbers; end sentences level.」不透传时表演走 text 标点协议（directorx-methodology 规则 92-99）。' },
         speed: { type: 'number', description: '语速（0.25-4.0，口播 1.0-1.2；极端值损害音质，微调优先靠文本节奏）。' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
+        craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。' },
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅.' },
       },
       output: objectOutput(),
@@ -252,7 +262,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, { prompt: args.text, proposalId: args.proposalId })
         if (!gate.generate) {
-          return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，批准后再带 proposalId 执行' }
+          return { ...gate, refused: true, next: (gate as { next?: string }).next ?? '先 directorx_prompt_craft' }
         }
         const signal = combinedSignal(exec.signal, settings.timeoutMs)
         return runAudio(await generateContext(settings, 'audio', signal, typeof args.model === 'string' ? args.model : undefined), gate.prompt, { voice: args.voice, format: args.format, instructions: typeof args.instructions === 'string' ? args.instructions : undefined, speed: typeof args.speed === 'number' ? args.speed : undefined })
@@ -311,7 +321,12 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       ].slice(0, 3)
       if (refs.length === 0) throw new Error('directorx_knowledge_read 需要 ref 或 refs')
       const articles = []
-      for (const ref of refs) articles.push(await corpus.readArticle(ref))
+      const ledger = new ResearchLedger(settings.outputDir)
+      for (const ref of refs) {
+        const article = await corpus.readArticle(ref)
+        articles.push(article)
+        await ledger.record({ kind: 'knowledge', ref: article.article.id || ref })
+      }
       const related = await corpus.related(refs[0] as string, 3).catch(() => [])
       return { articles, related }
     },
@@ -346,7 +361,50 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     timeoutMs: 20_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      return skillIndex.read(String(args.name), typeof args.file === 'string' ? args.file : undefined)
+      const body = await skillIndex.read(String(args.name), typeof args.file === 'string' ? args.file : undefined)
+      await new ResearchLedger(settings.outputDir).record({ kind: 'skill', ref: body.name })
+      return body
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_prompt_craft',
+    description: '把用户意图写成可生成的导演提示词。必须先 knowledge_read + skill_read（必要时外部调研），再把成稿和引用交来。画布短句不是提示词。返回 craftId，generate/propose 必带。',
+    parameters: {
+      intent: { type: 'string', required: true, description: '用户原句 / 画布生成条意图。' },
+      prompt: { type: 'string', required: true, description: '调研后的成稿：主体动作 + 景别运镜 + 环境光 + 风格焦段，正说，具体运动。' },
+      kind: { type: 'string', enum: ['image', 'video', 'audio'], required: true },
+      knowledgeRefs: { type: 'array', items: { type: 'string' }, required: true, description: '已 read 的知识库 id。' },
+      skillNames: { type: 'array', items: { type: 'string' }, required: true, description: '已 read 的技能名。' },
+      externalNotes: { type: 'string', description: '外部调研摘要；语料已够就写 corpus-sufficient。' },
+      shotSize: { type: 'string' },
+      angle: { type: 'string' },
+      cameraMove: { type: 'string' },
+      lighting: { type: 'string' },
+      mood: { type: 'string' },
+      composition: { type: 'string' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return craftPrompt({
+        outputDir: settings.outputDir,
+        kind: args.kind,
+        intent: String(args.intent),
+        prompt: String(args.prompt),
+        knowledgeRefs: Array.isArray(args.knowledgeRefs) ? args.knowledgeRefs.map(String) : [],
+        skillNames: Array.isArray(args.skillNames) ? args.skillNames.map(String) : [],
+        externalNotes: typeof args.externalNotes === 'string' ? args.externalNotes : '',
+        shot: {
+          subject: String(args.intent),
+          shotSize: args.shotSize,
+          angle: args.angle,
+          cameraMove: typeof args.cameraMove === 'string' ? args.cameraMove : undefined,
+          lighting: args.lighting,
+          mood: typeof args.mood === 'string' ? args.mood : undefined,
+          composition: args.composition,
+        },
+      })
     },
   })))
 
@@ -1150,13 +1208,16 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       estimatedCost: { type: 'string', description: 'Cost note (the plugin ships no price table — state the assumption).' },
       note: { type: 'string', description: 'Free-form note (continuity/anchors/references).' },
       canvasNodeId: { type: 'string', description: 'Canvas node this proposal is bound to (visible on the board).' },
+      craftId: { type: 'string', required: true, description: 'directorx_prompt_craft id. 未调研成稿不能占位。' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
+      const crafted = await requireCraft(settings.outputDir, typeof args.craftId === 'string' ? args.craftId : undefined)
+      if (!crafted.ok) return crafted
       const plan = planPlaceholderEnqueue({
         mode: settings.initiative,
-        prompt: String(args.prompt ?? ''),
+        prompt: crafted.craft.prompt,
         chosen: args.chosen === true,
         variantCount: typeof args.variantCount === 'number' ? args.variantCount : undefined,
       })
@@ -1173,11 +1234,12 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
             estimatedCost: args.estimatedCost,
             note: `严格变体 ${index + 1}/${plan.prompts.length}；选定后 directorx_propose chosen:true。${args.note ?? ''}`,
             canvasNodeId: args.canvasNodeId,
+            craftId: crafted.craft.id,
           }))
         }
         return { ...plan, next: 'directorx_confirm', proposals: queued }
       }
-      const prompt = plan.prompts[0] ?? String(args.prompt ?? '')
+      const prompt = plan.prompts[0] ?? crafted.craft.prompt
       return proposals.propose({
         kind: args.kind,
         prompt,
@@ -1188,6 +1250,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         estimatedCost: args.estimatedCost,
         note: args.note,
         canvasNodeId: args.canvasNodeId,
+        craftId: crafted.craft.id,
       })
     },
   })))
@@ -2237,7 +2300,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
       '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` (acts→groups, shots→nodes, 承接 edges) then `directorx_canvas_arrange`. Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
-      '- Generation: `directorx_generate_image` / `directorx_generate_video` (and `directorx_generate_audio` when needed). 严格/协同必须带已批准 `proposalId`. 角色/设定/三视图先 load `novel-characters`，prompt 必须是一张 16:9 设定表（半身基准+正侧背），禁止单张剧照。After a canvas intent, write results back with `directorx_canvas_update`. Register recurring subjects with `directorx_character_register` and pass `characters`.',
+      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → propose/confirm → generate with `craftId`. 严格/协同 still need an approved `proposalId`. 角色/设定/三视图先 `directorx_skill_read` `novel-characters`，成稿必须是 16:9 设定表。After a canvas intent, write results back with `directorx_canvas_update`.',
       '- Edit / grade: 用户要调色、改色调、打开编辑台时，调用 `directorx_studio`（prompt + 当前画布 nodeId 或 path）。它会 ffmpeg 调色、回写节点，并打开图片/视频编辑工作台。剪辑仍用 `directorx_edit` / `directorx_video_process` / `directorx_timeline` / `directorx_smart_cut`。不要用生成模型重绘来完成调色。',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',

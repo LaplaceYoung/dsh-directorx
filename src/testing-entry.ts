@@ -1,4 +1,6 @@
 export { corpus } from './corpus.ts'
+export { ResearchLedger } from './research-ledger.ts'
+export { craftPrompt, isThinPrompt, requireCraft, PromptCraftStore } from './prompt-craft.ts'
 export { normalizeAskQuestions } from './ask.ts'
 export { ProductionStageStore, STAGE_IDS } from './stage.ts'
 export { SkillIndex, skillIndex } from './skill-index.ts'
