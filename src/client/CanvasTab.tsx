@@ -155,7 +155,8 @@ const MediaNodeComponent = memo(function MediaNodeComponent(props: NodeProps): R
   const showControls = data.kind === 'video' && (hovered || playing)
   return (
     <div
-      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,.6)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
+      className="nopan"
+      style={{ ...flowStyles.mediaCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered ? { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,.6)' } : {}), position: 'relative', cursor: 'grab', transition: 'transform .15s ease, box-shadow .15s ease' }}
       onDoubleClick={event => {
         event.stopPropagation()
         if (data.path !== '') openEditor(data.kind, data.path)
@@ -257,7 +258,8 @@ const TextNodeComponent = memo(function TextNodeComponent(props: NodeProps): Rea
   const zoom = useStore(store => store.transform[2])
   return (
     <div
-      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered && !selected ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', transition: 'transform .15s ease, box-shadow .15s ease' }}
+      className="nopan"
+      style={{ ...flowStyles.textCard, ...(selected ? flowStyles.selectedCard : {}), ...(hovered && !selected ? { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(0,0,0,.5)' } : {}), position: 'relative', cursor: 'grab', transition: 'transform .15s ease, box-shadow .15s ease' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -308,7 +310,8 @@ const GroupNodeComponent = memo(function GroupNodeComponent(props: NodeProps): R
   const highlight = data.groupHover === true || selected
   return (
     <div
-      style={{ ...groupFrame, ...(highlight ? { border: '1px solid rgba(245,245,245,.85)', background: data.groupHover === true ? 'rgba(255,255,255,.07)' : groupFrame.background } : {}), position: 'relative' }}
+      className="nopan"
+      style={{ ...groupFrame, ...(highlight ? { border: '1px solid rgba(245,245,245,.85)', background: data.groupHover === true ? 'rgba(255,255,255,.07)' : groupFrame.background } : {}), position: 'relative', cursor: 'grab' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -983,7 +986,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
   const orderedShots = useMemo(() => nodes
     .filter(node => node.type === 'media' && (node.data as { shotIndex?: number } | undefined)?.shotIndex !== undefined)
     .sort((a, b) => ((a.data as { shotIndex: number }).shotIndex) - ((b.data as { shotIndex: number }).shotIndex)), [nodes])
-  const { zoom } = useViewport()
+  const { zoom, x: viewX, y: viewY } = useViewport()
   const selectedNodeIds = useMemo(() => nodes.filter(node => node.selected === true).map(node => node.id), [nodes])
   // Keyboard shortcuts: Cmd/Ctrl+D duplicates the selection, Backspace/Delete
   // deletes selected nodes (via onNodesChange) or the selected edge, Escape
@@ -2168,15 +2171,21 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
             // storage unavailable — non-fatal.
           }
         }}
-        selectionOnDrag={false}
+        nodesDraggable
+        nodesConnectable
+        elementsSelectable
+        selectNodesOnDrag
+        nodeDragThreshold={1}
+        noPanClassName="nopan"
+        selectionOnDrag
         selectionMode={SelectionMode.Partial}
         elevateEdgesOnSelect
         multiSelectionKeyCode="Shift"
-        panOnDrag={[0, 1, 2]}
+        panOnDrag={[1, 2]}
         panActivationKeyCode="Space"
         selectionKeyCode="Shift"
         zoomOnScroll={false}
-        zoomActivationKeyCode="Meta"
+        zoomActivationKeyCode={['Meta', 'Control']}
         panOnScroll
         zoomOnPinch
         zoomOnDoubleClick={false}
@@ -2242,7 +2251,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
             <button className="dx-tool-icon" style={{ ...toolBtn, padding: '9px 14px', fontSize: 12.5, background: dx.ghost }} onClick={() => void openPicker()}>导入素材</button>
           </div>
           <div style={{ fontSize: 10.5, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.8 }}>
-            拖动画布平移 · Shift 框选 · ⌘滚轮缩放 5%–400% · 双击空白建节点<br />
+            拖节点移动 · 空白框选 · 中键/空格平移 · 左下角滑条缩放<br />
             ⌘K 命令 · 生成条交给 DSH 写画布
           </div>
         </div>
@@ -2355,7 +2364,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
         <div
           className="dx-pop"
           style={{
-            position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: dxZ.sheet,
+            position: 'absolute', left: '50%', bottom: 56, transform: 'translateX(-50%)', zIndex: dxZ.sheet,
             width: 560, maxWidth: 'calc(100% - 24px)', padding: 12, borderRadius: 18,
             border: '1px solid rgba(255,255,255,.14)', background: '#141414',
             boxShadow: '0 16px 40px rgba(0,0,0,.6)',
@@ -2447,7 +2456,7 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
         <button
           onClick={() => openGenerate(nodes.find(node => node.selected === true)?.id)}
           style={{
-            position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: dxZ.sheet,
+            position: 'absolute', left: '50%', bottom: 56, transform: 'translateX(-50%)', zIndex: dxZ.sheet,
             width: 480, maxWidth: 'calc(100% - 24px)', height: 48, borderRadius: 999,
             border: `1px solid ${dx.hairlineStrong}`, background: 'rgba(20,20,20,.92)',
             color: '#9b9b9b', fontSize: 13.5, cursor: 'pointer', textAlign: 'left', padding: '0 20px',
@@ -2478,8 +2487,9 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
       {helpOpen ? (
         <div className="dx-pop" style={{ position: 'absolute', bottom: 64, left: 12, zIndex: 10, width: 240, padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,.14)', background: '#141414', boxShadow: '0 12px 32px rgba(0,0,0,.6)', fontSize: 11.5, color: '#d8d8d8', lineHeight: 1.9 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#f5f5f5', paddingBottom: 6 }}>画布手势（新手引导）</div>
-          <div>左键空白拖动 = 平移 · Shift+拖 = 框选</div>
-          <div>滚轮 = 平移 · ⌘ + 滚轮 = 缩放（5%–400%）</div>
+          <div>左键拖节点 = 移动 · 左键空白拖 = 框选</div>
+          <div>中键/右键/空格+左键 = 平移 · 滚轮 = 平移</div>
+          <div>捏合或左下角滑条 = 缩放（10%–300%）· ⌘/Ctrl+滚轮也可缩放</div>
           <div>双击空白 = 创建菜单 · 右键空白 = 更多</div>
           <div>选中节点 → 右侧 + / G = 继续生成</div>
           <div>右键节点 = 锁定 / 状态 / 删除</div>
@@ -2547,19 +2557,29 @@ function CanvasTabInner({ onAskDsh }: CanvasTabProps): ReactNode {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12z"/></svg>
         </button>
       )}
-      <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div style={{ position: 'absolute', bottom: 14, left: 68, zIndex: dxZ.chrome, display: 'flex', gap: 8, alignItems: 'center', padding: '6px 10px', borderRadius: 999, ...dxChrome }}>
         <button
           className="dx-tool-icon"
-          style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.92)', color: '#f0f0f0', fontSize: 11, cursor: 'pointer' }}
+          style={{ padding: '4px 10px', borderRadius: 999, border: 'none', background: 'transparent', color: '#f0f0f0', fontSize: 11, cursor: 'pointer' }}
           title="适配全部内容"
-          onClick={() => { void fitView() }}
+          onClick={() => { void fitView({ padding: 0.22, minZoom: dx.minZoom, maxZoom: 1.2, duration: 220 }) }}
         >
           适配
         </button>
+        <input
+          type="range"
+          aria-label="画布缩放"
+          min={dx.minZoom}
+          max={dx.maxZoom}
+          step={0.01}
+          value={Math.min(dx.maxZoom, Math.max(dx.minZoom, zoom))}
+          onChange={event => setViewport({ x: viewX, y: viewY, zoom: Number(event.target.value) })}
+          style={{ width: 88, accentColor: '#f5f5f5', cursor: 'pointer' }}
+        />
         <button
-          style={{ padding: '4px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,.16)', background: 'rgba(24,24,28,.9)', color: '#f5f5f5', fontSize: 11, cursor: 'pointer', backdropFilter: 'blur(12px)' }}
+          style={{ padding: '4px 10px', borderRadius: 999, border: 'none', background: 'transparent', color: '#f5f5f5', fontSize: 11, cursor: 'pointer' }}
           title="点击复位 100%"
-          onClick={() => setViewport({ zoom: 1, x: 0, y: 0 })}
+          onClick={() => setViewport({ zoom: 1, x: 80, y: 64 })}
         >
           {Math.round(zoom * 100)}%
         </button>

@@ -25,8 +25,8 @@ export const dx = {
   textW: 240,
   groupW: 640,
   groupH: 460,
-  minZoom: 0.05,
-  maxZoom: 4,
+  minZoom: 0.1,
+  maxZoom: 3,
 } as const
 
 export const dxZ = {

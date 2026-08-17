@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { closeEditor, editorSnapshot, subscribeEditor, toggleEditor } from './editor.ts'
 
 /**
@@ -31,10 +31,28 @@ export interface EditorDockProps {
   closeDetails?: () => void
 }
 
+function detailsColumnOpen(): boolean {
+  const col = document.querySelector('[class*="detailsCol"]') as HTMLElement | null
+  if (col === null) return false
+  const rect = col.getBoundingClientRect()
+  return rect.left < window.innerWidth - 48 && rect.width > 200
+}
+
 export function EditorDock(props: EditorDockProps): ReactNode {
   const snapshot = useSyncExternalStore(subscribeEditor, editorSnapshot)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  useEffect(() => {
+    const check = () => setDetailsOpen(detailsColumnOpen())
+    check()
+    const timer = window.setInterval(check, 300)
+    window.addEventListener('resize', check)
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener('resize', check)
+    }
+  }, [])
   const onClick = useCallback(() => {
-    if (snapshot.open) {
+    if (snapshot.open || detailsColumnOpen()) {
       closeEditor()
       props.closeDetails?.()
     } else {
@@ -42,6 +60,8 @@ export function EditorDock(props: EditorDockProps): ReactNode {
       props.openDetails?.()
     }
   }, [snapshot.open, props])
+
+  if (detailsOpen) return null
 
   return (
     <button style={handle} onClick={onClick} title="DirectorX 编辑面板">
