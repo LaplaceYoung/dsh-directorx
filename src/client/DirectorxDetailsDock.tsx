@@ -155,17 +155,26 @@ export function DirectorxDetailsDock(props: DetailsDockProps): ReactNode {
   const [saved, setSaved] = useState<EditRecord | undefined>(undefined)
   const rootRef = useRef<HTMLDivElement | null>(null)
 
-  // Canvas is a full stage: take about half the window (floor 720).
+  // Canvas stage: take the remaining column, not 56% of the whole window
+  // (that overflowed past the conversation on 1512px laptops).
   useEffect(() => {
     const applyDefaultWidth = () => {
       const root = rootRef.current
       if (root === null) return
       const col = root.closest('[class*="detailsCol"]') as HTMLElement | null
       if (col === null) return
-      const target = Math.max(720, Math.round(window.innerWidth * 0.56))
-      if (col.clientWidth === 0 || col.clientWidth < target) {
-        col.style.width = `${target}px`
+      const rect = col.getBoundingClientRect()
+      if (rect.left >= window.innerWidth - 48) return
+      const frame = col.parentElement as HTMLElement | null
+      const sidebar = document.querySelector('[class*="sidebarCol"]') as HTMLElement | null
+      const sidebarW = Math.round(sidebar?.getBoundingClientRect().width ?? 280)
+      const remain = window.innerWidth - sidebarW
+      const target = Math.max(520, Math.min(Math.round(window.innerWidth * 0.48), remain - 360))
+      const centerW = remain - target
+      if (frame !== null && getComputedStyle(frame).display === 'grid') {
+        frame.style.setProperty('grid-template-columns', `${sidebarW}px ${centerW}px ${target}px`, 'important')
       }
+      col.style.width = `${target}px`
     }
     const timer = window.setTimeout(applyDefaultWidth, 60)
     window.addEventListener('resize', applyDefaultWidth)
