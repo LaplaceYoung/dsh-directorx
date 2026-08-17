@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path'
 import { extractFrames, probeMedia } from './ffmpeg.ts'
 import { runVision } from './vision.ts'
 import type { CapabilitySettings, DirectorxSettings } from '../config.ts'
+import { resolveOutputDir } from '../support.ts'
 
 /**
  * Video understanding: sample frames + describe each through the configured
@@ -30,7 +31,7 @@ export interface VideoUnderstandOutput {
 
 export async function videoUnderstand(input: VideoUnderstandInput): Promise<VideoUnderstandOutput> {
   const probe = probeMedia(input.source)
-  const framesDir = resolve(process.cwd(), input.outputDir)
+  const framesDir = resolveOutputDir(input.outputDir)
   await mkdir(framesDir, { recursive: true })
   const count = Math.min(12, Math.max(2, input.frames ?? 6))
   const extracted = await extractFrames(input.source, framesDir, { count })

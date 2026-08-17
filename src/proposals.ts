@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { LIMITS } from './limits.ts'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 
 /**
  * Generation proposal ledger: the "placeholder-first" control mode from
@@ -48,7 +49,7 @@ export class ProposalStore {
   constructor(private readonly outputDir: string) {}
 
   private filePath(): string {
-    return join(resolve(process.cwd(), this.outputDir), 'proposals.json')
+    return join(resolveOutputDir(this.outputDir), 'proposals.json')
   }
 
   async read(): Promise<ProposalLedger> {
@@ -62,7 +63,7 @@ export class ProposalStore {
   }
 
   private async write(ledger: ProposalLedger): Promise<ProposalLedger> {
-    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await mkdir(resolveOutputDir(this.outputDir), { recursive: true })
     await writeFile(this.filePath(), JSON.stringify(ledger, null, 2), 'utf8')
     return ledger
   }

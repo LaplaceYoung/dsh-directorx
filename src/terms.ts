@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 
 /**
  * 项目级术语字典（terms.json）：术语 → 期望读法/译法/写法。
@@ -19,7 +20,7 @@ export class TermStore {
   constructor(private readonly outputDir: string) {}
 
   private filePath(): string {
-    return join(resolve(process.cwd(), this.outputDir), 'terms.json')
+    return join(resolveOutputDir(this.outputDir), 'terms.json')
   }
 
   async read(): Promise<TermEntry[]> {
@@ -40,7 +41,7 @@ export class TermStore {
       if (index >= 0) ledger[index] = { term, reading: entry.reading.slice(0, 200), at: Date.now() }
       else ledger.push({ term, reading: entry.reading.slice(0, 200), at: Date.now() })
     }
-    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await mkdir(resolveOutputDir(this.outputDir), { recursive: true })
     await writeFile(this.filePath(), JSON.stringify({ terms: ledger }, null, 2), 'utf8')
     return ledger
   }

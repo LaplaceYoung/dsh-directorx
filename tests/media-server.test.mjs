@@ -1,14 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import {
   MEDIA_ROUTE_PATH,
   inspectMediaFile,
   parseMediaQuery,
   parseRangeHeader,
   resolveMediaPath,
+  losslessJsonObject,
 } from '../lib/testing.js'
 
 const PNG_BYTES = Buffer.from(
@@ -70,6 +71,22 @@ test('resolveMediaPath allows files inside the output dir and rejects escapes', 
   }
 })
 
+test('resolveMediaPath accepts cwd-relative paths that already include the output dir', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-media-rel-'))
+  const previous = process.cwd()
+  try {
+    process.chdir(dir)
+    await mkdir('directorx_output')
+    await writeFile(join('directorx_output', 'shot.png'), 'x')
+    const file = resolve(process.cwd(), 'directorx_output', 'shot.png')
+    assert.equal(resolveMediaPath('directorx_output', 'directorx_output/shot.png'), file)
+    assert.equal(resolveMediaPath('directorx_output', 'shot.png'), file)
+  } finally {
+    process.chdir(previous)
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('parseMediaQuery extracts the path parameter', () => {
   assert.equal(parseMediaQuery('/directorx/media?path=a%2Fb.png'), 'a/b.png')
   assert.equal(parseMediaQuery('/directorx/media'), undefined)
@@ -101,4 +118,10 @@ test('inspectMediaFile reports size and media type; rejects missing and oversize
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
+})
+
+test('losslessJsonObject wraps arrays and drops undefined so DSH accepts tool output', () => {
+  assert.deepEqual(losslessJsonObject([{ id: 'a' }]), { value: [{ id: 'a' }] })
+  assert.deepEqual(losslessJsonObject({ added: { id: 'n1' }, title: undefined, nodeCount: 1 }), { added: { id: 'n1' }, nodeCount: 1 })
+  assert.deepEqual(losslessJsonObject(null), { value: null })
 })

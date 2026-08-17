@@ -27,6 +27,31 @@
 
 **青橙怎么搭**（Pixflow 实操）：Log 素材先校正 → 肤色用 HSL 拉向橙 → 阴影/高光分别推向青 → 用饱和度曲线控制不溢出 → 最后加对比度与颗粒。
 
+## 可执行风格目录（DirectorX grade catalog）
+
+自然语言调色走 `directorx_studio`，映射到 ffmpeg 确定性配方（`src/providers/grade-catalog.ts`），不是生成模型重绘。知识来源只采用可商用许可：FFmpeg 运行时曲线预设（LGPL，不捆绑源码）、colour-science/colour（BSD-3-Clause，特征近似）、yeun/open-color（MIT，色相锚）、36 文档经典风格条。YahiaAngelo/Film-Luts 是 MIT，但仓库约 187MB，不整包捆绑；气质对照写进人像负片/克罗姆配方。
+
+| 中文 | id | 家族 | 用户可以说 | 配方来源 |
+|---|---|---|---|---|
+| 荒土 | wasteland | 电影 | 末日荒土 / 废土 / 黄沙 | 本表战争/末日条 |
+| 青橙 | teal-orange | 电影 | 青橙 / teal orange / 好莱坞 | 本表青橙 + Pixflow |
+| 漂白 | bleach-bypass | 电影 | 漂白旁路 / bleach bypass / 银盐 | 本表漂白旁路 + FFmpeg strong_contrast |
+| 霓虹 | cyber | 电影 | 赛博 / 霓虹 / neon | open-color 青粉锚 |
+| 胶片 | film-fade | 胶片 | 胶片感 / 褪色 | 本表胶片模拟 |
+| 复古 | vintage | 胶片 | 复古 / 怀旧 / 老照片 | FFmpeg curves=vintage |
+| 克罗姆 | kodachrome | 胶片 | 柯达正片 / kodachrome / velvia | colour-science 正片特征近似 |
+| 人像负片 | portra | 胶片 | 人像胶片 / portra / 肤色胶片 | colour-science 负片肤色倾向 |
+| 交叉冲印 | cross-process | 胶片 | 交叉冲印 / cross process | FFmpeg curves=cross_process |
+| 负片 | color-negative | 胶片 | 负片 / 反相 / 底片 | FFmpeg curves=color_negative |
+| 黑白 | bw-contrast | 胶片 | 黑白 / noir | FFmpeg strong_contrast + 去饱和 |
+| 低饱和 | muted | 影调 | 低饱和 / 去饱和 / 北欧淡彩 | 本表低饱和条 |
+| 夜色 | night | 影调 | 夜色 / 月光 / night | open-color indigo/blue |
+| 冷调 | cold | 影调 | 冷调 / 青冷 | 本表冷科技条 |
+| 暖调 | warm | 影调 | 暖调 / 暖色 | 本表暖记忆条 |
+| 金黄昏 | golden | 影调 | 金色黄昏 / 日落 / golden hour | open-color 黄橙锚 |
+
+未点名具体风格、只说「调色/滤镜」时默认荒土。自定义 `.cube` 仍走 `directorx_video_process` 的 lut3d，不把 GPL/AGPL LUT 包打进仓库。
+
 ## LUT 是什么、不是什么
 
 - **是什么**：描述颜色变换的文件（.cube/.3dl）；把"某输入色"映射为"某输出色"；行业标准 33 点（33×33×33）。

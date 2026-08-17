@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 import { planContinueGenerate, type ContinueGenerateKind } from './canvas-generate.ts'
 
 /**
@@ -32,7 +33,13 @@ export interface CanvasNode {
   /** 幂等缓存的自动简介（vision 生成后落节点；有 prompt 时跳过）。 */
   aiBrief?: string
   /** 镜头状态（Shot 一等容器语义）：idea/approved/generating/review/locked。 */
-  shotStatus?: 'idea' | 'approved' | 'generating' | 'review' | 'locked'
+  shotStatus?: 'idea' | 'approved' | 'generating' | 'review' | 'locked' | 'failed'
+  aspect?: string
+  model?: string
+  durationSec?: number
+  lastError?: string
+  count?: number
+  characters?: string[]
   /** 选定 Take：Shot 组内被钉住采用的结果节点 id。 */
   selectedTakeId?: string
   /** 连续性规则引用：跨镜头锁定的角色/服装/道具/光线/方位等约束。 */
@@ -44,6 +51,8 @@ export interface CanvasEdge {
   from: string
   to: string
   label?: string
+  sourceHandle?: string
+  targetHandle?: string
   /** 变体逐边绑定：多变体源「哪个 variant 喂哪个下游」按边钉住（生成端不保证 output[i]↔input[i] 对齐）。 */
   sourceVariantIdx?: number
 }
@@ -69,6 +78,63 @@ function newId(prefix: string): string {
 }
 
 /** Strip unknown fields and clamp numeric positions so foreign input stays safe. */
+const SHOT_CARD_W = 280
+const SHOT_CARD_H = 158
+const SHOT_GAP = 20
+const ACT_GAP = 48
+const GROUP_PAD_X = 36
+const GROUP_PAD_Y = 56
+
+function nextOpenSlot(nodes: CanvasNode[]): { x: number; y: number } {
+  const top = nodes.filter(node => node.parent === undefined)
+  if (top.length === 0) return { x: 48, y: 48 }
+  const right = Math.max(...top.map(node => node.x + (node.width ?? SHOT_CARD_W)))
+  const topY = Math.min(...top.map(node => node.y))
+  if (right > 48 + 4 * (SHOT_CARD_W + SHOT_GAP)) {
+    const bottom = Math.max(...top.map(node => node.y + (node.height ?? SHOT_CARD_H)))
+    return { x: 48, y: bottom + SHOT_GAP }
+  }
+  return { x: right + SHOT_GAP, y: topY }
+}
+
+function layoutStoryboard(nodes: CanvasNode[]): void {
+  const groups = nodes.filter(node => node.kind === 'group' && node.parent === undefined)
+  const loose = nodes.filter(node => node.kind !== 'group' && node.parent === undefined)
+  if (groups.length === 0) {
+    loose.forEach((node, index) => {
+      node.x = 48 + (index % 4) * (SHOT_CARD_W + SHOT_GAP)
+      node.y = 48 + Math.floor(index / 4) * (SHOT_CARD_H + 36)
+      node.width = node.width ?? SHOT_CARD_W
+      node.height = node.height ?? (node.kind === 'text' ? 120 : SHOT_CARD_H)
+    })
+    return
+  }
+  let cursorY = 48
+  for (const group of groups) {
+    const members = nodes
+      .filter(node => node.parent === group.id)
+      .sort((left, right) => (left.shotIndex ?? 1e9) - (right.shotIndex ?? 1e9))
+    const count = Math.max(1, members.length)
+    group.x = 48
+    group.y = cursorY
+    group.width = GROUP_PAD_X * 2 + count * SHOT_CARD_W + (count - 1) * SHOT_GAP
+    group.height = GROUP_PAD_Y + SHOT_CARD_H + 32
+    members.forEach((member, index) => {
+      member.x = group.x + GROUP_PAD_X + index * (SHOT_CARD_W + SHOT_GAP)
+      member.y = group.y + GROUP_PAD_Y
+      member.width = SHOT_CARD_W
+      member.height = member.kind === 'text' ? 120 : SHOT_CARD_H
+    })
+    cursorY += group.height + ACT_GAP
+  }
+  loose.forEach((node, index) => {
+    node.x = 48 + (index % 4) * (SHOT_CARD_W + SHOT_GAP)
+    node.y = cursorY + Math.floor(index / 4) * (SHOT_CARD_H + 36)
+    node.width = node.width ?? SHOT_CARD_W
+    node.height = node.height ?? (node.kind === 'text' ? 120 : SHOT_CARD_H)
+  })
+}
+
 function sanitizeNode(input: Record<string, unknown>): CanvasNode {
   const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'text' || input.kind === 'group' ? input.kind : 'text'
   const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
@@ -81,14 +147,20 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
     ...(typeof rawParent === 'string' && rawParent !== '' ? { parent: rawParent.slice(0, 100) } : {}),
     x: numberOr(input.x, 0),
     y: numberOr(input.y, 0),
-    ...(input.width !== undefined ? { width: Math.max(60, Math.min(1200, numberOr(input.width, 240))) } : {}),
-    ...(input.height !== undefined ? { height: Math.max(60, Math.min(1200, numberOr(input.height, 160))) } : {}),
+    ...(input.width !== undefined ? { width: Math.max(60, Math.min(kind === 'group' ? 3200 : 1600, numberOr(input.width, 240))) } : {}),
+    ...(input.height !== undefined ? { height: Math.max(60, Math.min(kind === 'group' ? 2400 : 1200, numberOr(input.height, 160))) } : {}),
     ...(typeof input.shotIndex === 'number' && Number.isFinite(input.shotIndex) ? { shotIndex: Math.floor(input.shotIndex) } : {}),
     ...(typeof input.prompt === 'string' && input.prompt !== '' ? { prompt: input.prompt.slice(0, 2000) } : {}),
     ...(input.locked === true ? { locked: true } : {}),
     ...(typeof input.aiBrief === 'string' && input.aiBrief !== '' ? { aiBrief: input.aiBrief.slice(0, 500) } : {}),
-    ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
+    ...(typeof input.shotStatus === 'string' && ['idea', 'approved', 'generating', 'review', 'locked', 'failed'].includes(input.shotStatus) ? { shotStatus: input.shotStatus as CanvasNode['shotStatus'] } : {}),
     ...(typeof input.selectedTakeId === 'string' && input.selectedTakeId !== '' ? { selectedTakeId: input.selectedTakeId.slice(0, 100) } : {}),
+    ...(typeof input.aspect === 'string' && input.aspect !== '' ? { aspect: input.aspect.slice(0, 16) } : {}),
+    ...(typeof input.model === 'string' && input.model !== '' ? { model: input.model.slice(0, 80) } : {}),
+    ...(typeof input.durationSec === 'number' && Number.isFinite(input.durationSec) ? { durationSec: Math.max(1, Math.min(15, Math.floor(input.durationSec))) } : {}),
+    ...(typeof input.lastError === 'string' && input.lastError !== '' ? { lastError: input.lastError.slice(0, 300) } : {}),
+    ...(typeof input.count === 'number' && Number.isFinite(input.count) ? { count: Math.max(1, Math.min(4, Math.floor(input.count))) } : {}),
+    ...(Array.isArray(input.characters) ? { characters: input.characters.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map((name: string) => name.trim().slice(0, 80)).slice(0, 8) } : {}),
     ...(Array.isArray(input.continuityRules) ? { continuityRules: input.continuityRules.filter((rule: unknown): rule is string => typeof rule === 'string' && rule !== '').slice(0, 5).map((rule: string) => rule.slice(0, 200)) } : {}),
   }
   return node
@@ -115,6 +187,8 @@ function sanitizeEdge(input: Record<string, unknown>): CanvasEdge {
     from: typeof input.from === 'string' ? input.from : '',
     to: typeof input.to === 'string' ? input.to : '',
     ...(typeof input.label === 'string' && input.label !== '' ? { label: input.label.slice(0, 200) } : {}),
+    ...(typeof input.sourceHandle === 'string' && input.sourceHandle !== '' ? { sourceHandle: input.sourceHandle.slice(0, 16) } : {}),
+    ...(typeof input.targetHandle === 'string' && input.targetHandle !== '' ? { targetHandle: input.targetHandle.slice(0, 16) } : {}),
     ...(typeof input.sourceVariantIdx === 'number' && Number.isFinite(input.sourceVariantIdx) && input.sourceVariantIdx >= 0 ? { sourceVariantIdx: Math.floor(input.sourceVariantIdx) } : {}),
   }
 }
@@ -127,7 +201,7 @@ export class DirectorxCanvasStore {
   }
 
   private filePath(): string {
-    return join(resolve(process.cwd(), this.outputDir), CANVAS_FILE)
+    return join(resolveOutputDir(this.outputDir), CANVAS_FILE)
   }
 
   async read(): Promise<CanvasDocument> {
@@ -162,7 +236,7 @@ export class DirectorxCanvasStore {
     try {
       const existing = await readFile(path, 'utf8')
       if (existing.trim() !== '') {
-        const backup = join(resolve(process.cwd(), this.outputDir), `canvas.json.bak-${Date.now()}`)
+        const backup = join(resolveOutputDir(this.outputDir), `canvas.json.bak-${Date.now()}`)
         await writeFile(backup, existing, 'utf8')
       }
     } catch {
@@ -177,7 +251,7 @@ export class DirectorxCanvasStore {
    * the caller can re-read and merge.
    */
   async write(doc: CanvasDocument, expectedUpdatedAt?: number): Promise<CanvasDocument> {
-    const dir = join(resolve(process.cwd(), this.outputDir))
+    const dir = join(resolveOutputDir(this.outputDir))
     await mkdir(dir, { recursive: true })
     const path = this.filePath()
     if (expectedUpdatedAt !== undefined) {
@@ -206,7 +280,7 @@ export class DirectorxCanvasStore {
   }
 
   /**
-   * Tapflow continue-generate: drop a generating placeholder (and an inbound
+   * Continue-generate: drop a generating placeholder (and an inbound
    * wire when a source exists) using the same planner as the WebUI sheet.
    */
   async continueGenerate(input: { sourceId?: string; kind?: ContinueGenerateKind; prompt: string }): Promise<{
@@ -246,6 +320,11 @@ export class DirectorxCanvasStore {
   async addNode(input: Record<string, unknown>): Promise<CanvasDocument> {
     return this.mutate(doc => {
       const node = sanitizeNode(input)
+      if (input.x === undefined && input.y === undefined && node.parent === undefined) {
+        const slot = nextOpenSlot(doc.nodes)
+        node.x = slot.x
+        node.y = slot.y
+      }
       if (!doc.nodes.some(existing => existing.id === node.id)) doc.nodes.push(node)
     })
   }
@@ -350,8 +429,14 @@ export class DirectorxCanvasStore {
   /** Batch add nodes (and optional edges) in one write. */
   async batchAdd(input: { nodes: Array<Record<string, unknown>>; edges?: Array<Record<string, unknown>> }): Promise<CanvasDocument> {
     return this.mutate(doc => {
-      for (const node of (input.nodes ?? [])) {
-        doc.nodes.push(sanitizeNode({ id: newId('text'), ...node }))
+      for (const raw of (input.nodes ?? [])) {
+        const node = sanitizeNode({ id: newId('text'), ...raw })
+        if (raw.x === undefined && raw.y === undefined && node.parent === undefined) {
+          const slot = nextOpenSlot(doc.nodes)
+          node.x = slot.x
+          node.y = slot.y
+        }
+        doc.nodes.push(node)
       }
       // 边走与 addEdge 相同的校验（端点存在/类型矩阵/锁定），非法边报 reason。
       for (const edge of (input.edges ?? [])) {
@@ -481,7 +566,7 @@ export class DirectorxCanvasStore {
 
   /** 画布快照：提案执行前的可回滚检查点（撤销此批）。 */
   private snapshotsPath(): string {
-    return join(resolve(process.cwd(), this.outputDir), '.canvas-snapshots')
+    return join(resolveOutputDir(this.outputDir), '.canvas-snapshots')
   }
 
   private snapshotsFile(): string {
@@ -625,36 +710,21 @@ export class DirectorxCanvasStore {
     })
   }
 
-  /** 整理：auto-layout nodes into a tidy grid (or a single row) while keeping all connections. Group children stay inside their group. */
-  async arrange(layout: 'grid' | 'row' = 'grid', gap = 40): Promise<CanvasDocument> {
+  /** 整理：分镜感横条（幕为行、镜为格）或单行；组成员留在组框内。 */
+  async arrange(layout: 'grid' | 'row' = 'grid', _gap = 40): Promise<CanvasDocument> {
     return this.mutate(doc => {
-      const topLevel = doc.nodes.filter(node => node.parent === undefined)
-      const columns = layout === 'row' ? topLevel.length : Math.max(1, Math.ceil(Math.sqrt(topLevel.length)))
-      topLevel.forEach((node, index) => {
-        const width = node.width ?? (node.kind === 'group' ? 520 : 240)
-        const height = node.height ?? (node.kind === 'group' ? 380 : 160)
-        if (layout === 'row') {
-          node.x = index * (width + gap)
-          node.y = 0
-        } else {
-          node.x = (index % columns) * (width + gap)
-          node.y = Math.floor(index / columns) * (height + gap)
-        }
-        node.width = width
-        node.height = height
-      })
-      // Lay each group's children out inside the group frame.
-      for (const group of topLevel.filter(node => node.kind === 'group')) {
-        const members = doc.nodes.filter(node => node.parent === group.id)
-        const frameWidth = group.width ?? 520
-        const margin = 46
-        const memberColumns = Math.max(1, Math.floor((frameWidth - margin) / 260))
-        members.forEach((member, index) => {
-          const width = member.width ?? 200
-          member.x = group.x + margin + (index % memberColumns) * (width + 20)
-          member.y = group.y + margin + Math.floor(index / memberColumns) * 150
+      if (layout === 'row') {
+        const topLevel = doc.nodes.filter(node => node.parent === undefined)
+        topLevel.forEach((node, index) => {
+          const width = node.width ?? (node.kind === 'group' ? 520 : SHOT_CARD_W)
+          node.x = 48 + index * (width + SHOT_GAP)
+          node.y = 48
+          node.width = width
+          node.height = node.height ?? (node.kind === 'group' ? 240 : SHOT_CARD_H)
         })
+        return
       }
+      layoutStoryboard(doc.nodes)
     })
   }
 
@@ -798,10 +868,10 @@ export class DirectorxCanvasStore {
         const group = sanitizeNode({
           kind: 'group',
           label: act.label,
-          x: actIndex * 640,
-          y: 0,
-          width: 560,
-          height: Math.max(280, 64 + act.shots.length * 180),
+          x: 48,
+          y: 48 + actIndex * (SHOT_CARD_H + GROUP_PAD_Y + 32 + ACT_GAP),
+          width: GROUP_PAD_X * 2 + Math.max(1, act.shots.length) * SHOT_CARD_W + (Math.max(1, act.shots.length) - 1) * SHOT_GAP,
+          height: GROUP_PAD_Y + SHOT_CARD_H + 32,
         })
         draft.nodes.push(group)
         const shotIds: string[] = []
@@ -822,8 +892,10 @@ export class DirectorxCanvasStore {
             kind,
             label: shot.label,
             parent: group.id,
-            x: group.x + 48,
-            y: group.y + 56 + shotIndex * 180,
+            x: group.x + GROUP_PAD_X + shotIndex * (SHOT_CARD_W + SHOT_GAP),
+            y: group.y + GROUP_PAD_Y,
+            width: SHOT_CARD_W,
+            height: kind === 'text' ? 120 : SHOT_CARD_H,
             shotIndex: shotNumber,
             shotStatus: 'idea',
             ...(prompt !== undefined ? { prompt } : {}),

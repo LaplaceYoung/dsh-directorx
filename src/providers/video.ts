@@ -197,6 +197,26 @@ export async function runVideo(
     // local failure under the task id so directorx_task_status can surface
     // the orphan and directorx_cancel_task can mark it.
     const taskId = (error as { taskId?: string } | null)?.taskId
+    const stillRunning = taskId !== undefined && taskId !== '' && /abort|timed out|timeout/i.test(message)
+    if (stillRunning && !(await ctx.ledger?.isCancelled(taskId))) {
+      await ctx.ledger?.append({
+        taskId,
+        model: ctx.capability.model,
+        mode: ctx.capability.mode,
+        prompt,
+        state: 'submitted',
+        at: Date.now(),
+      }).catch(() => {})
+      return {
+        model: ctx.capability.model,
+        prompt,
+        taskId,
+        status: 'submitted',
+        files: [],
+        mode: ctx.capability.mode,
+        next: 'directorx_task_status',
+      }
+    }
     if (taskId !== undefined && taskId !== '' && !(await ctx.ledger?.isCancelled(taskId))) {
       await ctx.ledger?.append({
         taskId,

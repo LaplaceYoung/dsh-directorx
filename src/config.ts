@@ -95,5 +95,5 @@ export const DirectorxSettings = z.object({
   vision: capability(VISION_MODES, 'openai-chat', 'https://api.modelverse.cn/v1', 'gpt-5.6-luna'),
   image: capability(IMAGE_MODES, 'openai-images', 'https://api.modelverse.cn/v1', 'gpt-image-2'),
   video: capability(VIDEO_MODES, 'modelverse-tasks', 'https://api.modelverse.cn/v1', 'doubao-seedance-2-0-260128', '2K'),
-  audio: capability(AUDIO_MODES, 'openai-tts', 'https://api.modelverse.cn/v1', 'gpt-4o-mini-tts'),
+  audio: capability(AUDIO_MODES, 'openai-tts', 'https://api.modelverse.cn/v1', 'qwen3-tts-flash'),
 })

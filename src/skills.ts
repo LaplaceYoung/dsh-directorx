@@ -243,7 +243,7 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       '## 画布镜像（必须）',
       '',
       '流水线全程把项目镜像到无限画布，让用户在 WebUI 看到与 agent 一致的生产视图：',
-      '- 剧本与分镜：`directorx_canvas_get` 读现状 → 建 group（项目名）→ 每镜一个节点 → 按顺序连线 → `directorx_canvas_arrange`；',
+      '- 剧本与分镜：先向用户确认草案（`directorx_confirm` / 提问），通过后再 `directorx_canvas_get` → `directorx_canvas_plan` 或建 group + 节点 + 连线 → `directorx_canvas_arrange`。未确认不要往画布铺空卡；',
       '- 并行生成：产物路径用 `directorx_canvas_update` 写回对应节点（patch { path }，媒体节点）或替换为 image/video 节点；',
       '- 质检：结论写进节点 label（如「镜头2 ✓ / ✗ 重拍」），不要静默跳过。',
     ].join('\n'),

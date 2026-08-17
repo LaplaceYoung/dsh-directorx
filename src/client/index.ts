@@ -1,9 +1,8 @@
 import { DirectorxSettingsSection } from './DirectorxSettingsSection.tsx'
 import { DirectorxToolRow, DIRECTORX_TOOLVIEW_KEYS } from './DirectorxToolRow.tsx'
 import { EditorDock } from './EditorDock.tsx'
-import { DirectorxDetailsDock } from './DirectorxDetailsDock.tsx'
 import { registerDirectorxSlash } from './directorx-command.ts'
-import { closeEditor, editorSnapshot, openEditor, setEditorTab } from './editor.ts'
+import { closeEditor, editorSnapshot, openCanvas, openEditor, setEditorTab } from './editor.ts'
 
 interface LayoutFace {
   openDetails(): void
@@ -30,23 +29,35 @@ interface ClientContext {
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection', 'layout']
+export const inject = ['slots', 'connection', 'layout', 'sessions']
+
+function optionalService(ctx: ClientContext, name: string): unknown {
+  const rec = ctx as unknown as Record<string, unknown>
+  if (rec[name] !== undefined) return rec[name]
+  try {
+    return ctx.get(name)
+  } catch {
+    return undefined
+  }
+}
 
 export function apply(ctx: ClientContext): void {
   const layout = (): LayoutFace | undefined => ctx.get('layout') as LayoutFace | undefined
   registerDirectorxSlash(ctx)
 
-  ctx.slots.inject('settings.section', () => {
+  const settingsCard = (name: 'settings.section' | 'settings.plugin.item') => {
     const connection = ctx.get('connection') as { api: { settings: unknown } } | undefined
     if (connection === undefined) return () => {}
     return ctx.slots.register({
-      name: 'settings.section',
-      id: 'directorx',
-      order: 30,
-      label: 'DirectorX',
+      name,
+      ...(name === 'settings.section'
+        ? { id: 'directorx', order: 30, label: 'DirectorX' }
+        : { key: 'directorx' }),
       inject: () => ({ api: connection.api.settings }),
     }, DirectorxSettingsSection)
-  })
+  }
+  ctx.slots.inject('settings.section', () => settingsCard('settings.section'))
+  ctx.slots.inject('settings.plugin.item', () => settingsCard('settings.plugin.item'))
 
   // Keyed tool cards: each DirectorX tool renders its own row in the chat
   // flow — the prompt/question while running, and the produced image/video/
@@ -61,29 +72,15 @@ export function apply(ctx: ClientContext): void {
     }
   })
 
-  // The dock occupies the harness `details` column: a first-class layout
-  // column that squeezes the conversation instead of overlaying it. The
-  // floating handle (shell.overlay) toggles the column via ctx.layout.
-  ctx.slots.inject('details', () =>
-    ctx.slots.register({
-      name: 'details',
-      priority: -1,
-      inject: () => ({
-        closeDetails: () => layout()?.closeDetails(),
-        connection: ctx.get('connection'),
-      }),
-    }, DirectorxDetailsDock),
-  )
-
   ctx.slots.inject('shell.overlay', () =>
     ctx.slots.register({
       name: 'shell.overlay',
       id: 'directorx-editor',
       order: 40,
-      label: 'DirectorX 编辑',
+      label: 'DirectorX 画布',
       inject: () => ({
-        openDetails: () => layout()?.openDetails(),
-        closeDetails: () => layout()?.closeDetails(),
+        connection: ctx.get('connection'),
+        liveSessions: optionalService(ctx, 'sessions'),
       }),
     }, EditorDock),
   )
@@ -92,9 +89,12 @@ export function apply(ctx: ClientContext): void {
   // dock directly without a generation card.
   if (typeof window !== 'undefined' && window.__directorxEditor === undefined) {
     window.__directorxEditor = {
-      open: openEditor,
-      close: () => { closeEditor(); layout()?.closeDetails() },
-      setTab: (tab) => { setEditorTab(tab); layout()?.openDetails() },
+      open: (kind?: 'image' | 'video', path?: string) => {
+        if (kind === 'image' || kind === 'video') openEditor(kind, path ?? '')
+        else openCanvas()
+      },
+      close: () => { closeEditor() },
+      setTab: (tab) => { setEditorTab(tab) },
       snapshot: editorSnapshot,
       // Debug probes.
       layoutKind: () => String(typeof layout()),

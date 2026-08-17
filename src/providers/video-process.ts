@@ -2,8 +2,9 @@ import { spawnSync } from 'node:child_process'
 import { mkdir } from 'node:fs/promises'
 import { existsSync, renameSync, rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { slugify } from '../support.ts'
+import { resolveOutputDir, slugify } from '../support.ts'
 import { probeMedia, type MediaProbe } from './ffmpeg.ts'
+import { gradeFilter, type GradeLook } from './grade.ts'
 
 /**
  * Deterministic ffmpeg assembly (plugin-native, no network): trim / speed /
@@ -62,11 +63,11 @@ export interface VideoProcessInput {
   filters?: Array<{ name: string; value: string }>
   /** 只导出音频轨（.m4a，跳过视频编码）。 */
   extractAudio?: boolean
-  /** 电影感调色预设：teal-orange 青橙 / film-fade 褪色胶片 / bw-contrast 黑白高对比。 */
-  grade?: 'teal-orange' | 'film-fade' | 'bw-contrast'
+  /** 电影感调色预设（与 grade.ts 同一套配方）。 */
+  grade?: GradeLook
   /** 修复预设：upscale-sharp 2x 兰索斯放大+锐化 / denoise 时空降噪。 */
   restore?: 'upscale-sharp' | 'denoise'
-  /** 去水印（静态角标）：'x:y:w:h' 区域 + delogo band=10。 */
+  /** 去水印（静态角标）：'x:y:w:h' 区域，走 ffmpeg delogo。 */
   delogo?: string
   /** 3D LUT 调色（.cube 文件绝对路径；lut3d 滤镜）。 */
   lut3d?: string
@@ -96,7 +97,7 @@ export interface VideoConcatInput {
 }
 
 function outputPath(outputDir: string, tag: string, ext: string): string {
-  const root = resolve(process.cwd(), outputDir)
+  const root = resolveOutputDir(outputDir)
   mkdir(root, { recursive: true }).catch(() => {})
   return join(root, `${slugify(tag)}-${Date.now().toString(36)}.${ext}`)
 }
@@ -188,10 +189,6 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
   } else if (input.volume !== undefined) {
     audioFilters.push(`volume=${input.volume}`)
   }
-  const args: string[] = ['-i', input.source]
-  if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
-  if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
-  if (input.mute === true) args.push('-an')
   if (input.lut3d !== undefined && input.lut3d !== '') {
     if (!existsSync(input.lut3d)) throw new Error(`LUT 文件不存在：${input.lut3d}`)
     const interp = input.lut3dInterp ?? 'tetrahedral'
@@ -203,18 +200,15 @@ export async function videoProcess(input: VideoProcessInput): Promise<VideoOutpu
     videoFilters.push('hqdn3d=1.5:1.5:6:6,tmix=frames=3:weights=1 2 1')
   }
   if (input.delogo !== undefined && /^\d+:\d+:\d+:\d+$/.test(input.delogo)) {
-    videoFilters.push(`delogo=x=${input.delogo.split(':')[0]}:y=${input.delogo.split(':')[1]}:w=${input.delogo.split(':')[2]}:h=${input.delogo.split(':')[3]}:band=10`)
+    videoFilters.push(`delogo=x=${input.delogo.split(':')[0]}:y=${input.delogo.split(':')[1]}:w=${input.delogo.split(':')[2]}:h=${input.delogo.split(':')[3]}`)
   }
   if (input.grade !== undefined) {
-    // 完整配方（调研确认的选项表推导）：10-bit 处理域起步，末位降 8-bit。
-    if (input.grade === 'teal-orange') {
-      videoFilters.push('format=yuv420p10le,colorbalance=rs=-0.12:gs=0.06:bs=0.12:rh=0.12:gh=0.03:bh=-0.12:rm=0.03:bm=-0.03,eq=contrast=1.08:saturation=1.2,format=yuv420p')
-    } else if (input.grade === 'film-fade') {
-      videoFilters.push('format=yuv420p10le,curves=master=\'0/0.05 0.2/0.24 0.6/0.58 1/0.96\':interp=pchip,eq=saturation=0.85:gamma=1.05,colorbalance=rh=0.06:bh=-0.05,vignette=angle=PI/7,noise=alls=5:allf=t+u,format=yuv420p')
-    } else if (input.grade === 'bw-contrast') {
-      videoFilters.push('format=yuv420p10le,hue=s=0,curves=preset=strong_contrast,eq=contrast=1.15:brightness=-0.02,noise=alls=4:allf=t,format=yuv420p')
-    }
+    videoFilters.push(gradeFilter(input.grade))
   }
+  const args: string[] = ['-i', input.source]
+  if (videoFilters.length > 0) args.push('-vf', videoFilters.join(','))
+  if (audioFilters.length > 0) args.push('-af', audioFilters.join(','))
+  if (input.mute === true) args.push('-an')
   if (input.textOverlays !== undefined && input.textOverlays.length > 0) {
     for (const overlay of input.textOverlays) {
       // drawtext 文本转义：反斜杠/冒号/逗号/百分号/单引号。
@@ -402,7 +396,7 @@ export async function videoSubtitle(input: VideoSubtitleInput): Promise<VideoOut
       throw new Error('当前 ffmpeg 构建缺少 libass（无法烧录字幕）。请使用 mode=soft 软字幕，或安装带 libass 的 ffmpeg。')
     }
     const escaped = input.srt.replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'")
-    runFfmpeg(['-i', input.video, '-vf', `ass='${escaped}'`, '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'copy', out], 'subtitle burn')
+    runFfmpeg(['-i', input.video, '-vf', `subtitles='${escaped}'`, '-c:v', 'libx264', '-preset', 'veryfast', '-c:a', 'copy', out], 'subtitle burn')
     return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
   }
   // Soft subtitles: mux the SRT as a selectable mov_text track — no libass needed.

@@ -42,30 +42,46 @@ export async function mockAudio(ctx: ProviderContext, text: string): Promise<Aud
 export async function openaiTts(ctx: ProviderContext, text: string, voice?: string, format?: string, instructions?: string, speed?: number): Promise<AudioResult> {
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_AUDIO_API_KEY', 'OPENAI_API_KEY'], baseURL)
-  const response = await fetch(`${baseURL}/audio/speech`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: ctx.capability.model,
+  const models = ctx.capability.model === 'qwen3-tts-flash'
+    ? [ctx.capability.model]
+    : [ctx.capability.model, 'qwen3-tts-flash']
+  const payloads: Record<string, unknown>[] = models.flatMap(model => [
+    {
+      model,
       input: text,
-      voice: voice ?? 'alloy',
-      response_format: format ?? 'mp3',
+      ...(voice !== undefined && voice !== '' ? { voice } : {}),
+      ...(format !== undefined && format !== '' ? { response_format: format } : {}),
       ...(instructions !== undefined && instructions !== '' ? { instructions } : {}),
       ...(speed !== undefined && speed > 0 ? { speed: Math.min(4, Math.max(0.25, speed)) } : {}),
-    }),
-    signal: ctx.signal,
-  })
-  if (!response.ok) {
+    },
+    { model, input: text },
+  ])
+  let lastError = 'unknown'
+  let bytes: Buffer | undefined
+  let usedModel = ctx.capability.model
+  for (const payload of payloads) {
+    const response = await fetch(`${baseURL}/audio/speech`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: ctx.signal,
+    })
+    if (response.ok) {
+      bytes = Buffer.from(await response.arrayBuffer())
+      usedModel = typeof payload.model === 'string' ? payload.model : ctx.capability.model
+      break
+    }
     const body = await readJsonResponse<SpeechEnvelope>(response).catch(() => ({}))
-    throw new Error(`Audio generation failed (HTTP ${response.status}): ${JSON.stringify(body).slice(0, 400)}`)
+    lastError = `HTTP ${response.status}: ${JSON.stringify(body).slice(0, 400)}`
+    if (response.status !== 400) break
   }
+  if (bytes === undefined) throw new Error(`Audio generation failed (${lastError})`)
   const outDir = await ensureOutputDir(ctx.settings.outputDir)
-  const bytes = Buffer.from(await response.arrayBuffer())
   const ext = format === 'wav' ? 'wav' : format === 'opus' ? 'opus' : format === 'aac' ? 'aac' : 'mp3'
   const path = join(outDir, `${slugify(text, 24)}-${new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')}.${ext}`)
   await writeFile(path, bytes)
   const files: MediaFile[] = [{ path, mimeType: `audio/${ext === 'mp3' ? 'mpeg' : ext}` }]
-  return { model: ctx.capability.model, text, files, mode: 'openai-tts' }
+  return { model: usedModel, text, files, mode: 'openai-tts' }
 }
 
 export async function runAudio(ctx: ProviderContext, text: string, options: { voice?: string; format?: string; instructions?: string; speed?: number }): Promise<AudioResult> {

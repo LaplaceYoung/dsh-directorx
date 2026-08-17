@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import { openEditor } from './editor.ts'
+import { withProject } from './stage/project.ts'
 
 /**
  * Web UI tool card for DirectorX generation calls, registered under the
@@ -57,6 +58,14 @@ interface ToolResultJson {
   task?: { taskId?: string; state?: string; model?: string; at?: number }
   task_id?: string
   edits?: Array<{ path?: string; name?: string; mediaType?: string; bytes?: number }>
+  canvasTitle?: string
+  nodeCount?: number
+  nodeId?: string
+  summary?: string[]
+  path?: string
+  look?: string
+  openStudio?: boolean
+  kind?: string
 }
 
 interface DirectorxToolRowProps {
@@ -83,6 +92,16 @@ const META: Record<string, ToolMeta> = {
   directorx_task_status: { title: '任务状态 · Tasks', kind: 'video' },
   directorx_cancel_task: { title: '取消任务 · Cancel', kind: 'video' },
   directorx_edits: { title: '编辑产物 · Edits', kind: 'image' },
+  directorx_canvas_intents: { title: '画布指令 · Intent', kind: 'image' },
+  directorx_canvas_intent_ack: { title: '画布回执 · Ack', kind: 'image' },
+  directorx_canvas_continue: { title: '画布续写 · Continue', kind: 'image' },
+  directorx_canvas_add: { title: '画布加点 · Add', kind: 'image' },
+  directorx_canvas_connect: { title: '画布连线 · Connect', kind: 'image' },
+  directorx_canvas_get: { title: '画布读取 · Get', kind: 'image' },
+  directorx_canvas_shotlist: { title: '镜头表 · Shotlist', kind: 'image' },
+  directorx_canvas_update: { title: '画布更新 · Update', kind: 'image' },
+  directorx_canvas_batch: { title: '画布批量 · Batch', kind: 'image' },
+  directorx_studio: { title: '编辑台 · Studio', kind: 'image' },
 }
 
 const card: CSSProperties = {
@@ -144,7 +163,9 @@ function resultOf(block: RowBlock): ToolResultJson | null {
 /** Browser-resolvable source for one media file: http(s)/data URLs directly, local paths through the host route. */
 function mediaSrc(file: MediaFile): string | undefined {
   if (typeof file.url === 'string' && (/^https?:\/\//i.test(file.url) || /^data:/i.test(file.url))) return file.url
-  if (typeof file.path === 'string' && file.path !== '') return `/directorx/media?path=${encodeURIComponent(file.path)}`
+  if (typeof file.path === 'string' && file.path !== '') {
+    return withProject(`/directorx/media?path=${encodeURIComponent(file.path)}`)
+  }
   return undefined
 }
 
@@ -319,7 +340,7 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
     let timer: number | undefined
     const poll = async () => {
       try {
-        const response = await fetch('/directorx/media/tasks')
+        const response = await fetch(withProject('/directorx/media/tasks'))
         if (!response.ok) return
         const data = await response.json() as { tasks: TaskRow[] }
         const match = data.tasks.find(task => typeof task.prompt === 'string' && (task.prompt === prompt || prompt.includes(task.prompt)))
@@ -336,7 +357,12 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
     }
   }, [props.toolName, settled, prompt])
 
-  const files = result?.files?.slice(0, 4) ?? []
+  useEffect(() => {
+    if (!settled || result === null || result.openStudio !== true || typeof result.path !== 'string' || result.path === '') return
+    openEditor(result.kind === 'video' ? 'video' : 'image', result.path, result.look !== undefined ? { look: result.look } : undefined)
+  }, [settled, result])
+
+  const files = result?.files?.slice(0, 4) ?? (typeof result?.path === 'string' && result.path !== '' ? [{ path: result.path }] : [])
   const details = [
     result?.model !== undefined && result.model !== '' ? result.model : '',
     result?.mode !== undefined && result.mode !== '' ? result.mode : '',
@@ -344,7 +370,11 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
   ].filter(part => part !== '').join(' · ')
 
   // Secondary-editing entry: image/video results with a local file open the dock.
-  const editableKind = props.toolName === 'directorx_generate_image' ? 'image' : props.toolName === 'directorx_generate_video' ? 'video' : null
+  const editableKind = props.toolName === 'directorx_generate_image' || (props.toolName === 'directorx_studio' && result?.kind !== 'video')
+    ? 'image'
+    : props.toolName === 'directorx_generate_video' || (props.toolName === 'directorx_studio' && result?.kind === 'video')
+      ? 'video'
+      : null
   const editablePath = editableKind !== null && typeof files[0]?.path === 'string' && files[0].path !== '' ? files[0].path : null
 
   let statusLabel = '进行中…'
@@ -382,6 +412,16 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
           ) : (
             <div style={mediaBox}>
               {files.map((file, index) => <MediaPreview key={index} file={file} fallback={meta.kind} />)}
+              {files.length === 0 && result !== null && props.toolName.startsWith('directorx_canvas_') ? (
+                <div style={summary}>
+                  {[
+                    typeof result.canvasTitle === 'string' ? result.canvasTitle : '',
+                    result.nodeCount !== undefined ? `${String(result.nodeCount)} 节点` : '',
+                    typeof result.nodeId === 'string' ? `node ${result.nodeId}` : '',
+                    Array.isArray(result.summary) ? result.summary.slice(0, 4).join(' · ') : '',
+                  ].filter(part => part !== '').join(' · ') || textContentOf(block).slice(0, 240)}
+                </div>
+              ) : null}
             </div>
           )}
           {editableKind !== null && editablePath !== null ? (
@@ -389,7 +429,7 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
               style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid var(--dsw-alias-brand-primary)', background: 'transparent', color: 'var(--dsw-alias-label-primary)', fontSize: 12.5, cursor: 'pointer' }}
               onClick={() => openEditor(editableKind, editablePath)}
             >
-              编辑（打开右侧面板）
+              在画布中编辑
             </button>
           ) : null}
         </>
@@ -415,4 +455,14 @@ export const DIRECTORX_TOOLVIEW_KEYS = [
   'directorx_task_status',
   'directorx_cancel_task',
   'directorx_edits',
+  'directorx_canvas_intents',
+  'directorx_canvas_intent_ack',
+  'directorx_canvas_continue',
+  'directorx_canvas_add',
+  'directorx_canvas_connect',
+  'directorx_canvas_get',
+  'directorx_canvas_shotlist',
+  'directorx_canvas_update',
+  'directorx_canvas_batch',
+  'directorx_studio',
 ] as const

@@ -1,4 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { MODELVERSE_BY_CAPABILITY } from '../modelverse-catalog.ts'
+import { projectHeaders, withProject } from './stage/project.ts'
 
 interface RpcResult<T> {
   ok: boolean
@@ -54,10 +56,10 @@ interface SectionInjected {
 }
 
 const DEFAULT_DRAFT: Draft = {
-  vision: { enabled: true, mode: 'openai-chat', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
-  image: { enabled: true, mode: 'openai-images', baseURL: 'https://api.openai.com/v1', model: 'gpt-image-1', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
-  video: { enabled: true, mode: 'openai-videos', baseURL: 'https://api.openai.com/v1', model: 'sora-2', resolution: '2K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '2024-11-06' },
-  audio: { enabled: true, mode: 'openai-tts', baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini-tts', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  vision: { enabled: true, mode: 'openai-chat', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-5.6-luna', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  image: { enabled: true, mode: 'openai-images', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-image-2', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  video: { enabled: true, mode: 'modelverse-tasks', baseURL: 'https://api.modelverse.cn/v1', model: 'MiniMax-H3', resolution: '2K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '2024-11-06' },
+  audio: { enabled: true, mode: 'openai-tts', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-4o-mini-tts', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
 }
 
 const MODES: Record<keyof Draft, string[]> = {
@@ -163,7 +165,18 @@ function CapabilityCard(props: {
           </div>
           <div style={row}>
             <span style={label}>Model</span>
-            <input style={input} value={draft.model} placeholder="model id" onChange={event => props.onChange({ ...draft, model: event.target.value })} />
+            <span>
+              <input
+                style={input}
+                list={`dx-models-${props.capability}`}
+                value={draft.model}
+                placeholder="model id"
+                onChange={event => props.onChange({ ...draft, model: event.target.value })}
+              />
+              <datalist id={`dx-models-${props.capability}`}>
+                {MODELVERSE_BY_CAPABILITY[props.capability].map(id => <option key={id} value={id} />)}
+              </datalist>
+            </span>
           </div>
           <div style={{ ...row, marginTop: 8 }}>
             <span style={label}>连接测试</span>
@@ -228,7 +241,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
 
   async function refreshCanvas(): Promise<void> {
     try {
-      const response = await fetch('/directorx/canvas')
+      const response = await fetch(withProject('/directorx/canvas'), { headers: projectHeaders() })
       if (!response.ok) return
       const doc = await response.json() as { nodes: unknown[]; edges: unknown[]; title?: string }
       setCanvasInfo({ nodes: doc.nodes.length, edges: doc.edges.length, title: doc.title })
@@ -240,7 +253,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   async function resetCanvas(): Promise<void> {
     setCanvasAction('重置中…')
     try {
-      const response = await fetch('/directorx/canvas/reset', { method: 'POST' })
+      const response = await fetch(withProject('/directorx/canvas/reset'), { method: 'POST', headers: projectHeaders() })
       if (!response.ok) throw new Error(String(response.status))
       setCanvasAction('已重置（旧画布已备份为 canvas.json.bak-<时间戳>）')
       await refreshCanvas()

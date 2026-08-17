@@ -59,6 +59,9 @@ declare module 'cordis' {
         signal?: AbortSignal
       }): Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
     }
+    workspace?: {
+      list(): Array<{ path: string; title: string; sessionIds?: string[] }>
+    }
     /** Present only in profiles that run the DSH web server. */
     webServer?: {
       register(route: {

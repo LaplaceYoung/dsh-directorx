@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 
 /**
  * DSH-owned canvas directives. The WebUI never mutates the storyboard for
@@ -16,6 +17,11 @@ export interface CanvasIntent {
   sourceId?: string
   selectedIds: string[]
   characters: string[]
+  model?: string
+  aspect?: string
+  count?: number
+  durationSec?: number
+  refIds?: string[]
   status: 'pending' | 'taken' | 'done' | 'cancelled'
   at: number
   takenAt?: number
@@ -38,6 +44,11 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
     `- 提示词: ${intent.prompt}`,
     `- 源节点: ${source}`,
     intent.selectedIds.length > 0 ? `- 当前选中: ${intent.selectedIds.join(', ')}` : '',
+    intent.model !== undefined && intent.model !== '' ? `- 模型: ${intent.model}` : '',
+    intent.aspect !== undefined && intent.aspect !== '' ? `- 画幅: ${intent.aspect}` : '',
+    intent.count !== undefined && intent.count > 1 ? `- 次数: ${intent.count}` : '',
+    intent.durationSec !== undefined ? `- 时长: ${intent.durationSec}s` : '',
+    intent.refIds !== undefined && intent.refIds.length > 0 ? `- 参考节点: ${intent.refIds.join(', ')}` : '',
     intent.characters.length > 0
       ? `- 角色锚点: ${intent.characters.join(', ')}。生成工具必须传 characters 参数（directorx_character_list 已注册）。`
       : '',
@@ -49,7 +60,7 @@ export class CanvasIntentStore {
   constructor(private readonly outputDir: string) {}
 
   private filePath(): string {
-    return join(resolve(process.cwd(), this.outputDir), FILE)
+    return join(resolveOutputDir(this.outputDir), FILE)
   }
 
   async read(): Promise<IntentLedger> {
@@ -70,16 +81,29 @@ export class CanvasIntentStore {
   }
 
   private async write(ledger: IntentLedger): Promise<IntentLedger> {
-    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await mkdir(resolveOutputDir(this.outputDir), { recursive: true })
     await writeFile(this.filePath(), JSON.stringify(ledger, null, 2), 'utf8')
     return ledger
   }
 
-  async enqueue(input: { kind: CanvasIntentKind; prompt: string; sourceId?: string; selectedIds?: string[]; characters?: string[] }): Promise<CanvasIntent> {
+  async enqueue(input: {
+    kind: CanvasIntentKind
+    prompt: string
+    sourceId?: string
+    selectedIds?: string[]
+    characters?: string[]
+    model?: string
+    aspect?: string
+    count?: number
+    durationSec?: number
+    refIds?: string[]
+  }): Promise<CanvasIntent> {
     const prompt = input.prompt.trim()
     if (prompt === '') throw new Error('prompt 不能为空')
     if (input.kind !== 'image' && input.kind !== 'video') throw new Error('kind 必须是 image/video')
     const ledger = await this.read()
+    const count = typeof input.count === 'number' && Number.isFinite(input.count) ? Math.max(1, Math.min(4, Math.floor(input.count))) : undefined
+    const durationSec = typeof input.durationSec === 'number' && Number.isFinite(input.durationSec) ? Math.max(1, Math.min(15, Math.floor(input.durationSec))) : undefined
     const intent: CanvasIntent = {
       id: `intent-${Date.now().toString(36)}`,
       kind: input.kind,
@@ -87,6 +111,11 @@ export class CanvasIntentStore {
       ...(typeof input.sourceId === 'string' && input.sourceId !== '' ? { sourceId: input.sourceId.slice(0, 100) } : {}),
       selectedIds: (input.selectedIds ?? []).filter((id): id is string => typeof id === 'string' && id !== '').slice(0, 20),
       characters: (input.characters ?? []).filter((name): name is string => typeof name === 'string' && name.trim() !== '').map(name => name.trim().slice(0, 80)).slice(0, 8),
+      ...(typeof input.model === 'string' && input.model !== '' ? { model: input.model.slice(0, 80) } : {}),
+      ...(typeof input.aspect === 'string' && input.aspect !== '' ? { aspect: input.aspect.slice(0, 16) } : {}),
+      ...(count !== undefined ? { count } : {}),
+      ...(durationSec !== undefined ? { durationSec } : {}),
+      ...(Array.isArray(input.refIds) ? { refIds: input.refIds.filter((id): id is string => typeof id === 'string' && id !== '').slice(0, 8) } : {}),
       status: 'pending',
       at: Date.now(),
     }

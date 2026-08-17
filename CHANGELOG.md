@@ -4,11 +4,21 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **适配 DeepSeek Harness 0.1.0-rc.7**：浏览器半侧同时注册 `settings.section` 与按命名空间配对的 `settings.plugin.item`（key=`directorx`），并在 `dsh.client.inject` 声明 `@deepseek-ai/dsh-client-ui-settings-plugins`。RC.7 起 Host 服务全部已注册 settings 命名空间，不再依赖模型供应商白名单。
+- **README**：补入画布截图与成片演示（`docs/assets/`），并按当前画布会话、确认后落板、调色台、90 工具、DSH 0.1.0-rc.7 对齐说明。
+- **ffmpeg 8**：`delogo` 去掉已删除的 `band` 选项；烧录字幕改走 `subtitles` 滤镜（`ass` 不再读 SRT）。
+
+### Removed
+
+- **社区雷达文档**：不再随仓库发布 `docs/community-radar.md`。
+
 ### Added
 
 - **画布交互（一手 fiber）**：左键拖节点移动、空白框选、中键/右键/空格平移、滚轮平移、捏合+左下角滑条缩放（10%–300%）；画布打开时收起「DirectorX 编辑」把手；details 列按剩余宽度改 grid。WebUI 仍不写 generating 节点。
 - **画布 agent 工具面（DSH 增删改查/分组/编排）**：`canvas_add` 可写 prompt/shotIndex/状态/连续性；新增 `canvas_node`（单条读写上下文）、`canvas_groups` / `canvas_group`（收组）、`canvas_disconnect`（按端点删边）、`canvas_sequence`（写镜号+承接）、`canvas_plan`（幕/镜一次落画布，不生成）。MCP 同步。WebUI 仍不得写 generating 节点。
-- **DSH 人机平面（命令 + 原生提问）**：宿主注册 `/directorx`（`ctx.commands`，Web 斜杠菜单 / TUI，零 token）；`directorx_confirm` 直接调用 `ctx.userInteraction.ask()` 对下一条 / 提案队列 / 分镜表签字并写回账本。不再只返回 `ask: ask_user_question` hints。客户端给裸 `/directorx` 挂 popupSelect。调研见 community-radar「2026-08-17 DSH 人机平面」。
+- **DSH 人机平面（命令 + 原生提问）**：宿主注册 `/directorx`（`ctx.commands`，Web 斜杠菜单 / TUI，零 token）；`directorx_confirm` 直接调用 `ctx.userInteraction.ask()` 对下一条 / 提案队列 / 分镜表签字并写回账本。不再只返回 `ask: ask_user_question` hints。客户端给裸 `/directorx` 挂 popupSelect。
 - **成片 persona + 严格/自动/协同**：`directorx:chengpian` 进 DSH system prompt（order 5，人格带）；`directorx_chengpian` 决策确认/生成/二到四个提示词/占位。严格先出选项，`chosen:true` 入队选定的一条；批准后 generate 带 `proposalId` 才执行。自动预算内放行。确认走 `directorx_confirm`（DSH `userInteraction`）。
 - **画布 UI**：近黑 `#141414` 幽灵层、Inter、卡片内联操作、空态一颗白胶囊「交给 DSH 开拍」。生成条只入队 intent，不写 generating 节点。
 - **README**：按常见高星仓库结构重排（徽章、能力表、流程、对比、FAQ），数字与当前工具/语料对齐。
@@ -67,7 +77,7 @@
   - 方法论实演两次：质检镜像（analyze+qa→画布质检节点）、意图分诊
     （brief→画布简报组 15 节点）。
 
-- **联网+开源社区调研驱动的 agentic 能力补齐**（调研沉淀见 docs/community-radar.md）：
+- **联网+开源社区调研驱动的 agentic 能力补齐**：
   - `directorx/mcp`：JSON-RPC 2.0 MCP 端点（13 工具）——外部 AI 助手（Claude/
     ChatGPT/Cursor）可驱动 DirectorX 制片工作室（对标 Runway MCP）；
   - `directorx_video_understand`：视频理解（抽帧+vision 描述，不可用时确定性降级）；

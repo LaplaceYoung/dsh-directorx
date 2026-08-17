@@ -36,10 +36,30 @@ import { audioSync, cleanSpeechText, clipRank, editsToScenes, estimateSpeech, pa
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
+import { losslessJsonObject, resolveMediaPath } from './support.ts'
+import { applyGrade, inferMediaKind, listGradeLabels, resolveGradeLook } from './providers/grade.ts'
+import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
+import { StudioTicketStore } from './studio-intent.ts'
+import { runInProject, sessionProjectRoot } from './project.ts'
 export {} // CharacterStore imported below
 
+function asJsonObject(value: unknown): Record<string, unknown> {
+  return losslessJsonObject(value)
+}
+
 function renderJson(_args: unknown, value: unknown) {
-  return [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }]
+  return [{ type: 'text' as const, text: JSON.stringify(asJsonObject(value), null, 2) }]
+}
+
+function safeDefine(def: any) {
+  const run = def.execute as (args: unknown, exec: unknown) => Promise<unknown>
+  return defineTool({
+    ...def,
+    execute: async (args: never, exec: never) => {
+      const root = sessionProjectRoot(exec)
+      return runInProject(root, async () => asJsonObject(await run(args, exec)))
+    },
+  })
 }
 
 function objectOutput() {
@@ -80,7 +100,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   const proposals = new ProposalStore(settings.outputDir)
 
   if (settings.vision.enabled) {
-    disposers.push(ctx.tools.register(defineTool({
+    disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_view_image',
       description: 'Look at an image and answer a focused question about it. Accepts an absolute local file path, an http(s) URL, or a data: URL. Configure the vision Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
       parameters: {
@@ -100,11 +120,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   }
 
   if (settings.image.enabled) {
-    disposers.push(ctx.tools.register(defineTool({
+    disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_image',
-      description: 'Generate one or more images through a configurable OpenAI-compatible /images/generations endpoint or a ModelVerse tasks endpoint. Supports optional reference images in modelverse-tasks mode. Configure the image Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
+      description: 'Generate images. 角色/设定/三视图必须按 novel-characters 设定表出图（一张 16:9 白底：左栏半身基准 + 右栏正视/侧视/背视），禁止单张剧照冒充三视图。严格/协同必须带已批准 proposalId。',
       parameters: {
-        prompt: { type: 'string', required: true, description: 'Text-to-image prompt. Follow DirectorX prompting craft: subject, action, environment, style, light, lens.' },
+        prompt: { type: 'string', required: true, description: 'Text-to-image prompt. 角色设定写清半身基准+正侧背三视图同一人。Follow subject, action, environment, style, light, lens.' },
         size: { type: 'string', description: 'Size such as 1024x1024, 1536x1024, or 1024x1536. Optional; provider defaults apply.' },
         quality: { type: 'string', enum: ['auto', 'low', 'medium', 'high'], description: 'Quality hint for providers that support it.' },
         reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
@@ -128,7 +148,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
           ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
-        const prompt = blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt
+        const prompt = withCharacterSheetSpec(blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt)
         return runImage(toolContext(settings, settings.image, signal), prompt, {
           size: args.size,
           quality: args.quality,
@@ -139,7 +159,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   }
 
   if (settings.video.enabled) {
-    disposers.push(ctx.tools.register(defineTool({
+    disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_video',
       description: 'Generate an AI video through a configurable OpenAI /videos endpoint or a ModelVerse tasks endpoint. Supports first-frame, last-frame, and reference-image controls. 音画同出：优先选原生音频模型（kling-3.0/veo/vidu/seedance）；不支持音频的模型降级链 = 本工具静音出片 + generate_audio 旁白 + audio_sync 对齐。多镜头一致性：角色先 directorx_character_register 预注册，相邻镜头用上一镜末帧作 first_frame 接力。Configure the video Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
       parameters: {
@@ -155,13 +175,14 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
         proposalId: { type: 'string', description: 'Approved proposal id. 严格/协同 must pass this after 审阅; unsolicited generate is refused.' },
       },
       output: objectOutput(),
-      timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * settings.maxPollAttempts),
+      timeoutMs: Math.max(settings.timeoutMs, settings.pollIntervalMs * Math.min(settings.maxPollAttempts, 120)),
       async execute(args: any, exec: any) {
         const gate = await generationGate(settings, proposals, args)
         if (!gate.generate) {
           return { ...gate, refused: true, next: '严格/协同：directorx_confirm 选定后 directorx_propose chosen:true，用户批准后再带 proposalId 执行生成' }
         }
-        const signal = combinedSignal(exec.signal, settings.timeoutMs)
+        const budget = Math.max(settings.timeoutMs, settings.pollIntervalMs * Math.min(settings.maxPollAttempts, 120))
+        const signal = combinedSignal(exec.signal, budget)
         const characterCards = await new CharacterStore(settings.outputDir).get(Array.isArray(args.characters) ? args.characters.map(String) : [])
         const refs = [...new Set([...(Array.isArray(args.reference_image_paths) ? args.reference_image_paths : []), ...characterCards.map(card => card.refPath)])]
         const characterNote = characterCards.map(card => `[角色卡 ${card.name}] ${card.description}${card.outfit !== undefined ? `；服装：${card.outfit}` : ''}${card.props !== undefined ? `；道具：${card.props}` : ''}`).join('；')
@@ -187,7 +208,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   }
 
   if (settings.audio.enabled) {
-    disposers.push(ctx.tools.register(defineTool({
+    disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_generate_audio',
       description: 'Generate speech (and provider-supported music/audio) through a configurable OpenAI-compatible /audio/speech endpoint. Configure the audio Base URL / API Key / model in DSH WebUI Settings → DirectorX.',
       parameters: {
@@ -210,7 +231,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       },
     })))
 
-    disposers.push(ctx.tools.register(defineTool({
+    disposers.push(ctx.tools.register(safeDefine({
       name: 'directorx_transcribe_audio',
       description: 'Transcribe a local audio/video file through a configurable OpenAI-compatible /audio/transcriptions endpoint (multipart). Supports json/text/srt output; srt transcripts are saved under the output dir for the subtitle pipeline. Configure the audio Base URL / API Key / model in DSH WebUI Settings → DirectorX (mock mode returns a deterministic transcript).',
       parameters: {
@@ -227,7 +248,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     })))
   }
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_search',
     description: 'Search the bundled DirectorX film/AI-video knowledge corpus (350+ Chinese craft articles). Returns ranked article ids, titles, paths, and snippets. Call directorx_knowledge_read for the full article.',
     parameters: {
@@ -243,7 +264,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_read',
     description: 'Read one bundled DirectorX knowledge article by id, slug, numeric id, or package-relative path returned by directorx_knowledge_search.',
     parameters: {
@@ -259,7 +280,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   // Task ledger tools: registered unconditionally (independent of capability
   // switches) so the agent can always inspect and stop generation tasks.
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_task_status',
     description: 'Read the DirectorX task ledger (persisted under the output directory). Without task_id, returns the most recent tasks; with task_id, the latest transition. Use it to recover tasks whose original tool call timed out or whose session was interrupted.',
     parameters: {
@@ -289,7 +310,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_cancel_task',
     description: 'Cancel an in-flight or orphaned DirectorX generation task by task id. An in-flight poll loop stops at its next ledger check; a task already succeeded is a no-op. The provider-side task may keep running remotely.',
     parameters: {
@@ -307,7 +328,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_edits',
     description: 'List media files saved from the WebUI editor panel (image/video secondary edits). Returns absolute paths under the output directory that the agent can reference in further steps.',
     parameters: {
@@ -328,7 +349,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
   const canvas = new DirectorxCanvasStore(settings.outputDir)
   const intents = new CanvasIntentStore(settings.outputDir)
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_get',
     description: 'Read the DirectorX infinite-canvas document (nodes and edges). Use it before mutating the canvas, or to answer questions about what is on it.',
     parameters: {},
@@ -340,9 +361,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_add',
-    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path or http(s) URL. Group nodes are containers (pass their id as parent). Pass id to pin the new node; pass prompt/shotIndex so the board is a real storyboard, not empty cards.',
+    description: 'Add one canvas node. 剧本/分镜/角色表未用 directorx_confirm 或用户明确说「落到画布」前，禁止批量占位。单节点补位可以。kind: image|video|text|group。Pass prompt/shotIndex so the board is a storyboard, not empty cards.',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'text', 'group'], required: true, description: 'Node kind.' },
       id: { type: 'string', description: 'Optional stable id so later connect/sequence calls can name this node.' },
@@ -350,8 +371,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       path: { type: 'string', description: 'Media path (local output-dir path or http(s) URL) for image/video nodes.' },
       prompt: { type: 'string', description: 'Generation prompt stored on the node (shot-list / propose source).' },
       shotIndex: { type: 'number', description: 'Stable shot number. Order is this field, not x/y or edges.' },
-      shotStatus: { type: 'string', enum: ['idea', 'approved', 'generating', 'review', 'locked'], description: 'Shot status.' },
+      shotStatus: { type: 'string', enum: ['idea', 'approved', 'generating', 'review', 'locked', 'failed'], description: 'Shot status.' },
       continuityRules: { type: 'array', items: { type: 'string' }, description: 'Continuity locks (character/wardrobe/light).' },
+      aspect: { type: 'string', description: 'Frame aspect stored on the node (e.g. 16:9, 9:16).' },
+      model: { type: 'string', description: 'Preferred generation model id for this node.' },
+      count: { type: 'number', description: 'Preferred take count (1–4).' },
+      durationSec: { type: 'number', description: 'Preferred video duration in seconds.' },
+      characters: { type: 'array', items: { type: 'string' }, description: 'Registered character names to lock on this node.' },
       x: { type: 'number', description: 'Canvas x position.' },
       y: { type: 'number', description: 'Canvas y position.' },
       width: { type: 'number', description: 'Node width.' },
@@ -365,11 +391,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
       const node = typeof args.id === 'string' && args.id !== ''
         ? doc.nodes.find(candidate => candidate.id === args.id)
         : doc.nodes[doc.nodes.length - 1]
-      return { node, updatedAt: doc.updatedAt, title: doc.title, nodes: doc.nodes, edges: doc.edges }
+      return { added: node ?? null, updatedAt: doc.updatedAt, nodeCount: doc.nodes.length }
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_connect',
     description: 'Connect two existing canvas nodes with an edge (optional label). Both endpoint ids must exist on the canvas.',
     parameters: {
@@ -384,7 +410,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_update',
     description: 'Update a canvas node or edge by id: move (x/y), resize (width/height), relabel, replace its media path, or move it into/out of a group (patch { parent: "<group id>" } or { parent: null }). Patch fields merge over the existing element.',
     parameters: {
@@ -398,7 +424,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_remove',
     description: 'Remove a canvas node (its edges go with it) or a single edge by id.',
     parameters: {
@@ -411,7 +437,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_arrange',
     description: '整理画布：auto-layout every node into a tidy grid (or a single row) while keeping all connections. Group members stay inside their group frames.',
     parameters: {
@@ -424,7 +450,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_replace',
     description: 'Replace the entire canvas document (full control): pass the complete nodes/edges arrays. Use with directorx_canvas_get to compose a new arrangement in one write.',
     parameters: {
@@ -439,7 +465,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_brief',
     description: '节点自动简介（幂等缓存）：prompt-first——节点自带 prompt 直接返回；已有 aiBrief 返回缓存；否则若 vision 可用，对节点媒体调用 view_image 生成一句描述并缓存到节点 aiBrief；vision 不可用时确定性回退（label+路径元数据）。',
     parameters: {
@@ -468,7 +494,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_takes',
     description: 'Take 归档查询：返回 Shot 组内的候选结果（媒体成员，按 shotIndex 确定性排序）+ 选定 Take + 镜头状态——agent 打分/对比/钉选（selectedTakeId 经 canvas_update 写入）的确定性底座。',
     parameters: {
@@ -481,7 +507,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_continuity',
     description: '连续性规则注册表：汇总全部 Shot 组的 continuityRules；跨镜头重复出现的规则即「连续性锁」（角色/服装/道具/光线/方位跨镜头锁定）。返回逐镜头规则 + 锁列表（规则 × 出现镜头数）。',
     parameters: {},
@@ -492,7 +518,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_prompt_for',
     description: '自动合成 prompt 上下文：沿入边回溯目标节点的上游（主体/参考图 ref_image_N 槽位/方向/标题），prompt-first（节点自带 prompt 压过自动简介）。返回结构化分块，LLM 合成生成提示词就在此基础上完成——画布状态到提示词的确定性一半。',
     parameters: {
@@ -505,7 +531,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_snapshots',
     description: '画布快照列表（撤销此批的检查点索引；提案批准时自动建立，上限 20）。',
     parameters: {},
@@ -516,7 +542,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_restore',
     description: '恢复画布快照（撤销此批）：把画布整体回滚到某个检查点；已生成素材保留在素材库。',
     parameters: {
@@ -529,7 +555,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_shot_order',
     description: '确定性排片：按显式 shotIndex（存储身份）排序镜头节点，未标的排后。顺序不用 LLM 猜——本工具返回即权威（节点坐标与连线不代表顺序）。',
     parameters: {
@@ -542,7 +568,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_summary',
     description: '紧凑画布上下文快照：白名单行格式（id|kind#shotIndex|label 截断 60 字|parent）——喂给 LLM 的画布上下文从全量 JSON 的 2-3k token 压到几百 token，静态前缀可吃缓存。',
     parameters: {},
@@ -553,7 +579,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_shotlist',
     description: 'Export a numbered shot list from the canvas (Storyboarder/Boords-style board): shot index, kind, prompt, duration, continuity, status, and a running duration budget. Does not generate media. Use before proposing generation so the user can sign off the board.',
     parameters: {
@@ -570,7 +596,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_search',
     description: 'Search canvas nodes by label substring / kind / group membership. Use it to locate nodes before update/connect (avoid dumping the whole document).',
     parameters: {
@@ -583,18 +609,18 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute(args: any) {
       // Defensive normalization: tolerate string shorthand (label-only) and
       // invalid kind values instead of failing the whole call.
-      if (typeof args === 'string') return canvas.search({ label: args })
-      const kind = args?.kind
-      const validKinds = ['image', 'video', 'text', 'group']
-      return canvas.search({
-        label: typeof args?.label === 'string' ? args.label : undefined,
-        kind: validKinds.includes(kind) ? kind : undefined,
-        parent: typeof args?.parent === 'string' ? args.parent : undefined,
-      })
+      const rows = typeof args === 'string'
+        ? await canvas.search({ label: args })
+        : await canvas.search({
+            label: typeof args?.label === 'string' ? args.label : undefined,
+            kind: ['image', 'video', 'text', 'group'].includes(args?.kind) ? args.kind : undefined,
+            parent: typeof args?.parent === 'string' ? args.parent : undefined,
+          })
+      return { hits: rows, count: rows.length }
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_batch',
     description: 'Batch add nodes (and optional edges) in one write. Each node accepts the same fields as canvas_add (id/kind/label/path/prompt/shotIndex/parent/x/y). Prefer this or canvas_plan over many canvas_add calls.',
     parameters: {
@@ -608,7 +634,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_dissolve_group',
     description: 'Dissolve a group node: its members become top-level (absolute coordinates) and the group plus its edges are removed. Members are NOT deleted.',
     parameters: {
@@ -621,7 +647,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_title',
     description: 'Set the canvas title (shown in the WebUI header).',
     parameters: {
@@ -634,7 +660,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_layout_hierarchy',
     description: 'Lay the canvas out as a left-to-right tree along edge direction (BFS levels; sources at left). Good for script->shot dependency boards.',
     parameters: {
@@ -648,7 +674,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_clear',
     description: 'Clear the entire canvas (removes every node and edge). Irreversible; read with directorx_canvas_get first when unsure.',
     parameters: {},
@@ -660,7 +686,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_node',
     description: 'Read one canvas node or edge by id. Nodes return inbound/outbound edges and group members. Use this instead of canvas_get when you only need one element.',
     parameters: {
@@ -674,7 +700,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_groups',
     description: 'List every group on the canvas with its members (id/kind/label/shotIndex). The grouping query for DSH before group/dissolve/sequence.',
     parameters: {},
@@ -686,7 +712,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_group',
     description: 'Wrap existing nodes into a new group (act/scene). Members keep their positions; the group frame encloses them. Cannot nest a group inside a group — dissolve first.',
     parameters: {
@@ -701,7 +727,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_disconnect',
     description: 'Remove the edge from one node to another by endpoints. Use when you know from/to but not the edge id.',
     parameters: {
@@ -715,7 +741,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_sequence',
     description: 'Write shot order onto existing nodes: shotIndex becomes 1..N in the given id order. Optionally connect consecutive image/video nodes as 承接 edges. Coordinates do not change.',
     parameters: {
@@ -735,9 +761,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_plan',
-    description: 'Write a multi-act storyboard onto the canvas in one call: each act is a group, each shot is a node with prompt/shotIndex/continuity. Connects consecutive media shots. Does not generate media. Prefer this over many canvas_add calls when DSH is laying out a film.',
+    description: '把已确认的分镜一次写入画布（幕=组，镜=节点）。未向用户确认剧本/分镜（directorx_confirm 或用户明确同意落画布）之前不要调用。Does not generate media.',
     parameters: {
       title: { type: 'string', description: 'Canvas title.' },
       connect: { type: 'boolean', description: 'Wire consecutive image/video shots (default true).' },
@@ -790,7 +816,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_process',
     description: 'Deterministic local video processing with ffmpeg: trim (start/end seconds), speed change (0.5-8x), resize (scale like 1280:720 or 16:9), volume adjust, mute, and fps normalization — all in one call. Free and exact; prefer over regenerating. Output lands in the output dir.',
     parameters: {
@@ -811,7 +837,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_concat',
     description: 'Concatenate multiple local videos into one: normalizes size/fps/audio, then either hard cuts or xfade (cross-fade) transitions with audio acrossfade. Deterministic ffmpeg assembly for multi-shot deliverables. Output lands in the output dir.',
     parameters: {
@@ -828,7 +854,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_style',
     description: 'Style / camera-language injector grounded in the bundled film knowledge corpus plus research-derived style grammars. Give a style name or craft need (e.g. "赛博朋克", "黑色电影", "推镜头 霓虹光", "韦斯·安德森", "wong-kar-wai") and get the matching craft article condensed for prompt injection — append it to generation prompts to lock the look. Never fabricates: returns real corpus text or cited research grammars.',
     parameters: {
@@ -932,7 +958,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_audio_mix',
     description: 'Mix extra audio tracks (BGM / narration / SFX) onto a video with ffmpeg: per-track volume, optional sidechain ducking (music dips under the narration), normalized amix. Deterministic and free. Output lands in the output dir.',
     parameters: {
@@ -948,7 +974,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_subtitle',
     description: 'Add subtitles to a local video with ffmpeg. mode=soft muxes the SRT as a selectable mov_text track (works with every ffmpeg build); mode=burn hard-burns the text into the frame (requires a libass build; degrades with a clear error otherwise). Output lands in the output dir.',
     parameters: {
@@ -964,7 +990,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_preflight',
     description: 'Pre-flight audit before paid generation: the four gates from directorx-playbook (规格/内容/成本/权利) checked deterministically — parameter completeness, six-element prompt lint, budget acknowledgment, and IP/persona/music rights flags. Returns per-gate pass/issues plus a verdict. Use before any batch generation.',
     parameters: {
@@ -984,7 +1010,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_zoom',
     description: 'Ken Burns push-in/pull-back or pan on a local video: animated crop+scale (zoompan is absent from this ffmpeg build). strength = end scale delta (e.g. 0.3 -> 1.3x); direction in/out/left/right. Deterministic and free. Output lands in the output dir.',
     parameters: {
@@ -1000,7 +1026,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_pip',
     description: 'Picture-in-picture / sticker overlay: place an image or video on top of a video at a position/size, with an optional visibility window and alpha. Deterministic ffmpeg overlay. Output lands in the output dir.',
     parameters: {
@@ -1021,7 +1047,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_audio_beat',
     description: 'Detect beat/energy peaks in a local audio or video file (ffmpeg astats, deterministic — no librosa): returns up to N cut-point timestamps with strengths. Use the beats to time cuts in a montage (feed them into directorx_video_process trims + directorx_video_concat).',
     parameters: {
@@ -1037,7 +1063,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_propose',
     description: 'Queue a PLACEHOLDER (成片 严格/协同). 严格 without chosen expands into 二到四个提示词. After the user picks, call again with chosen=true and that exact prompt to enqueue one 占位. 协同 queues 提示词和占位. Does not spend quota.',
     parameters: {
@@ -1094,7 +1120,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_confirm',
     description: 'Pause on the DSH ask UI (ctx.userInteraction) to sign off the production board: next pending proposal, multi-select proposals, or the canvas shot list. Applies approve/reject to the ledger. Does not generate media. Prefer this over a free-form ask_user_question after directorx_propose / directorx_canvas_shotlist.',
     parameters: {
@@ -1128,7 +1154,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_proposal_next',
     description: '审批门循环：返回队列中最旧的一条待执行提案——优先返回已批准且未回填 taskId 的（画布 UI 批准后由 DSH 承接执行），否则返回最旧待批准提案；配合 directorx_proposal_update 走 提案→批准→执行→完成 的人机审批环。',
     parameters: {},
@@ -1139,7 +1165,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_proposals',
     description: 'List generation proposals (the placeholder queue). Omit status for the latest across states; filter by proposed/approved/rejected/done.',
     parameters: {
@@ -1153,7 +1179,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_proposal_update',
     description: 'Update a proposal status (proposed -> approved/rejected/done). Approving moves it to the execution queue; done marks it executed with its artifact.',
     parameters: {
@@ -1176,7 +1202,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_understand',
     description: 'Understand a local video shot-by-shot: samples N frames (default 6), describes each through the configured vision capability, and returns probe metadata + per-frame descriptions. Degrades to frame paths + metadata when vision is unavailable (the agent can still reason over frames itself). Use for 拉片/复盘/素材理解 before editing.',
     parameters: {
@@ -1198,7 +1224,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_character_register',
     description: 'Register a character/subject anchor: a reference image + description stored in characters.json. Later generation calls can pass the character name via the `characters` parameter and the reference + description are injected automatically — the subject-consistency pattern used across multi-shot productions (Runway Gen-4 / Kling 3.0 subject reference).',
     parameters: {
@@ -1215,7 +1241,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_character_list',
     description: 'List registered character anchors (names + descriptions + reference paths).',
     parameters: {},
@@ -1226,7 +1252,52 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_studio',
+    description: `打开图片/视频编辑工作台，并按自然语言做确定性调色（${listGradeLabels()}）。用户说「把这张照片调成末日荒土配色」时：解析 look → ffmpeg 调色 → 回写画布节点 path → 通知 WebUI 打开对应编辑台。不写 generating。不要用生成模型重绘来完成调色。`,
+    parameters: {
+      prompt: { type: 'string', required: true, description: '调色/编辑意图，如「末日荒土配色」「漂白旁路」「交叉冲印」「夜色」「金黄昏」。' },
+      path: { type: 'string', description: '本地媒体路径。可与 nodeId 二选一。' },
+      nodeId: { type: 'string', description: '画布节点 id。有则回写 path，并按节点 kind 打开编辑台。' },
+      kind: { type: 'string', enum: ['image', 'video'], description: '覆盖自动判断的媒体类型。' },
+      openOnly: { type: 'boolean', description: '只打开编辑台、不调色。默认 false。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const canvas = new DirectorxCanvasStore(settings.outputDir)
+      const nodeId = typeof args.nodeId === 'string' && args.nodeId !== '' ? args.nodeId : ''
+      let path = typeof args.path === 'string' ? args.path.trim() : ''
+      let kind: 'image' | 'video' | undefined = args.kind === 'video' || args.kind === 'image' ? args.kind : undefined
+      if (nodeId !== '') {
+        const found = await canvas.getNode(nodeId)
+        if (found.kind !== 'node') throw new Error(`nodeId ${nodeId} 不是媒体节点`)
+        if (found.node.kind !== 'image' && found.node.kind !== 'video') throw new Error(`节点 ${nodeId} 不是图片/视频`)
+        if (path === '') path = found.node.path ?? ''
+        kind = kind ?? found.node.kind
+      }
+      if (path === '') throw new Error('需要 path 或带媒体的 nodeId')
+      const source = resolveMediaPath(settings.outputDir, path)
+      const mediaKind = kind ?? inferMediaKind(source)
+      if (args.openOnly === true) {
+        const ticket = await new StudioTicketStore(settings.outputDir).write({ kind: mediaKind, path: source, ...(nodeId !== '' ? { nodeId } : {}) })
+        return { ok: true, openStudio: true, kind: mediaKind, path: source, nodeId: nodeId || undefined, ticket }
+      }
+      const look = resolveGradeLook(String(args.prompt ?? ''))
+      const graded = await applyGrade({ source, look, outputDir: settings.outputDir, kind: mediaKind })
+      if (nodeId !== '') await canvas.update(nodeId, { path: graded.path })
+      const ticket = await new StudioTicketStore(settings.outputDir).write({
+        kind: graded.kind,
+        path: graded.path,
+        look: graded.look,
+        ...(nodeId !== '' ? { nodeId } : {}),
+      })
+      return { ok: true, openStudio: true, ...graded, nodeId: nodeId || undefined, ticket }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_edit',
     description: '意图驱动剪辑：把自然语言剪辑指令（「去掉开头 2 秒」「只保留 3 到 10 秒」「5-8 秒放慢 2 倍」「整个倒放」）解析成确定性时间轴并渲染成片。多条指令按顺序应用（cut list 语义）。改指令=重渲染，零 API 成本。',
     parameters: {
@@ -1252,7 +1323,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_timeline',
     description: 'Render a timeline JSON into a finished cut (OTIO-inspired subset — the editing agent\'s central format): scenes with per-scene trims, cross-fade/hard-cut concat, optional audio mixing with ducking, and subtitle muxing. Deterministic and re-renderable: change the plan, re-render, never re-generate. timeline = { scenes: [{source, trim?, transition?}], subtitle?, audio? [{path, volume?, duckUnder?}], scale? }.',
     parameters: {
@@ -1272,7 +1343,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_audio_sync',
     description: '音画同出: detect narration speech boundaries (silencedetect), mix narration + optional BGM onto the video with ducking, and mux subtitles — returning speech intervals as timing anchors so scene cuts align with the voice track. Deterministic and free. Output lands in the output dir.',
     parameters: {
@@ -1295,7 +1366,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_intents',
     description: 'List or atomically claim DSH-owned canvas generate directives queued by the WebUI generate bar. Prefer claim:true so two turns cannot take the same intent. Then execute with directorx_canvas_continue / canvas_* / propose / generate — the canvas UI does not write generating nodes.',
     parameters: {
@@ -1307,9 +1378,17 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute(args: any) {
       if (args.claim === true) {
         const intent = await intents.takeNext()
+        if (intent === null) return { intent: null, pending: 0 }
+        const doc = await canvas.read()
+        const source = intent.sourceId !== undefined
+          ? doc.nodes.find(node => node.id === intent.sourceId)
+          : undefined
         return {
           intent,
-          ...(intent !== null ? { prompt: formatDshCanvasPrompt(intent) } : {}),
+          prompt: formatDshCanvasPrompt(intent, { sourceLabel: source?.label }),
+          canvasTitle: doc.title ?? '',
+          nodeCount: doc.nodes.length,
+          summary: (await canvas.summary()).slice(0, 40),
         }
       }
       const status = args.status === 'pending' || args.status === 'taken' || args.status === 'done' || args.status === 'cancelled' ? args.status : undefined
@@ -1317,7 +1396,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_intent_ack',
     description: 'Mark a canvas intent taken (you started) or done (canvas mutated). Call after directorx_canvas_continue / generate.',
     parameters: {
@@ -1332,7 +1411,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_continue',
     description: 'DSH-owned continue-generate: drop a generating placeholder wired from sourceId (absolute layout). Use this after taking a canvas intent — do not let the WebUI write the placeholder.',
     parameters: {
@@ -1351,7 +1430,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_branch',
     description: 'Branch a canvas node into labelled variants for multi-version comparison (Sora 2 remix pattern): clones the source N times into a new「… 分支探索」group. Use it to keep every candidate on the board; pick the winner with directorx_canvas_update afterwards.',
     parameters: {
@@ -1365,7 +1444,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_subtitle_cut',
     description: 'Cut a video at subtitle cue boundaries (FunClip-style 按文本打点剪辑): parses the SRT, optionally filters cues by a keyword, pads each window, merges overlaps, and renders the cut via the timeline pipeline. The talking-video/montage assembly step for caption-driven edits.',
     parameters: {
@@ -1388,7 +1467,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_storyboard',
     description: 'Storyboard duration planning (PenShot-inspired deterministic layer): allocates per-shot durations against model limits, clamps out-of-range values, fills unspecified shots toward the target, and checks continuity anchors (every shot must reference registered characters/scenes). Returns a generation-ready shot plan + issues.',
     parameters: {
@@ -1411,7 +1490,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_analyze',
     description: 'Comprehensive deterministic video analysis (拉片): scene-cut detection (per-frame signalstats luminance deltas), per-shot segments with durations, representative frames, optional per-shot vision descriptions, and an audio loudness summary. Use before editing/recut decisions; base claims on the returned data.',
     parameters: {
@@ -1436,7 +1515,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_orchestrate',
     description: 'Optional helper: draft a placeholder-first production plan (research + confirm questions + prompt/model/spec units) without generating. The agent can also do this itself with brief, knowledge_search, recipe_read, and directorx_propose.',
     parameters: {
@@ -1454,7 +1533,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_chengpian',
     description: '成片 persona decision. Call before asking or generating. Returns whether to confirm (directorx_confirm / DSH ask), whether to generate, 二到四个提示词 (严格), or 提示词和占位 (协同). Actively pair with directorx_knowledge_search and skill directorx-chengpian.',
     parameters: {
@@ -1501,7 +1580,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_brief',
     description: 'Intent understanding (意图分诊): turns a raw user request + materials into a structured production brief — type, platform, duration, questions, suggestedFlow, and a compose map (recipe + stages + tools). Follow compose.nextActions yourself with existing tools. directorx_orchestrate is optional.',
     parameters: {
@@ -1515,7 +1594,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_smart_cut',
     description: 'LLM 精剪（deterministic matcher）: the agent writes the narration script; this tool locates each sentence\'s best-matching subtitle cue (character-overlap scoring) in the source video and assembles the matched windows into a finished cut via the timeline pipeline. 智能成片 for 口播精剪/素材定位.',
     parameters: {
@@ -1538,7 +1617,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_qa_report',
     description: 'One-call QC report card: runs directorx_qa against the brief and mirrors the verdict + per-check evidence + rule citations onto the canvas as a「质检｜…」text node. The standardized final-cut QA card for every deliverable.',
     parameters: {
@@ -1563,7 +1642,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_qa',
     description: 'Deterministic final-cut QC gate (成片质检): checks duration vs target, aspect ratio, audio presence, shot-count sanity and loudness — built on videoAnalyze. Frame-level visual QA stays with directorx_extract_frames + directorx_view_image (frame-qa skill). Returns per-check pass/issues + verdict.',
     parameters: {
@@ -1579,7 +1658,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_clip_rank',
     description: 'Candidate clip ranking (素材定位): scores every subtitle cue against the script semantics (character overlap) and returns the ranked candidates for the agent to assemble into a cut — the scoring step of the ESA/NarratoAI 精剪 pipeline.',
     parameters: {
@@ -1594,18 +1673,19 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_media_list',
     description: '媒体资产库：列出输出目录下的全部媒体文件（顶层 + edited/frames/transcripts），含路径/类型/大小。用它在剪辑/混剪前盘点可用素材（素材盘点步），具体规格再对单个文件 directorx_probe_media。',
     parameters: {},
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute() {
-      return listMediaFiles(settings.outputDir)
+      const files = await listMediaFiles(settings.outputDir)
+      return { files, count: files.length }
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_style_lock',
     description: '项目风格常量锁：camera / palette / lighting / sceneAnchors / negativeBaseline 一次定义存 style.json，之后每个生成提示词逐字复用同一段常量块（跨拍一致性靠复用常量文本，不靠每次重写）。',
     parameters: {
@@ -1628,7 +1708,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_terms_set',
     description: '项目术语字典：设置术语 → 期望读法/写法（terms.json）。配音/字幕阶段按句命中注入——专有名词读音、品牌名大小写等跨集一致。',
     parameters: {
@@ -1641,7 +1721,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_terms_match',
     description: '按句命中术语字典：返回文本中出现的术语及其期望读法（配音时写进 TTS 文本或 instructions）。',
     parameters: {
@@ -1654,7 +1734,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_style_get',
     description: '读取当前项目的风格常量锁（style.json）。生成提示词时把返回字段逐字并入对应位置（camera/palette/lighting/sceneAnchors/negativeBaseline）。',
     parameters: {},
@@ -1665,7 +1745,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_contact_sheet',
     description: '接触表（素材盘点胶片带）：给一组片段各自抽中点帧，tile 成 N 列蒙太奇单图，一眼预览全部候选片段；产出可加入画布作为素材预览节点。',
     parameters: {
@@ -1680,7 +1760,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_model_router',
     description: '模型能力表路由：按输入需求（时长/画幅/首尾帧/音画同出）过滤并排序可用视频模型，返回 eligible 列表 + 每模型的排除原因——参数组合问题在计划期暴露，不等到执行期失败。',
     parameters: {
@@ -1705,7 +1785,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_srt_lint',
     description: 'SRT 规范化检查：把字幕质量标准变成确定性 lint——单行 ≤16 字、≤17 字/秒、单条最短 0.83s、序号/时间戳连续合法。翻译/本地化/成片前跑一遍，问题逐条带 cue 号与建议。',
     parameters: {
@@ -1720,7 +1800,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_srt_normalize',
     description: 'SRT 规范化（确定性）：间隙吞并（gap<1s 前条 end 延至下条 start）、最短展示时长延长（<2.5s，末条除外）、时间戳格式归一。配音对齐与成片前跑一遍，输出规范化后的 srt 文本与应用的改动清单。',
     parameters: {
@@ -1735,7 +1815,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_speech_clean',
     description: '口播文本清理：删除括号噪声注释（(掌声)/[音乐] 类）、商标符号、破折号归一——SRT 文案转配音前的净化步骤。',
     parameters: {
@@ -1748,7 +1828,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_speech_duration',
     description: '口播时长预估（确定性）：字数 ÷ 语言速率（zh 4.2/ja 4.0/ko 4.3/en 13.5 字每秒）+ 标点停顿罚时 → 秒数；传入 windowSec（字幕窗口）时给出 超窗/缩句建议。旁白与字幕窗口对齐的预算步骤。',
     parameters: {
@@ -1763,7 +1843,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_shot',
     description: '镜头语言→生成提示词确定性翻译器（导演技巧的 AIGC 应用层）：把 景别/角度/运镜/布光/氛围/构图 的结构化选择翻译成五轴装配提示词 + 负面基线 + 规则编号引用（directorx-methodology 规则 29-68）。词表全部来自方法论沉淀，不凭感觉写提示词。',
     parameters: {
@@ -1794,7 +1874,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_shot_gate',
     description: '生成前规则 gate：把导演纪律变成规则编号化检查——ECU 惜用律（≤20%）、承接变量必填、描述长度、运镜词表与反单调、模型路由可用性（时长/画幅时）。与成片质检 qa_report 构成生成前后一对 gate。全部确定性，不调模型。',
     parameters: {
@@ -1809,7 +1889,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_shot_sequence',
     description: '分镜批量承接链：给一组镜头描述生成逐镜提示词规格 + 承接变量（上镜 end_state / 下镜 start_goal，规则 3b 必填项）+ 首尾帧接力计划（handoff 时本镜挂上一镜末帧）+ 反单调运镜校验。批量生成前的确定性装配层。',
     parameters: {
@@ -1822,7 +1902,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_preset',
     description: '生成参数预设包：画幅 × 时长 × 运镜（轮换序防反单调）× 风格语法 slug 的最佳匹配表，并与模型能力路由联动（返回该参数组合下 eligible 模型）。slugs: douyin-oral / xiaohongshu-mix / bilibili-long / ads-vertical / drama-horizontal / mv；不传 slug 返回全部预设清单。',
     parameters: {
@@ -1836,7 +1916,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_probe_media',
     description: 'Probe a local media file with ffprobe: container format, duration, size, and per-stream details (codec, resolution, fps, audio channels). Use it to verify generated outputs or plan edits. Requires ffmpeg on PATH.',
     parameters: {
@@ -1850,7 +1930,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     },
   })))
 
-  disposers.push(ctx.tools.register(defineTool({
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_extract_frames',
     description: 'Extract still frames from a local video with ffmpeg and save them as PNGs under the output dir (frames/). Use it with directorx_view_image for frame-level QA (the frame-qa workflow). Requires ffmpeg on PATH.',
     parameters: {
@@ -1898,7 +1978,9 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm generation batches with `directorx_confirm` (DSH userInteraction). The user can inspect the board with `/directorx` without spending tokens.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas IS the storyboard and YOU own it. CRUD: `directorx_canvas_get` / `directorx_canvas_node` / `directorx_canvas_search` / `directorx_canvas_summary` (read), `directorx_canvas_add` / `directorx_canvas_batch` / `directorx_canvas_plan` (write), `directorx_canvas_update` / `directorx_canvas_sequence` (update), `directorx_canvas_remove` / `directorx_canvas_disconnect` / `directorx_canvas_clear` (delete). Group: `directorx_canvas_group` / `directorx_canvas_groups` / `directorx_canvas_dissolve_group`. Arrange: `directorx_canvas_arrange` / `directorx_canvas_layout_hierarchy`. Lay out a film with `directorx_canvas_plan` (acts→groups, shots→nodes, shotIndex + 承接 edges), then `directorx_canvas_shotlist` + `directorx_confirm`. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
+      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` (acts→groups, shots→nodes, 承接 edges) then `directorx_canvas_arrange`. Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
+      '- Generation: `directorx_generate_image` / `directorx_generate_video` (and `directorx_generate_audio` when needed). 严格/协同必须带已批准 `proposalId`. 角色/设定/三视图先 load `novel-characters`，prompt 必须是一张 16:9 设定表（半身基准+正侧背），禁止单张剧照。After a canvas intent, write results back with `directorx_canvas_update`. Register recurring subjects with `directorx_character_register` and pass `characters`.',
+      '- Edit / grade: 用户要调色、改色调、打开编辑台时，调用 `directorx_studio`（prompt + 当前画布 nodeId 或 path）。它会 ffmpeg 调色、回写节点，并打开图片/视频编辑工作台。剪辑仍用 `directorx_edit` / `directorx_video_process` / `directorx_timeline` / `directorx_smart_cut`。不要用生成模型重绘来完成调色。',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',
       '## DirectorX media tools',

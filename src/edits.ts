@@ -1,5 +1,6 @@
 import { appendFile, mkdir, readFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 
 /**
  * Append-only ledger of media files saved from the WebUI editor dock,
@@ -28,7 +29,7 @@ export class DirectorxEditLedger {
   }
 
   private async filePath(): Promise<string> {
-    const dir = resolve(process.cwd(), this.outputDir)
+    const dir = resolveOutputDir(this.outputDir)
     await mkdir(dir, { recursive: true })
     return join(dir, EDITS_FILE)
   }

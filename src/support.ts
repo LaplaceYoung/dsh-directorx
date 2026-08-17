@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
-import { basename, extname, join, resolve, sep } from 'node:path'
+import { basename, extname, isAbsolute, join, resolve, sep } from 'node:path'
+import { currentProjectRoot } from './project.ts'
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -26,8 +27,14 @@ export function mimeForPath(path: string): string {
 export async function mediaSourceToDataUrl(source: string, maxBytes = 15 * 1024 * 1024): Promise<string> {
   if (/^data:/i.test(source)) return source
   if (isHttpUrl(source)) return source
-  const path = resolve(source)
-  if (!existsSync(path)) throw new Error(`File not found: ${source}`)
+  const project = currentProjectRoot()
+  const guesses = [
+    resolve(source),
+    resolve(project, source),
+    resolve(project, 'directorx_output', source.replace(/^directorx_output[/\\]/, '')),
+  ]
+  const path = [...new Set(guesses)].find(candidate => existsSync(candidate))
+  if (path === undefined) throw new Error(`File not found: ${source}`)
   const data = await readFile(path)
   if (data.length > maxBytes) {
     throw new Error(`File too large to inline (${Math.round(data.length / 1024 / 1024)}MB > ${Math.round(maxBytes / 1024 / 1024)}MB): ${source}`)
@@ -35,28 +42,39 @@ export async function mediaSourceToDataUrl(source: string, maxBytes = 15 * 1024 
   return `data:${mimeForPath(path)};base64,${data.toString('base64')}`
 }
 
+/** DSH tool results must be a lossless JSON object (never an array or undefined fields). */
+export function losslessJsonObject(value: unknown): Record<string, unknown> {
+  const clean = JSON.parse(JSON.stringify(value ?? null)) as unknown
+  if (clean !== null && typeof clean === 'object' && !Array.isArray(clean)) return clean as Record<string, unknown>
+  return { value: clean }
+}
+
+export function resolveOutputDir(dir: string): string {
+  return resolve(currentProjectRoot(), dir)
+}
+
 export async function ensureOutputDir(dir: string): Promise<string> {
-  const out = resolve(process.cwd(), dir)
+  const out = resolveOutputDir(dir)
   await mkdir(out, { recursive: true })
   return out
 }
 
 export async function downloadToFile(url: string, outDir: string, prefix: string, ext: string): Promise<string> {
-  await ensureOutputDir(outDir)
+  const dir = await ensureOutputDir(outDir)
   const response = await fetch(url)
   if (!response.ok) throw new Error(`Download failed with HTTP ${response.status}: ${url}`)
   const bytes = Buffer.from(await response.arrayBuffer())
   const stem = `${prefix}-${new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')}${ext}`
-  const path = join(outDir, stem)
+  const path = join(dir, stem)
   await writeFile(path, bytes)
   return path
 }
 
 export async function saveBase64ToFile(data: string, outDir: string, prefix: string, ext: string): Promise<string> {
-  await ensureOutputDir(outDir)
+  const dir = await ensureOutputDir(outDir)
   const raw = data.replace(/^data:[^;]+;base64,/, '')
   const normalizedExt = ext.startsWith('.') ? ext : `.${ext}`
-  const path = join(outDir, `${prefix}-${new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')}${normalizedExt}`)
+  const path = join(dir, `${prefix}-${new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')}${normalizedExt}`)
   await writeFile(path, Buffer.from(raw, 'base64'))
   return path
 }
@@ -66,17 +84,23 @@ export const MAX_MEDIA_BYTES = 512 * 1024 * 1024
 
 /**
  * Resolve a browser-requested media path against the plugin output directory.
- * The output dir itself resolves against `process.cwd()`, matching
+ * The output dir itself resolves against the current project root, matching
  * {@link ensureOutputDir}; absolute request paths are allowed only inside it.
  * @throws when the resolved path escapes the output directory.
  */
 export function resolveMediaPath(outputDir: string, candidate: string): string {
-  const root = resolve(process.cwd(), outputDir)
-  const target = resolve(root, candidate)
-  if (target !== root && !target.startsWith(root + sep)) {
+  const project = currentProjectRoot()
+  const root = resolve(project, outputDir)
+  const inside = (target: string): boolean => target === root || target.startsWith(root + sep)
+  const guesses = isAbsolute(candidate)
+    ? [resolve(candidate)]
+    : [resolve(project, candidate), resolve(root, candidate)]
+  const allowed = [...new Set(guesses)].filter(inside)
+  if (allowed.length === 0) {
     throw new Error(`Media path escapes the DirectorX output directory: ${candidate}`)
   }
-  return target
+  const existing = allowed.find(path => existsSync(path))
+  return existing ?? allowed[0]
 }
 
 export interface ByteRange {

@@ -5,11 +5,38 @@ import { createWriteStream } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Transform } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import type { Context } from 'cordis'
 import { ProposalStore } from './proposals.ts'
 import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
 import { CharacterStore } from './characters.ts'
+
+type WebServer = {
+  register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void
+}
+
+function directorxWeb(ctx: Context): WebServer | undefined {
+  const webServer = ctx.get('webServer') as WebServer | undefined
+  if (webServer === undefined) return undefined
+  return {
+    register(route) {
+      return webServer.register({
+        ...route,
+        handler: (request, response) => {
+          let project: string
+          try {
+            project = resolveRequestProject(ctx, request)
+          } catch {
+            response.writeHead(403)
+            response.end('unknown project')
+            return
+          }
+          return runInProject(project, () => route.handler(request, response))
+        },
+      })
+    },
+  }
+}
 
 function sendJsonLocal(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { 'content-type': 'application/json' })
@@ -34,7 +61,10 @@ async function readBodyLocal(request: IncomingMessage, maxBytes: number): Promis
 import { DirectorxEditLedger } from './edits.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { DirectorxCanvasStore, type CanvasDocument } from './canvas.ts'
-import { MAX_MEDIA_BYTES, mimeForPath, parseMediaQuery, parseRangeHeader, resolveMediaPath, slugify } from './support.ts'
+import { currentProjectRoot, listWorkspaceRoots, resolveRequestProject, runInProject } from './project.ts'
+import { MAX_MEDIA_BYTES, mimeForPath, parseMediaQuery, parseRangeHeader, resolveMediaPath, resolveOutputDir, slugify } from './support.ts'
+import { applyGrade, inferMediaKind, resolveGradeLook } from './providers/grade.ts'
+import { StudioTicketStore } from './studio-intent.ts'
 
 /** Exact pathname the browser fetches generated media from: `/directorx/media?path=<abs-or-relative>` (GET) or saves edits to (POST). */
 export const MEDIA_ROUTE_PATH = '/directorx/media'
@@ -137,7 +167,7 @@ async function saveEditedMedia(outputDir: string, request: IncomingMessage, resp
   }
   const nameHint = String(request.headers['x-directorx-name'] ?? 'edit')
   const stem = slugify(nameHint, 40)
-  const dir = join(resolve(process.cwd(), outputDir), EDIT_SUBDIR)
+  const dir = join(resolveOutputDir(outputDir), EDIT_SUBDIR)
   await mkdir(dir, { recursive: true })
   const stamp = new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')
   const name = `${stamp}-${stem}.${ext}`
@@ -167,9 +197,7 @@ async function saveEditedMedia(outputDir: string, request: IncomingMessage, resp
  * @returns disposer removing the route.
  */
 export function registerMediaRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
 
   return webServer.register({
@@ -229,9 +257,7 @@ export function registerMediaRoute(ctx: Context, getOutputDir: () => string): ()
  * editor exports so the dock can show its own history. No-op without `webServer`.
  */
 export function registerMediaEditsRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
 
   return webServer.register({
@@ -261,9 +287,7 @@ export function registerMediaEditsRoute(ctx: Context, getOutputDir: () => string
  * cards poll this while a call is running for live progress.
  */
 export function registerMediaTasksRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
 
   return webServer.register({
@@ -300,11 +324,12 @@ export interface MediaFileEntry {
   name: string
   mediaType: string
   size: number
+  at: number
 }
 
 /** 扫描输出目录下的媒体资产（顶层 + edited/frames/transcripts 一层）。 */
 export async function listMediaFiles(outputDir: string): Promise<MediaFileEntry[]> {
-  const root = resolve(process.cwd(), outputDir)
+  const root = resolveOutputDir(outputDir)
   const files: MediaFileEntry[] = []
   const scan = async (dir: string, depth: number) => {
     if (depth > 1) return
@@ -324,18 +349,23 @@ export async function listMediaFiles(outputDir: string): Promise<MediaFileEntry[
       if (info === undefined || !info.isFile()) continue
       const mediaType = mimeForPath(full)
       if (mediaType === 'application/octet-stream') continue
-      files.push({ path: full, name: entry.name, mediaType, size: info.size })
+      const rel = relative(currentProjectRoot(), full)
+      files.push({
+        path: rel === '' || rel.startsWith('..') ? full : rel,
+        name: entry.name,
+        mediaType,
+        size: info.size,
+        at: info.mtimeMs,
+      })
     }
   }
   await scan(root, 0)
-  files.sort((a, b) => b.size - a.size)
+  files.sort((a, b) => b.at - a.at)
   return files.slice(0, 200)
 }
 
 export function registerMediaListRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
 
   return webServer.register({
@@ -370,9 +400,7 @@ export function registerMediaListRoute(ctx: Context, getOutputDir: () => string)
  * (`?expectedUpdatedAt=<ms>`; 409 on conflict).
  */
 export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
 
   return webServer.register({
@@ -423,6 +451,30 @@ export function registerCanvasRoute(ctx: Context, getOutputDir: () => string): (
   })
 }
 
+export const PROJECTS_ROUTE_PATH = '/directorx/projects'
+
+export function registerProjectsRoute(ctx: Context): () => void {
+  const webServer = directorxWeb(ctx)
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: PROJECTS_ROUTE_PATH,
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      sendJsonLocal(response, 200, { projects: listWorkspaceRoots(ctx) })
+    },
+  })
+}
+
 /** Serve vendored WASM runtime assets (transformers.js) from the plugin itself,
  * so the WebUI never depends on third-party CDNs (CSP-safe, offline-friendly).
  */
@@ -433,9 +485,7 @@ const VENDOR_FILES: Record<string, string> = {
 }
 
 export function registerVendorRoute(ctx: Context): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   // lib/vendor ships with the package; the repo-root vendor/ is a fallback
   // for development installs that link the package directory directly.
@@ -486,9 +536,7 @@ export function registerVendorRoute(ctx: Context): () => void {
 
 /** POST /directorx/canvas/reset: clear the canvas after backing it up. */
 export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -505,7 +553,7 @@ export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => strin
         return
       }
       try {
-        const store = new DirectorxCanvasStore(resolve(process.cwd(), getOutputDir()))
+        const store = new DirectorxCanvasStore(getOutputDir())
         const doc = await store.reset()
         response.writeHead(200, { 'content-type': 'application/json' })
         response.end(JSON.stringify(doc))
@@ -518,9 +566,7 @@ export function registerCanvasResetRoute(ctx: Context, getOutputDir: () => strin
 }
 
 export function registerCanvasSnapshotsRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -543,9 +589,7 @@ export function registerCanvasSnapshotsRoute(ctx: Context, getOutputDir: () => s
 }
 
 export function registerCanvasRestoreRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -580,9 +624,7 @@ export function registerCanvasRestoreRoute(ctx: Context, getOutputDir: () => str
 
 /** POST /directorx/canvas/intent: enqueue a DSH-owned generate directive (no canvas mutation). */
 export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -638,6 +680,11 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
           ...(typeof body.sourceId === 'string' && body.sourceId !== '' ? { sourceId: body.sourceId } : {}),
           ...(Array.isArray(body.selectedIds) ? { selectedIds: body.selectedIds as string[] } : {}),
           ...(Array.isArray(body.characters) ? { characters: body.characters as string[] } : {}),
+          ...(typeof body.model === 'string' && body.model !== '' ? { model: body.model } : {}),
+          ...(typeof body.aspect === 'string' && body.aspect !== '' ? { aspect: body.aspect } : {}),
+          ...(typeof body.count === 'number' ? { count: body.count } : {}),
+          ...(typeof body.durationSec === 'number' ? { durationSec: body.durationSec } : {}),
+          ...(Array.isArray(body.refIds) ? { refIds: body.refIds as string[] } : {}),
         })
         sendJsonLocal(response, 200, { ok: true, intent, prompt: formatDshCanvasPrompt(intent) })
       } catch (cause) {
@@ -649,9 +696,7 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
 
 /** 提案面板路由：画布顶栏显示待批准提案并可批准/拒绝（人机确认环的 UI 侧）。 */
 export function registerProposalsRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -701,9 +746,7 @@ export function registerProposalsRoute(ctx: Context, getOutputDir: () => string)
 }
 
 export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -743,9 +786,7 @@ export function registerProposalUpdateRoute(ctx: Context, getOutputDir: () => st
 
 /** GET/POST /directorx/characters: subject-consistency library (not canvas mutation). */
 export function registerCharactersRoute(ctx: Context, getOutputDir: () => string): () => void {
-  const webServer = ctx.get('webServer') as
-    | { register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void }
-    | undefined
+  const webServer = directorxWeb(ctx)
   if (webServer === undefined) return () => {}
   return webServer.register({
     kind: 'exact',
@@ -791,6 +832,63 @@ export function registerCharactersRoute(ctx: Context, getOutputDir: () => string
           ...(typeof body.props === 'string' ? { props: body.props } : {}),
         })
         sendJsonLocal(response, 200, { ok: true, character })
+      } catch (cause) {
+        sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+      }
+    },
+  })
+}
+
+export const STUDIO_ROUTE_PATH = '/directorx/studio'
+
+/** GET last studio ticket; POST grades a file and opens the workstation. */
+export function registerStudioRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = directorxWeb(ctx)
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: STUDIO_ROUTE_PATH,
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      const tickets = new StudioTicketStore(getOutputDir())
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        sendJsonLocal(response, 200, { ticket: await tickets.read() })
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      const body = await readBodyLocal(request, 64 * 1024)
+      const rawPath = typeof body.path === 'string' ? body.path : ''
+      const prompt = typeof body.look === 'string' && body.look !== ''
+        ? body.look
+        : typeof body.prompt === 'string' ? body.prompt : ''
+      if (rawPath === '' || prompt.trim() === '') {
+        sendJsonLocal(response, 400, { ok: false, message: 'path 与 look/prompt 必填' })
+        return
+      }
+      try {
+        const source = resolveMediaPath(getOutputDir(), rawPath)
+        const look = resolveGradeLook(prompt)
+        const kind = body.kind === 'video' || body.kind === 'image' ? body.kind : inferMediaKind(source)
+        const graded = await applyGrade({ source, look, outputDir: getOutputDir(), kind })
+        const nodeId = typeof body.nodeId === 'string' && body.nodeId !== '' ? body.nodeId : undefined
+        if (nodeId !== undefined) {
+          await new DirectorxCanvasStore(getOutputDir()).update(nodeId, { path: graded.path })
+        }
+        const ticket = await tickets.write({
+          kind: graded.kind,
+          path: graded.path,
+          look: graded.look,
+          ...(nodeId !== undefined ? { nodeId } : {}),
+        })
+        sendJsonLocal(response, 200, { ok: true, ...graded, ticket, openStudio: true })
       } catch (cause) {
         sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
       }

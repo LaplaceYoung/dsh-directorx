@@ -36,6 +36,8 @@ export interface VideoResult {
   status: string
   files: MediaFile[]
   mode: string
+  /** When the host timed out after submit, the agent should poll this tool. */
+  next?: string
 }
 
 export interface AudioResult {

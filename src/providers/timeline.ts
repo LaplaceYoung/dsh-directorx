@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { copyFileSync, existsSync, readFileSync, statSync, mkdirSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { resolveOutputDir } from '../support.ts'
 import { probeMedia } from './ffmpeg.ts'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './video-process.ts'
 import type { VideoOutput } from './video-process.ts'
@@ -80,7 +81,7 @@ export function sceneFingerprint(scene: TimelineScene, scale?: string): string {
 }
 
 function segmentCachePath(outputDir: string, fingerprint: string): string {
-  return join(resolve(process.cwd(), outputDir), '.timeline-cache', `${fingerprint}.mp4`)
+  return join(resolveOutputDir(outputDir), '.timeline-cache', `${fingerprint}.mp4`)
 }
 
 export async function renderTimeline(spec: TimelineSpec, outputDir: string): Promise<TimelineOutput> {
@@ -130,7 +131,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
         segmentPaths.push(segment.path)
         steps.push(`trim scene ${index + 1}${scene.speed !== undefined && scene.speed > 0 ? ` (speed ${scene.speed}x)` : ''}: ${scene.source} [${scene.trim[0]},${scene.trim[1]}] -> ${segment.path}`)
         try {
-          mkdirSync(join(resolve(process.cwd(), outputDir), '.timeline-cache'), { recursive: true })
+          mkdirSync(join(resolveOutputDir(outputDir), '.timeline-cache'), { recursive: true })
           copyFileSync(segment.path, cached)
         } catch {
           // cache write failure is non-fatal; the segment is already usable.
@@ -197,7 +198,7 @@ export async function renderTimeline(spec: TimelineSpec, outputDir: string): Pro
         audioFade.push(`afade=t=out:st=${(duration - spec.fadeOut).toFixed(3)}:d=${spec.fadeOut}`)
       }
       if (fadeFilters.length > 0 || audioFade.length > 0) {
-        const out = join(resolve(process.cwd(), outputDir), `faded-${Date.now().toString(36)}.mp4`)
+        const out = join(resolveOutputDir(outputDir), `faded-${Date.now().toString(36)}.mp4`)
         const fargs: string[] = ['-hide_banner', '-y', '-i', assembled.path]
         if (fadeFilters.length > 0) fargs.push('-vf', fadeFilters.join(','))
         if (audioFade.length > 0) fargs.push('-af', audioFade.join(','))

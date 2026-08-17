@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { join, resolve } from 'node:path'
 import { extractFrames, probeMedia } from './ffmpeg.ts'
-import { ensureOutputDir } from '../support.ts'
+import { ensureOutputDir, resolveOutputDir } from '../support.ts'
 
 /**
  * 接触表（contact sheet）：素材盘点用的胶片带——每个片段在源窗口
@@ -36,7 +36,7 @@ export async function contactSheet(input: ContactSheetInput): Promise<ContactShe
   }
   if (frames.length === 0) throw new Error('没有抽到任何帧（检查素材是否可读）')
 
-  const out = join(resolve(process.cwd(), input.outputDir), `contact-sheet-${Date.now().toString(36)}.png`)
+  const out = join(resolveOutputDir(input.outputDir), `contact-sheet-${Date.now().toString(36)}.png`)
   const rows = Math.ceil(frames.length / columns)
   const args: string[] = ['-hide_banner', '-y']
   for (const frame of frames) args.push('-i', frame.framePath)

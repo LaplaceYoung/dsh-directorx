@@ -1,5 +1,6 @@
 import { appendFile, mkdir, readFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 import type { MediaFile } from './providers/types.ts'
 
 /**
@@ -38,7 +39,7 @@ export class DirectorxTaskLedger {
   }
 
   private async filePath(): Promise<string> {
-    const dir = resolve(process.cwd(), this.outputDir)
+    const dir = resolveOutputDir(this.outputDir)
     await mkdir(dir, { recursive: true })
     return join(dir, LEDGER_FILE)
   }

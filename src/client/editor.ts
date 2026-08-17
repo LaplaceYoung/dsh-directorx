@@ -14,9 +14,10 @@ export interface EditorSnapshot {
   kind: EditorKind | null
   /** Local media path under the output dir; may be null while the dock is empty. */
   path: string | null
+  look?: string | null
 }
 
-let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null }
+let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null, look: null }
 const listeners = new Set<() => void>()
 
 /** Stable reference until the next update — required by useSyncExternalStore. */
@@ -36,9 +37,14 @@ function update(next: Partial<EditorSnapshot>): void {
   for (const listener of [...listeners]) listener()
 }
 
-/** Open the dock with one media file queued for secondary editing. */
-export function openEditor(kind: EditorKind, path: string): void {
-  update({ open: true, tab: kind, kind, path })
+/** Open the fullscreen stage with one media file queued for editing. */
+export function openEditor(kind: EditorKind, path: string, extras?: { look?: string }): void {
+  update({ open: true, tab: kind, kind, path, look: extras?.look ?? null })
+}
+
+/** Open the canvas overlay without changing the editor tab. */
+export function openCanvas(): void {
+  update({ open: true, tab: snapshot.tab === 'image' || snapshot.tab === 'video' ? 'canvas' : snapshot.tab })
 }
 
 /** Switch the active dock tab (canvas / image editor / video editor). */

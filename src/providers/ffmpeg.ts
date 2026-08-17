@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { mkdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { slugify } from '../support.ts'
+import { resolveOutputDir, slugify } from '../support.ts'
 import type { MediaFile } from './types.ts'
 
 /**
@@ -79,7 +79,7 @@ export interface ExtractFramesOptions {
 
 export async function extractFrames(source: string, outputDir: string, options: ExtractFramesOptions = {}): Promise<MediaFile[]> {
   requireBinary('ffmpeg')
-  const dir = join(resolve(process.cwd(), outputDir), 'frames')
+  const dir = join(resolveOutputDir(outputDir), 'frames')
   await mkdir(dir, { recursive: true })
   const stem = slugify(source, 24)
   const times: number[] = []

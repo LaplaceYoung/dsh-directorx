@@ -7,7 +7,7 @@ import type {} from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-system-prompt'
 import { DirectorxSettings, SETTINGS_NS, type DirectorxSettings as DirectorxSettingsType } from './config.ts'
 import { corpus } from './corpus.ts'
-import { registerCanvasIntentRoute, registerCanvasResetRoute, registerCanvasRestoreRoute, registerCanvasRoute, registerCanvasSnapshotsRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerProposalUpdateRoute, registerVendorRoute } from './media-server.ts'
+import { registerCanvasIntentRoute, registerCanvasResetRoute, registerCanvasRestoreRoute, registerCanvasRoute, registerCanvasSnapshotsRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProjectsRoute, registerProposalsRoute, registerProposalUpdateRoute, registerStudioRoute, registerVendorRoute } from './media-server.ts'
 import { registerBundledSkills } from './skills.ts'
 import { registerSettingsTestRoute } from './settings-test.ts'
 import { registerMcpRoute } from './mcp.ts'
@@ -39,10 +39,9 @@ export function apply(ctx: Context): void {
     },
   })
 
-  // The Web API deliberately exposes only model-provider settings namespaces.
-  // Registering the four capability profiles as configurable providers puts
-  // the `directorx` namespace inside that boundary so the DirectorX WebUI
-  // settings section can read and mutate it through settings.describe/mutate.
+  // RC.7 serves every registered settings namespace (`settings.describe`).
+  // Also register the four capability profiles as configurable providers so
+  // the Models page can address the same `directorx` namespace.
   const llm = ctx.get('llm') as {
     registerConfigurableProviders(entries: Array<{
       provider: string
@@ -75,12 +74,14 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerMediaEditsRoute(ctx, () => scope.get().outputDir), 'directorx media edits route')
   ctx.effect(() => registerMediaTasksRoute(ctx, () => scope.get().outputDir), 'directorx media tasks route')
   ctx.effect(() => registerMediaListRoute(ctx, () => scope.get().outputDir), 'directorx media list route')
+  ctx.effect(() => registerProjectsRoute(ctx), 'directorx projects route')
   ctx.effect(() => registerCanvasRoute(ctx, () => scope.get().outputDir), 'directorx canvas route')
   ctx.effect(() => registerCanvasResetRoute(ctx, () => scope.get().outputDir), 'directorx canvas reset route')
   ctx.effect(() => registerCanvasSnapshotsRoute(ctx, () => scope.get().outputDir), 'directorx canvas snapshots route')
   ctx.effect(() => registerCanvasRestoreRoute(ctx, () => scope.get().outputDir), 'directorx canvas restore route')
   ctx.effect(() => registerCanvasIntentRoute(ctx, () => scope.get().outputDir), 'directorx canvas intent route')
   ctx.effect(() => registerCharactersRoute(ctx, () => scope.get().outputDir), 'directorx characters route')
+  ctx.effect(() => registerStudioRoute(ctx, () => scope.get().outputDir), 'directorx studio route')
   ctx.effect(() => registerVendorRoute(ctx), 'directorx vendor assets route')
   ctx.effect(() => registerProposalsRoute(ctx, () => scope.get().outputDir), 'directorx proposals route')
   ctx.effect(() => registerProposalUpdateRoute(ctx, () => scope.get().outputDir), 'directorx proposal update route')

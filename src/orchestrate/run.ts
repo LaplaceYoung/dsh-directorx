@@ -6,6 +6,7 @@ import { corpus } from '../corpus.ts'
 import { routeModel } from '../model-matrix.ts'
 import { ProposalStore } from '../proposals.ts'
 import { buildShotPrompt } from '../providers/shot-builder.ts'
+import { resolveOutputDir } from '../support.ts'
 import { extractEntities, inferProductionKind, slugify } from './extract.ts'
 import { deriveProductionPlan } from './plan.ts'
 import type { ProductionPlaceholder, ProductionResearchNote, ProductionRun, ProductionStage, ProductionToolCall, ShotDraft } from './types.ts'
@@ -179,9 +180,9 @@ export async function orchestrateProduction(input: {
     confirms: plan.confirms,
     placeholders,
     durationBudget: plan.durationBudget,
-    reportPath: join(resolve(process.cwd(), input.outputDir), `orchestrate-${kind}.json`),
+    reportPath: join(resolveOutputDir(input.outputDir), `orchestrate-${kind}.json`),
   }
-  await mkdir(resolve(process.cwd(), input.outputDir), { recursive: true })
+  await mkdir(resolveOutputDir(input.outputDir), { recursive: true })
   await writeFile(run.reportPath, JSON.stringify(run, null, 2), 'utf8')
   return run
 }

@@ -1,6 +1,6 @@
 /**
- * Shared continue-generate planner for the Tapflow canvas.
- * Used by the durable store (tests / agent tools) and the WebUI tab so the
+ * Shared continue-generate planner for the DirectorX canvas.
+ * Used by the durable store (tests / agent tools) and the WebUI so the
  * placeholder node, wire, and proposal payload stay the same shape.
  */
 
@@ -73,6 +73,72 @@ export function edgeHandlePoints(
     sourceY: source.y + source.height / 2,
     targetX: target.x,
     targetY: target.y + target.height / 2,
+  }
+}
+
+export type PortSide = 'left' | 'right' | 'top' | 'bottom'
+
+export function portPoint(
+  box: FlowPoint & { width: number; height: number },
+  side: PortSide,
+): FlowPoint {
+  if (side === 'left') return { x: box.x, y: box.y + box.height / 2 }
+  if (side === 'right') return { x: box.x + box.width, y: box.y + box.height / 2 }
+  if (side === 'top') return { x: box.x + box.width / 2, y: box.y }
+  return { x: box.x + box.width / 2, y: box.y + box.height }
+}
+
+/**
+ * Pick facing sides so a wire leaves the source toward the target and
+ * lands on the opposite face, instead of always using right → left.
+ */
+export function handleToSide(handle?: string | null): PortSide | undefined {
+  if (handle === 'in') return 'left'
+  if (handle === 'out') return 'right'
+  if (handle === 'top') return 'top'
+  if (handle === 'bottom') return 'bottom'
+  return undefined
+}
+
+export function portsForHandles(
+  source: FlowPoint & { width: number; height: number },
+  target: FlowPoint & { width: number; height: number },
+  sourceHandle?: string | null,
+  targetHandle?: string | null,
+): ReturnType<typeof closestPorts> {
+  const fallback = closestPorts(source, target)
+  const sourceSide = handleToSide(sourceHandle) ?? fallback.sourceSide
+  const targetSide = handleToSide(targetHandle) ?? fallback.targetSide
+  const from = portPoint(source, sourceSide)
+  const to = portPoint(target, targetSide)
+  return { sourceSide, targetSide, sourceX: from.x, sourceY: from.y, targetX: to.x, targetY: to.y }
+}
+
+export function closestPorts(
+  source: FlowPoint & { width: number; height: number },
+  target: FlowPoint & { width: number; height: number },
+): {
+  sourceSide: PortSide
+  targetSide: PortSide
+  sourceX: number
+  sourceY: number
+  targetX: number
+  targetY: number
+} {
+  const dx = target.x + target.width / 2 - (source.x + source.width / 2)
+  const dy = target.y + target.height / 2 - (source.y + source.height / 2)
+  const horizontal = Math.abs(dx) >= Math.abs(dy)
+  const sourceSide: PortSide = horizontal ? (dx >= 0 ? 'right' : 'left') : (dy >= 0 ? 'bottom' : 'top')
+  const targetSide: PortSide = horizontal ? (dx >= 0 ? 'left' : 'right') : (dy >= 0 ? 'top' : 'bottom')
+  const from = portPoint(source, sourceSide)
+  const to = portPoint(target, targetSide)
+  return {
+    sourceSide,
+    targetSide,
+    sourceX: from.x,
+    sourceY: from.y,
+    targetX: to.x,
+    targetY: to.y,
   }
 }
 

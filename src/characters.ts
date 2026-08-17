@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { resolveOutputDir } from './support.ts'
 
 /**
  * Character / subject anchor registry: reference images + descriptions
@@ -25,7 +26,7 @@ export class CharacterStore {
   constructor(private readonly outputDir: string) {}
 
   private filePath(): string {
-    return join(resolve(process.cwd(), this.outputDir), 'characters.json')
+    return join(resolveOutputDir(this.outputDir), 'characters.json')
   }
 
   async read(): Promise<{ characters: CharacterCard[] }> {
@@ -56,7 +57,7 @@ export class CharacterStore {
       ledger.characters.push(card)
       if (ledger.characters.length > MAX_CHARACTERS) ledger.characters.shift()
     }
-    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await mkdir(resolveOutputDir(this.outputDir), { recursive: true })
     await writeFile(this.filePath(), JSON.stringify(ledger, null, 2), 'utf8')
     return card
   }
@@ -72,7 +73,7 @@ export class CharacterStore {
     const next = ledger.characters.filter(card => card.name !== trimmed)
     if (next.length === ledger.characters.length) throw new Error(`character "${trimmed}" not found`)
     ledger.characters = next
-    await mkdir(resolve(process.cwd(), this.outputDir), { recursive: true })
+    await mkdir(resolveOutputDir(this.outputDir), { recursive: true })
     await writeFile(this.filePath(), JSON.stringify(ledger, null, 2), 'utf8')
   }
 

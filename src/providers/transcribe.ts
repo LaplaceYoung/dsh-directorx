@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { apiKeyOf, mimeForPath, readJsonResponse, slugify } from '../support.ts'
+import { apiKeyOf, mimeForPath, readJsonResponse, resolveOutputDir, slugify } from '../support.ts'
 import type { MediaFile, ProviderContext } from './types.ts'
 
 /**
@@ -51,7 +51,7 @@ function toSrt(text: string, source: string): string {
 export async function mockTranscribe(ctx: ProviderContext, source: string): Promise<TranscribeResult> {
   const text = mockText(source)
   const srt = toSrt(text, source)
-  const dir = join(resolve(process.cwd(), ctx.settings.outputDir), 'transcripts')
+  const dir = join(resolveOutputDir(ctx.settings.outputDir), 'transcripts')
   await mkdir(dir, { recursive: true })
   const stamp = new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')
   const srtPath = join(dir, `${slugify(source, 24)}-${stamp}.srt`)
@@ -102,7 +102,7 @@ export async function openaiTranscribe(
   }
   if (text === '') throw new Error('Transcription returned empty text.')
 
-  const dir = join(resolve(process.cwd(), ctx.settings.outputDir), 'transcripts')
+  const dir = join(resolveOutputDir(ctx.settings.outputDir), 'transcripts')
   await mkdir(dir, { recursive: true })
   const stamp = new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z')
   const files: MediaFile[] = []

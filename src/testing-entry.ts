@@ -26,10 +26,26 @@ export { viduVideo } from './providers/vidu.ts'
 export { veoVideo } from './providers/veo.ts'
 export { DirectorxCanvasStore } from './canvas.ts'
 export { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
-export { edgeHandlePoints, flowAbsolutePosition, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate } from './canvas-generate.ts'
+export { applyGrade, inferMediaKind, isGradeLook, listGradeLabels, resolveGradeLook, GRADE_LOOK_LIST, GRADE_LOOKS, GRADE_TABLE } from './providers/grade.ts'
+export { StudioTicketStore } from './studio-intent.ts'
+export { closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portPoint, portsForHandles } from './canvas-generate.ts'
+export {
+  createdSessionId, foldSessionHistory, parseArchivedIds, parseSessionList, parseWorkspaceList,
+  pickWorkspaceSession, rpcOk, sessionRunningFromList, summarizeToolName, textFromBlocks, toolCaption,
+} from './client/stage/session-fold.ts'
+export {
+  answerQuestion, dockItemsFromSnapshot, resolveLiveSession, linesFromFold,
+} from './client/stage/session-live.ts'
+export { wantsCharacterSheet, withCharacterSheetSpec } from './providers/sheet-prompt.ts'
+export { parseInline, parseMarkdown, safeHref } from './client/stage/markdown.ts'
+export {
+  aspectRatio, characterBucket, incomingRefIds, libraryBucket, nearestAspect, sizeFromAspect, specPrompt, takePeers,
+} from './client/stage/workstation.ts'
+export { alignBoxes, asClipPayload, clampMenu, distributeBoxes, nudgeBoxes, packClip } from './client/stage/layout.ts'
 export { registerSubagentSetup } from './subagents.ts'
-export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH, MEDIA_LIST_ROUTE_PATH, MEDIA_TASKS_ROUTE_PATH, inspectMediaFile, mediaTypeExt, MEDIA_ROUTE_PATH, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute } from './media-server.ts'
-export { MAX_MEDIA_BYTES, parseMediaQuery, parseRangeHeader, resolveMediaPath } from './support.ts'
+export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH, MEDIA_LIST_ROUTE_PATH, MEDIA_TASKS_ROUTE_PATH, STUDIO_ROUTE_PATH, inspectMediaFile, mediaTypeExt, MEDIA_ROUTE_PATH, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerStudioRoute } from './media-server.ts'
+export { losslessJsonObject, MAX_MEDIA_BYTES, parseMediaQuery, parseRangeHeader, resolveMediaPath, resolveOutputDir } from './support.ts'
+export { currentProjectRoot, runInProject } from './project.ts'
 export { listMediaFiles } from './media-server.ts'
 export { ProjectStyleStore } from './style-constants.ts'
 export { TermStore } from './terms.ts'
