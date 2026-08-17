@@ -12,6 +12,7 @@
     "package-lock.json",
     "CHANGELOG.md",
     "docs/architecture.md",
+    ".gitignore",
     "recipes/",
     "lib/",
     "skills/directorx-production-lead/"
@@ -22,5 +23,5 @@
     ".env",
     "configs/"
   ],
-  "message": "fix(loop): re-stage scoped files after the green test run"
+  "message": "chore(loop): ignore the local .loop-record directory"
 }

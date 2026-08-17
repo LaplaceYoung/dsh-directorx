@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import {
   pathAllowed,
+  leftoverPaths,
   scopedPaths,
   snapshotTree,
   snapshotsEqual,
@@ -197,6 +198,19 @@ test('runTreeJob re-adds scoped files after the test command rewrites them', asy
   const shown = git(plugin, ['show', `${record.commit}:src/built.js`])
   assert.equal(shown.stdout, 'after\n', 'commit must contain the post-test file, not the pre-test staging')
   assert.deepEqual(loopGateStashes(plugin), [])
+})
+
+test('gitignored .loop-record is absent from leftover porcelain', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'loop-record-ignore-'))
+  const tree = join(root, 'tree')
+  initRepo(tree, 'tree')
+  writeFileSync(join(tree, '.gitignore'), '.loop-record/\n')
+  mkdirSync(join(tree, '.loop-record'), { recursive: true })
+  writeFileSync(join(tree, '.loop-record', 'plugin.json'), '{}\n')
+  mkdirSync(join(tree, 'src'), { recursive: true })
+  writeFileSync(join(tree, 'src', 'a.js'), '1\n')
+  const leftover = leftoverPaths(tree, ['src/', '.gitignore'], [])
+  assert.equal(leftover.some(path => path.startsWith('.loop-record')), false)
 })
 
 test('scopedPaths reads the real git status of the tree under test', async () => {
