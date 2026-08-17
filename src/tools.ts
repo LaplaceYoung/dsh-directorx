@@ -342,19 +342,30 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_add',
-    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path (from generation/edit results) or an http(s) URL; group nodes act as containers (pass their id as `parent` when adding members).',
+    description: 'Add a node to the DirectorX canvas. kind: image|video|text|group. Media nodes reference a local output-dir path or http(s) URL. Group nodes are containers (pass their id as parent). Pass id to pin the new node; pass prompt/shotIndex so the board is a real storyboard, not empty cards.',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video', 'text', 'group'], required: true, description: 'Node kind.' },
+      id: { type: 'string', description: 'Optional stable id so later connect/sequence calls can name this node.' },
       label: { type: 'string', description: 'Node label (shown under the preview).' },
       path: { type: 'string', description: 'Media path (local output-dir path or http(s) URL) for image/video nodes.' },
+      prompt: { type: 'string', description: 'Generation prompt stored on the node (shot-list / propose source).' },
+      shotIndex: { type: 'number', description: 'Stable shot number. Order is this field, not x/y or edges.' },
+      shotStatus: { type: 'string', enum: ['idea', 'approved', 'generating', 'review', 'locked'], description: 'Shot status.' },
+      continuityRules: { type: 'array', items: { type: 'string' }, description: 'Continuity locks (character/wardrobe/light).' },
       x: { type: 'number', description: 'Canvas x position.' },
       y: { type: 'number', description: 'Canvas y position.' },
+      width: { type: 'number', description: 'Node width.' },
+      height: { type: 'number', description: 'Node height.' },
       parent: { type: 'string', description: 'Optional id of a group node to place this node inside.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return canvas.addNode(args)
+      const doc = await canvas.addNode(args)
+      const node = typeof args.id === 'string' && args.id !== ''
+        ? doc.nodes.find(candidate => candidate.id === args.id)
+        : doc.nodes[doc.nodes.length - 1]
+      return { node, updatedAt: doc.updatedAt, title: doc.title, nodes: doc.nodes, edges: doc.edges }
     },
   })))
 
@@ -585,7 +596,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
 
   disposers.push(ctx.tools.register(defineTool({
     name: 'directorx_canvas_batch',
-    description: 'Batch add nodes (and optional edges) to the canvas in one write. nodes: [{kind, label, path?, parent?, x, y, width?, height?}]; edges: [{from, to, label?}]. Much cheaper than repeated canvas_add + canvas_connect calls.',
+    description: 'Batch add nodes (and optional edges) in one write. Each node accepts the same fields as canvas_add (id/kind/label/path/prompt/shotIndex/parent/x/y). Prefer this or canvas_plan over many canvas_add calls.',
     parameters: {
       nodes: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Nodes to add (same shape as canvas_add arguments).' },
       edges: { type: 'array', items: { type: 'object', additionalProperties: true }, description: 'Optional edges between existing/new node ids.' },
@@ -646,6 +657,136 @@ export function syncTools(ctx: Context, settings: DirectorxSettings): () => void
     async execute() {
       const current = await canvas.read()
       return canvas.write({ version: 1, updatedAt: 0, nodes: [], edges: [] }, current.updatedAt)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_node',
+    description: 'Read one canvas node or edge by id. Nodes return inbound/outbound edges and group members. Use this instead of canvas_get when you only need one element.',
+    parameters: {
+      id: { type: 'string', required: true, description: 'Node or edge id.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return canvas.getNode(String(args.id))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_groups',
+    description: 'List every group on the canvas with its members (id/kind/label/shotIndex). The grouping query for DSH before group/dissolve/sequence.',
+    parameters: {},
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    isConcurrencySafe: () => true,
+    async execute() {
+      return canvas.listGroups()
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_group',
+    description: 'Wrap existing nodes into a new group (act/scene). Members keep their positions; the group frame encloses them. Cannot nest a group inside a group — dissolve first.',
+    parameters: {
+      memberIds: { type: 'array', items: { type: 'string' }, required: true, description: 'Node ids to put inside the new group.' },
+      label: { type: 'string', description: 'Group label (default 组).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      const memberIds = Array.isArray(args.memberIds) ? args.memberIds.map(String) : []
+      return canvas.groupNodes({ memberIds, ...(typeof args.label === 'string' ? { label: args.label } : {}) })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_disconnect',
+    description: 'Remove the edge from one node to another by endpoints. Use when you know from/to but not the edge id.',
+    parameters: {
+      from: { type: 'string', required: true, description: 'Source node id.' },
+      to: { type: 'string', required: true, description: 'Target node id.' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      return canvas.disconnect(String(args.from), String(args.to))
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_sequence',
+    description: 'Write shot order onto existing nodes: shotIndex becomes 1..N in the given id order. Optionally connect consecutive image/video nodes as 承接 edges. Coordinates do not change.',
+    parameters: {
+      ids: { type: 'array', items: { type: 'string' }, required: true, description: 'Node ids in playback order.' },
+      connect: { type: 'boolean', description: 'When true, wire consecutive media nodes with 承接 edges (default false).' },
+      edgeLabel: { type: 'string', description: 'Label for new edges when connect=true (default 承接).' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    async execute(args: any) {
+      const ids = Array.isArray(args.ids) ? args.ids.map(String) : []
+      return canvas.sequenceShots({
+        ids,
+        ...(args.connect === true ? { connect: true } : {}),
+        ...(typeof args.edgeLabel === 'string' ? { edgeLabel: args.edgeLabel } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(defineTool({
+    name: 'directorx_canvas_plan',
+    description: 'Write a multi-act storyboard onto the canvas in one call: each act is a group, each shot is a node with prompt/shotIndex/continuity. Connects consecutive media shots. Does not generate media. Prefer this over many canvas_add calls when DSH is laying out a film.',
+    parameters: {
+      title: { type: 'string', description: 'Canvas title.' },
+      connect: { type: 'boolean', description: 'Wire consecutive image/video shots (default true).' },
+      acts: {
+        type: 'array',
+        required: true,
+        description: 'Acts/scenes. Each has a label and shots[].',
+        items: {
+          type: 'object',
+          additionalProperties: true,
+          properties: {
+            label: { type: 'string', required: true, description: 'Act/scene name.' },
+            shots: {
+              type: 'array',
+              required: true,
+              items: {
+                type: 'object',
+                additionalProperties: true,
+                properties: {
+                  kind: { type: 'string', enum: ['image', 'video', 'text'], description: 'Default video.' },
+                  label: { type: 'string', required: true, description: 'Shot label.' },
+                  prompt: { type: 'string', description: 'Stored generation prompt.' },
+                  seconds: { type: 'number', description: 'Duration; appended to prompt as Ns for the shot list.' },
+                  continuity: { type: 'array', items: { type: 'string' }, description: 'Continuity locks.' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      const acts = Array.isArray(args.acts) ? args.acts.map((act: any) => ({
+        label: String(act.label ?? ''),
+        shots: Array.isArray(act.shots) ? act.shots.map((shot: any) => ({
+          label: String(shot.label ?? ''),
+          ...(shot.kind === 'image' || shot.kind === 'video' || shot.kind === 'text' ? { kind: shot.kind } : {}),
+          ...(typeof shot.prompt === 'string' ? { prompt: shot.prompt } : {}),
+          ...(typeof shot.seconds === 'number' ? { seconds: shot.seconds } : {}),
+          ...(Array.isArray(shot.continuity) ? { continuity: shot.continuity.map(String) } : {}),
+        })) : [],
+      })) : []
+      return canvas.planBoard({
+        acts,
+        ...(typeof args.title === 'string' ? { title: args.title } : {}),
+        ...(args.connect === false ? { connect: false } : {}),
+      })
     },
   })))
 
@@ -1757,7 +1898,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Confirm generation batches with `directorx_confirm` (DSH userInteraction). The user can inspect the board with `/directorx` without spending tokens.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas IS the storyboard and YOU own it: maintain it with `directorx_canvas_*`. The WebUI generate bar only queues `directorx_canvas_intents` and may `session.prompt` you — it must not write generating nodes. On a canvas instruction, claim the oldest pending intent with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
+      '- The infinite canvas IS the storyboard and YOU own it. CRUD: `directorx_canvas_get` / `directorx_canvas_node` / `directorx_canvas_search` / `directorx_canvas_summary` (read), `directorx_canvas_add` / `directorx_canvas_batch` / `directorx_canvas_plan` (write), `directorx_canvas_update` / `directorx_canvas_sequence` (update), `directorx_canvas_remove` / `directorx_canvas_disconnect` / `directorx_canvas_clear` (delete). Group: `directorx_canvas_group` / `directorx_canvas_groups` / `directorx_canvas_dissolve_group`. Arrange: `directorx_canvas_arrange` / `directorx_canvas_layout_hierarchy`. Lay out a film with `directorx_canvas_plan` (acts→groups, shots→nodes, shotIndex + 承接 edges), then `directorx_canvas_shotlist` + `directorx_confirm`. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, call `directorx_canvas_continue` (or add/connect yourself), then generate/propose, then `directorx_canvas_intent_ack` with `done`.',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
       '',
       '## DirectorX media tools',

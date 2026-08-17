@@ -24,7 +24,7 @@ DeepSeek Harness
 │   view_image / generate_image / generate_video       │
 │   generate_audio / knowledge_search / knowledge_read │
 │   task_status / cancel_task（任务账本）               │
-│   directorx_canvas_*（DSH 掌管无限画布）              │
+│   directorx_canvas_*（DSH 掌管：增删改查/分组/编排）  │
 │   directorx_confirm（ctx.userInteraction.ask 签字）   │
 │ commands: /directorx [shotlist|proposals|next]        │
 │ web route: GET /directorx/media (流式媒体供给)        │

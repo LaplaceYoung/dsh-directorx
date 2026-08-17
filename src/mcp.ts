@@ -41,7 +41,13 @@ async function readBody(request: IncomingMessage): Promise<JsonRpcRequest | unde
 
 const MCP_TOOLS: Array<{ name: string; description: string; inputSchema: Record<string, unknown>; readOnly: boolean }> = [
   { name: 'directorx_canvas_get', description: 'Read the full canvas document (nodes + edges).', inputSchema: { type: 'object', properties: {} }, readOnly: true },
-  { name: 'directorx_canvas_add', readOnly: false, description: 'Add a canvas node (image/video/text/group).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, label: { type: 'string' }, path: { type: 'string' }, x: { type: 'number' }, y: { type: 'number' }, parent: { type: 'string' } } } },
+  { name: 'directorx_canvas_add', readOnly: false, description: 'Add a canvas node (image/video/text/group) with optional prompt/shotIndex.', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, id: { type: 'string' }, label: { type: 'string' }, path: { type: 'string' }, prompt: { type: 'string' }, shotIndex: { type: 'number' }, parent: { type: 'string' }, x: { type: 'number' }, y: { type: 'number' } } } },
+  { name: 'directorx_canvas_node', description: 'Read one node or edge by id.', inputSchema: { type: 'object', properties: { id: { type: 'string' } } }, readOnly: true },
+  { name: 'directorx_canvas_groups', description: 'List groups with members.', inputSchema: { type: 'object', properties: {} }, readOnly: true },
+  { name: 'directorx_canvas_group', readOnly: false, description: 'Wrap existing nodes into a new group.', inputSchema: { type: 'object', properties: { memberIds: { type: 'array' }, label: { type: 'string' } } } },
+  { name: 'directorx_canvas_disconnect', readOnly: false, description: 'Remove an edge by from/to.', inputSchema: { type: 'object', properties: { from: { type: 'string' }, to: { type: 'string' } } } },
+  { name: 'directorx_canvas_sequence', readOnly: false, description: 'Write shotIndex 1..N and optionally connect media.', inputSchema: { type: 'object', properties: { ids: { type: 'array' }, connect: { type: 'boolean' } } } },
+  { name: 'directorx_canvas_plan', readOnly: false, description: 'Write acts/shots onto the canvas in one call.', inputSchema: { type: 'object', properties: { title: { type: 'string' }, acts: { type: 'array' }, connect: { type: 'boolean' } } } },
   { name: 'directorx_canvas_batch', readOnly: false, description: 'Batch add nodes and edges in one write.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
   { name: 'directorx_canvas_replace', readOnly: false, description: 'Replace the entire canvas document.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
   { name: 'directorx_canvas_arrange', readOnly: false, description: 'Auto-layout the canvas (grid/row).', inputSchema: { type: 'object', properties: { layout: { type: 'string' } } } },
@@ -110,6 +116,12 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
           switch (name) {
             case 'directorx_canvas_get': respond(envelope(await canvas.read())); return
             case 'directorx_canvas_add': respond(envelope(await canvas.addNode(args as never))); return
+            case 'directorx_canvas_node': respond(envelope(await canvas.getNode(String(args.id ?? '')))); return
+            case 'directorx_canvas_groups': respond(envelope(await canvas.listGroups())); return
+            case 'directorx_canvas_group': respond(envelope(await canvas.groupNodes({ memberIds: Array.isArray(args.memberIds) ? args.memberIds.map(String) : [], ...(typeof args.label === 'string' ? { label: args.label } : {}) }))); return
+            case 'directorx_canvas_disconnect': respond(envelope(await canvas.disconnect(String(args.from ?? ''), String(args.to ?? '')))); return
+            case 'directorx_canvas_sequence': respond(envelope(await canvas.sequenceShots({ ids: Array.isArray(args.ids) ? args.ids.map(String) : [], ...(args.connect === true ? { connect: true } : {}) }))); return
+            case 'directorx_canvas_plan': respond(envelope(await canvas.planBoard({ acts: Array.isArray(args.acts) ? args.acts as never[] : [], ...(typeof args.title === 'string' ? { title: args.title } : {}), ...(args.connect === false ? { connect: false } : {}) }))); return
             case 'directorx_canvas_batch': respond(envelope(await canvas.batchAdd({ nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] }))); return
             case 'directorx_canvas_replace': { const current = await canvas.read(); respond(envelope(await canvas.write({ version: 1, updatedAt: 0, nodes: (args.nodes ?? []) as never[], edges: (args.edges ?? []) as never[] }, current.updatedAt))); return }
             case 'directorx_canvas_arrange': respond(envelope(await canvas.arrange(args.layout === 'row' ? 'row' : 'grid'))); return

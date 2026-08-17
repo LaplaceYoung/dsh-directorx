@@ -53,9 +53,14 @@ user-invocable: true
   `directorx_extract_frames`（frame-qa）、WebUI 右侧时间线编辑器
   （分割/重排/混音/导出）。
 - 质检：抽帧 + `directorx_view_image` 对照镜头契约逐镜判定 pass/retake。
-- 画布：`directorx_canvas_*` 维护分镜板（节点=镜头/素材，连线=承接关系，
-  分组=幕/段落）；`directorx_canvas_arrange` 整理，`directorx_canvas_replace`
-  整体重排。
+- 画布（DSH 掌管，增删改查/分组/编排都走工具）：
+  - 查：`directorx_canvas_get` / `directorx_canvas_node` / `directorx_canvas_search` / `directorx_canvas_summary` / `directorx_canvas_groups`
+  - 增：`directorx_canvas_add`（可带 prompt/shotIndex）/ `directorx_canvas_batch` / `directorx_canvas_plan`（幕→组、镜→节点，一次写入）
+  - 改：`directorx_canvas_update` / `directorx_canvas_sequence`（写镜号，可选连承接）
+  - 删：`directorx_canvas_remove` / `directorx_canvas_disconnect` / `directorx_canvas_clear`
+  - 分组：`directorx_canvas_group` / `directorx_canvas_dissolve_group`
+  - 编排：`directorx_canvas_plan` → `arrange` / `layout_hierarchy` → `shotlist` → `directorx_confirm`
+  WebUI 不得写 generating 节点。
 - 任务：`directorx_task_status` / `directorx_cancel_task` 恢复与止损异步任务；
   超时先查账本，不盲目重提。
 - 字幕：`directorx_transcribe_audio`（srt）产出字幕，供时间线编辑器使用。

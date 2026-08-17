@@ -148,7 +148,7 @@ flowchart LR
 | 分诊 | `directorx_brief` | 类型、平台、时长、澄清问题、compose 阶段图 |
 | 镜头 | `directorx_shot` / `shot_sequence` / `shot_gate` | 景别运镜布光 → 提示词；相邻镜承接；生成前门禁 |
 | 占位 | `directorx_propose` / `canvas_shotlist` / `directorx_confirm` | 完整规格入队；编号分镜表；DSH 提问卡片签字。人也可 `/directorx` 直接看制片板 |
-| 画布 | `directorx_canvas_*` | 节点、连线、Take、连续性、意图领取（DSH 掌管） |
+| 画布 | `canvas_plan` / `group` / `sequence` / `node` | DSH 增删改查、分组、按幕写分镜；WebUI 不写生成节点 |
 | 剪辑 | `directorx_timeline` / `edit` / `smart_cut` | 场景、转场、混音、人话改时间线 |
 | 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
 | 知识 | `directorx_knowledge_search` / `read` | 351 篇语料，按工艺检索 |

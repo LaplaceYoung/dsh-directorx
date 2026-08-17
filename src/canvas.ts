@@ -284,6 +284,14 @@ export class DirectorxCanvasStore {
     }
   }
 
+  private canConnect(from: CanvasNode, to: CanvasNode): boolean {
+    if (to.locked === true) return false
+    if (to.kind === 'text' || to.kind === 'group') return false
+    if (from.kind === 'group') return false
+    if (from.kind === 'video' && to.kind === 'image') return false
+    return to.kind === 'image' || to.kind === 'video'
+  }
+
   async update(id: string, patch: Record<string, unknown>): Promise<CanvasDocument> {
     return this.mutate(doc => {
       const nodeIndex = doc.nodes.findIndex(node => node.id === id)
@@ -648,5 +656,196 @@ export class DirectorxCanvasStore {
         })
       }
     })
+  }
+
+  /** 查一条：节点带入/出边与组员，或一条边。 */
+  async getNode(id: string): Promise<
+    | { kind: 'node'; node: CanvasNode; inbound: CanvasEdge[]; outbound: CanvasEdge[]; members: CanvasNode[] }
+    | { kind: 'edge'; edge: CanvasEdge }
+  > {
+    const doc = await this.read()
+    const node = doc.nodes.find(candidate => candidate.id === id)
+    if (node !== undefined) {
+      return {
+        kind: 'node',
+        node,
+        inbound: doc.edges.filter(edge => edge.to === id),
+        outbound: doc.edges.filter(edge => edge.from === id),
+        members: node.kind === 'group' ? doc.nodes.filter(candidate => candidate.parent === id) : [],
+      }
+    }
+    const edge = doc.edges.find(candidate => candidate.id === id)
+    if (edge !== undefined) return { kind: 'edge', edge }
+    throw new Error(`canvas element "${id}" not found`)
+  }
+
+  /** 分组一览：每个 group 带成员（id/kind/label/shotIndex）。 */
+  async listGroups(): Promise<Array<{
+    id: string
+    label: string
+    shotStatus: string | null
+    members: Array<{ id: string; kind: CanvasNodeKind; label: string; shotIndex: number | null }>
+  }>> {
+    const doc = await this.read()
+    return doc.nodes.filter(node => node.kind === 'group').map(group => ({
+      id: group.id,
+      label: group.label,
+      shotStatus: group.shotStatus ?? null,
+      members: doc.nodes
+        .filter(node => node.parent === group.id)
+        .map(node => ({ id: node.id, kind: node.kind, label: node.label, shotIndex: node.shotIndex ?? null })),
+    }))
+  }
+
+  /** 把已有节点收进一个新 group（相对坐标保留；组框包住成员）。 */
+  async groupNodes(input: { memberIds: string[]; label?: string }): Promise<{ doc: CanvasDocument; groupId: string }> {
+    if (input.memberIds.length === 0) throw new Error('group needs at least one member id')
+    let groupId = ''
+    const doc = await this.mutate(draft => {
+      const members: CanvasNode[] = []
+      for (const id of input.memberIds) {
+        const node = draft.nodes.find(candidate => candidate.id === id)
+        if (node === undefined) throw new Error(`canvas node "${id}" not found`)
+        if (node.kind === 'group') throw new Error(`cannot put group "${id}" inside a new group`)
+        members.push(node)
+      }
+      const minX = Math.min(...members.map(node => node.x))
+      const minY = Math.min(...members.map(node => node.y))
+      const maxX = Math.max(...members.map(node => node.x + (node.width ?? 240)))
+      const maxY = Math.max(...members.map(node => node.y + (node.height ?? 160)))
+      const group = sanitizeNode({
+        kind: 'group',
+        label: input.label ?? '组',
+        x: minX - 40,
+        y: minY - 48,
+        width: Math.max(320, maxX - minX + 80),
+        height: Math.max(240, maxY - minY + 96),
+      })
+      groupId = group.id
+      draft.nodes.push(group)
+      for (const member of members) member.parent = groupId
+    })
+    return { doc, groupId }
+  }
+
+  /** 按端点删一条边（不用先查 edge id）。 */
+  async disconnect(from: string, to: string): Promise<CanvasDocument> {
+    return this.mutate(doc => {
+      const next = doc.edges.filter(edge => !(edge.from === from && edge.to === to))
+      if (next.length === doc.edges.length) throw new Error(`no edge ${from} -> ${to}`)
+      doc.edges = next
+    })
+  }
+
+  /**
+   * 编排已有镜头：按传入顺序写入 shotIndex，可选把相邻 image/video 连成承接边。
+   */
+  async sequenceShots(input: { ids: string[]; connect?: boolean; edgeLabel?: string }): Promise<CanvasDocument> {
+    if (input.ids.length === 0) throw new Error('sequence needs at least one node id')
+    return this.mutate(doc => {
+      const nodes: CanvasNode[] = []
+      for (const id of input.ids) {
+        const node = doc.nodes.find(candidate => candidate.id === id)
+        if (node === undefined) throw new Error(`canvas node "${id}" not found`)
+        nodes.push(node)
+      }
+      nodes.forEach((node, index) => {
+        node.shotIndex = index + 1
+      })
+      if (input.connect !== true) return
+      const media = nodes.filter(node => node.kind === 'image' || node.kind === 'video')
+      for (let index = 0; index < media.length - 1; index += 1) {
+        const fromNode = media[index]
+        const toNode = media[index + 1]
+        if (!this.canConnect(fromNode, toNode)) continue
+        if (doc.edges.some(edge => edge.from === fromNode.id && edge.to === toNode.id)) continue
+        const edge = sanitizeEdge({ from: fromNode.id, to: toNode.id, label: input.edgeLabel ?? '承接' })
+        this.validateEdgeForDoc(doc, edge)
+        doc.edges.push(edge)
+      }
+    })
+  }
+
+  /**
+   * 把幕/镜计划一次写入画布：每幕一个 group，每镜一个节点，全局 shotIndex，
+   * 相邻媒体镜连承接边。不生成媒体。
+   */
+  async planBoard(input: {
+    title?: string
+    acts: Array<{
+      label: string
+      shots: Array<{
+        kind?: CanvasNodeKind
+        label: string
+        prompt?: string
+        seconds?: number
+        continuity?: string[]
+      }>
+    }>
+    connect?: boolean
+  }): Promise<{
+    doc: CanvasDocument
+    groups: Array<{ id: string; label: string; shotIds: string[] }>
+  }> {
+    if (input.acts.length === 0) throw new Error('plan needs at least one act')
+    const groups: Array<{ id: string; label: string; shotIds: string[] }> = []
+    const doc = await this.mutate(draft => {
+      if (input.title !== undefined && input.title.trim() !== '') draft.title = input.title.trim().slice(0, 200)
+      let shotNumber = draft.nodes.reduce((max, node) => Math.max(max, node.shotIndex ?? 0), 0)
+      const mediaIds: string[] = []
+      input.acts.forEach((act, actIndex) => {
+        if (act.shots.length === 0) throw new Error(`act "${act.label}" has no shots`)
+        const group = sanitizeNode({
+          kind: 'group',
+          label: act.label,
+          x: actIndex * 640,
+          y: 0,
+          width: 560,
+          height: Math.max(280, 64 + act.shots.length * 180),
+        })
+        draft.nodes.push(group)
+        const shotIds: string[] = []
+        act.shots.forEach((shot, shotIndex) => {
+          shotNumber += 1
+          const kind = shot.kind === 'image' || shot.kind === 'video' || shot.kind === 'text' || shot.kind === 'group'
+            ? shot.kind
+            : 'video'
+          if (kind === 'group') throw new Error(`shot "${shot.label}" cannot be kind=group; use an act`)
+          const seconds = typeof shot.seconds === 'number' && Number.isFinite(shot.seconds) && shot.seconds > 0
+            ? Math.min(30, Math.round(shot.seconds))
+            : undefined
+          const basePrompt = (shot.prompt ?? '').trim()
+          const prompt = seconds === undefined
+            ? (basePrompt === '' ? undefined : basePrompt)
+            : (basePrompt === '' ? `${seconds}s` : `${basePrompt}, ${seconds}s`)
+          const node = sanitizeNode({
+            kind,
+            label: shot.label,
+            parent: group.id,
+            x: group.x + 48,
+            y: group.y + 56 + shotIndex * 180,
+            shotIndex: shotNumber,
+            shotStatus: 'idea',
+            ...(prompt !== undefined ? { prompt } : {}),
+            ...(shot.continuity !== undefined && shot.continuity.length > 0 ? { continuityRules: shot.continuity } : {}),
+          })
+          draft.nodes.push(node)
+          shotIds.push(node.id)
+          if (kind === 'image' || kind === 'video') mediaIds.push(node.id)
+        })
+        groups.push({ id: group.id, label: act.label, shotIds })
+      })
+      if (input.connect === false) return
+      const byId = new Map(draft.nodes.map(node => [node.id, node]))
+      for (let index = 0; index < mediaIds.length - 1; index += 1) {
+        const fromNode = byId.get(mediaIds[index])
+        const toNode = byId.get(mediaIds[index + 1])
+        if (fromNode === undefined || toNode === undefined || !this.canConnect(fromNode, toNode)) continue
+        const edge = sanitizeEdge({ from: fromNode.id, to: toNode.id, label: '承接' })
+        this.validateEdgeForDoc(draft, edge)
+        draft.edges.push(edge)
+      }
+    })
+    return { doc, groups }
   }
 }

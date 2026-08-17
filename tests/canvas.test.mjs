@@ -77,6 +77,99 @@ test('canvas grouping: members follow their group, arrange keeps children inside
   }
 })
 
+test('canvas add persists prompt and shotIndex for DSH storyboard writes', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    const doc = await store.addNode({
+      id: 'shot-open',
+      kind: 'video',
+      label: '开场',
+      prompt: 'wide street rain, 4s',
+      shotIndex: 1,
+      shotStatus: 'idea',
+      continuityRules: ['red scarf'],
+    })
+    const node = doc.nodes.find(item => item.id === 'shot-open')
+    assert.equal(node.prompt, 'wide street rain, 4s')
+    assert.equal(node.shotIndex, 1)
+    assert.equal(node.shotStatus, 'idea')
+    assert.deepEqual(node.continuityRules, ['red scarf'])
+    const got = await store.getNode('shot-open')
+    assert.equal(got.kind, 'node')
+    assert.equal(got.node.id, 'shot-open')
+    assert.deepEqual(got.inbound, [])
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas group / groups / disconnect / sequence are DSH-callable primitives', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ id: 'a', kind: 'video', label: 'A', x: 0, y: 0 })
+    await store.addNode({ id: 'b', kind: 'video', label: 'B', x: 280, y: 0 })
+    await store.addNode({ id: 'c', kind: 'video', label: 'C', x: 560, y: 0 })
+    const grouped = await store.groupNodes({ memberIds: ['a', 'b', 'c'], label: '第一幕' })
+    assert.equal(grouped.groupId.startsWith('group-'), true)
+    const listed = await store.listGroups()
+    assert.equal(listed.length, 1)
+    assert.equal(listed[0].label, '第一幕')
+    assert.deepEqual(listed[0].members.map(member => member.id), ['a', 'b', 'c'])
+
+    const sequenced = await store.sequenceShots({ ids: ['c', 'a', 'b'], connect: true })
+    assert.equal(sequenced.nodes.find(node => node.id === 'c').shotIndex, 1)
+    assert.equal(sequenced.nodes.find(node => node.id === 'a').shotIndex, 2)
+    assert.equal(sequenced.nodes.find(node => node.id === 'b').shotIndex, 3)
+    assert.equal(sequenced.edges.length, 2)
+    assert.ok(sequenced.edges.some(edge => edge.from === 'c' && edge.to === 'a'))
+
+    const after = await store.disconnect('c', 'a')
+    assert.equal(after.edges.some(edge => edge.from === 'c' && edge.to === 'a'), false)
+    await assert.rejects(() => store.disconnect('c', 'a'), /no edge/)
+    await assert.rejects(() => store.groupNodes({ memberIds: [grouped.groupId] }), /cannot put group/)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('canvas planBoard writes acts as groups and shots as numbered nodes', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    const planned = await store.planBoard({
+      title: '祝福·试笔',
+      acts: [
+        {
+          label: '鲁镇卫家',
+          shots: [
+            { label: '建立', prompt: 'winter courtyard, wide', seconds: 5, continuity: ['祥林嫂'] },
+            { label: '特写', kind: 'image', prompt: 'her face, still' },
+          ],
+        },
+        {
+          label: '祝福夜',
+          shots: [{ label: '爆竹', prompt: 'firecrackers night street', seconds: 6 }],
+        },
+      ],
+    })
+    assert.equal(planned.groups.length, 2)
+    assert.equal(planned.groups[0].shotIds.length, 2)
+    assert.equal(planned.doc.title, '祝福·试笔')
+    const first = planned.doc.nodes.find(node => node.id === planned.groups[0].shotIds[0])
+    assert.equal(first.shotIndex, 1)
+    assert.equal(first.parent, planned.groups[0].id)
+    assert.match(first.prompt, /5s/)
+    assert.deepEqual(first.continuityRules, ['祥林嫂'])
+    assert.equal(planned.doc.edges.length, 1, 'video→image is skipped by the edge matrix; image→video connects')
+    const order = await store.shotSequence(planned.groups[0].id)
+    assert.equal(order[0].shotIndex, 1)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas read migrates legacy documents (no version/updatedAt, dangling parent)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
   try {
