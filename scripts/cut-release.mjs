@@ -17,7 +17,7 @@ function git(args, opts = {}) {
 const version = packageVersion(root)
 const tag = `v${version}`
 const notes = extractReleaseNotes(readFileSync(join(root, 'CHANGELOG.md'), 'utf8'), version)
-const status = git(['status', '--porcelain'])
+const status = git(['status', '--porcelain', '--untracked-files=no'])
 if (status !== '' && !allowDirty) {
   throw new Error('working tree is dirty; commit first or pass --allow-dirty')
 }
