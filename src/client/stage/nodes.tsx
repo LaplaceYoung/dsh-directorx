@@ -62,6 +62,7 @@ function Ports(): ReactNode {
 export type CardActions = {
   onGenerate?: (id: string) => void
   onPatch?: (id: string, patch: Record<string, unknown>) => void
+  onClearRevise?: () => void
   onAdoptTake?: (id: string) => void
   onFocusTake?: (id: string) => void
   onEdit?: (id: string) => void
@@ -267,7 +268,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
   const data = props.data as {
     kind?: string; label?: string; path?: string; shotStatus?: string; locked?: boolean
     prompt?: string; model?: string; aspect?: string; count?: number; durationSec?: number; lastError?: string
-    characters?: string[]; shotIndex?: number
+    characters?: string[]; shotIndex?: number; revise?: boolean
   } & CardActions
   const empty = data.path === undefined || data.path === ''
   const [shellRef, near] = useNearViewport()
@@ -313,6 +314,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
     ...(data.characters !== undefined ? { characters: data.characters } : {}),
     ...(refs.length > 0 ? { refIds: refs } : {}),
     sourceId: props.id,
+    ...(data.revise === true ? { revise: true, targetId: props.id } : {}),
   }
   return (
     <NodeFrame
@@ -345,15 +347,18 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
         <NodeWorkstation
           spec={spec}
           compact
-          onChange={next => data.onPatch?.(props.id, {
-            prompt: next.prompt,
-            model: next.model,
-            aspect: next.aspect,
-            count: next.count,
-            durationSec: next.durationSec,
-            kind: next.kind,
-            characters: next.characters,
-          })}
+          onChange={next => {
+            data.onPatch?.(props.id, {
+              prompt: next.prompt,
+              model: next.model,
+              aspect: next.aspect,
+              count: next.count,
+              durationSec: next.durationSec,
+              kind: next.kind,
+              characters: next.characters,
+            })
+            if (next.revise !== true) data.onClearRevise?.()
+          }}
           onSubmit={() => data.onGenerate?.(props.id)}
           onPickRef={data.onPickRef === undefined ? undefined : () => data.onPickRef?.(props.id)}
         />

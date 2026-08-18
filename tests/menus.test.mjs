@@ -73,7 +73,7 @@ test('menu labels use ordinary canvas-editor names', () => {
   assert.ok(labels.includes('去字幕'))
   assert.ok(labels.includes('视频延长'))
   assert.ok(labels.includes('导出 GIF'))
-  assert.ok(labels.includes('重新生成…'))
+  assert.ok(labels.includes('重新生成'))
   assert.ok(labels.includes('自动连线'))
   assert.ok(!labels.some(label => /开拍|写成稿|抽帧上板|铺成分镜|去硬字|续写位|改这一镜|按引用/.test(label)))
   const add = addMenuRows('full').map(row => row.label)

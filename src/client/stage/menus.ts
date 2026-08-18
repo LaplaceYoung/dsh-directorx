@@ -92,7 +92,7 @@ export function nodeMenuRows(surface: NodeMenuSurface): MenuRow[] {
     rows.push({ id: 'split', label: '拆分宫格', section: 'craft' })
   }
   if (surface.type === 'media') {
-    rows.push({ id: 'revise', label: '重新生成…', section: 'craft' })
+    rows.push({ id: 'revise', label: '重新生成', section: 'craft' })
   }
   rows.push({ id: 'autolink', label: '自动连线', section: 'craft' })
   if (surface.hasPath) rows.push({ id: 'download', label: '下载', section: 'edit' })

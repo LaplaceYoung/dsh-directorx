@@ -177,6 +177,25 @@ test('POST /directorx/canvas/craft scripts a board without generating', async ()
   }
 })
 
+test('parse preview lists shots without writing nodes', { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-parse-preview-'))
+  try {
+    const clip = makeVideo(dir, 'source.mp4')
+    const store = new DirectorxCanvasStore(dir)
+    await store.addNode({ kind: 'video', id: 'src', label: '成片', path: clip, x: 40, y: 40 })
+    const preview = await runCanvasCraft({ outputDir: dir, action: 'parse', nodeId: 'src', preview: true })
+    assert.equal(preview.preview, true)
+    assert.equal(preview.reused, false)
+    assert.ok((preview.shots ?? []).length >= 1)
+    assert.equal(preview.doc.nodes.filter(node => node.id !== 'src').length, 0)
+    const applied = await runCanvasCraft({ outputDir: dir, action: 'parse', nodeId: 'src', shots: preview.shots })
+    assert.equal(applied.preview, undefined)
+    assert.ok(applied.doc.nodes.some(node => node.kind === 'text' && /解析/.test(node.label)))
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('one-click parse pins a script card and cut stills', { skip: !hasFfmpeg }, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-parse-'))
   try {

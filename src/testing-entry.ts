@@ -78,7 +78,7 @@ export {
   runBlocking, harvestBlocking, parseBeats, buildTicks, pinBlocking,
   BLOCKING_STAMP, BLOCKING_NODE_ID,
 } from './blocking.ts'
-export { applyVideoParse, formatParseScript } from './canvas-parse.ts'
+export { applyVideoParse, formatParseScript, parsePreviewShots } from './canvas-parse.ts'
 export {
   applyDesub, applyExtendCut, applyGifExport, applyGridJoin, applySplitScreen,
   parseDesubRegion, DESUB_STAMP, EXTEND_STAMP, GIF_STAMP, JOIN_STAMP, STACK_STAMP,

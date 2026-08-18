@@ -66,6 +66,7 @@ import { MAX_MEDIA_BYTES, mimeForPath, parseMediaQuery, parseRangeHeader, resolv
 import { applyGrade, inferMediaKind, resolveGradeLook } from './providers/grade.ts'
 import { StudioTicketStore } from './studio-intent.ts'
 import { parseCraftAction, runCanvasCraft } from './canvas-craft.ts'
+import { parsePreviewShots } from './canvas-parse.ts'
 
 /** Exact pathname the browser fetches generated media from: `/directorx/media?path=<abs-or-relative>` (GET) or saves edits to (POST). */
 export const MEDIA_ROUTE_PATH = '/directorx/media'
@@ -715,6 +716,7 @@ export function registerCanvasCraftRoute(ctx: Context, getOutputDir: () => strin
       }
       try {
         const body = await readBodyLocal(request, 256 * 1024)
+        const previewShots = parsePreviewShots(body.shots)
         const result = await runCanvasCraft({
           outputDir: getOutputDir(),
           action: parseCraftAction(body.action),
@@ -724,6 +726,8 @@ export function registerCanvasCraftRoute(ctx: Context, getOutputDir: () => strin
           ...(Array.isArray(body.nodeIds) ? { nodeIds: body.nodeIds.map(String) } : {}),
           ...(body.arrange === true || body.arrange === false ? { arrange: body.arrange } : {}),
           ...(body.describe === true ? { describe: true } : {}),
+          ...(body.preview === true ? { preview: true } : {}),
+          ...(previewShots !== undefined ? { shots: previewShots } : {}),
           ...(typeof body.start === 'number' ? { start: body.start } : {}),
           ...(typeof body.end === 'number' ? { end: body.end } : {}),
           ...(typeof body.prompt === 'string' ? { prompt: body.prompt } : {}),

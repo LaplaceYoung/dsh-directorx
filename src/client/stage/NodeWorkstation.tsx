@@ -180,8 +180,19 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
         gap: 6,
       }}
     >
-      {props.sourceLabel !== undefined || (props.spec.refIds ?? []).length > 0 || (props.spec.characters ?? []).length > 0 ? (
+      {props.spec.revise === true || props.sourceLabel !== undefined || (props.spec.refIds ?? []).length > 0 || (props.spec.characters ?? []).length > 0 ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+          {props.spec.revise === true ? (
+            <button
+              className="dx-hit"
+              title="取消重新生成，改为新建"
+              onClick={() => props.onChange({ ...props.spec, revise: undefined, targetId: undefined })}
+              style={{ ...dxGhostBtn, width: 'auto', height: 22, padding: '0 7px', gap: 4, fontSize: 10, background: 'rgba(255,255,255,.12)' }}
+            >
+              重新生成
+              <IconClose size={9} />
+            </button>
+          ) : null}
           {chips}
         </div>
       ) : null}
@@ -190,7 +201,7 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
           compact={compact}
           inputRef={props.inputRef}
           value={props.spec.prompt}
-          placeholder="这一镜的意图（DSH 会先检索再写成稿）"
+          placeholder={props.spec.revise === true ? '改哪里，或直接沿用当前提示词再生成' : '这一镜的意图（DSH 会先检索再写成稿）'}
           rows={2}
           onChange={value => props.onChange({ ...props.spec, prompt: value })}
           onKeyDown={event => {

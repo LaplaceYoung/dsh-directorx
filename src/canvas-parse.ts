@@ -74,15 +74,37 @@ export function formatParseScript(sourceLabel: string, shots: ShotSegment[]): st
   return lines.join('\n')
 }
 
+export function parsePreviewShots(value: unknown): ShotSegment[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const shots: ShotSegment[] = []
+  for (const item of value) {
+    if (item === null || typeof item !== 'object') continue
+    const rec = item as Record<string, unknown>
+    if (typeof rec.start !== 'number' || typeof rec.end !== 'number') continue
+    shots.push({
+      index: typeof rec.index === 'number' ? rec.index : shots.length + 1,
+      start: rec.start,
+      end: rec.end,
+      durationSec: typeof rec.durationSec === 'number' ? rec.durationSec : Number((rec.end - rec.start).toFixed(2)),
+      ...(typeof rec.framePath === 'string' && rec.framePath !== '' ? { framePath: rec.framePath } : {}),
+      description: typeof rec.description === 'string' ? rec.description : null,
+    })
+  }
+  return shots.length > 0 ? shots : undefined
+}
+
 export async function applyVideoParse(input: {
   store: DirectorxCanvasStore
   outputDir: string
   nodeId: string
   describe?: boolean
+  preview?: boolean
+  shots?: ShotSegment[]
   settings?: DirectorxSettings
 }): Promise<{
   action: 'parse'
   reused: boolean
+  preview?: boolean
   sourceId: string
   shots: ShotSegment[]
   script: string
@@ -115,19 +137,34 @@ export async function applyVideoParse(input: {
     }
   }
 
-  const sourcePath = resolveLocalVideo(input.outputDir, source.path)
-  const settings = input.settings ?? mockSettings(input.outputDir)
-  const analysis = await videoAnalyze({
-    source: sourcePath,
-    outputDir: input.outputDir,
-    settings,
-    vision: settings.vision,
-    minShotSec: 0.8,
-    describe: input.describe === true,
-  })
-  const shots = mergeShots(analysis.shots, MAX_PARSE_SHOTS)
+  let shots = input.shots !== undefined && input.shots.length > 0 ? mergeShots(input.shots, MAX_PARSE_SHOTS) : []
+  if (shots.length === 0) {
+    const sourcePath = resolveLocalVideo(input.outputDir, source.path)
+    const settings = input.settings ?? mockSettings(input.outputDir)
+    const analysis = await videoAnalyze({
+      source: sourcePath,
+      outputDir: input.outputDir,
+      settings,
+      vision: settings.vision,
+      minShotSec: 0.8,
+      describe: input.describe === true,
+    })
+    shots = mergeShots(analysis.shots, MAX_PARSE_SHOTS)
+  }
   if (shots.length === 0) throw new Error('没有拆出镜头')
   const script = formatParseScript(source.label || '成片', shots)
+  if (input.preview === true) {
+    return {
+      action: 'parse',
+      reused: false,
+      preview: true,
+      sourceId: source.id,
+      shots,
+      script,
+      nodeIds: [],
+      doc,
+    }
+  }
 
   const cardW = 280
   const cardH = 158

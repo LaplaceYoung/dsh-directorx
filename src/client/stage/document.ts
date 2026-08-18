@@ -89,8 +89,10 @@ export type StageData = {
   count?: number
   characters?: string[]
   continuityRules?: string[]
+  revise?: boolean
   onGenerate?: (id: string) => void
   onPatch?: (id: string, patch: Partial<StageData>) => void
+  onClearRevise?: () => void
   onAdoptTake?: (id: string) => void
   onFocusTake?: (id: string) => void
   onEdit?: (id: string) => void

@@ -21,6 +21,8 @@ export interface CanvasCraftInput {
   nodeIds?: string[]
   arrange?: boolean
   describe?: boolean
+  preview?: boolean
+  shots?: ShotSegment[]
   start?: number
   end?: number
   prompt?: string
@@ -52,6 +54,7 @@ export interface CanvasCraftResult {
   scriptId?: string
   script?: string
   shots?: ShotSegment[]
+  preview?: boolean
   phase?: 'cut' | 'assemble'
   midId?: string
   resultId?: string
@@ -118,11 +121,14 @@ export async function runCanvasCraft(input: CanvasCraftInput): Promise<CanvasCra
       outputDir: input.outputDir,
       nodeId: input.nodeId,
       ...(input.describe === true ? { describe: true } : {}),
+      ...(input.preview === true ? { preview: true } : {}),
+      ...(input.shots !== undefined ? { shots: input.shots } : {}),
       ...(input.settings !== undefined ? { settings: input.settings } : {}),
     })
     result = {
       action: 'parse',
       reused: applied.reused,
+      ...(applied.preview === true ? { preview: true } : {}),
       sourceId: applied.sourceId,
       shots: applied.shots,
       script: applied.script,

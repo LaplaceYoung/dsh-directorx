@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { Combinator, MP4Clip, OffscreenSprite } from '@webav/av-cliper'
 import { dx } from '../canvas-theme.ts'
-import { IconPause, IconPlay, IconScissors, IconSkipBack, IconSkipFwd, IconTrash } from './icons.tsx'
+import { IconPause, IconPlay, IconScissors, IconSkipBack, IconSkipFwd, IconSliders, IconTrash } from './icons.tsx'
 import { StudioField, StudioShell, studioBtn } from './studio-chrome.tsx'
 import { withProject, projectHeaders } from './project.ts'
 import { GRADE_FAMILIES, GRADE_LOOK_LIST, looksByFamily } from '../../providers/grade-catalog.ts'
@@ -44,6 +44,8 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
   const [trim, setTrim] = useState<'start' | 'end' | 'head' | undefined>(undefined)
   const [lookId, setLookId] = useState<string | undefined>(undefined)
   const [gradeBusy, setGradeBusy] = useState(false)
+  const [mode, setMode] = useState<'cut' | 'grade'>('cut')
+  const [mediaSrc, setMediaSrc] = useState(props.source)
 
   useEffect(() => {
     let live = true
@@ -74,6 +76,10 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
       clipRef.current?.destroy()
       clipRef.current = null
     }
+  }, [props.source])
+
+  useEffect(() => {
+    setMediaSrc(props.source)
   }, [props.source])
 
   useEffect(() => {
@@ -145,7 +151,16 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
       if (!response.ok || body.ok === false) throw new Error(body.message ?? `调色失败 (${response.status})`)
       if (typeof body.path === 'string' && body.path !== '') {
         const blob = await fetch(body.path.startsWith('http') ? body.path : withProject(`/directorx/media?path=${encodeURIComponent(body.path)}`)).then(item => item.blob())
-        props.onExport(blob, 'video/mp4')
+        const next = URL.createObjectURL(blob)
+        setMediaSrc(current => {
+          if (current.startsWith('blob:')) URL.revokeObjectURL(current)
+          return next
+        })
+        const clip = new MP4Clip(blob.stream())
+        await clip.ready
+        clipRef.current?.destroy()
+        clipRef.current = clip
+        setLookId(undefined)
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
@@ -252,17 +267,12 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
       onSave={() => { void exportMp4() }}
       onClose={props.onClose}
       tools={[
-        { id: 'play', label: playing ? '暂停' : '播放', icon: playing ? <IconPause size={15} /> : <IconPlay size={15} /> },
-        { id: 'split', label: '分割', icon: <IconScissors size={15} /> },
-        { id: 'delete', label: '删除片段', icon: <IconTrash size={15} /> },
+        { id: 'cut', label: '剪辑', icon: <IconScissors size={15} /> },
+        { id: 'grade', label: '调色', icon: <IconSliders size={15} /> },
       ]}
-      tool="play"
-      onTool={id => {
-        if (id === 'play') togglePlay()
-        if (id === 'split') split()
-        if (id === 'delete') remove()
-      }}
-      inspector={(
+      tool={mode}
+      onTool={id => setMode(id === 'grade' ? 'grade' : 'cut')}
+      inspector={mode === 'grade' ? (
         <>
           <div style={{ fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase', color: dx.mute, marginBottom: 12 }}>色调</div>
           {GRADE_FAMILIES.map(family => (
@@ -283,18 +293,20 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
               </div>
             </div>
           ))}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            <button className="dx-hit" style={studioBtn} disabled={lookId === undefined || gradeBusy} onClick={() => { void applyLook() }}>
-              {gradeBusy ? '调色中…' : '应用调色'}
-            </button>
-          </div>
-          <div style={{ fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase', color: dx.mute, marginBottom: 12 }}>时间线</div>
+          <button className="dx-hit" style={studioBtn} disabled={lookId === undefined || gradeBusy} onClick={() => { void applyLook() }}>
+            {gradeBusy ? '调色中…' : '应用到预览'}
+          </button>
+          <div style={{ marginTop: 10, fontSize: 11, color: dx.dim, lineHeight: 1.5 }}>调色只改预览，确认后点「保存到画布」。</div>
+        </>
+      ) : (
+        <>
+          <div style={{ fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase', color: dx.mute, marginBottom: 12 }}>剪辑</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
             <button className="dx-hit" style={studioBtn} onClick={() => seek(Math.max(0, time - 1))}><IconSkipBack size={13} /> -1s</button>
             <button className="dx-hit" style={studioBtn} onClick={togglePlay}>{playing ? '暂停' : '播放'}</button>
             <button className="dx-hit" style={studioBtn} onClick={() => seek(time + 1)}><IconSkipFwd size={13} /> +1s</button>
-            <button className="dx-hit" style={studioBtn} onClick={split}>在播放头分割</button>
-            <button className="dx-hit" style={studioBtn} disabled={selected === undefined} onClick={remove}>删除片段</button>
+            <button className="dx-hit" style={studioBtn} onClick={split}>分割</button>
+            <button className="dx-hit" style={studioBtn} disabled={selected === undefined} onClick={remove}><IconTrash size={13} />删除</button>
           </div>
           <StudioField label="保留时长">
             <div style={{ color: dx.ink }}>{fmt(kept)} / {fmt(duration)}</div>
@@ -405,10 +417,21 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
         </div>
       )}
     >
-      <div style={{ flex: 1, minHeight: 0, display: 'grid', placeItems: 'center', padding: 16, background: '#050505' }}>
+      <div style={{ flex: 1, minHeight: 0, display: 'grid', placeItems: 'center', padding: 16, background: '#050505', position: 'relative' }}>
+        <button
+          className="dx-hit"
+          onClick={togglePlay}
+          title={playing ? '暂停' : '播放'}
+          style={{
+            position: 'absolute', left: 20, bottom: 20, zIndex: 2,
+            ...studioBtn, width: 36, height: 36, padding: 0,
+          }}
+        >
+          {playing ? <IconPause size={15} /> : <IconPlay size={15} />}
+        </button>
         <video
           ref={videoRef}
-          src={props.source}
+          src={mediaSrc}
           preload="auto"
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}

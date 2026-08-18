@@ -40,6 +40,7 @@ export interface GenerateSpec {
   targetId?: string
   refIds?: string[]
   characters?: string[]
+  revise?: boolean
 }
 
 export function aspectRatio(aspect?: string): number {

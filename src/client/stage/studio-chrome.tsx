@@ -40,6 +40,11 @@ export function StudioShell(props: {
   saveDisabled?: boolean
   onSave: () => void
   onClose: () => void
+  closeLabel?: string
+  canUndo?: boolean
+  canRedo?: boolean
+  onUndo?: () => void
+  onRedo?: () => void
   tools: Array<{ id: string; label: string; icon: ReactNode }>
   tool: string
   onTool: (id: string) => void
@@ -65,11 +70,17 @@ export function StudioShell(props: {
         </div>
         <span style={{ fontSize: 11, color: dx.dim }}>{props.meta}</span>
         <span style={{ flex: 1 }} />
-        <span style={{ fontSize: 11, color: dx.dim, letterSpacing: 0.2 }}>Esc 返回 · ⌘S 保存</span>
+        {props.onUndo !== undefined ? (
+          <button className="dx-hit" style={studioBtn} disabled={props.canUndo !== true} onClick={props.onUndo}>撤销</button>
+        ) : null}
+        {props.onRedo !== undefined ? (
+          <button className="dx-hit" style={studioBtn} disabled={props.canRedo !== true} onClick={props.onRedo}>重做</button>
+        ) : null}
+        <span style={{ fontSize: 11, color: dx.dim, letterSpacing: 0.2 }}>Esc 完成 · ⌘S 保存</span>
         <button className="dx-hit dx-cta" style={studioPrimary} disabled={props.saveDisabled === true} onClick={props.onSave}>
           {props.saveLabel}
         </button>
-        <button className="dx-hit" style={studioBtn} onClick={props.onClose}>返回画布</button>
+        <button className="dx-hit" style={studioBtn} onClick={props.onClose}>{props.closeLabel ?? '完成'}</button>
       </div>
       {props.error !== undefined ? (
         <div style={{ padding: '8px 16px', color: '#ff9b8f', fontSize: 12, background: 'rgba(40,16,14,.85)' }}>{props.error}</div>

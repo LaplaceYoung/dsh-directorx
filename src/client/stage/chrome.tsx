@@ -515,42 +515,73 @@ export function ReshootDialog(props: {
   )
 }
 
-export function ReviseDialog(props: {
-  label: string
-  prompt: string
+export function ParseSheet(props: {
+  sourceLabel: string
+  shots: Array<{ index: number; start: number; end: number; durationSec: number; framePath?: string; description: string | null }>
+  busy?: boolean
+  onApply: () => void
   onCancel: () => void
-  onSubmit: (change: string) => void
 }): ReactNode {
-  const [change, setChange] = useState(props.prompt)
   return (
     <div
+      className="dx-parse-sheet"
       style={{
-        ...dxChrome,
         position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 40,
-        width: 360,
-        padding: 16,
-        borderRadius: 18,
+        left: 72,
+        right: 24,
+        bottom: 16,
+        zIndex: 29,
+        display: 'flex',
+        justifyContent: 'center',
+        pointerEvents: 'none',
       }}
-      onMouseDown={event => event.stopPropagation()}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>重新生成</div>
-      <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>只重做「{props.label}」。人设、画风、其它镜不动。</div>
-      <textarea
-        className="nodrag nopan"
-        value={change}
-        onChange={event => setChange(event.target.value)}
-        placeholder="这里要改成什么，比如眼神更狠一点"
-        style={{ width: '100%', height: 88, resize: 'none', borderRadius: 12, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: 10, fontSize: 13, fontFamily: dx.font, marginBottom: 12 }}
-      />
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 12px' }} onClick={props.onCancel}>取消</button>
-        <button className="dx-cta" style={{ ...dxPill, width: 'auto', height: 32, padding: '0 14px', fontSize: 12 }} onClick={() => props.onSubmit(change)}>
-          重新生成
-        </button>
+      <div
+        style={{
+          ...dxChrome,
+          width: 'min(720px, 100%)',
+          pointerEvents: 'auto',
+          padding: 12,
+          borderRadius: 18,
+        }}
+        onMouseDown={event => event.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>智能解析</div>
+          <div style={{ fontSize: 12, color: dx.mute }}>{props.sourceLabel} · {props.shots.length} 镜</div>
+          <span style={{ flex: 1 }} />
+          <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 30, padding: '0 10px' }} onClick={props.onCancel}>取消</button>
+          <button className="dx-cta" style={{ ...dxPill, width: 'auto', height: 30, padding: '0 12px', fontSize: 12 }} disabled={props.busy === true} onClick={props.onApply}>
+            应用到画布
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
+          {props.shots.map(shot => (
+            <div
+              key={shot.index}
+              style={{
+                flex: '0 0 148px',
+                borderRadius: 12,
+                border: `1px solid ${dx.hairline}`,
+                background: 'rgba(255,255,255,.04)',
+                overflow: 'hidden',
+              }}
+            >
+              <div style={{ height: 84, background: '#0b0b0b', display: 'grid', placeItems: 'center', color: dx.dim, fontSize: 11 }}>
+                {shot.framePath !== undefined && shot.framePath !== ''
+                  ? <img src={`/directorx/media?path=${encodeURIComponent(shot.framePath)}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : `${shot.start.toFixed(1)}s`}
+              </div>
+              <div style={{ padding: '7px 8px 8px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>镜{shot.index}</div>
+                <div style={{ fontSize: 10, color: dx.mute, marginTop: 2 }}>{shot.start.toFixed(1)}–{shot.end.toFixed(1)}s</div>
+                {shot.description !== null && shot.description !== '' ? (
+                  <div style={{ fontSize: 10, color: dx.dim, marginTop: 4, lineHeight: 1.4, maxHeight: 32, overflow: 'hidden' }}>{shot.description}</div>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

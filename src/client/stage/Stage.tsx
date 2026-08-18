@@ -12,7 +12,7 @@ import { StudioErrorBoundary } from './studio-chrome.tsx'
 import { closestPorts, flowAbsolutePosition, inferContinueKind, sideToHandle } from '../../canvas-generate.ts'
 import { INTER_HREF, dx } from '../canvas-theme.ts'
 import {
-  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet, ReshootDialog, ReviseDialog, SCRIPT_STARTER,
+  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet, ParseSheet, ReshootDialog, SCRIPT_STARTER,
   MultiSelectBar, NodeMenu, SearchPalette, ShortcutsSheet, StageRail, Toast, TopBar, ZoomHud, type AddKind,
 } from './chrome.tsx'
 import { cycleShotStatus, defaultSize, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
@@ -481,6 +481,12 @@ function StageInner(props: StageProps): ReactNode {
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeIds: string[] } | undefined>(undefined)
   const [reshootId, setReshootId] = useState<string | undefined>(undefined)
   const [reviseId, setReviseId] = useState<string | undefined>(undefined)
+  const [parsePreview, setParsePreview] = useState<{
+    nodeId: string
+    sourceLabel: string
+    script: string
+    shots: Array<{ index: number; start: number; end: number; durationSec: number; framePath?: string; description: string | null }>
+  } | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | undefined>(undefined)
   const [compose, setCompose] = useState<GenerateSpec>({
     kind: 'image',
@@ -557,8 +563,10 @@ function StageInner(props: StageProps): ReactNode {
       onDelete: (id: string) => actionRef.current.remove(id),
       onUpload: (id: string) => actionRef.current.upload(id),
       onPickRef: (id: string) => actionRef.current.pickRef(id),
+      onClearRevise: () => setReviseId(undefined),
+      ...(reviseId === node.id ? { revise: true } : {}),
     },
-  }), [])
+  }), [reviseId])
 
   useEffect(() => {
     if (document.getElementById('dx-fonts') !== null) return
@@ -812,13 +820,15 @@ function StageInner(props: StageProps): ReactNode {
         doc?: CanvasDoc
         reused?: boolean
         added?: unknown[]
-        shots?: unknown[]
+        shots?: Array<{ index?: number; start?: number; end?: number; durationSec?: number; framePath?: string; description?: string | null }>
         phase?: string
         midId?: string
         firstId?: string
         lastId?: string
         prompt?: string
         durationSec?: number
+        preview?: boolean
+        script?: string
       }
       if (!response.ok || body.ok === false) {
         showToast(typeof body.message === 'string' && body.message !== '' ? body.message : typeof body.error === 'string' ? body.error : '操作失败')
@@ -827,7 +837,8 @@ function StageInner(props: StageProps): ReactNode {
       if (body.doc !== undefined) applyDoc(body.doc)
       if (action === 'script') showToast(body.reused === true ? '这页剧本已经拆过' : '已生成分镜')
       else if (action === 'frames') showToast(body.reused === true ? '这段已经提取过帧' : '已提取帧')
-      else if (action === 'parse') showToast(body.reused === true ? '这段已经解析过' : `已解析 ${Array.isArray(body.shots) ? body.shots.length : ''} 镜`)
+      else if (action === 'parse' && extra.preview !== true) showToast(body.reused === true ? '这段已经解析过' : `已解析 ${Array.isArray(body.shots) ? body.shots.length : ''} 镜`)
+      else if (action === 'parse' && extra.preview === true && body.reused === true) showToast('这段已经解析过')
       else if (action === 'reshoot') showToast(body.phase === 'assemble' ? '已拼接' : '已切出重绘区间')
       else if (action === 'pack') showToast('已合成视频')
       else if (action === 'sheet') showToast('已生成九宫格')
@@ -1225,7 +1236,11 @@ function StageInner(props: StageProps): ReactNode {
   }, [compare, pushHistory, scheduleSave])
 
   const submitSpec = useCallback(async (spec: GenerateSpec) => {
-    const prompt = spec.prompt.trim()
+    const node = nodesRef.current.find(item => item.id === (spec.targetId ?? spec.sourceId))
+    const base = spec.prompt.trim() || (node?.data.prompt ?? '').trim() || (node?.data.label ?? '').trim()
+    const prompt = spec.revise === true
+      ? `镜改 ${node?.data.label ?? '这一镜'}：${base}`
+      : spec.prompt.trim()
     if (prompt === '' || askBusy) return
     setAskBusy(true)
     try {
@@ -1256,7 +1271,8 @@ function StageInner(props: StageProps): ReactNode {
         const sessionId = await ensureWorkspaceSession()
         await props.onAskDsh(message, sessionId)
       }
-      setCompose(current => ({ ...current, prompt: '' }))
+      setCompose(current => ({ ...current, prompt: '', revise: undefined }))
+      setReviseId(undefined)
       setSessionOpen(true)
       setSessionPulse(value => value + 1)
     } catch (cause) {
@@ -1293,21 +1309,54 @@ function StageInner(props: StageProps): ReactNode {
     })
   }, [reshootId, runCraft, submitSpec])
 
-  const submitRevise = useCallback(async (change: string) => {
-    if (reviseId === undefined) return
-    const node = nodesRef.current.find(item => item.id === reviseId)
-    setReviseId(undefined)
-    const text = change.trim()
-    if (text === '' || node === undefined) return
-    await submitSpec({
+  const openRevise = useCallback((id: string) => {
+    const node = nodesRef.current.find(item => item.id === id)
+    if (node === undefined) return
+    setNodes(current => current.map(item => ({ ...item, selected: item.id === id })))
+    setReviseId(id)
+    setCompose({
       kind: node.data.kind === 'video' ? 'video' : 'image',
-      prompt: `镜改 ${node.data.label}：${text}`,
-      sourceId: node.id,
-      targetId: node.id,
-      ...(typeof node.data.path === 'string' && node.data.path !== '' ? { refIds: [node.id] } : {}),
+      prompt: (node.data.prompt && node.data.prompt !== '' ? node.data.prompt : node.data.label) ?? '',
+      count: node.data.count ?? 1,
+      aspect: node.data.aspect ?? '16:9',
+      ...(node.data.model !== undefined ? { model: node.data.model } : {}),
+      ...(node.data.durationSec !== undefined ? { durationSec: node.data.durationSec } : {}),
       ...(node.data.characters !== undefined ? { characters: node.data.characters } : {}),
+      ...(typeof node.data.path === 'string' && node.data.path !== '' ? { refIds: [id] } : {}),
+      sourceId: id,
+      targetId: id,
+      revise: true,
     })
-  }, [reviseId, submitSpec])
+    window.setTimeout(() => {
+      const field = document.querySelector('.react-flow__node.selected .dx-card-dock textarea')
+      if (field instanceof HTMLTextAreaElement) field.focus()
+    }, 30)
+  }, [])
+
+  const openParse = useCallback(async (id: string) => {
+    const node = nodesRef.current.find(item => item.id === id)
+    const body = await runCraft('parse', { nodeId: id, preview: true })
+    if (body === undefined) return
+    if (body.reused === true) return
+    const shots = Array.isArray(body.shots) ? body.shots : []
+    if (shots.length === 0) {
+      showToast('没有拆出镜头')
+      return
+    }
+    setParsePreview({
+      nodeId: id,
+      sourceLabel: node?.data.label ?? '视频',
+      script: typeof body.script === 'string' ? body.script : '',
+      shots: shots.map((shot, index) => ({
+        index: typeof shot === 'object' && shot !== null && typeof (shot as { index?: unknown }).index === 'number' ? (shot as { index: number }).index : index + 1,
+        start: typeof shot === 'object' && shot !== null && typeof (shot as { start?: unknown }).start === 'number' ? (shot as { start: number }).start : 0,
+        end: typeof shot === 'object' && shot !== null && typeof (shot as { end?: unknown }).end === 'number' ? (shot as { end: number }).end : 0,
+        durationSec: typeof shot === 'object' && shot !== null && typeof (shot as { durationSec?: unknown }).durationSec === 'number' ? (shot as { durationSec: number }).durationSec : 0,
+        ...((shot as { framePath?: string }).framePath !== undefined ? { framePath: (shot as { framePath: string }).framePath } : {}),
+        description: typeof (shot as { description?: unknown }).description === 'string' ? (shot as { description: string }).description : null,
+      })),
+    })
+  }, [runCraft, showToast])
 
   const runNodeGenerate = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
@@ -1322,6 +1371,7 @@ function StageInner(props: StageProps): ReactNode {
       refIds: incomingRefIds(id, edgesRef.current),
       sourceId: id,
       targetId: id,
+      ...(reviseId === id ? { revise: true } : {}),
     }
     setCompose(spec)
     if (spec.prompt.trim() === '') {
@@ -1329,7 +1379,7 @@ function StageInner(props: StageProps): ReactNode {
       return
     }
     void submitSpec(spec)
-  }, [compose, focusCompose, submitSpec])
+  }, [compose, focusCompose, reviseId, submitSpec])
 
   const openPicker = useCallback(async () => {
     setPicker(true)
@@ -1705,6 +1755,18 @@ function StageInner(props: StageProps): ReactNode {
           setHelpOpen(false)
           return
         }
+        if (parsePreview !== undefined) {
+          setParsePreview(undefined)
+          return
+        }
+        if (reshootId !== undefined) {
+          setReshootId(undefined)
+          return
+        }
+        if (reviseId !== undefined) {
+          setReviseId(undefined)
+          return
+        }
         if (sessionOpen) {
           setSessionOpen(false)
           return
@@ -1793,7 +1855,7 @@ function StageInner(props: StageProps): ReactNode {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [addMenu, applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, pasteClip, pushHistory, redo, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
+  }, [addMenu, applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, parsePreview, pasteClip, pushHistory, redo, reshootId, reviseId, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -2168,14 +2230,14 @@ function StageInner(props: StageProps): ReactNode {
                 if (id === 'edit') { openStudioFor(focusId); return }
                 if (id === 'script') { void runCraft('script', { nodeId: focusId }); return }
                 if (id === 'frames') { void runCraft('frames', { nodeId: focusId }); return }
-                if (id === 'parse') { void runCraft('parse', { nodeId: focusId }); return }
+                if (id === 'parse') { void openParse(focusId); return }
                 if (id === 'reshoot') { setReshootId(focusId); return }
                 if (id === 'assemble') { void runCraft('reshoot', { nodeId: focusId, phase: 'assemble' }); return }
                 if (id === 'split') { void runCraft('split', { nodeId: focusId }); return }
                 if (id === 'desub') { void runCraft('desub', { nodeId: focusId, method: 'crop', region: 'bottom:15' }); return }
                 if (id === 'extend') { void runCraft('extend', { nodeId: focusId }); return }
                 if (id === 'gif') { void runCraft('gif', { nodeId: focusId }); return }
-                if (id === 'revise') { setReviseId(focusId); return }
+                if (id === 'revise') { openRevise(focusId); return }
                 if (id === 'autolink') { void runCraft('autolink', { nodeId: focusId }); return }
                 if (id === 'download') { void downloadNode(focusId); return }
                 if (id === 'duplicate') { duplicateNode(focusId); return }
@@ -2200,12 +2262,16 @@ function StageInner(props: StageProps): ReactNode {
             onSubmit={input => { void submitReshoot(input) }}
           />
         ) : null}
-        {reviseId !== undefined ? (
-          <ReviseDialog
-            label={nodes.find(item => item.id === reviseId)?.data.label ?? '这一镜'}
-            prompt=""
-            onCancel={() => setReviseId(undefined)}
-            onSubmit={change => { void submitRevise(change) }}
+        {parsePreview !== undefined ? (
+          <ParseSheet
+            sourceLabel={parsePreview.sourceLabel}
+            shots={parsePreview.shots}
+            onCancel={() => setParsePreview(undefined)}
+            onApply={() => {
+              const next = parsePreview
+              setParsePreview(undefined)
+              void runCraft('parse', { nodeId: next.nodeId, shots: next.shots })
+            }}
           />
         ) : null}
         {edgeMenu !== undefined ? (
@@ -2260,7 +2326,7 @@ function StageInner(props: StageProps): ReactNode {
             />
           )
         })() : null}
-        {!studioOpen && compare === undefined && !searchOpen && !multi && selected?.type !== 'media' && !(sessionOpen && box.width > 0 && box.width < 900) ? (
+        {!studioOpen && compare === undefined && !searchOpen && parsePreview === undefined && !multi && selected?.type !== 'media' && !(sessionOpen && box.width > 0 && box.width < 900) ? (
           <GenerateDock
             spec={compose}
             busy={askBusy}

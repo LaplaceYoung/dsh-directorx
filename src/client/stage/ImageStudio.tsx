@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { dx } from '../canvas-theme.ts'
 import {
-  IconBrush, IconCheck, IconCrop, IconFit, IconRedo, IconRotate, IconSliders,
-  IconText, IconUndo,
+  IconBrush, IconCheck, IconCrop, IconFit, IconRotate, IconSliders,
+  IconText,
 } from './icons.tsx'
 import { StudioField, StudioShell, studioBtn, studioRange } from './studio-chrome.tsx'
 import { GRADE_FAMILIES, GRADE_LOOK_LIST, looksByFamily } from '../../providers/grade-catalog.ts'
@@ -363,8 +363,12 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
       saveDisabled={busy || workRef.current === null}
       onSave={exportPng}
       onClose={props.onClose}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      onUndo={undo}
+      onRedo={redo}
       tools={[
-        { id: 'move', label: '查看', icon: <IconFit size={15} /> },
+        { id: 'move', label: '移动', icon: <IconFit size={15} /> },
         { id: 'crop', label: '裁剪', icon: <IconCrop size={15} /> },
         { id: 'draw', label: '画笔', icon: <IconBrush size={15} /> },
         { id: 'text', label: '文字', icon: <IconText size={15} /> },
@@ -374,15 +378,6 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
       onTool={id => setTool(id as Tool)}
       inspector={(
         <>
-          <div style={{ fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase', color: dx.mute, marginBottom: 12 }}>工具</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            <button className="dx-hit" style={studioBtn} onClick={undo} disabled={!canUndo}><IconUndo size={13} />撤销</button>
-            <button className="dx-hit" style={studioBtn} onClick={redo} disabled={!canRedo}><IconRedo size={13} />重做</button>
-            <button className="dx-hit" style={studioBtn} onClick={rotate}><IconRotate size={13} />旋转</button>
-            <button className="dx-hit" style={studioBtn} onClick={() => flip('h')}>水平翻转</button>
-            <button className="dx-hit" style={studioBtn} onClick={() => flip('v')}>垂直翻转</button>
-            <button className="dx-hit" style={studioBtn} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }}>复位视图</button>
-          </div>
           {tool === 'crop' ? (
             <>
               <StudioField label="画幅">
@@ -425,6 +420,11 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
           ) : null}
           {tool === 'adjust' ? (
             <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                <button className="dx-hit" style={studioBtn} onClick={rotate}><IconRotate size={13} />旋转</button>
+                <button className="dx-hit" style={studioBtn} onClick={() => flip('h')}>水平翻转</button>
+                <button className="dx-hit" style={studioBtn} onClick={() => flip('v')}>垂直翻转</button>
+              </div>
               <StudioField label="色调">
                 {GRADE_FAMILIES.map(family => (
                   <div key={family.id} style={{ marginBottom: 8 }}>
@@ -458,7 +458,10 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
             </>
           ) : null}
           {tool === 'move' ? (
-            <div style={{ fontSize: 12, color: dx.dim, lineHeight: 1.6 }}>滚轮缩放，拖拽平移。V 查看 · C 裁剪 · B 画笔 · T 文字 · A 调节。Esc 取消或返回画布。</div>
+            <>
+              <button className="dx-hit" style={{ ...studioBtn, marginBottom: 12 }} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }}>复位视图</button>
+              <div style={{ fontSize: 12, color: dx.dim, lineHeight: 1.6 }}>滚轮缩放，拖拽平移。V 移动 · C 裁剪 · B 画笔 · T 文字 · A 调节。Esc 取消当前操作或完成。</div>
+            </>
           ) : null}
         </>
       )}
