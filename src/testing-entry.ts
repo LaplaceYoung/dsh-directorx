@@ -108,6 +108,11 @@ export {
 export {
   addMenuRows, groupMenuRows, multiMenuRows, nodeMenuRows, shouldNestCraft,
 } from './client/stage/menus.ts'
+export {
+  clipPlayDuration, clipStarts, duplicateClip, evenPx, exportBitrate, exportSize, fmtClock, fromSource,
+  hitTest, moveClip, moveTo, nextClipId, patchClip, removeClip, sequenceDuration, sourceFromSequence, splitAt,
+  tickStep, trimClip,
+} from './client/stage/timeline-edit.ts'
 export { displayCardTitle, isAssetSlug, nextCardLabel, resolveStoredLabel, shotMark } from './card-label.ts'
 export { registerSubagentSetup } from './subagents.ts'
 export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH, MEDIA_LIST_ROUTE_PATH, MEDIA_TASKS_ROUTE_PATH, STUDIO_ROUTE_PATH, inspectMediaFile, mediaTypeExt, MEDIA_ROUTE_PATH, registerCanvasCraftRoute, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerStudioRoute } from './media-server.ts'
