@@ -95,9 +95,9 @@ const RULES: Rule[] = [
   },
   {
     id: 'revise',
-    match: /再生动|改这一镜|只改这|这个表情|这张脸|这里眼神|节点重做|局部改(?!窗)/i,
+    match: /再生动|改这一镜|只改这|重新生成|这个表情|这张脸|这里眼神|节点重做|局部改(?!窗)/i,
     mode: 'generate',
-    reason: '只改这一镜：先 directorx_revise 带上节点上下文，再走 craft/ready。不要重输整片设定。',
+    reason: '重新生成：先 directorx_revise 带上节点上下文，再走 craft/ready。不要重输整片设定。',
     skills: ['directorx-series-craft', 'directorx-production-lead', 'directorx-chengpian'],
     knowledge: ['角色 一致性'],
     extraTools: ['directorx_revise', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready'],
@@ -158,9 +158,9 @@ const RULES: Rule[] = [
   },
   {
     id: 'canvas-craft',
-    match: /铺成分镜|分镜行|抽帧上板|按引用连|自动连线|一键解析|解析成片|片段重做|局部重拍|重做这段|拼成片|接触表|宫格切开|宫格拼回|分镜组|分屏对照|去硬字|去字幕|续写位|导出动图|拼成一条/i,
+    match: /铺成分镜|生成分镜|分镜行|抽帧上板|提取帧|按引用连|自动连线|一键解析|智能解析|解析成片|片段重做|局部重绘|局部重拍|重做这段|拼成片|合成视频|接触表|九宫格|宫格切开|拆分宫格|宫格拼回|合并宫格|分镜组|分屏对照|分屏|去硬字|去字幕|续写位|视频延长|导出动图|导出\s*GIF|拼成一条/i,
     mode: 'canvas',
-    reason: '画布工艺：剧本拆行、抽帧上板、一键解析、片段重做、拼成片、接触表、宫格切开、按引用连线。解析/切窗/拼接/切开不生成；重做中段才走生成闸。',
+    reason: '画布工具：生成分镜、提取帧、智能解析、局部重绘、合成视频、九宫格、拆分宫格、自动连线。解析/切窗/拼接/切开不生成；重做中段才走生成闸。',
     skills: ['storyboard-craft', 'frame-qa', 'editing-workflow'],
     knowledge: ['分镜 景别 运镜'],
     extraTools: ['directorx_canvas_script', 'directorx_canvas_frames', 'directorx_canvas_parse', 'directorx_canvas_reshoot', 'directorx_canvas_pack', 'directorx_canvas_sheet', 'directorx_canvas_split', 'directorx_canvas_join', 'directorx_canvas_stack', 'directorx_canvas_desub', 'directorx_canvas_extend', 'directorx_canvas_gif', 'directorx_canvas_autolink'],

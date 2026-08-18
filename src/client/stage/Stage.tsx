@@ -31,6 +31,7 @@ import {
   packClip, readingOrder, type AlignKind,
 } from './layout.ts'
 import { incomingRefIds, nearestAspect, sizeFromAspect, specPrompt, type GenerateSpec } from './workstation.ts'
+import type { NodeMenuSurface } from './menus.ts'
 import { ASK_DSH_REWRITE } from './ip-prompt.tsx'
 
 export interface StageProps {
@@ -476,8 +477,8 @@ function StageInner(props: StageProps): ReactNode {
   const nodeCountRef = useRef(0)
   const [projects, setProjects] = useState<ProjectInfo[]>([])
   const [project, setProject] = useState<string | undefined>(getClientProject())
-  const [addMenu, setAddMenu] = useState<{ x: number; y: number; flow?: { x: number; y: number } } | undefined>(undefined)
-  const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
+  const [addMenu, setAddMenu] = useState<{ x: number; y: number; flow?: { x: number; y: number }; mode?: 'quick' | 'full' } | undefined>(undefined)
+  const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeIds: string[] } | undefined>(undefined)
   const [reshootId, setReshootId] = useState<string | undefined>(undefined)
   const [reviseId, setReviseId] = useState<string | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | undefined>(undefined)
@@ -820,26 +821,26 @@ function StageInner(props: StageProps): ReactNode {
         durationSec?: number
       }
       if (!response.ok || body.ok === false) {
-        showToast(typeof body.message === 'string' && body.message !== '' ? body.message : typeof body.error === 'string' ? body.error : '画布工艺失败')
+        showToast(typeof body.message === 'string' && body.message !== '' ? body.message : typeof body.error === 'string' ? body.error : '操作失败')
         return undefined
       }
       if (body.doc !== undefined) applyDoc(body.doc)
-      if (action === 'script') showToast(body.reused === true ? '这页剧本已经铺过' : '已铺成分镜行')
-      else if (action === 'frames') showToast(body.reused === true ? '这段已经抽过帧' : '已抽帧上板')
+      if (action === 'script') showToast(body.reused === true ? '这页剧本已经拆过' : '已生成分镜')
+      else if (action === 'frames') showToast(body.reused === true ? '这段已经提取过帧' : '已提取帧')
       else if (action === 'parse') showToast(body.reused === true ? '这段已经解析过' : `已解析 ${Array.isArray(body.shots) ? body.shots.length : ''} 镜`)
-      else if (action === 'reshoot') showToast(body.phase === 'assemble' ? '已拼回成片' : '已切出重做位')
-      else if (action === 'pack') showToast('已硬切拼成片')
-      else if (action === 'sheet') showToast('已出接触表')
-      else if (action === 'split') showToast('已宫格切开')
-      else if (action === 'join') showToast('已宫格拼回')
-      else if (action === 'stack') showToast('已分屏对照')
-      else if (action === 'desub') showToast('已去硬字')
-      else if (action === 'extend') showToast('已切出续写位')
+      else if (action === 'reshoot') showToast(body.phase === 'assemble' ? '已拼接' : '已切出重绘区间')
+      else if (action === 'pack') showToast('已合成视频')
+      else if (action === 'sheet') showToast('已生成九宫格')
+      else if (action === 'split') showToast('已拆分宫格')
+      else if (action === 'join') showToast('已合并宫格')
+      else if (action === 'stack') showToast('已分屏')
+      else if (action === 'desub') showToast('已去字幕')
+      else if (action === 'extend') showToast('已切出延长位')
       else if (action === 'gif') showToast('已导出 GIF')
-      else showToast(`已按引用连 ${Array.isArray(body.added) ? body.added.length : 0} 条`)
+      else showToast(`已自动连线 ${Array.isArray(body.added) ? body.added.length : 0} 条`)
       return body
     } catch (cause) {
-      showToast(cause instanceof Error ? cause.message : '画布工艺失败')
+      showToast(cause instanceof Error ? cause.message : '操作失败')
       return undefined
     }
   }, [applyDoc, saveNow, showToast])
@@ -1693,6 +1694,13 @@ function StageInner(props: StageProps): ReactNode {
         return
       }
       if (event.key === 'Escape') {
+        if (addMenu !== undefined || nodeMenu !== undefined || edgeMenu !== undefined || wireMenu !== undefined) {
+          setAddMenu(undefined)
+          setNodeMenu(undefined)
+          setEdgeMenu(undefined)
+          setWireMenu(undefined)
+          return
+        }
         if (helpOpen) {
           setHelpOpen(false)
           return
@@ -1702,10 +1710,6 @@ function StageInner(props: StageProps): ReactNode {
           return
         }
         setPicker(false)
-        setAddMenu(undefined)
-        setNodeMenu(undefined)
-        setEdgeMenu(undefined)
-        setWireMenu(undefined)
         setWiring(false)
         setSearchOpen(false)
         setCompare(undefined)
@@ -1768,6 +1772,10 @@ function StageInner(props: StageProps): ReactNode {
         const source = nodesRef.current.find(node => node.selected === true)
         if (source !== undefined) duplicateNode(source.id)
       }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'g') {
+        event.preventDefault()
+        groupSelected()
+      }
       if ((event.key === 'Backspace' || event.key === 'Delete') && !event.metaKey && !event.ctrlKey) {
         const ids = nodesRef.current.filter(node => node.selected === true).map(node => node.id)
         const edgeIds = edgesRef.current.filter(edge => edge.selected === true).map(edge => edge.id)
@@ -1785,7 +1793,7 @@ function StageInner(props: StageProps): ReactNode {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, fitView, helpOpen, openGenerate, openStudioFor, pasteClip, pushHistory, redo, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, zoomIn, zoomOut])
+  }, [addMenu, applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, pasteClip, pushHistory, redo, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -1800,6 +1808,34 @@ function StageInner(props: StageProps): ReactNode {
     window.addEventListener('paste', onPaste)
     return () => window.removeEventListener('paste', onPaste)
   }, [uploadFiles])
+
+  const dismissMenus = useCallback(() => {
+    setAddMenu(undefined)
+    setNodeMenu(undefined)
+    setEdgeMenu(undefined)
+    setWireMenu(undefined)
+  }, [])
+
+  useEffect(() => {
+    const open = addMenu !== undefined || nodeMenu !== undefined || edgeMenu !== undefined || wireMenu !== undefined
+    if (!open) return
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('[data-dx-menu],[data-dx-menu-anchor]') !== null) return
+      dismissMenus()
+    }
+    const onWheel = (event: WheelEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('[data-dx-menu]') !== null) return
+      dismissMenus()
+    }
+    document.addEventListener('pointerdown', onPointer, true)
+    document.addEventListener('wheel', onWheel, { capture: true, passive: true })
+    return () => {
+      document.removeEventListener('pointerdown', onPointer, true)
+      document.removeEventListener('wheel', onWheel, true)
+    }
+  }, [addMenu, dismissMenus, edgeMenu, nodeMenu, wireMenu])
 
   const pickAdd = useCallback((kind: AddKind, flow?: { x: number; y: number }) => {
     setAddMenu(undefined)
@@ -1906,35 +1942,45 @@ function StageInner(props: StageProps): ReactNode {
           }}
           onPaneClick={() => {
             setPicker(false)
-            setAddMenu(undefined)
-            setNodeMenu(undefined)
-            setEdgeMenu(undefined)
-            setWireMenu(undefined)
+            dismissMenus()
           }}
           onPaneContextMenu={event => {
             event.preventDefault()
             setNodeMenu(undefined)
+            setEdgeMenu(undefined)
             setAddMenu({
               x: event.clientX,
               y: event.clientY,
               flow: screenToFlowPosition({ x: event.clientX, y: event.clientY }),
+              mode: 'full',
             })
           }}
           onDoubleClick={event => {
             const target = event.target as HTMLElement
             if (target.closest('.react-flow__node') !== null) return
             setNodeMenu(undefined)
+            setEdgeMenu(undefined)
             setAddMenu({
               x: event.clientX,
               y: event.clientY,
               flow: screenToFlowPosition({ x: event.clientX, y: event.clientY }),
+              mode: 'quick',
             })
           }}
           onNodeContextMenu={(event, node) => {
             event.preventDefault()
             setAddMenu(undefined)
             setEdgeMenu(undefined)
-            setNodeMenu({ x: event.clientX, y: event.clientY, nodeId: node.id })
+            const selected = nodesRef.current.filter(item => item.selected === true).map(item => item.id)
+            const keepMulti = selected.includes(node.id) && selected.length > 1
+            if (!keepMulti) {
+              setNodes(current => current.map(item => ({ ...item, selected: item.id === node.id })))
+            }
+            setNodeMenu({
+              x: event.clientX,
+              y: event.clientY,
+              nodeIds: keepMulti ? selected : [node.id],
+            })
           }}
           onEdgeContextMenu={(event, edge) => {
             event.preventDefault()
@@ -1948,7 +1994,7 @@ function StageInner(props: StageProps): ReactNode {
             if (event.dataTransfer.files.length > 0) void uploadFiles(Array.from(event.dataTransfer.files), at)
           }}
           onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy' }}
-          onNodeDragStart={() => { pushHistory() }}
+          onNodeDragStart={() => { dismissMenus(); pushHistory() }}
           nodesDraggable
           nodesConnectable
           elementsSelectable
@@ -1999,7 +2045,9 @@ function StageInner(props: StageProps): ReactNode {
           ) : null}
         </ReactFlow>
         <StageRail
-          onAdd={() => setAddMenu({ x: 96, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
+          onAdd={() => setAddMenu(current => current !== undefined
+            ? undefined
+            : { x: 64, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)), mode: 'full' })}
           onSearch={() => setSearchOpen(true)}
           onAssets={() => { void openPicker() }}
           onUpload={() => uploadRef.current?.click()}
@@ -2029,12 +2077,18 @@ function StageInner(props: StageProps): ReactNode {
         {nodes.length === 0 && !studioOpen ? (
           <EmptyHero
             onGenerate={() => openGenerate()}
-            onAdd={() => setAddMenu({ x: 96, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
+            onAdd={() => setAddMenu({ x: 64, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)), mode: 'full' })}
             onScript={() => pickAdd('script')}
           />
         ) : null}
         {addMenu !== undefined ? (
-          <AddMenu x={addMenu.x} y={addMenu.y} onPick={kind => pickAdd(kind, addMenu.flow)} />
+          <AddMenu
+            x={addMenu.x}
+            y={addMenu.y}
+            mode={addMenu.mode ?? 'full'}
+            onPick={kind => pickAdd(kind, addMenu.flow)}
+            onPaste={() => { setAddMenu(undefined); void pasteClip() }}
+          />
         ) : null}
         {wireMenu !== undefined ? (
           <ConnectMenu
@@ -2079,88 +2133,65 @@ function StageInner(props: StageProps): ReactNode {
             }}
           />
         ) : null}
-        {nodeMenu !== undefined ? (
-          <NodeMenu
-            x={nodeMenu.x}
-            y={nodeMenu.y}
-            canEdit={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canDownload={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return typeof node?.data.path === 'string' && node.data.path !== ''
-            })()}
-            locked={nodes.find(item => item.id === nodeMenu.nodeId)?.data.locked === true}
-            canUngroup={nodes.find(item => item.id === nodeMenu.nodeId)?.type === 'group'}
-            canScript={nodes.find(item => item.id === nodeMenu.nodeId)?.type === 'text'}
-            canFrames={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canParse={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canReshoot={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canAssemble={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-                && (node.data.continuityRules?.includes('重做中段') === true || /重做中段/.test(node.data.label))
-            })()}
-            canSplit={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'image' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canDesub={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canExtend={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canGif={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
-            })()}
-            canRevise={(() => {
-              const node = nodes.find(item => item.id === nodeMenu.nodeId)
-              return node?.type === 'media' && (node.data.kind === 'image' || node.data.kind === 'video')
-            })()}
-            onGenerate={() => { openGenerate(nodeMenu.nodeId); setNodeMenu(undefined) }}
-            onScript={() => { void runCraft('script', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onFrames={() => { void runCraft('frames', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onParse={() => { void runCraft('parse', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onReshoot={() => { setReshootId(nodeMenu.nodeId); setNodeMenu(undefined) }}
-            onAssemble={() => { void runCraft('reshoot', { nodeId: nodeMenu.nodeId, phase: 'assemble' }); setNodeMenu(undefined) }}
-            onSplit={() => { void runCraft('split', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onDesub={() => { void runCraft('desub', { nodeId: nodeMenu.nodeId, method: 'crop', region: 'bottom:15' }); setNodeMenu(undefined) }}
-            onExtend={() => { void runCraft('extend', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onGif={() => { void runCraft('gif', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onRevise={() => { setReviseId(nodeMenu.nodeId); setNodeMenu(undefined) }}
-            onAutolink={() => { void runCraft('autolink', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
-            onEdit={() => { openStudioFor(nodeMenu.nodeId); setNodeMenu(undefined) }}
-            onDownload={() => { void downloadNode(nodeMenu.nodeId); setNodeMenu(undefined) }}
-            onDuplicate={() => {
-              duplicateNode(nodeMenu.nodeId)
-              setNodeMenu(undefined)
-            }}
-            onLock={() => { toggleLock([nodeMenu.nodeId]); setNodeMenu(undefined) }}
-            onDisconnect={() => {
-              disconnectNode(nodeMenu.nodeId)
-              setNodeMenu(undefined)
-            }}
-            onUngroup={() => { ungroupIds([nodeMenu.nodeId]); setNodeMenu(undefined) }}
-            onDelete={() => {
-              deleteIds([nodeMenu.nodeId])
-              setNodeMenu(undefined)
-            }}
-          />
-        ) : null}
+        {nodeMenu !== undefined ? (() => {
+          const picked = nodeMenu.nodeIds
+            .map(id => nodes.find(item => item.id === id))
+            .filter((item): item is NonNullable<typeof item> => item !== undefined)
+          const focus = picked[0]
+          if (focus === undefined) return null
+          const videos = picked.filter(item => item.type === 'media' && item.data.kind === 'video' && typeof item.data.path === 'string' && item.data.path !== '')
+          const images = picked.filter(item => item.type === 'media' && item.data.kind === 'image' && typeof item.data.path === 'string' && item.data.path !== '')
+          const media = picked.filter(item => item.type === 'media' && typeof item.data.path === 'string' && item.data.path !== '')
+          const surface: NodeMenuSurface = {
+            type: focus.type === 'group' ? 'group' : focus.type === 'text' ? 'text' : 'media',
+            kind: focus.data.kind === 'video' || focus.data.kind === 'image' ? focus.data.kind : undefined,
+            hasPath: typeof focus.data.path === 'string' && focus.data.path !== '',
+            locked: picked.every(item => item.data.locked === true),
+            canAssemble: focus.type === 'media' && focus.data.kind === 'video'
+              && (focus.data.continuityRules?.includes('重做中段') === true || /重做中段/.test(focus.data.label)),
+            selectedCount: picked.length,
+            canPack: videos.length >= 2,
+            canSheet: media.length >= 1,
+            canJoin: images.length >= 2,
+            canStack: media.length >= 2 && media.length <= 4,
+            canUngroup: picked.some(item => item.type === 'group'),
+          }
+          const focusId = focus.id
+          return (
+            <NodeMenu
+              x={nodeMenu.x}
+              y={nodeMenu.y}
+              surface={surface}
+              onAction={id => {
+                setNodeMenu(undefined)
+                if (id === 'generate') { openGenerate(focusId); return }
+                if (id === 'edit') { openStudioFor(focusId); return }
+                if (id === 'script') { void runCraft('script', { nodeId: focusId }); return }
+                if (id === 'frames') { void runCraft('frames', { nodeId: focusId }); return }
+                if (id === 'parse') { void runCraft('parse', { nodeId: focusId }); return }
+                if (id === 'reshoot') { setReshootId(focusId); return }
+                if (id === 'assemble') { void runCraft('reshoot', { nodeId: focusId, phase: 'assemble' }); return }
+                if (id === 'split') { void runCraft('split', { nodeId: focusId }); return }
+                if (id === 'desub') { void runCraft('desub', { nodeId: focusId, method: 'crop', region: 'bottom:15' }); return }
+                if (id === 'extend') { void runCraft('extend', { nodeId: focusId }); return }
+                if (id === 'gif') { void runCraft('gif', { nodeId: focusId }); return }
+                if (id === 'revise') { setReviseId(focusId); return }
+                if (id === 'autolink') { void runCraft('autolink', { nodeId: focusId }); return }
+                if (id === 'download') { void downloadNode(focusId); return }
+                if (id === 'duplicate') { duplicateNode(focusId); return }
+                if (id === 'lock') { toggleLock(picked.map(item => item.id)); return }
+                if (id === 'disconnect') { disconnectNode(focusId); return }
+                if (id === 'ungroup') { ungroupIds(picked.map(item => item.id)); return }
+                if (id === 'group') { groupSelected(); return }
+                if (id === 'pack') { void runCraft('pack', { nodeIds: videos.map(item => item.id), transition: 'cut' }); return }
+                if (id === 'sheet') { void runCraft('sheet', { nodeIds: media.map(item => item.id) }); return }
+                if (id === 'join') { void runCraft('join', { nodeIds: images.map(item => item.id) }); return }
+                if (id === 'stack') { void runCraft('stack', { nodeIds: media.map(item => item.id) }); return }
+                if (id === 'delete') { deleteIds(picked.map(item => item.id)) }
+              }}
+            />
+          )
+        })() : null}
         {reshootId !== undefined ? (
           <ReshootDialog
             durationSec={nodes.find(item => item.id === reshootId)?.data.durationSec}

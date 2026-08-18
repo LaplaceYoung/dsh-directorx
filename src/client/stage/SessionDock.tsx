@@ -323,8 +323,8 @@ const SESSION_CHIPS = [
     text: '请用 directorx_canvas_shotlist 和 directorx_canvas_summary 整理当前画布分镜，必要时 directorx_brief。不要生成媒体。',
   },
   {
-    label: '画布工艺',
-    text: '请按当前选中节点做画布工艺：文本用 directorx_canvas_script 铺「本→首帧→视频」行；视频用 directorx_canvas_frames 抽帧上板，或 directorx_canvas_parse 一键解析成切点分镜稿；片段重做用 directorx_canvas_reshoot cut，中段生成后再 assemble。多选视频用 directorx_canvas_pack 硬切拼成片；多选图/视频用 directorx_canvas_sheet 出接触表；单张图用 directorx_canvas_split 宫格切开；多张图用 directorx_canvas_join 宫格拼回；2–4 路用 directorx_canvas_stack 分屏对照；硬字幕用 directorx_canvas_desub；续写用 directorx_canvas_extend 切出尾帧空卡；评审动图用 directorx_canvas_gif。然后再 directorx_canvas_autolink。切窗/解析/铺行/拼接/切开/拼回/分屏/去字/续写位/动图不要生成。',
+    label: '画布工具',
+    text: '请按当前选中节点做画布工具：文本用 directorx_canvas_script 生成分镜（本→首帧→视频）；视频用 directorx_canvas_frames 提取帧，或 directorx_canvas_parse 智能解析成切点分镜稿；局部重绘用 directorx_canvas_reshoot cut，中段生成后再 assemble。多选视频用 directorx_canvas_pack 合成视频；多选图/视频用 directorx_canvas_sheet 出九宫格；单张图用 directorx_canvas_split 拆分宫格；多张图用 directorx_canvas_join 合并宫格；2–4 路用 directorx_canvas_stack 分屏；硬字幕用 directorx_canvas_desub 去字幕；延长用 directorx_canvas_extend 切出尾帧空卡；评审动图用 directorx_canvas_gif。然后再 directorx_canvas_autolink 自动连线。切窗/解析/铺行/拼接/切开/拼回/分屏/去字幕/延长/动图不要生成。',
   },
   {
     label: '打开编辑台',

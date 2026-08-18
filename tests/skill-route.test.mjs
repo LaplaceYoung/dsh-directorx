@@ -53,24 +53,26 @@ test('routeSkills maps adaptation review and shot vocab', () => {
 })
 
 test('routeSkills maps canvas craft intents', () => {
-  const row = routeSkills('把这篇剧本铺成分镜行')
+  const row = routeSkills('把这篇剧本生成分镜')
   assert.equal(row.mode, 'canvas')
   assert.ok(row.tools.includes('directorx_canvas_script'))
   assert.ok(row.tools.includes('directorx_canvas_autolink'))
-  const frames = routeSkills('把这段成片抽帧上板')
+  const frames = routeSkills('把这段成片提取帧')
   assert.ok(frames.tools.includes('directorx_canvas_frames'))
-  const parse = routeSkills('把这段成片一键解析')
+  const parse = routeSkills('把这段成片智能解析')
   assert.ok(parse.tools.includes('directorx_canvas_parse'))
-  const reshoot = routeSkills('把中间两秒片段重做')
+  const reshoot = routeSkills('把中间两秒局部重绘')
   assert.ok(reshoot.tools.includes('directorx_canvas_reshoot'))
-  const pack = routeSkills('把这几段拼成片')
+  const pack = routeSkills('把这几段合成视频')
   assert.ok(pack.tools.includes('directorx_canvas_pack'))
-  const sheet = routeSkills('出一张接触表')
-  const join = routeSkills('把这些分镜宫格拼回')
+  const sheet = routeSkills('出一张九宫格')
+  const join = routeSkills('把这些分镜合并宫格')
   assert.ok(join.tools.includes('directorx_canvas_join'))
-  const stack = routeSkills('两路分屏对照')
+  const stack = routeSkills('两路分屏')
   assert.ok(stack.tools.includes('directorx_canvas_stack'))
   assert.ok(sheet.tools.includes('directorx_canvas_sheet'))
+  const legacy = routeSkills('把这篇剧本铺成分镜行')
+  assert.ok(legacy.tools.includes('directorx_canvas_script'))
 })
 
 test('routeSkills maps official H3 modes to the H3 copilot', () => {
@@ -104,7 +106,7 @@ test('routeSkills maps series packs and node revise', () => {
   const revise = routeSkills('这个表情再生动点')
   assert.equal(revise.mode, 'generate')
   assert.ok(revise.tools.includes('directorx_revise'))
-  assert.match(revise.reason, /只改这一镜|revise/)
+  assert.match(revise.reason, /重新生成|只改这一镜|revise/)
 })
 
 test('routeSkills maps post-deliver capture to skill_capture', () => {

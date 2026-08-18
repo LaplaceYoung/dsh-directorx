@@ -1,0 +1,34 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: lib/ matches the green build
+        run: git diff --exit-code lib/
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          node scripts/release-notes.mjs "$version" > /tmp/release-notes.md
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --notes-file /tmp/release-notes.md --title "DirectorX $version"
+          else
+            gh release create "$GITHUB_REF_NAME" --notes-file /tmp/release-notes.md --title "DirectorX $version" --verify-tag
+          fi

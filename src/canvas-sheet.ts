@@ -42,15 +42,15 @@ export async function applyCanvasSheet(input: {
   const right = Math.max(...doc.nodes.map(node => node.x + (node.width ?? 280)), 48)
   const added = await input.store.addNode({
     kind: 'image',
-    label: '接触表',
+    label: '九宫格',
     path: sheet.path,
-    prompt: `接触表 ${sources.length} 格`,
+    prompt: `九宫格 ${sources.length} 格`,
     x: right + 48,
     y: 48,
     width: 360,
     height: 200,
     shotStatus: 'review',
-    continuityRules: ['接触表'],
+    continuityRules: ['九宫格'],
   })
   return {
     action: 'sheet',

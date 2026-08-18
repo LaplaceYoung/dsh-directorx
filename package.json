@@ -1,6 +1,6 @@
 {
   "name": "dsh-directorx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DirectorX：给 DeepSeek Harness 装上 AI 视频导演能力——视频生成、智能剪辑、成片质检、无限画布分镜与 350+ 导演知识库。AI video director plugin for DeepSeek Harness: text-to-video, smart editing, QC, storyboard canvas.",
   "type": "module",
   "main": "lib/index.js",
@@ -36,7 +36,9 @@
     "pretest": "npm run typecheck && npm run build",
     "knowledge:audit": "node --experimental-strip-types scripts/knowledge-okf.ts audit",
     "knowledge:check": "node --experimental-strip-types scripts/knowledge-okf.ts check",
-    "knowledge:migrate": "node --experimental-strip-types scripts/knowledge-okf.ts migrate"
+    "knowledge:migrate": "node --experimental-strip-types scripts/knowledge-okf.ts migrate",
+    "release": "node scripts/cut-release.mjs",
+    "release:notes": "node scripts/release-notes.mjs"
   },
   "keywords": [
     "deepseek-harness",

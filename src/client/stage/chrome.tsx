@@ -7,6 +7,10 @@ import {
   IconSend, IconSpark, IconText, IconTrash, IconUndo, IconUnlink, IconUnlock, IconUpload, IconVideo, KindGlyph,
 } from './icons.tsx'
 import { clampMenu, type AlignKind } from './layout.ts'
+import {
+  addMenuRows, groupMenuRows, nodeMenuRows, shouldNestCraft,
+  type AddMode, type MenuRow, type NodeMenuSurface,
+} from './menus.ts'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { PromptIpField } from './ip-prompt.tsx'
 import { mediaUrl } from './nodes.tsx'
@@ -275,6 +279,7 @@ export function StageRail(props: {
           data-tip={row.label}
           data-tip-side="right"
           onClick={row.onClick}
+          data-dx-menu-anchor={row.primary === true ? '' : undefined}
           style={row.primary === true ? { ...dxPill, width: 36, height: 36 } : dxGhostBtn}
         >
           {row.icon}
@@ -284,139 +289,159 @@ export function StageRail(props: {
   )
 }
 
+function MenuShell(props: {
+  x: number
+  y: number
+  width?: number
+  height?: number
+  children: ReactNode
+}): ReactNode {
+  const pos = clampMenu(props.x, props.y, props.width ?? 220, props.height ?? 280, viewSize())
+  return (
+    <div
+      data-dx-menu=""
+      style={{
+        ...menu,
+        position: 'fixed',
+        zIndex: 40,
+        left: pos.left,
+        top: pos.top,
+        minWidth: props.width ?? 196,
+        maxHeight: 'min(72vh, 560px)',
+        overflowY: 'auto',
+      }}
+      onMouseDown={event => event.stopPropagation()}
+      onWheel={event => event.stopPropagation()}
+      onContextMenu={event => event.preventDefault()}
+    >
+      {props.children}
+    </div>
+  )
+}
+
+function MenuRowButton(props: { row: MenuRow; icon?: ReactNode; onClick: () => void }): ReactNode {
+  return (
+    <button
+      className="dx-menu-item"
+      style={{ ...item, ...(props.row.danger === true ? { color: '#ffb4ab' } : {}) }}
+      onClick={props.onClick}
+    >
+      {props.icon !== undefined ? <span style={{ opacity: .7, display: 'flex' }}>{props.icon}</span> : null}
+      <span style={{ flex: 1 }}>{props.row.label}</span>
+      {props.row.kbd !== undefined ? <span style={{ ...kbd, marginLeft: 8 }}>{props.row.kbd}</span> : null}
+    </button>
+  )
+}
+
 export function ConnectMenu(props: {
   x: number
   y: number
   onPick: (kind: 'image' | 'video' | 'text') => void
 }): ReactNode {
-  const left = Math.max(12, Math.min(props.x, (typeof window === 'undefined' ? props.x : window.innerWidth) - 208))
-  const top = Math.max(12, Math.min(props.y, (typeof window === 'undefined' ? props.y : window.innerHeight) - 168))
   const rows: Array<{ kind: 'image' | 'video' | 'text'; label: string; icon: ReactNode }> = [
-    { kind: 'image', label: '下游图片', icon: <IconImage size={15} /> },
-    { kind: 'video', label: '下游视频', icon: <IconVideo size={15} /> },
-    { kind: 'text', label: '下游文本', icon: <IconText size={15} /> },
+    { kind: 'image', label: '图片', icon: <IconImage size={15} /> },
+    { kind: 'video', label: '视频', icon: <IconVideo size={15} /> },
+    { kind: 'text', label: '文本', icon: <IconText size={15} /> },
   ]
-  const pos = clampMenu(left, top, 200, 168, viewSize())
   return (
-    <div style={{ ...menu, left: pos.left, top: pos.top }} onMouseDown={event => event.stopPropagation()}>
-      <div style={{ padding: '6px 10px 8px', fontSize: 11, color: dx.mute }}>连接到新节点</div>
+    <MenuShell x={props.x} y={props.y} height={168}>
+      <div style={{ padding: '6px 10px 8px', fontSize: 11, color: dx.mute }}>添加节点</div>
       {rows.map(row => (
         <button key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
           <span style={{ opacity: .7, display: 'flex' }}>{row.icon}</span>
           {row.label}
         </button>
       ))}
-    </div>
+    </MenuShell>
   )
+}
+
+const ADD_ICON: Partial<Record<string, ReactNode>> = {
+  image: <IconImage size={15} />,
+  video: <IconVideo size={15} />,
+  text: <IconText size={15} />,
+  script: <IconText size={15} />,
+  group: <IconGroup size={15} />,
+  'edit-image': <IconEdit size={15} />,
+  'edit-video': <IconVideo size={15} />,
+  upload: <IconUpload size={15} />,
+  assets: <IconGrid size={15} />,
+  paste: <IconCopy size={15} />,
 }
 
 export function AddMenu(props: {
   x: number
   y: number
+  mode?: AddMode
   onPick: (kind: AddKind) => void
+  onPaste?: () => void
 }): ReactNode {
-  const nodes: Array<{ kind: AddKind; label: string; icon: ReactNode }> = [
-    { kind: 'image', label: '图片', icon: <IconImage size={15} /> },
-    { kind: 'video', label: '视频', icon: <IconVideo size={15} /> },
-    { kind: 'text', label: '文本', icon: <IconText size={15} /> },
-    { kind: 'script', label: '剧本', icon: <IconText size={15} /> },
-    { kind: 'group', label: '分组', icon: <IconGroup size={15} /> },
-  ]
-  const extras: Array<{ kind: AddKind; label: string; icon: ReactNode }> = [
-    { kind: 'edit-image', label: '图片编辑', icon: <IconEdit size={15} /> },
-    { kind: 'edit-video', label: '视频剪辑', icon: <IconVideo size={15} /> },
-    { kind: 'upload', label: '上传文件', icon: <IconUpload size={15} /> },
-    { kind: 'assets', label: '从资源库加入', icon: <IconGrid size={15} /> },
-  ]
-  const pos = clampMenu(props.x, props.y, 220, 460, viewSize())
-  const rowOf = (row: { kind: AddKind; label: string; icon: ReactNode }) => (
-    <button key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
-      <span style={{ opacity: .7, display: 'flex' }}>{row.icon}</span>
-      {row.label}
-    </button>
-  )
+  const mode = props.mode ?? 'full'
+  const groups = groupMenuRows(addMenuRows(mode))
   return (
-    <div style={{ ...menu, left: pos.left, top: pos.top }} onMouseDown={event => event.stopPropagation()}>
-      <MenuLabel>节点</MenuLabel>
-      {nodes.map(rowOf)}
-      <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} />
-      <MenuLabel>导入</MenuLabel>
-      {extras.map(rowOf)}
-    </div>
+    <MenuShell x={props.x} y={props.y} height={mode === 'quick' ? 240 : 460}>
+      {groups.map((group, index) => (
+        <div key={group.id}>
+          {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
+          {group.label !== '' ? <MenuLabel>{group.label}</MenuLabel> : null}
+          {group.rows.map(row => (
+            <MenuRowButton
+              key={row.id}
+              row={row}
+              icon={ADD_ICON[row.id]}
+              onClick={() => {
+                if (row.id === 'paste') {
+                  props.onPaste?.()
+                  return
+                }
+                props.onPick(row.id as AddKind)
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </MenuShell>
   )
 }
 
 export function NodeMenu(props: {
   x: number
   y: number
-  canEdit: boolean
-  canDownload: boolean
-  locked: boolean
-  canUngroup: boolean
-  canScript?: boolean
-  canFrames?: boolean
-  canParse?: boolean
-  canReshoot?: boolean
-  canAssemble?: boolean
-  canSplit?: boolean
-  canDesub?: boolean
-  canExtend?: boolean
-  canGif?: boolean
-  canRevise?: boolean
-  onGenerate: () => void
-  onEdit: () => void
-  onDuplicate: () => void
-  onDisconnect: () => void
-  onLock: () => void
-  onDownload: () => void
-  onUngroup: () => void
-  onScript?: () => void
-  onFrames?: () => void
-  onParse?: () => void
-  onReshoot?: () => void
-  onAssemble?: () => void
-  onAutolink?: () => void
-  onSplit?: () => void
-  onDesub?: () => void
-  onExtend?: () => void
-  onGif?: () => void
-  onRevise?: () => void
-  onDelete: () => void
+  surface: NodeMenuSurface
+  onAction: (id: string) => void
 }): ReactNode {
-  const pos = clampMenu(props.x, props.y, 200, 600, viewSize())
-  const craft = (
-    <>
-      {props.canScript === true && props.onScript !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onScript}><IconText size={15} />铺成分镜行</button> : null}
-      {props.canFrames === true && props.onFrames !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onFrames}><IconImage size={15} />抽帧上板</button> : null}
-      {props.canParse === true && props.onParse !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onParse}><IconSearch size={15} />一键解析</button> : null}
-      {props.canReshoot === true && props.onReshoot !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onReshoot}><IconScissors size={15} />片段重做…</button> : null}
-      {props.canAssemble === true && props.onAssemble !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onAssemble}><IconVideo size={15} />拼回成片</button> : null}
-      {props.canSplit === true && props.onSplit !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onSplit}><IconGrid size={15} />宫格切开</button> : null}
-      {props.canDesub === true && props.onDesub !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onDesub}><IconScissors size={15} />去硬字</button> : null}
-      {props.canExtend === true && props.onExtend !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onExtend}><IconVideo size={15} />续写位</button> : null}
-      {props.canGif === true && props.onGif !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onGif}><IconImage size={15} />导出动图</button> : null}
-      {props.canRevise === true && props.onRevise !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onRevise}><IconSpark size={15} />改这一镜…</button> : null}
-      {props.onAutolink !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onAutolink}><IconLink size={15} />按引用连线</button> : null}
-    </>
-  )
-  const hasCraft = props.canScript === true || props.canFrames === true || props.canParse === true
-    || props.canReshoot === true || props.canAssemble === true || props.canSplit === true
-    || props.canRevise === true || props.onAutolink !== undefined
+  const rows = nodeMenuRows(props.surface)
+  const nestCraft = shouldNestCraft(rows)
+  const [craftOpen, setCraftOpen] = useState(false)
+  const groups = groupMenuRows(rows)
   return (
-    <div style={{ ...menu, left: pos.left, top: pos.top }} onMouseDown={event => event.stopPropagation()}>
-      <button className="dx-menu-item" style={item} onClick={props.onGenerate}><IconSpark size={15} />生成</button>
-      {hasCraft ? <MenuLabel>工艺</MenuLabel> : null}
-      {craft}
-      <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} />
-      <MenuLabel>节点</MenuLabel>
-      {props.canEdit ? <button className="dx-menu-item" style={item} onClick={props.onEdit}><IconEdit size={15} />编辑</button> : null}
-      {props.canDownload ? <button className="dx-menu-item" style={item} onClick={props.onDownload}><IconDownload size={15} />下载</button> : null}
-      <button className="dx-menu-item" style={item} onClick={props.onDuplicate}><IconCopy size={15} />复制</button>
-      <button className="dx-menu-item" style={item} onClick={props.onLock}>{props.locked ? <IconUnlock size={15} /> : <IconLock size={15} />}{props.locked ? '解锁' : '锁定'}</button>
-      <button className="dx-menu-item" style={item} onClick={props.onDisconnect}><IconUnlink size={15} />断开连线</button>
-      {props.canUngroup ? <button className="dx-menu-item" style={item} onClick={props.onUngroup}><IconGroup size={15} />解散分组</button> : null}
-      <button className="dx-menu-item" style={{ ...item, color: '#ffb4ab' }} onClick={props.onDelete}><IconTrash size={15} />删除</button>
-    </div>
+    <MenuShell x={props.x} y={props.y} height={Math.min(520, 56 + rows.length * 40)}>
+      {groups.map((group, index) => {
+        if (group.id === 'craft' && nestCraft) {
+          return (
+            <div key={group.id}>
+              {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
+              <button className="dx-menu-item" style={item} onClick={() => setCraftOpen(open => !open)}>
+                <span style={{ flex: 1 }}>工具</span>
+                <IconChevron size={12} />
+              </button>
+              {craftOpen ? group.rows.map(row => (
+                <MenuRowButton key={row.id} row={row} onClick={() => props.onAction(row.id)} />
+              )) : null}
+            </div>
+          )
+        }
+        return (
+          <div key={group.id}>
+            {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
+            {group.label !== '' ? <MenuLabel>{group.label}</MenuLabel> : null}
+            {group.rows.map(row => (
+              <MenuRowButton key={row.id} row={row} onClick={() => props.onAction(row.id)} />
+            ))}
+          </div>
+        )
+      })}
+    </MenuShell>
   )
 }
 
@@ -425,11 +450,10 @@ export function EdgeMenu(props: {
   y: number
   onDelete: () => void
 }): ReactNode {
-  const pos = clampMenu(props.x, props.y, 160, 56, viewSize())
   return (
-    <div style={{ ...menu, left: pos.left, top: pos.top, minWidth: 140 }} onMouseDown={event => event.stopPropagation()}>
+    <MenuShell x={props.x} y={props.y} width={160} height={56}>
       <button className="dx-menu-item" style={{ ...item, color: '#ffb4ab' }} onClick={props.onDelete}><IconTrash size={15} />删除连线</button>
-    </div>
+    </MenuShell>
   )
 }
 
@@ -458,8 +482,8 @@ export function ReshootDialog(props: {
       }}
       onMouseDown={event => event.stopPropagation()}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>片段重做</div>
-      <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>切掉头尾，中段交给 DSH 生成，再拼回。窗长 1–15 秒。</div>
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>局部重绘</div>
+      <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>切掉头尾，中段重新生成后再拼接。窗长 1–15 秒。</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
         <label style={{ flex: 1, fontSize: 11, color: dx.mute }}>
           起点秒
@@ -484,7 +508,7 @@ export function ReshootDialog(props: {
           style={{ ...dxPill, width: 'auto', height: 32, padding: '0 14px', fontSize: 12 }}
           onClick={() => props.onSubmit({ start: Number(start), end: Number(end), prompt })}
         >
-          切出重做位
+          开始重绘
         </button>
       </div>
     </div>
@@ -513,7 +537,7 @@ export function ReviseDialog(props: {
       }}
       onMouseDown={event => event.stopPropagation()}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>改这一镜</div>
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>重新生成</div>
       <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>只重做「{props.label}」。人设、画风、其它镜不动。</div>
       <textarea
         className="nodrag nopan"
@@ -525,7 +549,7 @@ export function ReviseDialog(props: {
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 12px' }} onClick={props.onCancel}>取消</button>
         <button className="dx-cta" style={{ ...dxPill, width: 'auto', height: 32, padding: '0 14px', fontSize: 12 }} onClick={() => props.onSubmit(change)}>
-          交给 DSH 改
+          重新生成
         </button>
       </div>
     </div>
@@ -632,7 +656,7 @@ export function EmptyHero(props: {
         </div>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.7, color: dx.ink }}>今天拍什么？</div>
         <div style={{ marginTop: 10, color: dx.mute, fontSize: 13, lineHeight: 1.7 }}>
-          双击镜头居中 · Tab 换镜 · 双击空白添加
+          双击镜头居中 · 双击空白添加节点 · 右键打开菜单 · Tab 换镜
         </div>
         <div className="dx-hero-keys" style={{ marginTop: 16, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, color: dx.dim, fontSize: 11 }}>
           <span style={kbd}>G</span><span>生成</span>
@@ -655,7 +679,7 @@ export function EmptyHero(props: {
             }}
           >
             <IconSpark size={15} />
-            交给 DSH 开拍
+            开始生成
           </button>
           {props.onAdd !== undefined ? (
             <button className="dx-hit" onClick={props.onAdd} style={ghost}>
@@ -689,7 +713,7 @@ export function SearchPalette(props: {
     { id: 'image', label: '图片' },
     { id: 'video', label: '视频' },
     { id: 'text', label: '文本' },
-    { id: 'group', label: '分组' },
+    { id: 'group', label: '编组' },
   ]
   return (
     <div className="dx-scrim" style={{ position: 'absolute', inset: 0, zIndex: 35, display: 'grid', justifyItems: 'center', alignItems: 'start', paddingTop: 88 }} onMouseDown={props.onClose}>
@@ -871,22 +895,22 @@ export function MultiSelectBar(props: {
       ) : null}
       {props.canPack === true && props.onPack !== undefined ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onPack}>
-          <IconVideo size={14} />拼成片
+          <IconVideo size={14} />合成视频
         </button>
       ) : null}
       {props.canSheet === true && props.onSheet !== undefined ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onSheet}>
-          <IconGrid size={14} />接触表
+          <IconGrid size={14} />九宫格
         </button>
       ) : null}
       {props.canJoin === true && props.onJoin !== undefined ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onJoin}>
-          <IconGrid size={14} />宫格拼回
+          <IconGrid size={14} />合并宫格
         </button>
       ) : null}
       {props.canStack === true && props.onStack !== undefined ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onStack}>
-          <IconCompare size={14} />分屏对照
+          <IconCompare size={14} />分屏
         </button>
       ) : null}
       <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onGroup}>
@@ -894,7 +918,7 @@ export function MultiSelectBar(props: {
       </button>
       {props.canUngroup ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onUngroup}>
-          <IconGroup size={14} />解组
+          <IconGroup size={14} />取消编组
         </button>
       ) : null}
       <div style={{ position: 'relative' }}>
@@ -1267,13 +1291,17 @@ const SHORTCUTS: Array<{ keys: string; label: string }> = [
   { keys: '⌘A', label: '全选' },
   { keys: '⌫', label: '删除所选' },
   { keys: '↑↓←→', label: '微移一格 · ⇧ 加大' },
-  { keys: 'Tab', label: '按分镜顺序切换镜头' },
+  { keys: 'Tab', label: '换镜' },
   { keys: 'G', label: '打开生成栏' },
+  { keys: '⌘G', label: '编组所选' },
   { keys: 'S', label: '循环镜头状态' },
   { keys: 'F', label: '适配所选' },
   { keys: 'E', label: '编辑所选媒体' },
-  { keys: 'Esc', label: '关闭浮层 / 返回画布' },
+  { keys: 'Esc', label: '先关菜单，再关浮层' },
   { keys: '双击节点', label: '居中并缩放到合适位置' },
+  { keys: '双击空白', label: '快速添加节点' },
+  { keys: '右键空白', label: '完整添加 / 导入' },
+  { keys: '右键节点', label: '当前节点可用操作' },
   { keys: 'L', label: '锁定 / 解锁' },
   { keys: '⌘K / ⌘F', label: '搜索节点' },
   { keys: '⌘J', label: 'DSH 会话' },

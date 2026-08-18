@@ -265,7 +265,7 @@ test('sheet pins a contact image; split crops a still into cards', { skip: !hasF
     const sheet = await runCanvasCraft({ outputDir: dir, action: 'sheet', nodeIds: ['hero', 'clip'], arrange: false })
     assert.equal(sheet.action, 'sheet')
     assert.ok(existsSync(sheet.path))
-    assert.ok(sheet.doc.nodes.some(node => node.kind === 'image' && /接触表/.test(node.label)))
+    assert.ok(sheet.doc.nodes.some(node => node.kind === 'image' && /九宫格/.test(node.label)))
 
     const split = await runCanvasCraft({ outputDir: dir, action: 'split', nodeId: 'hero', cols: 2, rows: 2, arrange: false })
     assert.equal(split.action, 'split')

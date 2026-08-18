@@ -67,20 +67,20 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
       : '',
     ip.dirty ? ip.agentPrompt : '',
     plan.agentPrompt,
-    /片段重做|重做中段/.test(intent.prompt)
-      ? '- 这是片段重做：生成只覆盖中段，回写该视频节点 path 后调用 directorx_canvas_reshoot { action: "assemble", nodeId: 中段id } 把头+中+尾拼回成片。'
+    /片段重做|局部重绘|重做中段/.test(intent.prompt)
+      ? '- 这是局部重绘：生成只覆盖中段，回写该视频节点 path 后调用 directorx_canvas_reshoot { action: "assemble", nodeId: 中段id } 把头+中+尾拼接。'
       : '',
-    /拼成片|硬切组装|预告片/.test(intent.prompt)
+    /拼成片|合成视频|硬切组装|预告片/.test(intent.prompt)
       ? '- 这是成片组装：调用 directorx_canvas_pack，transition=cut。预告片禁止 fade。'
       : '',
-    /镜改|再生动|改这一镜|只改这/.test(intent.prompt)
+    /镜改|再生动|改这一镜|只改这|重新生成/.test(intent.prompt)
       ? '- 这是单镜修改：先 directorx_revise { nodeId: 源节点 }，成稿只改这一处。回写该节点 path。整板其它镜不要重做。系列包已激活就沿用，不要让用户再报人设。'
       : '',
     /场面锁|场面控制|作战板|完全控制|多人连续|单镜长拍/.test(intent.prompt)
       ? '- 这是场面控制：先 directorx_blocking harvest/schema。用户只给角色图、开场和事件顺序。你写台账和物件状态机，pin 后再 craft。不要直接 generate。'
       : '',
-    /宫格拼回|分屏对照|去硬字|续写位|导出动图/.test(intent.prompt)
-      ? '- 这是画布工艺：拼回 directorx_canvas_join，分屏 directorx_canvas_stack，去字 directorx_canvas_desub，续写位 directorx_canvas_extend（不生成），动图 directorx_canvas_gif。都不要走 generate。'
+    /宫格拼回|合并宫格|分屏对照|分屏|去硬字|去字幕|续写位|视频延长|导出动图|导出\s*GIF/.test(intent.prompt)
+      ? '- 这是画布工具：合并宫格 directorx_canvas_join，分屏 directorx_canvas_stack，去字幕 directorx_canvas_desub，视频延长 directorx_canvas_extend（不生成），导出 GIF directorx_canvas_gif。都不要走 generate。'
       : '',
     '做完后调用 directorx_canvas_intent_ack。',
   ].filter(Boolean).join('\n')

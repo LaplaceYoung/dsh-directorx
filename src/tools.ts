@@ -1366,7 +1366,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_frames',
-    description: '从已有成片的视频节点抽关键帧，铺成一组图片卡（抽帧上板）。用 ffmpeg，不写 generating，也不建 video→image 边（抽帧组本身就是出处）。',
+    description: '从已有成片的视频节点抽关键帧，铺成一组图片卡（提取帧）。用 ffmpeg，不写 generating，也不建 video→image 边（抽帧组本身就是出处）。',
     parameters: {
       nodeId: { type: 'string', required: true, description: '视频节点 id，且 path 已有成片。' },
       count: { type: 'number', description: '均匀抽帧数，默认 6，最多 12。' },
@@ -1404,7 +1404,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_parse',
-    description: '一键解析成片：ffmpeg 切点检测（亮度差分）拆镜，把分镜稿文本卡和每镜代表帧铺上画布。不生成。describe:true 时用 vision 写每镜一句（未配置则只写时间窗）。同一视频再调一次会复用。',
+    description: '智能解析成片：ffmpeg 切点检测（亮度差分）拆镜，把分镜稿文本卡和每镜代表帧铺上画布。不生成。describe:true 时用 vision 写每镜一句（未配置则只写时间窗）。同一视频再调一次会复用。',
     parameters: {
       nodeId: { type: 'string', required: true, description: '已有成片路径的视频节点 id。' },
       describe: { type: 'boolean', description: '为每镜调 vision 写一句可见内容。默认 false。' },
@@ -1424,7 +1424,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_reshoot',
-    description: '片段重做。cut：切掉头尾、抽出窗内首尾帧、铺中段 idea 卡（不生成）。中段生成回写 path 后 assemble：ffmpeg cut 拼接头+中+尾到「重做成片」卡。窗长 1–15 秒。UI 不得写 generating。',
+    description: '局部重绘。cut：切掉头尾、抽出窗内首尾帧、铺中段 idea 卡（不生成）。中段生成回写 path 后 assemble：ffmpeg cut 拼接头+中+尾到「重做成片」卡。窗长 1–15 秒。UI 不得写 generating。',
     parameters: {
       action: { type: 'string', enum: ['cut', 'assemble'], description: '默认 cut。中段有成片后 assemble。' },
       nodeId: { type: 'string', required: true, description: 'cut=源视频节点；assemble=重做中段或成片节点。' },
@@ -1470,7 +1470,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_sheet',
-    description: '把选中的图/视频抽中点帧，拼成一张接触表图片卡钉在画布上。ffmpeg tile，不生成。',
+    description: '把选中的图/视频抽中点帧，拼成一张九宫格图片卡钉在画布上。ffmpeg tile，不生成。',
     parameters: {
       nodeIds: { type: 'array', items: { type: 'string' }, description: '图或视频节点 id。省略则取整板有成片的图/视频。' },
       columns: { type: 'number', description: '列数，默认 min(4, 数量)，2–8。' },
@@ -1489,7 +1489,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_split',
-    description: '把一张有成片的图片按宫格切开，铺成一组独立图片卡。ffmpeg crop，不生成。',
+    description: '把一张有成片的图片拆分宫格，铺成一组独立图片卡。ffmpeg crop，不生成。',
     parameters: {
       nodeId: { type: 'string', required: true, description: '图片节点 id，且 path 已有成片。' },
       cols: { type: 'number', description: '列数，默认 3，2–5。' },
@@ -1510,7 +1510,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_join',
-    description: '把选中的成片图片按原图拼回一张带镜号的宫格大图，钉在画布上。ffmpeg tile，不生成。切开的逆操作，也用于分镜组交付。',
+    description: '把选中的成片图片按原图合并成一张带镜号的宫格大图，钉在画布上。ffmpeg tile，不生成。拆分宫格的逆操作，也用于分镜组交付。',
     parameters: {
       nodeIds: { type: 'array', items: { type: 'string' }, description: '图片节点 id，至少两张。' },
       columns: { type: 'number', description: '列数，默认 min(4, 数量)，2–8。' },
@@ -1531,7 +1531,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_stack',
-    description: '把 2–4 张有成片的图/视频拼成分屏对照条，钉成一条视频卡。ffmpeg hstack/vstack，不生成。',
+    description: '把 2–4 张有成片的图/视频拼成分屏条，钉成一条视频卡。ffmpeg hstack/vstack，不生成。',
     parameters: {
       nodeIds: { type: 'array', items: { type: 'string' }, required: true, description: '图或视频节点 id，2–4 个。' },
       layout: { type: 'string', enum: ['2x1', '1x2', '2x2'], description: '默认两路横排，四路用 2x2。' },
@@ -1571,7 +1571,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_extend',
-    description: '从成片视频抽出尾帧，旁边铺一张续写空视频卡（idea）。不生成。接着走 craft/ready，回写续写卡 path。',
+    description: '从成片视频抽出尾帧，旁边铺一张视频延长空卡（idea）。不生成。接着走 craft/ready，回写延长卡 path。',
     parameters: {
       nodeId: { type: 'string', required: true, description: '有成片的视频节点 id。' },
       prompt: { type: 'string', description: '续写意图。省略则沿用原卡提示词。' },
@@ -3266,7 +3266,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
       '- Copyright-safe prompts: if the user names an IP, do not send that name to generate and do not stamp a canned substitute. Call `directorx_ip_scan` (method axes + project memory), `directorx_knowledge_read` 213, write a situation-specific genericization (attributes, not identity), then `directorx_ip_rewrite` to validate and remember. Generate with the rewrite plus `negativeLine`. Cite Nature genericization + arXiv 2406.14526 (rewrite+negative). The canvas underlines those terms in red and hands the rewrite to you.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. Script and character settings must appear as canvas text nodes (`directorx_canvas_script` / `directorx_character_register` / `directorx_storyboard` / `directorx_bible pin`). After a signed plan: `directorx_canvas_plan` or `directorx_canvas_script` (文本拆成 本→首帧→视频 行) then `directorx_canvas_arrange`. 抽帧上板用 `directorx_canvas_frames`；成片一键解析用 `directorx_canvas_parse`；片段重做 `directorx_canvas_reshoot` cut → 生成中段 → assemble；多段成片硬切拼条用 `directorx_canvas_pack`（预告片禁止 fade）；接触表用 `directorx_canvas_sheet`；一张图宫格切开用 `directorx_canvas_split`；多张图宫格拼回用 `directorx_canvas_join`；分屏对照用 `directorx_canvas_stack`；硬字幕用 `directorx_canvas_desub`；续写位用 `directorx_canvas_extend`；评审动图用 `directorx_canvas_gif`；按引用连线用 `directorx_canvas_autolink`。Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
+      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. Script and character settings must appear as canvas text nodes (`directorx_canvas_script` / `directorx_character_register` / `directorx_storyboard` / `directorx_bible pin`). After a signed plan: `directorx_canvas_plan` or `directorx_canvas_script` (文本拆成 本→首帧→视频 行) then `directorx_canvas_arrange`. 提取帧用 `directorx_canvas_frames`；成片智能解析用 `directorx_canvas_parse`；局部重绘 `directorx_canvas_reshoot` cut → 生成中段 → assemble；多段成片硬切合成用 `directorx_canvas_pack`（预告片禁止 fade）；九宫格用 `directorx_canvas_sheet`；一张图拆分宫格用 `directorx_canvas_split`；多张图合并宫格用 `directorx_canvas_join`；分屏用 `directorx_canvas_stack`；硬字幕用 `directorx_canvas_desub` 去字幕；视频延长用 `directorx_canvas_extend`；评审动图用 `directorx_canvas_gif`；自动连线用 `directorx_canvas_autolink`。Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
       '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, `directorx_ask` then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 自动也不得跳过 craft/ready。有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；不要把「转场/硬切」误判成首尾帧。同一系列先 `directorx_series apply`。多人连续 / 单镜长拍 / 完全控制先 `directorx_blocking`（用户给角色图+开场+事件顺序，你写台账再 pin）。只改一镜先 `directorx_revise`，回写只改该节点 path。After a canvas intent, write results back with `directorx_canvas_update`.',
       '- Edit (deterministic, never regenerate): 拿不准先 `directorx_edit_plan`。调色/打开编辑台 → `directorx_studio`（prompt + nodeId）。图片旋转/翻转/裁切/缩放/明暗 → `directorx_image_edit`。单段视频裁剪/变速/静音/倒放/定格 → `directorx_video_process`。多条人话剪辑 → `directorx_edit`。多镜组装 → `directorx_timeline` / `directorx_video_concat`。口播精剪 → 转写后再 `directorx_smart_cut`。这些工具都可带 nodeId，会回写 path、不改镜头标题。完成后 `directorx_extract_frames` + `directorx_view_image` 质检。craft/ready/proposal 只约束生成，不约束本地编辑。不要用生成模型重绘来完成调色、裁切、旋转或变速。',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Then `directorx_skill_capture` present the save-as-skill card. User revision notes belong in `directorx_note` as they happen. Adaptation reviews go through `directorx_bible` (Markdown on the canvas / in the DSH session), never a standalone HTML file. Base claims on tool results, never on promises.',

@@ -12,3 +12,15 @@ test('CI workflow pins node 22.19, npm ci, npm test, and lib/ sync', () => {
   assert.match(text, /npm test/)
   assert.match(text, /git diff --exit-code lib\//)
 })
+
+test('release workflow publishes a GitHub Release on v* tags', () => {
+  const text = readFileSync(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8')
+  assert.doesNotMatch(text, /^\t/m, 'workflow must be space-indented YAML')
+  assert.match(text, /^name:\s*release\s*$/m)
+  assert.match(text, /tags:/)
+  assert.match(text, /v\*/)
+  assert.match(text, /node-version:\s*'22\.19'/)
+  assert.match(text, /npm test/)
+  assert.match(text, /gh release create/)
+  assert.match(text, /scripts\/release-notes\.mjs/)
+})

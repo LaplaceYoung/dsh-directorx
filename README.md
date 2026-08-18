@@ -11,6 +11,7 @@
 <br>
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-0f172a?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
+[![release](https://img.shields.io/github/v/release/LaplaceYoung/dsh-directorx?color=22c55e&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/releases)
 [![dsh-plugin](https://img.shields.io/badge/dsh-0.1.0--rc.7-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![stars](https://img.shields.io/github/stars/LaplaceYoung/dsh-directorx?style=flat&color=f59e0b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![last commit](https://img.shields.io/github/last-commit/LaplaceYoung/dsh-directorx?color=64748b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
@@ -248,7 +249,7 @@ flowchart LR
 - 角色设定 / 三视图按白底胸像 + 正面 / 侧面 / 背面一次出图。
 - 镜头卡按 16:9 横条分镜排布；`canvas_arrange` / `canvas_plan` 走同一套。
 
-快捷键：空白拖移、滚轮缩放、`G` 打开生成条、`E` 编辑所选媒体、`⌘K` 搜索节点与命令。双击节点居中缩放。
+快捷键：空白拖移、滚轮缩放、`G` 打开生成条、`E` 编辑所选媒体、`⌘K` 搜索节点与命令、`Tab` 换镜。双击节点居中缩放。双击空白添加节点，右键空白导入，右键节点出生成 / 编辑 / 复制 / 删除等当前对象可用的菜单。
 
 ---
 
@@ -367,6 +368,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 | --- | --- |
 | [架构](docs/architecture.md) | 插件边界、画布归属、路由 |
 | [验证](docs/verification.md) | 测试与验收口径 |
+| [发版](docs/releasing.md) | CHANGELOG、打标签、GitHub Release |
 | [Changelog](CHANGELOG.md) | 用户可见变更 |
 | [配方](recipes/) | 宣传片 / 改编 / 拉片复刻 / 单元化制作 |
 

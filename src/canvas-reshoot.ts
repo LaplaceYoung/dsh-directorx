@@ -129,7 +129,7 @@ export async function applyReshootCut(input: {
     {
       id: groupId,
       kind: 'group',
-      label: `${source.label.slice(0, 20)} 片段重做`.slice(0, 200),
+      label: `${source.label.slice(0, 20)} 局部重绘`.slice(0, 200),
       x: originX,
       y: originY,
       width: groupW,

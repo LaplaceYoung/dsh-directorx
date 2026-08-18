@@ -17,7 +17,7 @@ export const CRAFT_SYNONYMS: Array<[RegExp, string]> = [
   [/接入模型|新模型|apidoc|provider/i, 'directorx-provider-onboard'],
   [/同一系列|系列包|沿用设定|下一集/i, 'directorx-series-craft 角色锚 风格锁 117 123'],
   [/场面控制|场面锁|作战板|完全控制|单镜长拍|空间台账/i, 'directorx-blocking-craft 连续性 空间 117 123'],
-  [/改这一镜|再生动|只改这/i, 'directorx-series-craft directorx-chengpian 117'],
+  [/改这一镜|重新生成|再生动|只改这/i, 'directorx-series-craft directorx-chengpian 117'],
   [/预告片|片花|热血漫|日漫/i, 'trailer-craft cinematic-style 151 205 钩子 硬切'],
   [/成片|开拍|导演/i, 'directorx-chengpian directorx-production-lead directorx-methodology 07 115'],
   [/提示词|prompt/i, 'video-prompt-builder 115 130 01'],
