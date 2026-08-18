@@ -1,3 +1,62 @@
+---
+type: Method
+title: "AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）"
+description: "AI 图片的导演签名应用：品牌视觉语言（中央化 Visual Language 作为 Style Element）、提示词风格指南（常量定义：色/光/渲染/镜头/构图）、图转提示词提取稳定令牌、跨生成器一致"
+tags:
+  - "synthesis"
+  - "camera"
+  - "prompt"
+  - "style"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MindStudio AI Image Generation for Brand Guidelines"
+    id: cite-1
+    title: "AI Image Generation for Brand Guidelines"
+    author: "org:MindStudio"
+  - resource: "cited:GetImg Consistent Style 2026"
+    id: cite-2
+    title: "Consistent Style 2026"
+    author: "org:GetImg"
+  - resource: "cited:OakGen Consistent Brand Visual Style"
+    id: cite-3
+    title: "Consistent Brand Visual Style"
+    author: "org:OakGen"
+  - resource: "cited:YouMind Image-to-Prompt Brand Consistency"
+    id: cite-4
+    title: "Image-to-Prompt Brand Consistency"
+    author: "org:YouMind"
+  - resource: "https://www.mindstudio.ai/blog/ai-image-generation-brand-guidelines-design-systems"
+    id: url-1
+    title: "mindstudio.ai"
+  - resource: "https://getimg.ai/blog/how-to-generate-images-in-consistent-brand-style-with-ai"
+    id: url-2
+    title: "getimg.ai"
+  - resource: "https://oakgen.ai/blog/consistent-brand-style-ai-images"
+    id: url-3
+    title: "oakgen.ai"
+  - resource: "https://youmind.com/blog/image-to-prompt-brand-consistency"
+    id: url-4
+    title: "youmind.com"
+  - resource: "https://www.genailast.com/blogs/how-to-create-consistent-brand-imagery-with-ai.php"
+    id: url-5
+    title: "genailast.com"
+dx_id: "290"
+related:
+  - "284-auteur-signature/auteur-signature.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+  - "126-style-art-direction/style-art-direction.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+---
+
 # AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）
 
 > 本页为 AI 图片的导演签名应用：品牌视觉语言（中央化 Visual Language 作为 Style Element）、提示词风格指南（常量定义：色/光/渲染/镜头/构图）、图转提示词提取稳定令牌、跨生成器一致。知识本体来自 2026 品牌一致指南（MindStudio/GetImg/OakGen/YouMind）。AI 应用面向 DirectorX：签名落地（衔接 284 签名、290 对应、195 品牌、126 风格）。
@@ -79,3 +138,10 @@
 - OakGen — Consistent Brand Visual Style Across AI Images：https://oakgen.ai/blog/consistent-brand-style-ai-images
 - YouMind — Image-to-Prompt for Brand Consistency：https://youmind.com/blog/image-to-prompt-brand-consistency
 - GenaILast — A Prompt Formula That Scales：https://www.genailast.com/blogs/how-to-create-consistent-brand-imagery-with-ai.php
+
+## 相关概念
+
+- [电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）](../284-auteur-signature/auteur-signature.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)

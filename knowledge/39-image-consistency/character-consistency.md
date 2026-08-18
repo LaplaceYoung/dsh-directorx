@@ -1,3 +1,61 @@
+---
+type: Method
+title: "图片一致性控制（Character & Visual Consistency）"
+description: "一致性控制手册：漂移原理、五种方法对比与选择、各工具一致性方案（MJ/Veo/Kling/ComfyUI）、端到端管线（角色设计→转面图→锁定→图生视频）、图生视频漂移的四个雷区"
+tags:
+  - "foundation"
+  - "model"
+  - "character"
+  - "workflow"
+  - "continuity"
+  - "i2v"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Flick 2026 角色一致性完整指南"
+    id: cite-1
+    title: "Flick 2026 角色一致性完整指南"
+  - resource: "cited:Apatero LoRA+IP-Adapter 栈"
+    id: cite-2
+    title: "Apatero LoRA+IP-Adapter 栈"
+  - resource: "cited:NWTIA 五方法对比"
+    id: cite-3
+    title: "NWTIA 五方法对比"
+  - resource: "cited:AI 工具指南中文实践。"
+    id: cite-4
+    title: "AI 工具指南中文实践。"
+  - resource: "https://flick.art/blog/img2img-consistent-character"
+    id: url-1
+    title: "flick.art"
+  - resource: "https://nowaythisisai.com/blog/character-consistency-fictional-characters-mid-2026"
+    id: url-2
+    title: "nowaythisisai.com"
+  - resource: "https://apatero.com/blog/comfyui-character-consistency-advanced-workflows-2026"
+    id: url-3
+    title: "apatero.com"
+  - resource: "https://apatero.ai/blog/lora-ipadapter-stack-95-percent-consistency"
+    id: url-4
+    title: "apatero.ai"
+  - resource: "https://getimg.ai/blog/how-to-create-consistent-characters-with-ai"
+    id: url-5
+    title: "getimg.ai"
+  - resource: "https://www.picovix.app/blog/consistent-character-stable-diffusion"
+    id: url-6
+    title: "picovix.app"
+dx_id: "39"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "45-style-unification/style-unification.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+---
+
 # 图片一致性控制（Character & Visual Consistency）
 
 > 本页是 DirectorX 一致性控制手册：漂移原理、五种方法对比与选择、各工具一致性方案（MJ/Veo/Kling/ComfyUI）、端到端管线（角色设计→转面图→锁定→图生视频）、图生视频漂移的四个雷区。
@@ -118,3 +176,9 @@
 - Picovix: Consistent Character in Stable Diffusion (2026) — https://www.picovix.app/blog/consistent-character-stable-diffusion
 - AI 工具指南: AI 图片人物每次脸都不一样——原因+修复路径 — https://aitoolsguidebook.com/zh/articles/ai-image-character-consistency/
 - SegmentFault: AI 漫剧保姆级实战——如何用最简单的方法保持角色脸部一致性 — https://segmentfault.com/a/1190000048069103
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)

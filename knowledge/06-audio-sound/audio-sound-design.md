@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "音频制作与声音设计（Audio & Sound Design）"
+description: "音频知识库：声音三元素、声音设计基础、录音→剪辑→混音→母带全链、LUFS 响度标准、音乐驱动剪辑、声音桥与口型同步"
+tags:
+  - "foundation"
+  - "editing"
+  - "sound"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:AES TD1008 流媒体响度建议"
+    id: cite-1
+    title: "AES TD1008 流媒体响度建议"
+  - resource: "cited:EBU R128/ITU-R BS.1770 标准要点"
+    id: cite-2
+    title: "EBU R128/ITU-R BS.1770 标准要点"
+  - resource: "cited:Krotos/StudioBinder 声音设计指南"
+    id: cite-3
+    title: "Krotos/StudioBinder 声音设计指南"
+  - resource: "cited:行业混音教材要点。"
+    id: cite-4
+    title: "行业混音教材要点。"
+  - resource: "https://aes.org/wp-content/uploads/2024/01/20210924_TD1008_v3.13.pdf"
+    id: url-1
+    title: "aes.org"
+  - resource: "https://tech.ebu.ch/publications/r128"
+    id: url-2
+    title: "tech.ebu.ch"
+  - resource: "https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-5-202311-I!!PDF-E.pdf"
+    id: url-3
+    title: "itu.int"
+  - resource: "https://krotos.studio/blog/what-is-sound-design-in-film"
+    id: url-4
+    title: "krotos.studio"
+  - resource: "https://www.studiobinder.com/blog/what-is-sound-design-for-film/"
+    id: url-5
+    title: "studiobinder.com"
+  - resource: "https://clip-forge.io/blog/vertical-video-retention-editing-playbook-2026"
+    id: url-6
+    title: "clip-forge.io"
+dx_id: "06"
+related:
+  - "88-sound-image-on-set/sound-image-on-set.md"
+  - "274-suspense-visual-language/suspense-visual-language.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+---
+
 # 音频制作与声音设计（Audio & Sound Design）
 
 > 本页是 DirectorX 音频知识库：声音三元素、声音设计基础、录音→剪辑→混音→母带全链、LUFS 响度标准、音乐驱动剪辑、声音桥与口型同步。每个概念含定义、参数、示例与 AI 生成应用。
@@ -216,3 +269,9 @@
 - Krotos Studio: What is sound design in film — https://krotos.studio/blog/what-is-sound-design-in-film
 - StudioBinder: What is Sound Design for Film — https://www.studiobinder.com/blog/what-is-sound-design-for-film/
 - ClipForge: Vertical Video Retention Playbook（响度曲线一节） — https://clip-forge.io/blog/vertical-video-retention-editing-playbook-2026
+
+## 相关概念
+
+- [拍摄端声画协同（Designing Picture for Sound）](../88-sound-image-on-set/sound-image-on-set.md)
+- [电影悬念视听语言（Suspense Visual Language — Cinematography, Sound & Timing of Tension）](../274-suspense-visual-language/suspense-visual-language.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)

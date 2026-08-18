@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片黑白摄影体系（Monochrome Photography — Zone System & Tonal Drama）"
+description: "AI 图片的黑白摄影体系：影调分区（Zone System：Zone II-VI 指派）、黑白美学（去色后形状/纹理/光影）、黑白流派（人像/街拍/风光/黑色电影）、黑白提示词（对比/深影/颗粒）"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:DocsBot Black and White Photo Prompt"
+    id: cite-1
+    title: "Black and White Photo Prompt"
+    author: "org:DocsBot"
+  - resource: "cited:Filmora Gemini B&W Photo Prompts"
+    id: cite-2
+    title: "Gemini B&W Photo Prompts"
+    author: "org:Filmora"
+  - resource: "cited:ReelMind Best AI Prompts for B&W Photos"
+    id: cite-3
+    title: "Best AI Prompts for B&W Photos"
+    author: "org:ReelMind"
+  - resource: "cited:PromptSpace 50 Black and White AI Prompts"
+    id: cite-4
+    title: "50 Black and White AI Prompts"
+    author: "org:PromptSpace"
+  - resource: "https://docsbot.ai/prompts/creative/black-and-white-photo-prompt"
+    id: url-1
+    title: "docsbot.ai"
+  - resource: "https://filmora.wondershare.com/ai-prompt/gemini-black-white-photo-prompt.html"
+    id: url-2
+    title: "filmora.wondershare.com"
+  - resource: "https://reelmind.ai/blog/the-best-ai-prompts-for-generating-stunning-black-white-photos"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://www.promptspace.in/black-and-white-prompts"
+    id: url-4
+    title: "promptspace.in"
+  - resource: "https://getvidzy.com/ai-black-white-photography-prompts/"
+    id: url-5
+    title: "getvidzy.com"
+dx_id: "252"
+related:
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "250-image-mood-atmosphere/image-mood-atmosphere.md"
+  - "236-chiaroscuro-light/chiaroscuro-light.md"
+---
+
 # AI 图片黑白摄影体系（Monochrome Photography — Zone System & Tonal Drama）
 
 > 本页为 AI 图片的黑白摄影体系：影调分区（Zone System：Zone II-VI 指派）、黑白美学（去色后形状/纹理/光影）、黑白流派（人像/街拍/风光/黑色电影）、黑白提示词（对比/深影/颗粒）。知识本体来自 2026 黑白摄影提示词指南（DocsBot/Filmora/ReelMind/PromptSpace）。AI 应用面向 DirectorX：单色图（衔接 215 参数、250 氛围、252 对应、236 明暗）。
@@ -81,3 +136,9 @@
 - ReelMind — Best AI Prompts for Stunning B&W Photos：https://reelmind.ai/blog/the-best-ai-prompts-for-generating-stunning-black-white-photos
 - PromptSpace — 50 Black and White AI Prompts：https://www.promptspace.in/black-and-white-prompts
 - Vidzy — AI Black & White Photography Prompts：https://getvidzy.com/ai-black-white-photography-prompts/
+
+## 相关概念
+
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）](../250-image-mood-atmosphere/image-mood-atmosphere.md)
+- [AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）](../236-chiaroscuro-light/chiaroscuro-light.md)

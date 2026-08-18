@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片母题演变（Motif Evolution — Establishment, Variation & Payoff）"
+description: "AI 图片的母题演变：母题三阶段（建立/变奏/兑现）、演变反映角色/情绪变化、母题类型（水/钟表/玻璃/色彩/重复物件）、防重复死板（语境变化）"
+tags:
+  - "synthesis"
+  - "color"
+  - "character"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Motif (Narrative)"
+    id: cite-1
+    title: "Motif (Narrative)"
+    author: "org:Wikipedia"
+  - resource: "cited:StudyRaid Recurring Visual Motifs"
+    id: cite-2
+    title: "Recurring Visual Motifs"
+    author: "org:StudyRaid"
+  - resource: "cited:Beverlyboy Evolving Visual Motifs"
+    id: cite-3
+    title: "Evolving Visual Motifs"
+    author: "org:Beverlyboy"
+  - resource: "cited:Fiveable Visual Motif"
+    id: cite-4
+    title: "Visual Motif"
+    author: "org:Fiveable"
+  - resource: "https://en.wikipedia.org/wiki/Motif_(narrative"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://app.studyraid.com/en/read/94143/4265735/using-recurring-visual-motifs"
+    id: url-2
+    title: "app.studyraid.com"
+  - resource: "https://beverlyboy.com/film-technology/cinematic-signatures-the-thematic-power-of-evolving-visual-motifs/"
+    id: url-3
+    title: "beverlyboy.com"
+  - resource: "https://fiveable.me/film-and-media-theory/key-terms/visual-motif"
+    id: url-4
+    title: "fiveable.me"
+  - resource: "https://nrao-prashanthi.medium.com/30-visual-motifs-across-a-story-90a1647df18d"
+    id: url-5
+    title: "nrao-prashanthi.medium.com"
+dx_id: "297"
+related:
+  - "288-visual-motif-system/visual-motif-system.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "209-prop-storytelling/prop-storytelling.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 图片母题演变（Motif Evolution — Establishment, Variation & Payoff）
 
 > 本页为 AI 图片的母题演变：母题三阶段（建立/变奏/兑现）、演变反映角色/情绪变化、母题类型（水/钟表/玻璃/色彩/重复物件）、防重复死板（语境变化）。知识本体来自 2026 母题演变（Wikipedia/StudyRaid/Beverlyboy）。AI 应用面向 DirectorX：符号演变（衔接 288 母题、297 对应、238 系列、209 道具）。
@@ -81,3 +138,10 @@
 - Beverlyboy — Cinematic Signatures: Evolving Visual Motifs：https://beverlyboy.com/film-technology/cinematic-signatures-the-thematic-power-of-evolving-visual-motifs/
 - Fiveable — Visual Motif (Film and Media Theory)：https://fiveable.me/film-and-media-theory/key-terms/visual-motif
 - Medium — Visual Motifs Across a Story：https://nrao-prashanthi.medium.com/30-visual-motifs-across-a-story-90a1647df18d
+
+## 相关概念
+
+- [AI 图片构图母题系统（Visual Motif System — Recurring Elements & Key Visuals）](../288-visual-motif-system/visual-motif-system.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）](../209-prop-storytelling/prop-storytelling.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

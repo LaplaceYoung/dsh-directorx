@@ -1,3 +1,64 @@
+---
+type: Reference
+title: "AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）"
+description: "AI 视频生成的参数调优体系：种子（Seed）、引导强度（CFG/Prompt Strength）、步数（Steps）、运动强度（Motion Strength）、画幅/时长，以及按模型/场景的推荐参数"
+tags:
+  - "production"
+  - "prompt"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Together AI Video Generation Parameters"
+    id: cite-1
+    title: "Video Generation Parameters"
+    author: "org:Together-AI"
+  - resource: "cited:PixVerse v5.5 Prompt Guide"
+    id: cite-2
+    title: "v5.5 Prompt Guide"
+    author: "org:PixVerse"
+  - resource: "cited:Seedance 2 Best Settings Guide"
+    id: cite-3
+    title: "Best Settings Guide"
+    author: "org:Seedance-2"
+  - resource: "cited:QuestStudio Best Settings by Model for I2V"
+    id: cite-4
+    title: "Best Settings by Model for I2V"
+    author: "org:QuestStudio"
+  - resource: "cited:LTX ComfyUI Workflow Guide"
+    id: cite-5
+    title: "ComfyUI Workflow Guide"
+    author: "org:LTX"
+  - resource: "https://docs.together.ai/docs/inference/videos/parameters"
+    id: url-1
+    title: "docs.together.ai"
+  - resource: "https://fal.ai/learn/devs/pixverse-v5-5-prompt-guide"
+    id: url-2
+    title: "fal.ai"
+  - resource: "https://wavespeed.ai/blog/posts/blog-seedance-2-0-best-settings/"
+    id: url-3
+    title: "wavespeed.ai"
+  - resource: "https://queststudio.io/blog/best-settings-by-model-image-to-video"
+    id: url-4
+    title: "queststudio.io"
+  - resource: "https://ltx.io/blog/comfyui-workflow-guide"
+    id: url-5
+    title: "ltx.io"
+dx_id: "138"
+related:
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+  - "118-defect-repair/defect-repair.md"
+  - "129-eval-benchmark/eval-benchmark.md"
+  - "122-quality-monetization/quality-monetization.md"
+---
+
 # AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）
 
 > 本页为 AI 视频生成的参数调优体系：种子（Seed）、引导强度（CFG/Prompt Strength）、步数（Steps）、运动强度（Motion Strength）、画幅/时长，以及按模型/场景的推荐参数。知识本体来自 2026 参数指南（Together AI/PixVerse/Seedance/QuestStudio/LTX ComfyUI）。AI 应用面向 DirectorX：生成参数决策（衔接 114 模型、115 提示词、118 缺陷）。
@@ -81,3 +142,11 @@
 - Seedance 2 — Best Settings Guide: Duration, Aspect Ratio：https://wavespeed.ai/blog/posts/blog-seedance-2-0-best-settings/
 - QuestStudio — Best Settings by Model for Image to Video：https://queststudio.io/blog/best-settings-by-model-image-to-video
 - LTX — ComfyUI Video Generation Model Workflow Guide：https://ltx.io/blog/comfyui-workflow-guide
+
+## 相关概念
+
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)
+- [AI 视频评测与基准方法学（AI Video Evaluation — Benchmarks, Metrics & Human Eval）](../129-eval-benchmark/eval-benchmark.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)

@@ -68,7 +68,36 @@ export async function openaiTts(ctx: ProviderContext, text: string, voice?: stri
       signal: ctx.signal,
     })
     if (response.ok) {
-      bytes = Buffer.from(await response.arrayBuffer())
+      const raw = Buffer.from(await response.arrayBuffer())
+      const contentType = response.headers.get('content-type') ?? ''
+      if (contentType.includes('json') || raw[0] === 0x7b) {
+        const parsed = JSON.parse(raw.toString('utf8')) as {
+          output?: { audio?: { url?: string; data?: string } }
+          url?: string
+        }
+        const url = parsed.output?.audio?.url ?? parsed.url
+        const data = parsed.output?.audio?.data
+        if (typeof data === 'string' && data !== '') {
+          bytes = Buffer.from(data, 'base64')
+        } else if (typeof url === 'string' && url !== '') {
+          const audio = await fetch(url, { signal: ctx.signal })
+          if (!audio.ok) {
+            lastError = `audio url HTTP ${audio.status}`
+            continue
+          }
+          bytes = Buffer.from(await audio.arrayBuffer())
+        } else {
+          lastError = 'speech JSON had empty audio data/url'
+          continue
+        }
+      } else {
+        bytes = raw
+      }
+      if (bytes.length < 1024) {
+        lastError = `speech payload too small (${bytes.length} bytes)`
+        bytes = undefined
+        continue
+      }
       usedModel = typeof payload.model === 'string' ? payload.model : ctx.capability.model
       break
     }

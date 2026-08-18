@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "调色风格与 LUT 制作（Color Grading & LUT Creation）"
+description: "调色风格手册：经典电影风格库、LUT 原理、从调色导出 LUT 的完整流程（Resolve/Lumetri/FCP/CapCut）、LUT 使用规范与 AI 调色衔接"
+tags:
+  - "foundation"
+  - "color"
+  - "style"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Luttie 官方教程"
+    id: cite-1
+    title: "Luttie 官方教程"
+  - resource: "cited:Pixflow"
+    id: cite-2
+    title: "Pixflow"
+  - resource: "cited:FilmSupply"
+    id: cite-3
+    title: "FilmSupply"
+  - resource: "cited:COSESAI 实地指南"
+    id: cite-4
+    title: "COSESAI 实地指南"
+  - resource: "cited:aaapresets 系列教程。"
+    id: cite-5
+    title: "aaapresets 系列教程。"
+  - resource: "https://luttie.app/blog/how-to-export-a-lut-from-your-color-grade"
+    id: url-1
+    title: "luttie.app"
+  - resource: "https://luttie.app/blog/how-to-use-luts-in-davinci-resolve"
+    id: url-2
+    title: "luttie.app"
+  - resource: "https://pixflow.net/blog/davinci-resolve-luts/"
+    id: url-3
+    title: "pixflow.net"
+  - resource: "https://pixflow.net/blog/teal-and-orange-color-grading/"
+    id: url-4
+    title: "pixflow.net"
+  - resource: "https://www.filmsupply.com/articles/cinematic-color-grading/"
+    id: url-5
+    title: "filmsupply.com"
+dx_id: "36"
+related:
+  - "45-style-unification/style-unification.md"
+  - "09-lighting-color/lighting-color.md"
+  - "20-color-practice/color-practice-davinci.md"
+---
+
 # 调色风格与 LUT 制作（Color Grading & LUT Creation）
 
 > 本页是 DirectorX 调色风格手册：经典电影风格库、LUT 原理、从调色导出 LUT 的完整流程（Resolve/Lumetri/FCP/CapCut）、LUT 使用规范与 AI 调色衔接。
@@ -132,3 +186,9 @@
 - COSESAI: Cinematic Color Grading — A Practical Field Guide — https://blog.flowrust.com/2026/08/11/cinematic-color-grading-field-guide-2026-08-11/
 - aaapresets: Teal & Orange, Bleach Bypass, and Cross-Processing Explained — https://aaapresets.com/blogs/davinci-resolve-color-grading-gradient-tutorials/unlocking-cinematic-magic-teal-orange-bleach-bypass-and-cross-processing-explained
 - Envato Tuts+: How to Make a Custom LUT from Your Grade in Resolve — https://photography.tutsplus.com/tutorials/how-to-make-a-custom-lut-from-your-grade-in-resolve--cms-106805
+
+## 相关概念
+
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)
+- [灯光与色彩（Lighting & Color）](../09-lighting-color/lighting-color.md)
+- [调色实操与 DaVinci 流程（Color Practice & DaVinci）](../20-color-practice/color-practice-davinci.md)

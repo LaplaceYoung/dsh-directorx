@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）"
+description: "AI 面部微表情细化：眼神（Gaze）锁定/偏移、非对称自然眨眼、嘴唇/下颌/脸颊协调发声、微表情克制（一两个线索）、情绪时序（近中性起→渐显→回落）、负向提示词"
+tags:
+  - "consistency"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv EmoFace: Audio-driven Emotional 3D Face Animation"
+    id: cite-1
+    title: "EmoFace: Audio-driven Emotional 3D Face Animation"
+    author: "org:arXiv"
+  - resource: "cited:Hailuo Simulating Micro-Expressions"
+    id: cite-2
+    title: "Simulating Micro-Expressions"
+    author: "org:Hailuo"
+  - resource: "cited:PMC Facial Motion Capture System"
+    id: cite-3
+    title: "Facial Motion Capture System"
+    author: "org:PMC"
+  - resource: "cited:ReelMind Realistic Human Clips"
+    id: cite-4
+    title: "Realistic Human Clips"
+    author: "org:ReelMind"
+  - resource: "https://arxiv.org/html/2407.12501v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://hailuoai.video/pages/knowledge/micro-expressions-realistic-human-ai-video"
+    id: url-2
+    title: "hailuoai.video"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10099104/"
+    id: url-3
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://reelmind.ai/blog/ai-video-depth-of-field-effects-professional-bokeh-without-expensive-lenses"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://www.artarch.ai/blog/ai-video-character-consistency-clothing-props-state"
+    id: url-5
+    title: "artarch.ai"
+dx_id: "175"
+related:
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "137-digital-human/digital-human.md"
+---
+
 # AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）
 
 > 本页为 AI 面部微表情细化：眼神（Gaze）锁定/偏移、非对称自然眨眼、嘴唇/下颌/脸颊协调发声、微表情克制（一两个线索）、情绪时序（近中性起→渐显→回落）、负向提示词。知识本体来自 2026 面部动画研究（EmoFace/Hailuo/PMC）。AI 应用面向 DirectorX：表演真实感（衔接 69 表演控制、119 对口型、137 数字人）。
@@ -95,3 +149,9 @@ rubber face, mouth-only movement, lip warping, facial morphing, changing identit
 - PMC — Facial Motion Capture System Based on Facial Expressions：https://pmc.ncbi.nlm.nih.gov/articles/PMC10099104/
 - ReelMind — AI Video Depth of Field Effects（同站配套）：https://reelmind.ai/blog/ai-video-depth-of-field-effects-professional-bokeh-without-expensive-lenses
 - ArtArch — AI Video Character Consistency（身份稳定性参考）：https://www.artarch.ai/blog/ai-video-character-consistency-clothing-props-state
+
+## 相关概念
+
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)

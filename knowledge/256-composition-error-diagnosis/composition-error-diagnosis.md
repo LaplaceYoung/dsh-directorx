@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片构图错误诊断（Composition Error Diagnosis — Detect, Fix & Regenerate）"
+description: "AI 图片的构图错误诊断：常见失败（居中滥用/杂乱/无张力/伪影/错字/解剖）、诊断-修复工作流（加电影语言→避免居中→多变体+后处理）、提示词精化"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "workflow"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Envato 10 AI Image Fails and How to Fix"
+    id: cite-1
+    title: "10 AI Image Fails and How to Fix"
+    author: "org:Envato"
+  - resource: "cited:ZSky Why Your AI Images Look Bad: 15 Fixes"
+    id: cite-2
+    title: "Why Your AI Images Look Bad: 15 Fixes"
+    author: "org:ZSky"
+  - resource: "cited:Proxyle How to Fix Composition Issues"
+    id: cite-3
+    title: "How to Fix Composition Issues"
+    author: "org:Proxyle"
+  - resource: "cited:10b.ai Common AI Image Issues"
+    id: cite-4
+    title: "Common AI Image Issues"
+    author: "org:10b.ai"
+  - resource: "https://elements.envato.com/learn/ai-image-fails"
+    id: url-1
+    title: "elements.envato.com"
+  - resource: "https://zsky.ai/blog/why-ai-images-look-bad"
+    id: url-2
+    title: "zsky.ai"
+  - resource: "https://proxyle.com/blog/how-to-fix-composition-issues-in-ai-art/"
+    id: url-3
+    title: "proxyle.com"
+  - resource: "https://10b.ai/blog/common-ai-image-generation-issues-fixes"
+    id: url-4
+    title: "10b.ai"
+  - resource: "https://elements.envato.com/learn/graphics-generation-issues"
+    id: url-5
+    title: "elements.envato.com"
+dx_id: "256"
+related:
+  - "216-composition-rules-deep/composition-rules-deep.md"
+  - "174-qc-automation/qc-automation.md"
+  - "118-defect-repair/defect-repair.md"
+  - "162-prompt-evaluation/prompt-evaluation.md"
+---
+
 # AI 图片构图错误诊断（Composition Error Diagnosis — Detect, Fix & Regenerate）
 
 > 本页为 AI 图片的构图错误诊断：常见失败（居中滥用/杂乱/无张力/伪影/错字/解剖）、诊断-修复工作流（加电影语言→避免居中→多变体+后处理）、提示词精化。知识本体来自 2026 构图诊断指南（Envato/ZSky/Proxyle/10b.ai）。AI 应用面向 DirectorX：图片质检（衔接 216 构图、256 对应、174 QC、118 缺陷）。
@@ -81,3 +139,10 @@
 - Proxyle — How to Fix Composition Issues in AI Art：https://proxyle.com/blog/how-to-fix-composition-issues-in-ai-art/
 - 10b.ai — Common AI Image Generation Issues and Fixes：https://10b.ai/blog/common-ai-image-generation-issues-fixes
 - Envato — 5 Graphics Generation Issues: Troubleshooting：https://elements.envato.com/learn/graphics-generation-issues
+
+## 相关概念
+
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)
+- [AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）](../174-qc-automation/qc-automation.md)
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)
+- [AI 提示词测试与评估（Prompt Evaluation — Systematic Iteration & Control Variables）](../162-prompt-evaluation/prompt-evaluation.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 音频专项（AI Audio: Voice, Music & Restoration）"
+description: "AI 音频知识库：AI 配音与语音克隆（同意/授权/披露四原则）、AI 音乐生成与版权现状、AI 音频分离与修复工具、商用风险清单"
+tags:
+  - "foundation"
+  - "sound"
+  - "copyright"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Magic Hour AI 语音克隆法律伦理 2026"
+    id: cite-1
+    title: "Magic Hour AI 语音克隆法律伦理 2026"
+  - resource: "cited:Promise Legal AI 音乐版权分析（Suno/Udio 诉讼后）"
+    id: cite-2
+    title: "Promise Legal AI 音乐版权分析（Suno/Udio 诉讼后）"
+  - resource: "cited:美国版权局 Part 2 报告"
+    id: cite-3
+    title: "美国版权局 Part 2 报告"
+  - resource: "cited:AI 分离工具生态。"
+    id: cite-4
+    title: "AI 分离工具生态。"
+  - resource: "https://magichour.ai/blog/ai-voice-cloning-laws-and-ethics"
+    id: url-1
+    title: "magichour.ai"
+  - resource: "https://blog.promise.legal/ai-generated-music-copyright-ownership/"
+    id: url-2
+    title: "blog.promise.legal"
+  - resource: "https://copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf"
+    id: url-3
+    title: "copyright.gov"
+  - resource: "https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/speech-service/text-to-speech/disclosure-voice-talent"
+    id: url-4
+    title: "learn.microsoft.com"
+  - resource: "https://digital-strategy.ec.europa.eu/en/faqs/transparency-obligations-under-article-50-ai-act"
+    id: url-5
+    title: "digital-strategy.ec.europa.eu"
+  - resource: "https://apnews.com/article/suno-udio-ai-music-record-labels-849a2d59eab89072154ab32b4db06284"
+    id: url-6
+    title: "apnews.com"
+dx_id: "31"
+related:
+  - "05-short-video/short-video-techniques.md"
+  - "06-audio-sound/audio-sound-design.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # AI 音频专项（AI Audio: Voice, Music & Restoration）
 
 > 本页是 DirectorX AI 音频知识库：AI 配音与语音克隆（同意/授权/披露四原则）、AI 音乐生成与版权现状、AI 音频分离与修复工具、商用风险清单。每个概念含规则、参数与检查清单。
@@ -123,3 +177,9 @@ AI 音频已覆盖制作全链：**生成**（配音/音乐）、**分离**（�
 - EU 委员会: AI Act Article 50 透明度义务 — https://digital-strategy.ec.europa.eu/en/faqs/transparency-obligations-under-article-50-ai-act
 - AP News: Suno 与 Udio 起诉后续 — https://apnews.com/article/suno-udio-ai-music-record-labels-849a2d59eab89072154ab32b4db06284
 - Dubspot: AI Music Licensing Explained (2026) — https://blog.dubspot.com/ai-music-licensing-explained-2026
+
+## 相关概念
+
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [音频制作与声音设计（Audio & Sound Design）](../06-audio-sound/audio-sound-design.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

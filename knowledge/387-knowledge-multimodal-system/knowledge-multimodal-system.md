@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 图片知识-多模型-全栈系统（Knowledge-Multimodal-Fullstack — Reasoned Image System）"
+description: "AI 图片的知识-多模型-全栈系统：多模型平台取代单工具（2026 整合年）、推理优先生成（构图规划+文字校验）、统一界面批量生产（多变体/品牌资产）、原生多模态（文本图像共享表征）"
+tags:
+  - "synthesis"
+  - "model"
+  - "platform"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:AIJourn Multi-Model Platforms Replacing Single-Tool"
+    id: cite-1
+    title: "Multi-Model Platforms Replacing Single-Tool"
+    author: "org:AIJourn"
+  - resource: "cited:OurCodeWorld Multi-Model AI Image Platforms"
+    id: cite-2
+    title: "Multi-Model AI Image Platforms"
+    author: "org:OurCodeWorld"
+  - resource: "cited:FutureAGI Multimodal AI 2026"
+    id: cite-3
+    title: "Multimodal AI 2026"
+    author: "org:FutureAGI"
+  - resource: "cited:ACL SDAR-VL"
+    id: cite-4
+    title: "SDAR-VL"
+    author: "org:ACL"
+  - resource: "https://aijourn.com/ai-image-generation-in-2026-why-multi-model-platforms-are-replacing-single-tool-workflows/"
+    id: url-1
+    title: "aijourn.com"
+  - resource: "https://ourcodeworld.com/articles/read/3799/how-multi-model-ai-image-platforms-are-changing-creative-workflows-in-2026"
+    id: url-2
+    title: "ourcodeworld.com"
+  - resource: "https://futureagi.com/blog/multimodal-ai-2025/"
+    id: url-3
+    title: "futureagi.com"
+  - resource: "https://aclanthology.org/2026.acl-long.1333.pdf"
+    id: url-4
+    title: "aclanthology.org"
+  - resource: "https://investor.shutterstock.com/node/14631/pdf"
+    id: url-5
+    title: "investor.shutterstock.com"
+dx_id: "387"
+related:
+  - "384-knowledge-guided-generation/knowledge-guided-generation.md"
+  - "382-multimodel-platform/multimodel-platform.md"
+  - "375-full-stack-workflow/full-stack-workflow.md"
+  - "335-cross-modal-series/cross-modal-series.md"
+  - "333-world-engine-app/world-engine-app.md"
+---
+
 # AI 图片知识-多模型-全栈系统（Knowledge-Multimodal-Fullstack — Reasoned Image System）
 
 > 本页为 AI 图片的知识-多模型-全栈系统：多模型平台取代单工具（2026 整合年）、推理优先生成（构图规划+文字校验）、统一界面批量生产（多变体/品牌资产）、原生多模态（文本图像共享表征）。知识本体来自 2026 多模型（AIJourn/OurCodeWorld/FutureAGI）。AI 应用面向 DirectorX：知识多模型系统（衔接 384 知识引导、387 对应、382 平台、375 全栈）。
@@ -73,3 +132,11 @@
 - FutureAGI — Multimodal AI 2026：https://futureagi.com/blog/multimodal-ai-2025/
 - ACL 2026 — SDAR-VL: Stable Block-wise Diffusion（long.1333）：https://aclanthology.org/2026.acl-long.1333.pdf
 - Shutterstock — Commercial-Ready GenAI Solutions：https://investor.shutterstock.com/node/14631/pdf
+
+## 相关概念
+
+- [AI 图片知识引导生成（Knowledge-Guided Generation — Reference Mapping & Agentic Systems）](../384-knowledge-guided-generation/knowledge-guided-generation.md)
+- [AI 图片多模型聚合平台（Multi-Model Platform — Unified Creative Orchestration）](../382-multimodel-platform/multimodel-platform.md)
+- [AI 图片全栈工作流（Full-Stack Workflow — LLM + Multi-Model + Production Tooling）](../375-full-stack-workflow/full-stack-workflow.md)
+- [AI 图片跨模态沉浸系列（Cross-Modal Immersive Series — Unified Multimodal Storytelling）](../335-cross-modal-series/cross-modal-series.md)
+- [AI 图片世界引擎应用（World Engine Application — Production Pipelines & Versioned Assets）](../333-world-engine-app/world-engine-app.md)

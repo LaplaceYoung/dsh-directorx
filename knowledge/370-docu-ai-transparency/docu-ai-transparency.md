@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影纪实-伦理-AI 透明实践（Documentary × Ethics × AI Transparency — Labeling & Disclosure）"
+description: "电影纪实-伦理-AI 透明实践：多层标注（可见+机读）、公共利益披露（编辑责任+人工监督）、档案制片人联盟（APA 生成 AI 最佳实践）、IAB 披露框架、EU 实践守则（AI 生成内容透明）"
+tags:
+  - "synthesis"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:EU Code of Practice on Transparency of AI Content"
+    id: cite-1
+    title: "Code of Practice on Transparency of AI Content"
+    author: "org:EU"
+  - resource: "cited:APA Best Practices for Generative AI in Documentaries"
+    id: cite-2
+    title: "Best Practices for Generative AI in Documentaries"
+    author: "org:APA"
+  - resource: "cited:IAB AI Transparency Framework"
+    id: cite-3
+    title: "AI Transparency Framework"
+    author: "org:IAB"
+  - resource: "cited:Jones Day Draft Code of Practice"
+    id: cite-4
+    title: "Draft Code of Practice"
+    author: "org:Jones-Day"
+  - resource: "https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content"
+    id: url-1
+    title: "digital-strategy.ec.europa.eu"
+  - resource: "https://ethicsandjournalism.org/2024/10/11/archival-producers-alliance-best-practices-for-use-of-generative-ai-in-documentaries/"
+    id: url-2
+    title: "ethicsandjournalism.org"
+  - resource: "https://www.iab.com/news/iab-releases-industrys-first-ai-transparency-and-disclosure-framework-to-guide-responsible-advertising-in-a-generative-ai-landscape/"
+    id: url-3
+    title: "iab.com"
+  - resource: "https://www.jonesday.com/en/insights/2026/01/european-commission-publishes-draft-code-of-practice-on-ai-labelling-and-transparency"
+    id: url-4
+    title: "jonesday.com"
+  - resource: "https://talkhouse.com/integrity-vs-innovation-how-ai-is-redefining-documentary-filmmaking"
+    id: url-5
+    title: "talkhouse.com"
+dx_id: "370"
+related:
+  - "361-docu-handheld-ethics/docu-handheld-ethics.md"
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "166-documentary-ethics/documentary-ethics.md"
+---
+
 # 电影纪实-伦理-AI 透明实践（Documentary × Ethics × AI Transparency — Labeling & Disclosure）
 
 > 本页为电影纪实-伦理-AI 透明实践：多层标注（可见+机读）、公共利益披露（编辑责任+人工监督）、档案制片人联盟（APA 生成 AI 最佳实践）、IAB 披露框架、EU 实践守则（AI 生成内容透明）。知识本体来自 2026 透明实践（EU/Jones Day/APA/IAB）。AI 应用面向 DirectorX：纪实合规（衔接 361 纪实伦理、370 对应、145 披露、166 伦理）。
@@ -76,3 +130,9 @@ AI 使用范围界定 → 多层标注设计
 - IAB — Industry's First AI Transparency and Disclosure Framework：https://www.iab.com/news/iab-releases-industrys-first-ai-transparency-and-disclosure-framework-to-guide-responsible-advertising-in-a-generative-ai-landscape/
 - Jones Day — Draft Code of Practice on AI Labelling：https://www.jonesday.com/en/insights/2026/01/european-commission-publishes-draft-code-of-practice-on-ai-labelling-and-transparency
 - Talkhouse — Integrity vs. Innovation: AI Redefining Documentary：https://talkhouse.com/integrity-vs-innovation-how-ai-is-redefining-documentary-filmmaking
+
+## 相关概念
+
+- [电影纪实-手持-伦理应用（Documentary-Handheld-Ethics — Duty of Care in Practice）](../361-docu-handheld-ethics/docu-handheld-ethics.md)
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）](../166-documentary-ethics/documentary-ethics.md)

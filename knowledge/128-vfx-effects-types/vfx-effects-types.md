@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 特效类型生成深化（VFX Types — Weather, Particles, Magic & Destruction Prompts）"
+description: "AI 特效分类型生成技巧库：天气（雨/雪/风暴）、粒子（火花/尘埃/魔法）、能量（冲击波/光环）、破坏（爆炸/碎裂）、环境互动——每类给出提示词结构与注意点"
+tags:
+  - "production"
+  - "prompt"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LazyPrompt AI Video VFX Prompts"
+    id: cite-1
+    title: "AI Video VFX Prompts"
+    author: "org:LazyPrompt"
+  - resource: "cited:Carat VFX Video Prompts"
+    id: cite-2
+    title: "VFX Video Prompts"
+    author: "org:Carat"
+  - resource: "cited:Wondershare 120+ Video Prompts"
+    id: cite-3
+    title: "120+ Video Prompts"
+    author: "org:Wondershare"
+  - resource: "cited:ReelMind AI Particle Effects"
+    id: cite-4
+    title: "AI Particle Effects"
+    author: "org:ReelMind"
+  - resource: "cited:Vidwave Veo 3.1 Weather Effects"
+    id: cite-5
+    title: "Veo 3.1 Weather Effects"
+    author: "org:Vidwave"
+  - resource: "https://lzyprompt.com/blog/ai-video-prompts-vfx-effects/"
+    id: url-1
+    title: "lzyprompt.com"
+  - resource: "https://carat.im/en/prompt-gallery/vfx"
+    id: url-2
+    title: "carat.im"
+  - resource: "https://filmora.wondershare.com/video-prompts.html"
+    id: url-3
+    title: "filmora.wondershare.com"
+  - resource: "https://reelmind.ai/blog/ai-generated-particle-effects-add-professional-sparkles-dust-or-magic-to-any-scene"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://vidwave.ai/veo3-weather-effects-create-snow-rain-and-storm-scenes"
+    id: url-5
+    title: "vidwave.ai"
+dx_id: "128"
+related:
+  - "110-ai-vfx-pipeline/ai-vfx-pipeline.md"
+  - "118-defect-repair/defect-repair.md"
+---
+
 # AI 特效类型生成深化（VFX Types — Weather, Particles, Magic & Destruction Prompts）
 
 > 本页为 AI 特效分类型生成技巧库：天气（雨/雪/风暴）、粒子（火花/尘埃/魔法）、能量（冲击波/光环）、破坏（爆炸/碎裂）、环境互动——每类给出提示词结构与注意点。知识本体来自 2026 VFX 提示词指南（LazyPrompt/Carat/Wondershare/ReelMind）。AI 应用面向 DirectorX：特效镜头的生成层（衔接 110 VFX 管线、118 缺陷修复）。
@@ -95,3 +153,8 @@
 - Wondershare — AI Video Prompts (120+)：https://filmora.wondershare.com/video-prompts.html
 - ReelMind — AI-Generated Particle Effects: Sparkles, Dust, Magic：https://reelmind.ai/blog/ai-generated-particle-effects-add-professional-sparkles-dust-or-magic-to-any-scene
 - Vidwave — Veo 3.1 Weather Effects: Snow, Rain & Storm：https://vidwave.ai/veo3-weather-effects-create-snow-rain-and-storm-scenes
+
+## 相关概念
+
+- [AI 视觉特效管线（VFX Pipeline — Roto / Matchmove / Comp & AI Application）](../110-ai-vfx-pipeline/ai-vfx-pipeline.md)
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)

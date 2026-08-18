@@ -2,6 +2,9 @@
 
 export type AlignKind = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom'
 
+export const SNAP_GRID = 16
+export const GROUP_PAD = { x: 28, top: 48, bottom: 24 } as const
+
 export interface LayoutBox {
   id: string
   x: number
@@ -81,6 +84,43 @@ export function distributeBoxes(boxes: LayoutBox[], axis: 'x' | 'y'): Array<{ id
 
 export function nudgeBoxes(boxes: LayoutBox[], dx: number, dy: number): Array<{ id: string; x: number; y: number }> {
   return boxes.map(box => ({ id: box.id, x: box.x + dx, y: box.y + dy }))
+}
+
+export function snapCoord(value: number, grid = SNAP_GRID): number {
+  if (grid <= 0) return value
+  return Math.round(value / grid) * grid
+}
+
+export function nudgeStep(snap: boolean, coarse: boolean): number {
+  if (snap) return coarse ? SNAP_GRID * 2 : SNAP_GRID
+  return coarse ? SNAP_GRID : SNAP_GRID / 2
+}
+
+/** Bounds for a new group that leaves room for the act header. */
+export function groupFrame(members: LayoutBox[]): { x: number; y: number; w: number; h: number } {
+  if (members.length === 0) return { x: 0, y: 0, w: 280, h: 200 }
+  const minX = Math.min(...members.map(box => box.x))
+  const minY = Math.min(...members.map(box => box.y))
+  const maxX = Math.max(...members.map(box => box.x + box.w))
+  const maxY = Math.max(...members.map(box => box.y + box.h))
+  return {
+    x: minX - GROUP_PAD.x,
+    y: minY - GROUP_PAD.top,
+    w: Math.max(280, maxX - minX + GROUP_PAD.x * 2),
+    h: Math.max(200, maxY - minY + GROUP_PAD.top + GROUP_PAD.bottom),
+  }
+}
+
+/** Storyboard reading order: shotIndex, then row (y), then column (x). */
+export function readingOrder<T extends { id: string; x: number; y: number; shotIndex?: number }>(nodes: T[]): T[] {
+  return [...nodes].sort((left, right) => {
+    const leftShot = left.shotIndex
+    const rightShot = right.shotIndex
+    if (leftShot !== undefined && rightShot !== undefined && leftShot !== rightShot) return leftShot - rightShot
+    if (Math.abs(left.y - right.y) > 48) return left.y - right.y
+    if (left.x !== right.x) return left.x - right.x
+    return left.id.localeCompare(right.id)
+  })
 }
 
 export function packClip(

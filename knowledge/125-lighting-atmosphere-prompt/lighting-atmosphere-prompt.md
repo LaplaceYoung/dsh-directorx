@@ -1,3 +1,64 @@
+---
+type: Method
+title: "AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）"
+description: "AI 视频光线与氛围的完整提示词体系：光质/时段（黄金时刻/蓝调）、氛围光（霓虹/体积光/雾）、经典布光（三点/伦勃朗/剪影/轮廓光）、情绪化光色"
+tags:
+  - "production"
+  - "lighting"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Kling AI Video Lighting Prompts"
+    id: cite-1
+    title: "AI Video Lighting Prompts"
+    author: "org:Kling"
+  - resource: "cited:Visionary Cinematic Lighting Glossary"
+    id: cite-2
+    title: "Cinematic Lighting Glossary"
+    author: "org:Visionary"
+  - resource: "cited:ZSky 38 AI Lighting Prompts"
+    id: cite-3
+    title: "38 AI Lighting Prompts"
+    author: "org:ZSky"
+  - resource: "cited:ATLabs 27 Cinematic Lighting Looks"
+    id: cite-4
+    title: "27 Cinematic Lighting Looks"
+    author: "org:ATLabs"
+  - resource: "cited:Hailuo Golden Hour AI"
+    id: cite-5
+    title: "Golden Hour AI"
+    author: "org:Hailuo"
+  - resource: "https://kling.ai/blog/ai-video-lighting-prompts-volumetric-golden-hour"
+    id: url-1
+    title: "kling.ai"
+  - resource: "https://visionaryvideo.app/glossary/cinematic-lighting/"
+    id: url-2
+    title: "visionaryvideo.app"
+  - resource: "https://zsky.ai/blog/ai-lighting-prompts"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://www.atlabs.ai/blog/27-cinematic-lighting-looks-ai-prompts-guide"
+    id: url-4
+    title: "atlabs.ai"
+  - resource: "https://hailuoai.video/pages/knowledge/ai-video-golden-hour-lighting"
+    id: url-5
+    title: "hailuoai.video"
+dx_id: "125"
+related:
+  - "84-lighting-setups/lighting-setups.md"
+  - "93-lighting-narrative/lighting-narrative.md"
+  - "98-natural-light/natural-light.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）
 
 > 本页为 AI 视频光线与氛围的完整提示词体系：光质/时段（黄金时刻/蓝调）、氛围光（霓虹/体积光/雾）、经典布光（三点/伦勃朗/剪影/轮廓光）、情绪化光色。知识本体来自 2026 灯光提示词指南（Kling/Visionary/ZSky/ATLabs/Hailuo）。AI 应用面向 DirectorX：逐镜光线提示词库（衔接 84 布光、93 光线叙事、98 自然光、115 六段式）。
@@ -96,3 +157,11 @@
 - ZSky — 38 AI Lighting Prompts (Tested)：https://zsky.ai/blog/ai-lighting-prompts
 - ATLabs — 27 Cinematic Lighting Looks for AI Prompts：https://www.atlabs.ai/blog/27-cinematic-lighting-looks-ai-prompts-guide
 - Hailuo — Golden Hour AI: Master Natural Light for Cinematic Video：https://hailuoai.video/pages/knowledge/ai-video-golden-hour-lighting
+
+## 相关概念
+
+- [实拍布光专项（Practical Lighting Setups）](../84-lighting-setups/lighting-setups.md)
+- [光线叙事（Lighting as Narrative）](../93-lighting-narrative/lighting-narrative.md)
+- [自然光：术语详解 + AI 理解与实现（Natural Light — Deep Terms & AI Implementation）](../98-natural-light/natural-light.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

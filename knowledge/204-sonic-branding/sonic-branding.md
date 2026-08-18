@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 声音记忆点设计（Sonic Branding — Audio Logo, Brand Soundscape & Mnemonic）"
+description: "AI 声音记忆点（听觉品牌）设计：声音标识（Sonic Logo）、品牌声景（Brand Soundscape）、语音语调、记忆点触发（Instant Recall）、声音识别 ROI"
+tags:
+  - "consistency"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MassiveMusic Why Sonic Branding Matters 2026"
+    id: cite-1
+    title: "Why Sonic Branding Matters 2026"
+    author: "org:MassiveMusic"
+  - resource: "cited:Sarvaya Sonic Logos: The 2026 Identity Layer"
+    id: cite-2
+    title: "Sonic Logos: The 2026 Identity Layer"
+    author: "org:Sarvaya"
+  - resource: "cited:Followup Sonic Branding Secrets 2026"
+    id: cite-3
+    title: "Sonic Branding Secrets 2026"
+    author: "org:Followup"
+  - resource: "cited:Monolith Resonance: Sonic Branding"
+    id: cite-4
+    title: "Resonance: Sonic Branding"
+    author: "org:Monolith"
+  - resource: "https://massivemusic.com/soundboard/why-sonic-branding-matters-more-than-ever-in-2026"
+    id: url-1
+    title: "massivemusic.com"
+  - resource: "https://sarvaya.in/blog/audio-branding-sonic-logo-strategy-2026"
+    id: url-2
+    title: "sarvaya.in"
+  - resource: "https://followupmedia.com/sonic-branding-trends-2026/"
+    id: url-3
+    title: "followupmedia.com"
+  - resource: "https://www.monolithworks.com.tr/en/blog/sonic-branding-sound-identity/"
+    id: url-4
+    title: "monolithworks.com.tr"
+  - resource: "https://www.mavenmarketingco.com.au/blog/sonic-branding-why-your-business-needs-an-audio-identity-in-2026"
+    id: url-5
+    title: "mavenmarketingco.com.au"
+dx_id: "204"
+related:
+  - "144-sound-design/sound-design.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "188-opening-hook/opening-hook.md"
+---
+
 # AI 声音记忆点设计（Sonic Branding — Audio Logo, Brand Soundscape & Mnemonic）
 
 > 本页为 AI 声音记忆点（听觉品牌）设计：声音标识（Sonic Logo）、品牌声景（Brand Soundscape）、语音语调、记忆点触发（Instant Recall）、声音识别 ROI。知识本体来自 2026 听觉品牌指南（MassiveMusic/Sarvaya/Followup/Monolith）。AI 应用面向 DirectorX：品牌声音层（衔接 144 声音设计、182 声画情绪、195 品牌资产、119 音画）。
@@ -82,3 +137,10 @@
 - Followup — Sonic Branding Secrets to Stand Out in 2026：https://followupmedia.com/sonic-branding-trends-2026/
 - Monolith — Resonance: The Power of Sonic Branding：https://www.monolithworks.com.tr/en/blog/sonic-branding-sound-identity/
 - Maven — Sonic Branding: Why Your Business Needs an Audio Identity：https://www.mavenmarketingco.com.au/blog/sonic-branding-why-your-business-needs-an-audio-identity-in-2026
+
+## 相关概念
+
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)

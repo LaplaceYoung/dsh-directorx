@@ -1,3 +1,61 @@
+---
+type: Case
+title: "AI 视频评测与基准方法学（AI Video Evaluation — Benchmarks, Metrics & Human Eval）"
+description: "AI 视频系统评测的方法学：多维评测框架（视觉保真/时间连贯/物理有效性/美学/安全）、自动指标与人类评测的结合、可用评测协议（同提示词横评/接受率）"
+tags:
+  - "production"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CVPR Video-Bench Human-Aligned Benchmark"
+    id: cite-1
+    title: "Video-Bench Human-Aligned Benchmark"
+    author: "org:CVPR"
+  - resource: "cited:CVPR EvalCrafter"
+    id: cite-2
+    title: "EvalCrafter"
+    author: "org:CVPR"
+  - resource: "cited:arXiv A Survey of AI-Generated Video Evaluation"
+    id: cite-3
+    title: "A Survey of AI-Generated Video Evaluation"
+    author: "org:arXiv"
+  - resource: "cited:OpenReview The Evaluation Imperative"
+    id: cite-4
+    title: "The Evaluation Imperative"
+    author: "org:OpenReview"
+  - resource: "cited:MDPI Quality Evaluation for AI-Generated Videos"
+    id: cite-5
+    title: "Quality Evaluation for AI-Generated Videos"
+    author: "org:MDPI"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2025/papers/Han_Video-Bench_Human-Aligned_Video_Generation_Benchmark_CVPR_2025_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2024/papers/Liu_EvalCrafter_Benchmarking_and_Evaluating_Large_Video_Generation_Models_CVPR_2024_paper.pdf"
+    id: url-2
+    title: "openaccess.thecvf.com"
+  - resource: "https://arxiv.org/html/2410.19884v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://openreview.net/pdf?id=dLaNB7vF2a"
+    id: url-4
+    title: "openreview.net"
+  - resource: "https://www.mdpi.com/1424-8220/25/15/4668"
+    id: url-5
+    title: "mdpi.com"
+dx_id: "129"
+related:
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+  - "118-defect-repair/defect-repair.md"
+  - "122-quality-monetization/quality-monetization.md"
+---
+
 # AI 视频评测与基准方法学（AI Video Evaluation — Benchmarks, Metrics & Human Eval）
 
 > 本页为 AI 视频系统评测的方法学：多维评测框架（视觉保真/时间连贯/物理有效性/美学/安全）、自动指标与人类评测的结合、可用评测协议（同提示词横评/接受率）。知识本体来自 2025-2026 评测基准论文（Video-Bench/EvalCrafter/arXiv Survey/MDPI）。AI 应用面向 DirectorX：模型评测与生产质检的方法论（衔接 114 模型矩阵与横评、118 缺陷、122 接受率）。
@@ -89,3 +147,9 @@
 - arXiv — A Survey of AI-Generated Video Evaluation：https://arxiv.org/html/2410.19884v1
 - OpenReview — The Evaluation Imperative for Video Generative Models：https://openreview.net/pdf?id=dLaNB7vF2a
 - MDPI — A Perspective on Quality Evaluation for AI-Generated Videos：https://www.mdpi.com/1424-8220/25/15/4668
+
+## 相关概念
+
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)

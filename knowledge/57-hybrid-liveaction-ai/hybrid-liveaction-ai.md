@@ -1,3 +1,63 @@
+---
+type: Playbook
+title: "真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）"
+description: "混合制作手册：实拍锚定原则、多机位一致性、AI 环境/角色生成、交互可信度、透视匹配、后期合成与\"灯光修复\"、插值转场、混合制作的平衡哲学"
+tags:
+  - "foundation"
+  - "editing"
+  - "lighting"
+  - "character"
+  - "workflow"
+  - "continuity"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:VP Land Denoised 实战拆解（Addy）"
+    id: cite-1
+    title: "VP Land Denoised 实战拆解（Addy）"
+  - resource: "cited:Google Cloud 韩国恐怖片案例（绿幕+AI 无实景）"
+    id: cite-2
+    title: "Google Cloud 韩国恐怖片案例（绿幕+AI 无实景）"
+  - resource: "cited:DramaWave 首个 AI+真人混合短剧"
+    id: cite-3
+    title: "DramaWave 首个 AI+真人混合短剧"
+  - resource: "cited:影视飓风一年 200 部工作流。"
+    id: cite-4
+    title: "影视飓风一年 200 部工作流。"
+  - resource: "https://www.vp-land.com/p/how-to-hybrid-ai-and-live-action-filmmaking-nano-banana-pro-kling-wan-resolve"
+    id: url-1
+    title: "vp-land.com"
+  - resource: "https://cloud.google.com/transform/apartment-ai-generated-media-korean-horror-film-behind-the-screen"
+    id: url-2
+    title: "cloud.google.com"
+  - resource: "https://www.highonfilms.com/anqi-chen-behind-dramawaves-first-ai-live-action-hybrid-production/"
+    id: url-3
+    title: "highonfilms.com"
+  - resource: "https://www.bearjam.co.uk/insights/what-is-hybrid-production"
+    id: url-4
+    title: "bearjam.co.uk"
+  - resource: "https://www.cgw.com/Press-Center/Web-Exclusives/2026/Compositing-in-the-Age-of-AI-Enabled-VFX.aspx"
+    id: url-5
+    title: "cgw.com"
+  - resource: "https://www.techhanlin.tw/mediastorm-film-production-ai-workflow/"
+    id: url-6
+    title: "techhanlin.tw"
+dx_id: "57"
+aliases:
+  - "163"
+related:
+  - "170-light-matching/light-matching.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "39-image-consistency/character-consistency.md"
+---
+
 # 真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）
 
 > 本页是 DirectorX 混合制作手册：实拍锚定原则、多机位一致性、AI 环境/角色生成、交互可信度、透视匹配、后期合成与"灯光修复"、插值转场、混合制作的平衡哲学。与 26 合成 / 34 模型 / 20 DaVinci / 40 分镜衔接。**已合并 163（管线框架/AI VFX 对比/镜头间画面）**——2026-08 去重整理。
@@ -115,3 +175,9 @@
 - Computer Graphics World: Compositing in the Age of AI-Enabled VFX — https://www.cgw.com/Press-Center/Web-Exclusives/2026/Compositing-in-the-Age-of-AI-Enabled-VFX.aspx
 - 科技翰林院: 影視颶風 AI 工作流大公開——一年 200 部影片的製作流程 — https://www.techhanlin.tw/mediastorm-film-production-ai-workflow/
 - 今日头条: AI 与真人微短剧实拍混合制作成为探索方向 — https://www.toutiao.com/article/7656841204612514338/
+
+## 相关概念
+
+- [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)

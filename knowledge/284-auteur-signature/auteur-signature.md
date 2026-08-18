@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）"
+description: "电影导演风格签名：作者论（Auteur Theory：导演=作者）、视觉商标（重复运镜/色板/剪辑模式/母题）、风格签名设计（自建可识别语法）"
+tags:
+  - "synthesis"
+  - "camera"
+  - "editing"
+  - "color"
+  - "style"
+  - "copyright"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Auteur Theory and Visual Signatures"
+    id: cite-1
+    title: "Auteur Theory and Visual Signatures"
+    author: "org:Fiveable"
+  - resource: "cited:Telegraph Directors' Visual Trademarks"
+    id: cite-2
+    title: "Directors' Visual Trademarks"
+    author: "org:Telegraph"
+  - resource: "cited:Nightscape The Director's Signature"
+    id: cite-3
+    title: "The Director's Signature"
+    author: "org:Nightscape"
+  - resource: "cited:Backstage Auteur Theory Explained"
+    id: cite-4
+    title: "Auteur Theory Explained"
+    author: "org:Backstage"
+  - resource: "https://fiveable.me/advanced-visual-storytelling/unit-9/auteur-theory-visual-signatures/study-guide/OLUXQ0jVudiok1rc"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://www.telegraph.co.uk/films/0/movie-directors-visual-trademarks-how-to-spot-them/"
+    id: url-2
+    title: "telegraph.co.uk"
+  - resource: "https://nightscapestories.com/the-directors-signature-auteur-filmmakers-impact-on-cinema/"
+    id: url-3
+    title: "nightscapestories.com"
+  - resource: "https://www.backstage.com/magazine/article/auteur-theory-explained-75740/"
+    id: url-4
+    title: "backstage.com"
+  - resource: "https://screenrant.com/directors-with-a-signature-style-tarantino/"
+    id: url-5
+    title: "screenrant.com"
+dx_id: "284"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "155-color-psychology/color-psychology.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+---
+
 # 电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）
 
 > 本页为电影导演风格签名：作者论（Auteur Theory：导演=作者）、视觉商标（重复运镜/色板/剪辑模式/母题）、风格签名设计（自建可识别语法）。知识本体来自 2026 作者论（Fiveable/Telegraph/Nightscape/Backstage）。AI 应用面向 DirectorX：风格识别（衔接 126 风格、284 对应、272 标志美学、195 品牌）。
@@ -82,3 +140,9 @@
 - Nightscape — The Director's Signature: Auteur Filmmakers：https://nightscapestories.com/the-directors-signature-auteur-filmmakers-impact-on-cinema/
 - Backstage — Auteur Theory: Definition, History, Examples：https://www.backstage.com/magazine/article/auteur-theory-explained-75740/
 - ScreenRant — 15 Directors With a Signature Style：https://screenrant.com/directors-with-a-signature-style-tarantino/
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)

@@ -1,3 +1,58 @@
+---
+type: Playbook
+title: "图文转视频工作流（Article-to-Video Repurposing）"
+description: "图文转视频手册：文章复用审计、三长度脚本体系、声音克隆、平台视觉语域匹配、60 分钟九步工作流、五个致命错误、错峰发布策略"
+tags:
+  - "foundation"
+  - "sound"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Versely 2026 工作流"
+    id: cite-1
+    title: "Versely 2026 工作流"
+  - resource: "cited:Gemini Lab"
+    id: cite-2
+    title: "Gemini Lab"
+  - resource: "cited:苏米客 Codex+HyperFrames"
+    id: cite-3
+    title: "苏米客 Codex+HyperFrames"
+  - resource: "cited:腾讯云剪映双链路。"
+    id: cite-4
+    title: "腾讯云剪映双链路。"
+  - resource: "https://www.versely.studio/blog/ai-content-repurposing-blog-to-video-2026"
+    id: url-1
+    title: "versely.studio"
+  - resource: "https://gemilab.net/en/articles/gemini-basics/ai-narration-video-workflow-2026"
+    id: url-2
+    title: "gemilab.net"
+  - resource: "https://www.topview.ai/blog/blog-to-video-remotion-cursor-ai-workflow-guide"
+    id: url-3
+    title: "topview.ai"
+  - resource: "https://danielrusnok.substack.com/p/my-article-to-reel-pipeline-in-one"
+    id: url-4
+    title: "danielrusnok.substack.com"
+  - resource: "https://www.xmsumi.com/detail/3537"
+    id: url-5
+    title: "xmsumi.com"
+  - resource: "https://cloud.tencent.cn/developer/article/2690897"
+    id: url-6
+    title: "cloud.tencent.cn"
+dx_id: "42"
+related:
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "05-short-video/short-video-techniques.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 图文转视频工作流（Article-to-Video Repurposing）
 
 > 本页是 DirectorX 图文转视频手册：文章复用审计、三长度脚本体系、声音克隆、平台视觉语域匹配、60 分钟九步工作流、五个致命错误、错峰发布策略。与 31 AI 音频 / 27 字幕 / 16 平台增长衔接。
@@ -115,3 +170,9 @@
 - 苏米客: Codex+HyperFrames——把公众号推文变成 1 分半科普视频 — https://www.xmsumi.com/detail/3537
 - 腾讯云开发者社区: 剪映图文成片 + AI 分镜预制双链路量产短视频工作流 — https://cloud.tencent.cn/developer/article/2690897
 - SegmentFault: AI 图文转视频落地工作流——素材成片与工具适配实操 — https://segmentfault.com/a/1190000048101011
+
+## 相关概念
+
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影观众体验设计（Audience Experience Design — AxD Five-Stage & Engagement Framework）"
+description: "电影观众体验设计：AxD 五阶段设计思维（总影院体验：脚本+受众定位+互动概念）、视觉形式-移情-叙事参与（景别减距/复杂度平衡/平滑剪辑）、想象可得性+社交观看语境"
+tags:
+  - "synthesis"
+  - "camera"
+  - "editing"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Tandfonline Audience Dynamics Through Imagined Affordances"
+    id: cite-1
+    title: "Audience Dynamics Through Imagined Affordances"
+    author: "org:Tandfonline"
+  - resource: "cited:VU From Frames to Feelings"
+    id: cite-2
+    title: "From Frames to Feelings"
+    author: "org:VU"
+  - resource: "cited:Bora Audience Experience Design for Film"
+    id: cite-3
+    title: "Audience Experience Design for Film"
+    author: "org:Bora"
+  - resource: "cited:Torino Audience Design Introduction"
+    id: cite-4
+    title: "Audience Design Introduction"
+    author: "org:Torino"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/29974828.2025.2449755"
+    id: url-1
+    title: "tandfonline.com"
+  - resource: "https://research.vu.nl/en/publications/from-frames-to-feelings-visual-form-empathy-and-narrative-engagem/"
+    id: url-2
+    title: "research.vu.nl"
+  - resource: "https://bora.uib.no/bora-xmlui/handle/11250/3171926"
+    id: url-3
+    title: "bora.uib.no"
+  - resource: "https://www.torinofilmlab.it/public/library/pdf/pdf-10-19-2023-6-22-20-PM-audience-design-2018--2-.pdf"
+    id: url-4
+    title: "torinofilmlab.it"
+  - resource: "https://thesis.eur.nl/pub/76702/29879.pdf"
+    id: url-5
+    title: "thesis.eur.nl"
+dx_id: "327"
+related:
+  - "322-hybrid-audience-experience/hybrid-audience-experience.md"
+  - "304-expectation-management/expectation-management.md"
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # 电影观众体验设计（Audience Experience Design — AxD Five-Stage & Engagement Framework）
 
 > 本页为电影观众体验设计：AxD 五阶段设计思维（总影院体验：脚本+受众定位+互动概念）、视觉形式-移情-叙事参与（景别减距/复杂度平衡/平滑剪辑）、想象可得性+社交观看语境。知识本体来自 2026 观众体验（Tandfonline/VU/Bora）。AI 应用面向 DirectorX：体验设计（衔接 322 杂交体验、327 对应、304 预期、323 沉浸）。
@@ -80,3 +138,11 @@
 - Bora — Audience Experience Design for Film：https://bora.uib.no/bora-xmlui/handle/11250/3171926
 - Torino — Audience Design: An Introduction：https://www.torinofilmlab.it/public/library/pdf/pdf-10-19-2023-6-22-20-PM-audience-design-2018--2-.pdf
 - EUR — The Interplay of Audience Experience and Artistic Vision：https://thesis.eur.nl/pub/76702/29879.pdf
+
+## 相关概念
+
+- [电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）](../322-hybrid-audience-experience/hybrid-audience-experience.md)
+- [电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）](../304-expectation-management/expectation-management.md)
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 用户生成内容真实感（UGC Realism — Authentic Imperfection & Anti-Polish）"
+description: "AI 用户生成内容（UGC）的真实感模拟：反精致（Anti-Polish，告诉模型\"不要什么\"）、手机感（Handheld/Phone Camera Look）、自然微表情/随意手势、真实脚本（口语化）、产品准确性"
+tags:
+  - "consistency"
+  - "camera"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Oumomo Make AI Videos Feel Like Real UGC"
+    id: cite-1
+    title: "Make AI Videos Feel Like Real UGC"
+    author: "org:Oumomo"
+  - resource: "cited:Vidu Best AI Tools for UGC-Style Video"
+    id: cite-2
+    title: "Best AI Tools for UGC-Style Video"
+    author: "org:Vidu"
+  - resource: "cited:Fluxnote UGC Style Videos with AI"
+    id: cite-3
+    title: "UGC Style Videos with AI"
+    author: "org:Fluxnote"
+  - resource: "cited:Imagine.Art Realistic AI UGC Videos"
+    id: cite-4
+    title: "Realistic AI UGC Videos"
+    author: "org:Imagine.Art"
+  - resource: "https://www.oumomo.ai/blog/2026/07/03/how-to-make-ai-videos-feel-like-real-ugc-in-2026/"
+    id: url-1
+    title: "oumomo.ai"
+  - resource: "https://www.vidu.com/blog/best-ai-tools-for-ugc-style-video"
+    id: url-2
+    title: "vidu.com"
+  - resource: "https://fluxnote.io/guides/how-to-make-ugc-style-videos-with-ai"
+    id: url-3
+    title: "fluxnote.io"
+  - resource: "https://www.imagine.art/blogs/how-to-create-ai-ugc-videos"
+    id: url-4
+    title: "imagine.art"
+  - resource: "https://crepal.ai/blog/aivideo/aivideo-best-ai-tools-ugc-video-content/"
+    id: url-5
+    title: "crepal.ai"
+dx_id: "199"
+related:
+  - "60-ugc-industrialization/ugc-industrialization.md"
+  - "189-ad-talking-head/ad-talking-head.md"
+  - "175-micro-expression/micro-expression.md"
+  - "188-opening-hook/opening-hook.md"
+  - "133-motion-physics/motion-physics.md"
+---
+
 # AI 用户生成内容真实感（UGC Realism — Authentic Imperfection & Anti-Polish）
 
 > 本页为 AI 用户生成内容（UGC）的真实感模拟：反精致（Anti-Polish，告诉模型"不要什么"）、手机感（Handheld/Phone Camera Look）、自然微表情/随意手势、真实脚本（口语化）、产品准确性。知识本体来自 2026 UGC 指南（Oumomo/Vidu/Fluxnote/Imagine.Art）。AI 应用面向 DirectorX：种草内容（衔接 60 UGC 工业化、189 口播、175 微表情、188 钩子）。
@@ -84,3 +141,11 @@ no perfect framing"
 - Fluxnote — How to Make UGC Style Videos with AI, A 2026 Guide：https://fluxnote.io/guides/how-to-make-ugc-style-videos-with-ai
 - Imagine.Art — How to Create Realistic AI UGC Videos：https://www.imagine.art/blogs/how-to-create-ai-ugc-videos
 - Crepal — Best AI Tools for UGC Video Content Creation 2026：https://crepal.ai/blog/aivideo/aivideo-best-ai-tools-ugc-video-content/
+
+## 相关概念
+
+- [UGC 素材工业化（UGC Creative System at Scale）](../60-ugc-industrialization/ugc-industrialization.md)
+- [AI 广告口播数字人专项（Ad Talking-Head — Spokesperson Avatars & Script-Driven CTA）](../189-ad-talking-head/ad-talking-head.md)
+- [AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）](../175-micro-expression/micro-expression.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）](../133-motion-physics/motion-physics.md)

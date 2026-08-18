@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）"
+description: "AI 图片的明暗对照（Chiaroscuro）叙事：单光源强对比（Tenebrism 暗色调主义）、阴影占比控制（70-90% 深影）、光向与衰减、卡拉瓦乔式提示词"
+tags:
+  - "consistency"
+  - "prompt"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:GetPromptAtlas Chiaroscuro Lighting"
+    id: cite-1
+    title: "Chiaroscuro Lighting"
+    author: "org:GetPromptAtlas"
+  - resource: "cited:Media.io Gemini Chiaroscuro Photo Prompts"
+    id: cite-2
+    title: "Gemini Chiaroscuro Photo Prompts"
+    author: "org:Media.io"
+  - resource: "cited:ZSky AI Dark Moody Prompts"
+    id: cite-3
+    title: "AI Dark Moody Prompts"
+    author: "org:ZSky"
+  - resource: "cited:AIforArt Chiaroscuro Lighting Style Guide"
+    id: cite-4
+    title: "Chiaroscuro Lighting Style Guide"
+    author: "org:AIforArt"
+  - resource: "https://www.getpromptatlas.com/keywords/chiaroscuro-lighting"
+    id: url-1
+    title: "getpromptatlas.com"
+  - resource: "https://www.media.io/ai-prompts/gemini-ai-chiaroscuro-photo-prompt.html"
+    id: url-2
+    title: "media.io"
+  - resource: "https://zsky.ai/blog/ai-dark-moody-prompts"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://www.aiforart.com/style/chiaroscuro-lighting"
+    id: url-4
+    title: "aiforart.com"
+  - resource: "https://moodnode.ai/tools/prompt-library/p/chiaroscuro-lighting"
+    id: url-5
+    title: "moodnode.ai"
+dx_id: "236"
+related:
+  - "217-portrait-lighting-schemes/portrait-lighting-schemes.md"
+  - "225-film-lighting-theory/film-lighting-theory.md"
+  - "155-color-psychology/color-psychology.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+---
+
 # AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）
 
 > 本页为 AI 图片的明暗对照（Chiaroscuro）叙事：单光源强对比（Tenebrism 暗色调主义）、阴影占比控制（70-90% 深影）、光向与衰减、卡拉瓦乔式提示词。知识本体来自 2026 明暗对照指南（GetPromptAtlas/Media.io/ZSky/AIforArt）。AI 应用面向 DirectorX：戏剧光（衔接 217 人像光、225 布光、236 对应、155 色彩）。
@@ -80,3 +138,11 @@ moody cinematic, baroque"
 - ZSky — 12 AI Dark Moody Prompts：https://zsky.ai/blog/ai-dark-moody-prompts
 - AIforArt — Chiaroscuro Lighting: High-Contrast AI Art Style Guide：https://www.aiforart.com/style/chiaroscuro-lighting
 - MoodNode — Chiaroscuro Lighting Prompt Library：https://moodnode.ai/tools/prompt-library/p/chiaroscuro-lighting
+
+## 相关概念
+
+- [AI 图片人像用光体系（Portrait Lighting — Rembrandt, Butterfly, Loop & Split Patterns）](../217-portrait-lighting-schemes/portrait-lighting-schemes.md)
+- [电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）](../225-film-lighting-theory/film-lighting-theory.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)

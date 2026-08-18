@@ -99,7 +99,9 @@ test('chengpianPersonaText names 成片 modes and 导演角度 knowledge/skill r
   assert.match(tools, /name: 'directorx:chengpian'/)
   assert.match(tools, /order: 5/)
   assert.match(tools, /directorx_confirm/)
+  assert.match(tools, /directorx_skill_capture/)
   assert.match(tools, /\/directorx/)
+  assert.match(skill, /收成技能/)
 })
 
 test('严格: chosen prompt enqueues that one line, does not re-expand', () => {

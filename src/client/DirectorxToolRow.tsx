@@ -92,6 +92,10 @@ const META: Record<string, ToolMeta> = {
   directorx_task_status: { title: '任务状态 · Tasks', kind: 'video' },
   directorx_cancel_task: { title: '取消任务 · Cancel', kind: 'video' },
   directorx_edits: { title: '编辑产物 · Edits', kind: 'image' },
+  directorx_edit_plan: { title: '编辑路由 · Plan', kind: 'image' },
+  directorx_image_edit: { title: '图片编辑 · Image edit', kind: 'image' },
+  directorx_edit: { title: '剪辑 · Edit', kind: 'video' },
+  directorx_video_process: { title: '视频处理 · Process', kind: 'video' },
   directorx_canvas_intents: { title: '画布指令 · Intent', kind: 'image' },
   directorx_canvas_intent_ack: { title: '画布回执 · Ack', kind: 'image' },
   directorx_canvas_continue: { title: '画布续写 · Continue', kind: 'image' },
@@ -101,7 +105,24 @@ const META: Record<string, ToolMeta> = {
   directorx_canvas_shotlist: { title: '镜头表 · Shotlist', kind: 'image' },
   directorx_canvas_update: { title: '画布更新 · Update', kind: 'image' },
   directorx_canvas_batch: { title: '画布批量 · Batch', kind: 'image' },
+  directorx_canvas_pack: { title: '画布拼成片 · Pack', kind: 'video' },
+  directorx_canvas_sheet: { title: '画布接触表 · Sheet', kind: 'image' },
+  directorx_canvas_split: { title: '画布宫格切开 · Split', kind: 'image' },
+  directorx_canvas_join: { title: '画布宫格拼回 · Join', kind: 'image' },
+  directorx_canvas_stack: { title: '画布分屏对照 · Stack', kind: 'video' },
+  directorx_canvas_desub: { title: '画布去硬字 · Desub', kind: 'video' },
+  directorx_canvas_extend: { title: '画布续写位 · Extend', kind: 'video' },
+  directorx_canvas_gif: { title: '画布导出动图 · GIF', kind: 'image' },
+  directorx_series: { title: '系列包 · Series', kind: 'image' },
+  directorx_revise: { title: '只改这一镜 · Revise', kind: 'image' },
+  directorx_blocking: { title: '场面控制表 · Blocking', kind: 'image' },
   directorx_studio: { title: '编辑台 · Studio', kind: 'image' },
+  directorx_skill_search: { title: '检索技能 · Skills', kind: 'image' },
+  directorx_skill_route: { title: '技能路由 · Route', kind: 'image' },
+  directorx_skill_read: { title: '读技能 · Skill', kind: 'image' },
+  directorx_prompt_plan: { title: '提示词编排 · Plan', kind: 'image' },
+  directorx_ip_scan: { title: '版权扫描 · IP', kind: 'image' },
+  directorx_ip_rewrite: { title: '版权改写 · IP', kind: 'image' },
 }
 
 const card: CSSProperties = {
@@ -370,9 +391,9 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
   ].filter(part => part !== '').join(' · ')
 
   // Secondary-editing entry: image/video results with a local file open the dock.
-  const editableKind = props.toolName === 'directorx_generate_image' || (props.toolName === 'directorx_studio' && result?.kind !== 'video')
+  const editableKind = props.toolName === 'directorx_generate_image' || props.toolName === 'directorx_image_edit' || (props.toolName === 'directorx_studio' && result?.kind !== 'video')
     ? 'image'
-    : props.toolName === 'directorx_generate_video' || (props.toolName === 'directorx_studio' && result?.kind === 'video')
+    : props.toolName === 'directorx_generate_video' || props.toolName === 'directorx_edit' || props.toolName === 'directorx_video_process' || (props.toolName === 'directorx_studio' && result?.kind === 'video')
       ? 'video'
       : null
   const editablePath = editableKind !== null && typeof files[0]?.path === 'string' && files[0].path !== '' ? files[0].path : null
@@ -455,6 +476,10 @@ export const DIRECTORX_TOOLVIEW_KEYS = [
   'directorx_task_status',
   'directorx_cancel_task',
   'directorx_edits',
+  'directorx_edit_plan',
+  'directorx_image_edit',
+  'directorx_edit',
+  'directorx_video_process',
   'directorx_canvas_intents',
   'directorx_canvas_intent_ack',
   'directorx_canvas_continue',
@@ -465,4 +490,7 @@ export const DIRECTORX_TOOLVIEW_KEYS = [
   'directorx_canvas_update',
   'directorx_canvas_batch',
   'directorx_studio',
+  'directorx_skill_search',
+  'directorx_skill_route',
+  'directorx_skill_read',
 ] as const

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "剪辑与转场（Editing & Transitions）"
+description: "剪辑知识库：转场类型全集、剪辑节奏、连续性、蒙太奇理论与经典剪辑原则"
+tags:
+  - "foundation"
+  - "editing"
+  - "continuity"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:维基百科 Film transition / Match cut / Soviet montage theory"
+    id: cite-1
+    title: "维基百科 Film transition / Match cut / Soviet montage theory"
+  - resource: "cited:Walter Murch In the Blink of an Eye"
+    id: cite-2
+    title: "In the Blink of an Eye"
+    author: "org:Walter-Murch"
+  - resource: "cited:公开要点（Rule of Six）。"
+    id: cite-3
+    title: "公开要点（Rule of Six）。"
+  - resource: "https://en.wikipedia.org/wiki/Film_transition"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Match_cut"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Soviet_montage_theory"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://www.britannica.com/topic/Kuleshov-effect"
+    id: url-4
+    title: "britannica.com"
+  - resource: "https://nofilmschool.com/2016/10/watch-walter-murch-names-six-editing-priorities"
+    id: url-5
+    title: "nofilmschool.com"
+  - resource: "https://www.studiobinder.com/blog/types-of-editing-transitions-in-film/"
+    id: url-6
+    title: "studiobinder.com"
+  - resource: "https://www.adobe.com/creativecloud/video/post-production/cuts-in-film.html"
+    id: url-7
+    title: "adobe.com"
+dx_id: "02"
+related:
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "88-sound-image-on-set/sound-image-on-set.md"
+---
+
 # 剪辑与转场（Editing & Transitions）
 
 > 本页是 DirectorX 剪辑知识库：转场类型全集、剪辑节奏、连续性、蒙太奇理论与经典剪辑原则。每个概念含定义、原理、示例与 AI 生成应用。
@@ -250,3 +304,9 @@
 - No Film School: Walter Murch's Six Editing Criteria — https://nofilmschool.com/2016/10/watch-walter-murch-names-six-editing-priorities
 - StudioBinder: Types of Editing Transitions（参考索引） — https://www.studiobinder.com/blog/types-of-editing-transitions-in-film/
 - Adobe: Cuts in film — https://www.adobe.com/creativecloud/video/post-production/cuts-in-film.html
+
+## 相关概念
+
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [拍摄端声画协同（Designing Picture for Sound）](../88-sound-image-on-set/sound-image-on-set.md)

@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 视频交付母版管理（Master Management — Mezzanine, Versioning & Archive）"
+description: "AI 视频的交付母版管理：母版/工作文件分离、中间格式（Mezzanine）策略、版本控制、归档工作流（摄取→组织→标签→审阅→分发→归档）、代理文件与逐帧审阅"
+tags:
+  - "consistency"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Cloudinary Video Asset Management Best Practices"
+    id: cite-1
+    title: "Video Asset Management Best Practices"
+    author: "org:Cloudinary"
+  - resource: "cited:Acquia Mezzanine File Format"
+    id: cite-2
+    title: "Mezzanine File Format"
+    author: "org:Acquia"
+  - resource: "cited:Aprimo DAM for Video Production"
+    id: cite-3
+    title: "DAM for Video Production"
+    author: "org:Aprimo"
+  - resource: "cited:Telestream QC for File-Based Workflows"
+    id: cite-4
+    title: "QC for File-Based Workflows"
+    author: "org:Telestream"
+  - resource: "https://cloudinary.com/guides/digital-asset-management/video-asset-management-best-practices"
+    id: url-1
+    title: "cloudinary.com"
+  - resource: "https://www.acquia.com/blog/the-mezzanine-storing-video-in-your-digital-asset-management-system"
+    id: url-2
+    title: "acquia.com"
+  - resource: "https://www.aprimo.com/blog/digital-asset-management-for-video-a-guide-to-streamlining-workflows"
+    id: url-3
+    title: "aprimo.com"
+  - resource: "https://www.telestream.net/pdfs/general/Quality-Control-for-File-Based-Video-Workflows-25W608940.pdf"
+    id: url-4
+    title: "telestream.net"
+  - resource: "https://www.brandlife.io/blog/digital-asset-management-software-for-video"
+    id: url-5
+    title: "brandlife.io"
+dx_id: "185"
+related:
+  - "131-asset-management/asset-management.md"
+  - "112-delivery-specs/delivery-specs.md"
+  - "157-team-collaboration/team-collaboration.md"
+  - "174-qc-automation/qc-automation.md"
+---
+
 # AI 视频交付母版管理（Master Management — Mezzanine, Versioning & Archive）
 
 > 本页为 AI 视频的交付母版管理：母版/工作文件分离、中间格式（Mezzanine）策略、版本控制、归档工作流（摄取→组织→标签→审阅→分发→归档）、代理文件与逐帧审阅。知识本体来自 2026 视频 DAM 指南（Cloudinary/Acquia/Aprimo/Brandlife）。AI 应用面向 DirectorX：交付后管理（衔接 131 资产管理、112 交付、157 协作版本、174 QC）。与 131 分工：本页为交付母版/Mezzanine/归档专项，131 为生成资产 DAM 总纲（元数据/版本化/复用）。
@@ -81,3 +137,10 @@
 - Aprimo — Digital Asset Management for Video Production：https://www.aprimo.com/blog/digital-asset-management-for-video-a-guide-to-streamlining-workflows
 - Telestream — Quality Control for File-Based Video Workflows：https://www.telestream.net/pdfs/general/Quality-Control-for-File-Based-Video-Workflows-25W608940.pdf
 - Brandlife — Digital Asset Management for Video: Complete Guide：https://www.brandlife.io/blog/digital-asset-management-software-for-video
+
+## 相关概念
+
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 视频团队协作与版本管理（Team Collaboration — Review, Version Control & Approval Workflow）](../157-team-collaboration/team-collaboration.md)
+- [AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）](../174-qc-automation/qc-automation.md)

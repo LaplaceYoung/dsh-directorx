@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片光影色彩统一（Photo Grading Unified — Batch Look & Learning Your Style）"
+description: "AI 图片的光影色彩统一：参考图定 look（肤色/风格）、AI 学习编辑风格批量应用、按光照分组批处理（保自然差异）、视觉校验（肤色/阴影/高光）"
+tags:
+  - "synthesis"
+  - "color"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Imagen AI Batch Photo Editing & Color Correction"
+    id: cite-1
+    title: "AI Batch Photo Editing & Color Correction"
+    author: "org:Imagen"
+  - resource: "cited:Colorby Batch Color Grading"
+    id: cite-2
+    title: "Batch Color Grading"
+    author: "org:Colorby"
+  - resource: "cited:Alibaba Batch-Edit 1000+ Photos"
+    id: cite-3
+    title: "Batch-Edit 1000+ Photos"
+    author: "org:Alibaba"
+  - resource: "cited:Colorby 7 Best AI Photo Color Grading Tools"
+    id: cite-4
+    title: "7 Best AI Photo Color Grading Tools"
+    author: "org:Colorby"
+  - resource: "https://imagen-ai.com/post/how-can-ai-batch-photo-editing-streamline-your-color-correction-workflow/"
+    id: url-1
+    title: "imagen-ai.com"
+  - resource: "https://colorby.ai/blog/batch-color-grading-consistent-photos/"
+    id: url-2
+    title: "colorby.ai"
+  - resource: "https://www.alibaba.com/product-insights/how-to-batch-edit-1000-photos-with-consistent-ai-color-grading-across-lighting-conditions.html"
+    id: url-3
+    title: "alibaba.com"
+  - resource: "https://colorby.ai/post/7-best-ai-photo-color-grading-tools-free-paid-top-ai-color-grading-tool-reviews-palette-luminar-neo-capture-one-adobe-lightroom-colorby-ai-db4a6523"
+    id: url-4
+    title: "colorby.ai"
+  - resource: "https://imagen-ai.com/ai-photo-editing-tools/ai-batch-photo-editor/"
+    id: url-5
+    title: "imagen-ai.com"
+dx_id: "243"
+related:
+  - "235-multi-image-lighting/multi-image-lighting.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "141-color-grading/color-grading.md"
+---
+
 # AI 图片光影色彩统一（Photo Grading Unified — Batch Look & Learning Your Style）
 
 > 本页为 AI 图片的光影色彩统一：参考图定 look（肤色/风格）、AI 学习编辑风格批量应用、按光照分组批处理（保自然差异）、视觉校验（肤色/阴影/高光）。知识本体来自 2026 批量调色指南（Imagen/Colorby/Alibaba）。AI 应用面向 DirectorX：多图统一（衔接 235 光照统一、243 对应、215 参数、141 视频调色）。
@@ -78,3 +134,9 @@
 - Alibaba — Batch-Edit 1000+ Photos with Consistent AI Color Grading：https://www.alibaba.com/product-insights/how-to-batch-edit-1000-photos-with-consistent-ai-color-grading-across-lighting-conditions.html
 - Colorby — 7 Best AI Photo Color Grading Tools：https://colorby.ai/post/7-best-ai-photo-color-grading-tools-free-paid-top-ai-color-grading-tool-reviews-palette-luminar-neo-capture-one-adobe-lightroom-colorby-ai-db4a6523
 - Imagen — The Best AI Batch Photo Editor：https://imagen-ai.com/ai-photo-editing-tools/ai-batch-photo-editor/
+
+## 相关概念
+
+- [AI 图片多图光照统一（Multi-Image Lighting — Master Reference & Lighting Block）](../235-multi-image-lighting/multi-image-lighting.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）](../141-color-grading/color-grading.md)

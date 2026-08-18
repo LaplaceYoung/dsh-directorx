@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 音频母带处理（Audio Mastering — LUFS, Dialogue Clarity & Platform Targets）"
+description: "AI 视频的音频母带处理：响度标准化（LUFS）、真峰值限制、对白清晰度增强、分平台响度目标（YouTube -14 / Instagram-TikTok -10~-12 / Facebook -13）"
+tags:
+  - "consistency"
+  - "sound"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Opus Best Loudness Normalizers for Social Video"
+    id: cite-1
+    title: "Best Loudness Normalizers for Social Video"
+    author: "org:Opus"
+  - resource: "cited:Wideframe Top AI Audio Mixing Tools 2026"
+    id: cite-2
+    title: "Top AI Audio Mixing Tools 2026"
+    author: "org:Wideframe"
+  - resource: "cited:ReelMind Automated AI Video Speech Normalization"
+    id: cite-3
+    title: "Automated AI Video Speech Normalization"
+    author: "org:ReelMind"
+  - resource: "cited:Foxi AI in Audio Post Production Glossary"
+    id: cite-4
+    title: "AI in Audio Post Production Glossary"
+    author: "org:Foxi"
+  - resource: "https://www.opus.pro/blog/best-loudness-normalizers"
+    id: url-1
+    title: "opus.pro"
+  - resource: "https://try.wideframe.com/blog/top-ai-audio-mixing-tools-for-video/"
+    id: url-2
+    title: "try.wideframe.com"
+  - resource: "https://reelmind.ai/blog/automated-ai-video-speech-normalization-consistent-audio-levels"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://www.foximusic.com/blog/ai-in-audio-post-production-glossary/"
+    id: url-4
+    title: "foximusic.com"
+  - resource: "https://recapo.ai/tools/audio-volume-normalizer/"
+    id: url-5
+    title: "recapo.ai"
+dx_id: "161"
+related:
+  - "112-delivery-specs/delivery-specs.md"
+  - "144-sound-design/sound-design.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+---
+
 # AI 音频母带处理（Audio Mastering — LUFS, Dialogue Clarity & Platform Targets）
 
 > 本页为 AI 视频的音频母带处理：响度标准化（LUFS）、真峰值限制、对白清晰度增强、分平台响度目标（YouTube -14 / Instagram-TikTok -10~-12 / Facebook -13）。知识本体来自 2026 音频后期指南（Opus/ReelMind/Wideframe/Foxi）。AI 应用面向 DirectorX：成片音频收尾（衔接 112 交付、144 声音设计、119 音画）。
@@ -84,3 +139,9 @@
 - ReelMind — Automated AI Video Speech Normalization：https://reelmind.ai/blog/automated-ai-video-speech-normalization-consistent-audio-levels
 - Foxi — AI in Audio Post Production: 2026 Glossary & Guide：https://www.foximusic.com/blog/ai-in-audio-post-production-glossary/
 - Recapo — Audio Volume Normalizer：https://recapo.ai/tools/audio-volume-normalizer/
+
+## 相关概念
+
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)

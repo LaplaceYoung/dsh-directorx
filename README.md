@@ -119,7 +119,7 @@ DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent 
 
 #### 知
 
-351 篇知识库、99 条方法论、12 套配方、39 套主技能。生成前检索，质检引用规则编号。
+330 篇知识库（OKF v0.2）、105 条方法论、12 套配方、39 套主技能。生成前检索，质检引用规则编号。
 
 </td>
 </tr>
@@ -195,7 +195,7 @@ flowchart LR
 
 简单请求（一张图、一个短镜头）可以直接生成。多镜头、复刻、改编、小说改编走上面这条。
 
-对画布里的 DSH 说「帮我把这张照片调成末日荒土配色」，会走 `directorx_studio`：ffmpeg 套调色、回写节点，并打开对应编辑台。
+对画布里的 DSH 说「帮我把这张照片调成末日荒土配色」，会走 `directorx_studio`：ffmpeg 套调色、回写节点，并打开对应编辑台。旋转、翻转、裁切、变速、去掉片头这类改动先 `directorx_edit_plan` 路由，再走 `directorx_image_edit` / `directorx_video_process` / `directorx_edit`，同样回写该镜头，不重绘。
 
 ---
 
@@ -216,7 +216,7 @@ flowchart LR
 - 角色设定 / 三视图按白底胸像 + 正面 / 侧面 / 背面一次出图。
 - 镜头卡按 16:9 横条分镜排布；`canvas_arrange` / `canvas_plan` 走同一套。
 
-快捷键：空白拖移、滚轮缩放、`G` 打开生成条、`⌘K` 搜索节点与命令。双击媒体卡进编辑台。
+快捷键：空白拖移、滚轮缩放、`G` 打开生成条、`E` 编辑所选媒体、`⌘K` 搜索节点与命令。双击节点居中缩放。
 
 ---
 
@@ -233,11 +233,11 @@ flowchart LR
 | 生成 | `generate_image` / `generate_video` / `generate_audio` | 文生图/视频/音频；角色锚点与三视图规格；可选 `model` 覆盖 |
 | 入驻 | `provider_ingest` / `classify` / `draft` / `smoke` / `commit` | 用户给模型+文档+Key；A 复用已有协议，B 走 generic-rest |
 | 提问 | `directorx_ask` / `directorx_confirm` | 分叉与签字都走 DSH 提问卡，禁止正文菜单 |
-| 检索 | `knowledge_search` / `read` · `skill_search` / `read` | 同义词检索语料；技能读全文和 references |
+| 检索 | `skill_route` / `skill_search` / `read` · `knowledge_search` / `read` | 路由同时点名技能与文章 id；两边命中互相带对岸 |
 | 阶段 | `directorx_stage` | 成片阶段账本与产物路径，过闸再进下一阶段 |
-| 剪辑 | `directorx_timeline` / `edit` / `smart_cut` / `studio` | 场景、转场、混音、人话改时间线；打开编辑台并套 16 调色 |
+| 剪辑 | `edit_plan` / `image_edit` / `video_process` / `edit` / `timeline` / `smart_cut` / `studio` | 先路由再动手；图片几何、单段处理、人话 cut list、时间线、精剪、16 调色；带 nodeId 回写画布 |
 | 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
-| 知识 | `directorx_knowledge_search` / `read` | 351 篇语料，按工艺检索 |
+| 知识 | `directorx_knowledge_search` / `read` | 330 篇 OKF 语料，可按 type/tag/group 检索 |
 
 视频协议（设置页按能力配置，不绑死一家）：Sora 2、可灵（两代）、Runway、MiniMax H3、Vidu、Veo、Seedance。
 
@@ -342,7 +342,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 dsh-directorx
 ├── src/           工具、画布、媒体、配方编排
 ├── skills/        方法论、工坊、novel-* 门禁
-├── knowledge/     351 篇导演/生成语料
+├── knowledge/     330 篇导演/生成语料（OKF v0.2）
 ├── recipes/       内容类型先例（按素材改，不是目录）
 ├── workflows/     可选并行模板
 ├── docs/assets/   画布截图与成片演示

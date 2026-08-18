@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）"
+description: "电影声音设计理论：故事内声音（Diegetic）vs 故事外声音（Non-Diegetic）、静默作为工具（Silence as Device）、环境声沉浸、Walter Murch 三原则（情绪/故事/节奏）"
+tags:
+  - "consistency"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Walter Murch Sound Doctrine Interview"
+    id: cite-1
+    title: "Sound Doctrine Interview"
+    author: "org:Walter-Murch"
+  - resource: "cited:OKState Sound: Intro to Film & TV"
+    id: cite-2
+    title: "Sound: Intro to Film & TV"
+    author: "org:OKState"
+  - resource: "cited:Screenplayology Sound & Silence"
+    id: cite-3
+    title: "Sound & Silence"
+    author: "org:Screenplayology"
+  - resource: "cited:Berkeley Sound in Visual Narrative"
+    id: cite-4
+    title: "Sound in Visual Narrative"
+    author: "org:Berkeley"
+  - resource: "https://www.scribd.com/document/367713568/201465738-Sound-Doctrine-an-Interview-With-Walter-Murch"
+    id: url-1
+    title: "scribd.com"
+  - resource: "https://open.library.okstate.edu/introfilmtv/part/sound/"
+    id: url-2
+    title: "open.library.okstate.edu"
+  - resource: "https://www.screenplayology.com/content-sections/screenplay-form-content/3-7/"
+    id: url-3
+    title: "screenplayology.com"
+  - resource: "https://blogs.ischool.berkeley.edu/i290-viznarr-s12/sound/"
+    id: url-4
+    title: "blogs.ischool.berkeley.edu"
+  - resource: "https://onshow.iadt.ie/sites/default/files/2025-05/Jan%20Krzysztof%20Nosal%20-%20Thesis%20-%20Diegetic%20and%20Non-Diegetic%20Sound%20Effects%20in%20Film%20%5BCompressed%5D.pdf"
+    id: url-5
+    title: "onshow.iadt.ie"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2025/papers/Zhou_HarmonySet_A_Comprehensive_Dataset_for_Understanding_Video-Music_Semantic_Alignment_and_CVPR_2025_paper.pdf"
+    id: url-6
+    title: "openaccess.thecvf.com"
+dx_id: "219"
+aliases:
+  - "260"
+  - "286"
+related:
+  - "144-sound-design/sound-design.md"
+  - "204-sonic-branding/sonic-branding.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # 电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）
 
 > 本页为电影声音设计理论：故事内声音（Diegetic）vs 故事外声音（Non-Diegetic）、静默作为工具（Silence as Device）、环境声沉浸、Walter Murch 三原则（情绪/故事/节奏）。知识本体来自 2026 声音理论指南（Murch 访谈/OKState Film 教材/Screenplayology）。AI 应用面向 DirectorX：声音设计（衔接 144 声音设计、182 声画情绪、204 声音记忆点、219 对应）。
@@ -220,3 +280,9 @@
 - LBB — Horror Sound Design's Secrets：https://lbbonline.com/news/horror-sound-designs-secrets-how-audio-experts-craft-bone-chilling-scares
 - CSUN — Film Art: Sound：http://www.csun.edu/~med61203/Film%20Art%20Sound.pdf
 - Beverlyboy — Pacing vs. Rhythm in Film：https://beverlyboy.com/film-technology/pacing-vs-rhythm-in-film-why-timing-is-everything/
+
+## 相关概念
+
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 声音记忆点设计（Sonic Branding — Audio Logo, Brand Soundscape & Mnemonic）](../204-sonic-branding/sonic-branding.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

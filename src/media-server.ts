@@ -8,7 +8,7 @@ import { pipeline } from 'node:stream/promises'
 import { join, relative, resolve } from 'node:path'
 import type { Context } from 'cordis'
 import { ProposalStore } from './proposals.ts'
-import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
+import { CanvasIntentStore, formatDshCanvasPromptForProject } from './canvas-intent.ts'
 import { CharacterStore } from './characters.ts'
 
 type WebServer = {
@@ -65,6 +65,7 @@ import { currentProjectRoot, listWorkspaceRoots, resolveRequestProject, runInPro
 import { MAX_MEDIA_BYTES, mimeForPath, parseMediaQuery, parseRangeHeader, resolveMediaPath, resolveOutputDir, slugify } from './support.ts'
 import { applyGrade, inferMediaKind, resolveGradeLook } from './providers/grade.ts'
 import { StudioTicketStore } from './studio-intent.ts'
+import { parseCraftAction, runCanvasCraft } from './canvas-craft.ts'
 
 /** Exact pathname the browser fetches generated media from: `/directorx/media?path=<abs-or-relative>` (GET) or saves edits to (POST). */
 export const MEDIA_ROUTE_PATH = '/directorx/media'
@@ -652,7 +653,7 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
         sendJsonLocal(response, 200, {
           ok: true,
           intent,
-          ...(intent !== null ? { prompt: formatDshCanvasPrompt(intent) } : {}),
+          ...(intent !== null ? { prompt: await formatDshCanvasPromptForProject(intent, { outputDir: getOutputDir() }) } : {}),
         })
         return
       }
@@ -686,7 +687,58 @@ export function registerCanvasIntentRoute(ctx: Context, getOutputDir: () => stri
           ...(typeof body.durationSec === 'number' ? { durationSec: body.durationSec } : {}),
           ...(Array.isArray(body.refIds) ? { refIds: body.refIds as string[] } : {}),
         })
-        sendJsonLocal(response, 200, { ok: true, intent, prompt: formatDshCanvasPrompt(intent) })
+        sendJsonLocal(response, 200, { ok: true, intent, prompt: await formatDshCanvasPromptForProject(intent, { outputDir: getOutputDir() }) })
+      } catch (cause) {
+        sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
+      }
+    },
+  })
+}
+
+/** POST /directorx/canvas/craft: script rows / frame strip / token autolink. No generate. */
+export function registerCanvasCraftRoute(ctx: Context, getOutputDir: () => string): () => void {
+  const webServer = directorxWeb(ctx)
+  if (webServer === undefined) return () => {}
+  return webServer.register({
+    kind: 'exact',
+    path: '/directorx/canvas/craft',
+    handler: async (request, response) => {
+      if (isCrossOrigin(request)) {
+        response.writeHead(403)
+        response.end('forbidden')
+        return
+      }
+      if (request.method !== 'POST') {
+        response.writeHead(405)
+        response.end('method not allowed')
+        return
+      }
+      try {
+        const body = await readBodyLocal(request, 256 * 1024)
+        const result = await runCanvasCraft({
+          outputDir: getOutputDir(),
+          action: parseCraftAction(body.action),
+          ...(typeof body.nodeId === 'string' ? { nodeId: body.nodeId } : {}),
+          ...(typeof body.text === 'string' ? { text: body.text } : {}),
+          ...(typeof body.count === 'number' ? { count: body.count } : {}),
+          ...(Array.isArray(body.nodeIds) ? { nodeIds: body.nodeIds.map(String) } : {}),
+          ...(body.arrange === true || body.arrange === false ? { arrange: body.arrange } : {}),
+          ...(body.describe === true ? { describe: true } : {}),
+          ...(typeof body.start === 'number' ? { start: body.start } : {}),
+          ...(typeof body.end === 'number' ? { end: body.end } : {}),
+          ...(typeof body.prompt === 'string' ? { prompt: body.prompt } : {}),
+          ...(body.phase === 'cut' || body.phase === 'assemble' ? { phase: body.phase } : {}),
+          ...(body.transition === 'cut' || body.transition === 'fade' ? { transition: body.transition } : {}),
+          ...(typeof body.fadeSec === 'number' ? { fadeSec: body.fadeSec } : {}),
+          ...(typeof body.columns === 'number' ? { columns: body.columns } : {}),
+          ...(typeof body.cols === 'number' ? { cols: body.cols } : {}),
+          ...(typeof body.rows === 'number' ? { rows: body.rows } : {}),
+          ...(body.numbered === true || body.numbered === false ? { numbered: body.numbered } : {}),
+          ...(body.layout === '2x1' || body.layout === '1x2' || body.layout === '2x2' ? { layout: body.layout } : {}),
+          ...(body.method === 'crop' || body.method === 'blur' ? { method: body.method } : {}),
+          ...(typeof body.region === 'string' ? { region: body.region } : {}),
+        })
+        sendJsonLocal(response, 200, result)
       } catch (cause) {
         sendJsonLocal(response, 400, { ok: false, message: cause instanceof Error ? cause.message : String(cause) })
       }

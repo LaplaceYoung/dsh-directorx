@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）"
+description: "本页知识本体来自真实影视制作的镜头表（Shot List）与场记（Continuity）制度：逐镜记录景别、角度、运动、镜头、光照、音频、演员与连续性的标准字段"
+tags:
+  - "production"
+  - "camera"
+  - "sound"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX Shot List Template"
+    id: cite-1
+    title: "Shot List Template"
+    author: "org:LTX"
+  - resource: "cited:Storyblocks Video Shot List Template"
+    id: cite-2
+    title: "Video Shot List Template"
+    author: "org:Storyblocks"
+  - resource: "cited:Epidemic Sound What is a Shot List"
+    id: cite-3
+    title: "What is a Shot List"
+    author: "org:Epidemic-Sound"
+  - resource: "cited:TechSmith How to Write a Shot List"
+    id: cite-4
+    title: "How to Write a Shot List"
+    author: "org:TechSmith"
+  - resource: "cited:Boords Free Shot List Template 2026"
+    id: cite-5
+    title: "Free Shot List Template 2026"
+    author: "org:Boords"
+  - resource: "https://ltx.io/blog/shot-list-template"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://www.storyblocks.com/resources/blog/video-shot-list-template"
+    id: url-2
+    title: "storyblocks.com"
+  - resource: "https://www.epidemicsound.com/blog/what-is-a-shot-list/"
+    id: url-3
+    title: "epidemicsound.com"
+  - resource: "https://www.techsmith.com/blog/how-to-write-a-shot-list/"
+    id: url-4
+    title: "techsmith.com"
+  - resource: "https://boords.com/shot-list-template"
+    id: url-5
+    title: "boords.com"
+dx_id: "109"
+related:
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "70-on-camera-acting/on-camera-acting.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+---
+
 # 镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）
 
 > 本页知识本体来自真实影视制作的镜头表（Shot List）与场记（Continuity）制度：逐镜记录景别、角度、运动、镜头、光照、音频、演员与连续性的标准字段。AI 应用面向 DirectorX：镜头表是"足够详细的镜头描述"的行业标准格式——生成前逐镜细化 = 把镜头表填满（案例 3 分镜阶段与案例 4 逐镜设计的直接依据）。
@@ -106,3 +166,9 @@ Shot 02 – Scene 03 | MS | 中景 | 微俯 | 静态 | 50mm | 手持 | 补光
 - Epidemic Sound — What is a Shot List：https://www.epidemicsound.com/blog/what-is-a-shot-list/
 - TechSmith — The Essential Guide To Writing Shot Lists：https://www.techsmith.com/blog/how-to-write-a-shot-list/
 - Boords — Free Shot List Template (2026)：https://boords.com/shot-list-template
+
+## 相关概念
+
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [镜头前表演指导（Directing Performances On Camera）](../70-on-camera-acting/on-camera-acting.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)

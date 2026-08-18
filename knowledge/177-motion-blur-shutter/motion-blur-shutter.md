@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 动态模糊与快门速度（Motion Blur & Shutter — 180° Rule in AI Generation）"
+description: "AI 视频的动态模糊与快门速度控制：180° 快门规则（快门≈1/(2×帧率)）、动态模糊的\"电影感\"作用、高帧率的快门灵活性、AI 生成中的模糊提示词"
+tags:
+  - "consistency"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Swarmify Shutter Speed for Video: 180-Degree Rule 2026"
+    id: cite-1
+    title: "Shutter Speed for Video: 180-Degree Rule 2026"
+    author: "org:Swarmify"
+  - resource: "cited:Wipster Debunking the 180-Degree Shutter Rule"
+    id: cite-2
+    title: "Debunking the 180-Degree Shutter Rule"
+    author: "org:Wipster"
+  - resource: "cited:True the Lens Mastering Motion Blur"
+    id: cite-3
+    title: "Mastering Motion Blur"
+    author: "org:True-the-Lens"
+  - resource: "cited:ReelMind Digital Cinematography Shutter Angles"
+    id: cite-4
+    title: "Digital Cinematography Shutter Angles"
+    author: "org:ReelMind"
+  - resource: "https://swarmify.com/blog/shutter-speed-for-video/"
+    id: url-1
+    title: "swarmify.com"
+  - resource: "https://www.wipster.io/blog/debunking-the-180-degree-shutter-rule"
+    id: url-2
+    title: "wipster.io"
+  - resource: "https://www.truethelens.com/lessons/the-180-degree-shutter-rule-mastering-motion-blur-for-cinematic-video"
+    id: url-3
+    title: "truethelens.com"
+  - resource: "https://www.xdynamics.com/uncategorized/the-180-degree-shutter-rule/"
+    id: url-4
+    title: "xdynamics.com"
+  - resource: "https://reelmind.ai/blog/digital-cinematography-shutter-angles-ai-explanations"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "177"
+related:
+  - "133-motion-physics/motion-physics.md"
+  - "01-camera-language/camera-language.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+---
+
 # AI 动态模糊与快门速度（Motion Blur & Shutter — 180° Rule in AI Generation）
 
 > 本页为 AI 视频的动态模糊与快门速度控制：180° 快门规则（快门≈1/(2×帧率)）、动态模糊的"电影感"作用、高帧率的快门灵活性、AI 生成中的模糊提示词。知识本体来自 2026 快门指南（Swarmify/Wipster/XDynamics/True the Lens）。AI 应用面向 DirectorX：运动真实感（衔接 133 物理、168 运镜、176 景深）。与 133/180 分工：本页为曝光物理（快门/模糊），133 为相机运动物理（惯性/轨迹），180 为物体物理模拟（发/布/流体）。
@@ -79,3 +133,9 @@
 - True the Lens — Mastering Motion Blur: The 180-Degree Shutter Rule：https://www.truethelens.com/lessons/the-180-degree-shutter-rule-mastering-motion-blur-for-cinematic-video
 - XDynamics — The 180 Degree Shutter Rule：https://www.xdynamics.com/uncategorized/the-180-degree-shutter-rule/
 - ReelMind — Digital Cinematography Shutter Angles: AI Explanations：https://reelmind.ai/blog/digital-cinematography-shutter-angles-ai-explanations
+
+## 相关概念
+
+- [AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）](../133-motion-physics/motion-physics.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)

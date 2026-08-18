@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 画幅与比例叙事（Aspect Ratio Storytelling — Frame as Narrative Tool）"
+description: "AI 视频的画幅比例叙事：比例作为叙事工具（16:9 标准/2.39:1 史诗/9:16 竖屏/1.37:1 复古）、画幅切换的叙事语义、构图影响（看到什么/省略什么）"
+tags:
+  - "consistency"
+  - "narrative"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe Importance of Aspect Ratio"
+    id: cite-1
+    title: "Importance of Aspect Ratio"
+    author: "org:Adobe"
+  - resource: "cited:CINED Aspect Ratio as Storytelling Tool"
+    id: cite-2
+    title: "Aspect Ratio as Storytelling Tool"
+    author: "org:CINED"
+  - resource: "cited:OccupyCinematography Framing Narrative, Not Just Pixels"
+    id: cite-3
+    title: "Framing Narrative, Not Just Pixels"
+    author: "org:OccupyCinematography"
+  - resource: "cited:StudioBinder What Is Aspect Ratio"
+    id: cite-4
+    title: "What Is Aspect Ratio"
+    author: "org:StudioBinder"
+  - resource: "https://www.adobe.com/creativecloud/video/discover/aspect-ratio.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://www.cined.com/aspect-ratio-as-a-storytelling-tool-a-how-to-with-film-examples/"
+    id: url-2
+    title: "cined.com"
+  - resource: "https://occupycinematography.com/post/aspect-ratio-framing-narrative-not-just-pixels"
+    id: url-3
+    title: "occupycinematography.com"
+  - resource: "https://www.studiobinder.com/blog/what-is-aspect-ratio-definition/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.tasteray.com/articles/movie-aspect-ratio"
+    id: url-5
+    title: "tasteray.com"
+dx_id: "198"
+related:
+  - "178-perspective-camera-height/perspective-camera-height.md"
+  - "192-negative-space/negative-space.md"
+  - "142-short-form-platform/short-form-platform.md"
+  - "112-delivery-specs/delivery-specs.md"
+  - "155-color-psychology/color-psychology.md"
+---
+
 # AI 画幅与比例叙事（Aspect Ratio Storytelling — Frame as Narrative Tool）
 
 > 本页为 AI 视频的画幅比例叙事：比例作为叙事工具（16:9 标准/2.39:1 史诗/9:16 竖屏/1.37:1 复古）、画幅切换的叙事语义、构图影响（看到什么/省略什么）。知识本体来自 2026 画幅指南（Adobe/CINED/StudioBinder/OccupyCinematography）。AI 应用面向 DirectorX：画幅决策（衔接 178 构图、192 负空间、142 平台、112 交付）。
@@ -80,3 +137,11 @@
 - OccupyCinematography — Aspect Ratio: Framing Narrative, Not Just Pixels：https://occupycinematography.com/post/aspect-ratio-framing-narrative-not-just-pixels
 - StudioBinder — What Is Aspect Ratio?：https://www.studiobinder.com/blog/what-is-aspect-ratio-definition/
 - Tasteray — Movie Aspect Ratio Decoded：https://www.tasteray.com/articles/movie-aspect-ratio
+
+## 相关概念
+
+- [AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）](../178-perspective-camera-height/perspective-camera-height.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)
+- [AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）](../142-short-form-platform/short-form-platform.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)

@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）"
+description: "AI 图片的氛围感：胶片感（胶片型号/颗粒/褪色/漏光）、时代 look（复古/Polaroid/银版）、氛围配方（主体+场景/情绪+胶片+相机+时代参考）、反 AI 感（Anti-AI：瑕疵/不完美）"
+tags:
+  - "synthesis"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:AI Academy 30 ChatGPT Film Photography Prompts"
+    id: cite-1
+    title: "30 ChatGPT Film Photography Prompts"
+    author: "org:AI-Academy"
+  - resource: "cited:RandomPrompts Film Grain Aesthetic Prompt Generator"
+    id: cite-2
+    title: "Film Grain Aesthetic Prompt Generator"
+    author: "org:RandomPrompts"
+  - resource: "cited:ZSky AI Vintage Photo Prompts"
+    id: cite-3
+    title: "AI Vintage Photo Prompts"
+    author: "org:ZSky"
+  - resource: "cited:Vidzy Vintage Film Photography Prompts"
+    id: cite-4
+    title: "Vintage Film Photography Prompts"
+    author: "org:Vidzy"
+  - resource: "https://academy.techpresso.co/prompts/chatgpt-prompts-film-photography"
+    id: url-1
+    title: "academy.techpresso.co"
+  - resource: "https://randomprompts.org/film-grain-aesthetic-prompt-generator"
+    id: url-2
+    title: "randomprompts.org"
+  - resource: "https://zsky.ai/blog/ai-vintage-photo-prompts"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://getvidzy.com/ai-vintage-film-prompts/"
+    id: url-4
+    title: "getvidzy.com"
+  - resource: "https://www.banana-prompts.net/10-best-prompts-for-vintage-film-look/"
+    id: url-5
+    title: "banana-prompts.net"
+dx_id: "250"
+related:
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "155-color-psychology/color-psychology.md"
+  - "199-ugc-realism/ugc-realism.md"
+---
+
 # AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）
 
 > 本页为 AI 图片的氛围感：胶片感（胶片型号/颗粒/褪色/漏光）、时代 look（复古/Polaroid/银版）、氛围配方（主体+场景/情绪+胶片+相机+时代参考）、反 AI 感（Anti-AI：瑕疵/不完美）。知识本体来自 2026 氛围提示词指南（AI Academy/RandomPrompts/ZSky/Vidzy）。AI 应用面向 DirectorX：图片情绪（衔接 181 氛围、215 参数、250 对应、155 色彩）。
@@ -83,3 +138,10 @@
 - ZSky — AI Vintage Photo Prompts: 15 Retro Examples：https://zsky.ai/blog/ai-vintage-photo-prompts
 - Vidzy — AI Prompts for Vintage Film Photography Look：https://getvidzy.com/ai-vintage-film-prompts/
 - Banana Prompts — 10 Best Prompts for Vintage Film Look：https://www.banana-prompts.net/10-best-prompts-for-vintage-film-look/
+
+## 相关概念
+
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 用户生成内容真实感（UGC Realism — Authentic Imperfection & Anti-Polish）](../199-ugc-realism/ugc-realism.md)

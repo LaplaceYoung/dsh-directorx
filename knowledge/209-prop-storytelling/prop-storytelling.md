@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）"
+description: "AI 场景道具叙事：道具作为意义载体（揭示角色/推进剧情/象征主题）、道具母题（Motif）设计、麦高芬（MacGuffin）、生产设计整合（色彩/质感/位置强化氛围）"
+tags:
+  - "consistency"
+  - "color"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Prop Significance"
+    id: cite-1
+    title: "Prop Significance"
+    author: "org:Fiveable"
+  - resource: "cited:Cinevisionary Storytelling Through Objects"
+    id: cite-2
+    title: "Storytelling Through Objects"
+    author: "org:Cinevisionary"
+  - resource: "cited:FasterCapital Prop Design: Crafting Objects that Tell a Story"
+    id: cite-3
+    title: "Prop Design: Crafting Objects that Tell a Story"
+    author: "org:FasterCapital"
+  - resource: "cited:Beverlyboy How Do Props Carry Story"
+    id: cite-4
+    title: "How Do Props Carry Story"
+    author: "org:Beverlyboy"
+  - resource: "https://fiveable.me/key-terms/introduction-to-film-theory/prop-significance"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://cinevisionary.com/cinevisions/storytelling-through-objects-the-visual-language-of-props-in-filmmaking"
+    id: url-2
+    title: "cinevisionary.com"
+  - resource: "https://www.fastercapital.com/content/Visual-storytelling--Prop-Design--Crafting-Objects-that-Tell-a-Story.html"
+    id: url-3
+    title: "fastercapital.com"
+  - resource: "https://beverlyboy.com/filmmaking/how-do-props-carry-story-and-symbolism-in-films/"
+    id: url-4
+    title: "beverlyboy.com"
+  - resource: "https://www.whatsafterthemovie.com/blog/prop-design-role"
+    id: url-5
+    title: "whatsafterthemovie.com"
+dx_id: "209"
+related:
+  - "165-environment-generation/environment-generation.md"
+  - "169-props-wardrobe/props-wardrobe.md"
+  - "203-character-era-consistency/character-era-consistency.md"
+  - "208-character-relationship-spatial/character-relationship-spatial.md"
+---
+
 # AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）
 
 > 本页为 AI 场景道具叙事：道具作为意义载体（揭示角色/推进剧情/象征主题）、道具母题（Motif）设计、麦高芬（MacGuffin）、生产设计整合（色彩/质感/位置强化氛围）。知识本体来自 2026 道具叙事指南（Fiveable/FasterCapital/Cinevisionary/Beverlyboy）。AI 应用面向 DirectorX：场景设计（衔接 165 环境、169 服装、203 时代、208 关系、209 对应）。
@@ -76,3 +133,10 @@
 - FasterCapital — Visual Storytelling: Prop Design: Crafting Objects that Tell a Story：https://www.fastercapital.com/content/Visual-storytelling--Prop-Design--Crafting-Objects-that-Tell-a-Story.html
 - Beverlyboy — How Do Props Carry Story and Symbolism in Films：https://beverlyboy.com/filmmaking/how-do-props-carry-story-and-symbolism-in-films/
 - What's After the Movie — Analyzing the Role of Prop Design in Film：https://www.whatsafterthemovie.com/blog/prop-design-role
+
+## 相关概念
+
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）](../169-props-wardrobe/props-wardrobe.md)
+- [AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）](../203-character-era-consistency/character-era-consistency.md)
+- [AI 角色关系视觉化（Character Relationship Spatial — Blocking as Relationship Language）](../208-character-relationship-spatial/character-relationship-spatial.md)

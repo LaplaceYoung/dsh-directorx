@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影 AI 治理总设计（AI Governance Total — Transparency, Ethics & Compliance）"
+description: "电影 AI 治理总设计：治理框架六原则（透明可解释/公平/隐私/安全/以人为本）、模型卡+数据表+披露、风险分级审计+事件响应、全球框架对齐（EU AI Act/NIST/OECD/ASEAN）"
+tags:
+  - "synthesis"
+  - "model"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ASEAN Guide on AI Governance and Ethics"
+    id: cite-1
+    title: "Guide on AI Governance and Ethics"
+    author: "org:ASEAN"
+  - resource: "cited:FutureAGI AI Ethics Frameworks 2026"
+    id: cite-2
+    title: "AI Ethics Frameworks 2026"
+    author: "org:FutureAGI"
+  - resource: "cited:AI21 9 Key AI Governance Frameworks"
+    id: cite-3
+    title: "9 Key AI Governance Frameworks"
+    author: "org:AI21"
+  - resource: "cited:Optro AI Transparency Policy"
+    id: cite-4
+    title: "AI Transparency Policy"
+    author: "org:Optro"
+  - resource: "https://asean.org/wp-content/uploads/2024/02/ASEAN-Guide-on-AI-Governance-and-Ethics_beautified_201223_v2.pdf"
+    id: url-1
+    title: "asean.org"
+  - resource: "https://futureagi.com/blog/ethics-of-ai-framework-2025/"
+    id: url-2
+    title: "futureagi.com"
+  - resource: "https://www.ai21.com/knowledge/ai-governance-frameworks/"
+    id: url-3
+    title: "ai21.com"
+  - resource: "https://optro.ai/blog/ai-transparency-policy-template"
+    id: url-4
+    title: "optro.ai"
+  - resource: "https://onereach.ai/blog/ai-governance-frameworks-best-practices/"
+    id: url-5
+    title: "onereach.ai"
+dx_id: "379"
+related:
+  - "370-docu-ai-transparency/docu-ai-transparency.md"
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "72-ai-content-compliance/ai-content-compliance.md"
+---
+
 # 电影 AI 治理总设计（AI Governance Total — Transparency, Ethics & Compliance）
 
 > 本页为电影 AI 治理总设计：治理框架六原则（透明可解释/公平/隐私/安全/以人为本）、模型卡+数据表+披露、风险分级审计+事件响应、全球框架对齐（EU AI Act/NIST/OECD/ASEAN）。知识本体来自 2026 治理框架（ASEAN/FutureAGI/AI21）。AI 应用面向 DirectorX：合规总设计（衔接 370 透明实践、379 对应、145 版权、72 合规）。
@@ -76,3 +131,9 @@ EU AI Act 执行 + OECD/NIST 指南——**"多框架合规"**（衔接 145）�
 - AI21 — 9 Key AI Governance Frameworks：https://www.ai21.com/knowledge/ai-governance-frameworks/
 - Optro — AI Transparency Policy: Practical Guide：https://optro.ai/blog/ai-transparency-policy-template
 - OneReach — AI Governance Frameworks 2026：https://onereach.ai/blog/ai-governance-frameworks-best-practices/
+
+## 相关概念
+
+- [电影纪实-伦理-AI 透明实践（Documentary × Ethics × AI Transparency — Labeling & Disclosure）](../370-docu-ai-transparency/docu-ai-transparency.md)
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)

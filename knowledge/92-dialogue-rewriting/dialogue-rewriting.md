@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "对白改写实操（Dialogue Rewriting Workshop）"
+description: "对白改写手册：直白对白的三种失败模式、潜台词改写七步流程、改写对照表、六种潜台词错误、何时允许直接对白、类型平衡、问题测试"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ScreenWeaver 潜台词改写通道（2026）"
+    id: cite-1
+    title: "ScreenWeaver 潜台词改写通道（2026）"
+  - resource: "cited:Filmmaker Genius 对白改写"
+    id: cite-2
+    title: "Filmmaker Genius 对白改写"
+  - resource: "cited:中文对白\"嘴上说走眼神说别走\"。"
+    id: cite-3
+    title: "中文对白\"嘴上说走眼神说别走\"。"
+  - resource: "https://www.screenweaver.ai/blog/on-the-nose-dialogue-fix-subtext-rewrite-pass"
+    id: url-1
+    title: "screenweaver.ai"
+  - resource: "https://filmmakergenius.com/academy/how-to-rewrite-a-screenplay/rewriting-dialogue"
+    id: url-2
+    title: "filmmakergenius.com"
+  - resource: "https://scriptshadow.net/tackling-the-most-common-criticism-in-screenwriting-your-dialogue-is-on-the-nose/"
+    id: url-3
+    title: "scriptshadow.net"
+  - resource: "https://smartg.com/screenwriter/screenplay-dialogue-better-exercises/"
+    id: url-4
+    title: "smartg.com"
+  - resource: "https://www.studiobinder.com/blog/how-to-write-dialogue-in-a-story/"
+    id: url-5
+    title: "studiobinder.com"
+  - resource: "https://laoyuanyingshi.com/how-to-avoid-writing-flat-dialogue"
+    id: url-6
+    title: "laoyuanyingshi.com"
+  - resource: "https://www.zhihu.com/question/284069048"
+    id: url-7
+    title: "zhihu.com"
+dx_id: "92"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 对白改写实操（Dialogue Rewriting Workshop）
 
 > 本页是 DirectorX 对白改写手册：直白对白的三种失败模式、潜台词改写七步流程、改写对照表、六种潜台词错误、何时允许直接对白、类型平衡、问题测试。与 82 对白写作 / 90 类型剧本衔接。
@@ -106,3 +159,9 @@
 - 老袁的编剧室: 少说废话！如何避免写出平铺直叙的对话 — https://laoyuanyingshi.com/how-to-avoid-writing-flat-dialogue
 - 知乎: 怎样才能写好电影的对白？ — https://www.zhihu.com/question/284069048
 - AI Open Library: Screenplay Dialogue Rewrite — Adding Subtext to On-the-Nose Scenes — https://aiopenlibrary.com/prompts/screenplay-dialogue-rewrite-for-subtext
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

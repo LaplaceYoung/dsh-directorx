@@ -1,1 +1,1 @@
-export { displayCardTitle, isAssetSlug, nextCardLabel, resolveStoredLabel } from '../../card-label.ts'
+export { displayCardTitle, isAssetSlug, nextCardLabel, resolveStoredLabel, shotMark } from '../../card-label.ts'

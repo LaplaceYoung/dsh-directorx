@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "场景调度深化（Staging & Master Scene Craft）"
+description: "场景调度手册：场面调度定义与三要素（叙事/戏剧/画面）、视点控制三手段、戏剧性重点（对比景别）、主镜头法与覆盖体系、阻挡 vs 布景、180° 与视线纪律、深度与分层、调度排练"
+tags:
+  - "production"
+  - "camera"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:影视工业网场面调度三要素"
+    id: cite-1
+    title: "影视工业网场面调度三要素"
+  - resource: "cited:StudioBinder 大师阻挡"
+    id: cite-2
+    title: "StudioBinder 大师阻挡"
+  - resource: "cited:Celtx 场景阻挡五阶段"
+    id: cite-3
+    title: "Celtx 场景阻挡五阶段"
+  - resource: "cited:BlockReel 阻挡与运镜。"
+    id: cite-4
+    title: "BlockReel 阻挡与运镜。"
+  - resource: "https://cinehello.com/stream/91204/"
+    id: url-1
+    title: "cinehello.com"
+  - resource: "https://cinehello.com/stream/91626"
+    id: url-2
+    title: "cinehello.com"
+  - resource: "https://www.studiobinder.com/blog/blocking-and-staging-scenes/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://blog.celtx.com/block-film-scene/"
+    id: url-4
+    title: "blog.celtx.com"
+  - resource: "https://blockreeldao.com/blog/the-definitive-guide-to-camera-movement-and-blocking"
+    id: url-5
+    title: "blockreeldao.com"
+  - resource: "https://fiveable.me/production-ii/unit-6/blocking-staging-camera/study-guide/Ls6D0IBCdhFvYsyf"
+    id: url-6
+    title: "fiveable.me"
+dx_id: "94"
+related:
+  - "12-genre-music-performance/music-video-performance.md"
+  - "65-ai-camera-control-benchmark/ai-camera-control-benchmark.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+---
+
 # 场景调度深化（Staging & Master Scene Craft）
 
 > 本页是 DirectorX 场景调度手册：场面调度定义与三要素（叙事/戏剧/画面）、视点控制三手段、戏剧性重点（对比景别）、主镜头法与覆盖体系、阻挡 vs 布景、180° 与视线纪律、深度与分层、调度排练。与 70 表演 / 81 镜头语言 / 86 分镜衔接。
@@ -105,3 +158,9 @@
 - Fiveable: Blocking and Staging for Camera（Production II） — https://fiveable.me/production-ii/unit-6/blocking-staging-camera/study-guide/Ls6D0IBCdhFvYsyf
 - Fiveable: Blocking and Staging for Complex Scenes（Production III） — https://library.fiveable.me/production-iii/unit-8/blocking-staging-complex-scenes/study-guide/XGhW76tjNMIqqa2R
 - 维基百科: 场面调度 — https://zh.wikipedia.org/zh-hans/场面调度
+
+## 相关概念
+
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [AI 运镜控制精度实测（Camera Control Precision Field Test）](../65-ai-camera-control-benchmark/ai-camera-control-benchmark.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)

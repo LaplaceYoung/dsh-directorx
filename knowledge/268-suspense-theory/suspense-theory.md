@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）"
+description: "电影叙事悬念理论：希区柯克悬念 vs 惊奇（观众知识差）、戏剧反讽（观众知道角色不知）、炸弹桌下例证、悬念的视听工程"
+tags:
+  - "synthesis"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:David Bordwell Narrative: Suspense"
+    id: cite-1
+    title: "Narrative: Suspense"
+    author: "org:David-Bordwell"
+  - resource: "cited:NoFilmSchool Hitchcock and Truffaut Explain Surprise vs Suspense"
+    id: cite-2
+    title: "Hitchcock and Truffaut Explain Surprise vs Suspense"
+    author: "org:NoFilmSchool"
+  - resource: "cited:VU McCormack Thesis"
+    id: cite-3
+    title: "McCormack Thesis"
+    author: "org:VU"
+  - resource: "cited:Heinke Suspense: The Cinematic Fear"
+    id: cite-4
+    title: "Suspense: The Cinematic Fear"
+    author: "org:Heinke"
+  - resource: "https://www.davidbordwell.net/blog/category/narrative-suspense/page/5/"
+    id: url-1
+    title: "davidbordwell.net"
+  - resource: "https://nofilmschool.com/alfred-hitchcock-and-francois-truffaut-explain-surprise-vs-suspense"
+    id: url-2
+    title: "nofilmschool.com"
+  - resource: "https://vuir.vu.edu.au/33579/1/MCCORMACK%20Cody-thesis_nosignature.pdf"
+    id: url-3
+    title: "vuir.vu.edu.au"
+  - resource: "https://heinke.squarespace.com/blog/2025/7/23/suspense-the-cinematic-fear"
+    id: url-4
+    title: "heinke.squarespace.com"
+  - resource: "https://www.scribd.com/document/958390598/Suspense-in-Film-a-Theoretical-and-Psychological-Analysis-of-Cinematic-Tension"
+    id: url-5
+    title: "scribd.com"
+dx_id: "268"
+related:
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "234-narrative-viewpoint/narrative-viewpoint.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "144-sound-design/sound-design.md"
+---
+
 # 电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）
 
 > 本页为电影叙事悬念理论：希区柯克悬念 vs 惊奇（观众知识差）、戏剧反讽（观众知道角色不知）、炸弹桌下例证、悬念的视听工程。知识本体来自 2026 悬念理论（David Bordwell/NoFilmSchool/VU Thesis）。AI 应用面向 DirectorX：悬念设计（衔接 158 张力、268 对应、234 视点、150 叙事）。
@@ -80,3 +136,10 @@
 - VU — McCormack Thesis (Alfred Hitchcock & Suspense)：https://vuir.vu.edu.au/33579/1/MCCORMACK%20Cody-thesis_nosignature.pdf
 - Heinke — Suspense: The Cinematic Fear：https://heinke.squarespace.com/blog/2025/7/23/suspense-the-cinematic-fear
 - Scribd — Suspense in Film: Theoretical & Psychological Analysis：https://www.scribd.com/document/958390598/Suspense-in-Film-a-Theoretical-and-Psychological-Analysis-of-Cinematic-Tension
+
+## 相关概念
+
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）](../234-narrative-viewpoint/narrative-viewpoint.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)

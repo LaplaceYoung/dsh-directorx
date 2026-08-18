@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）"
+description: "电影景别情绪理论：景别-情绪映射（特写亲密/近景情绪/中景平衡/全景孤立/远景环境）、景别的叙事节奏、AI 景别提示"
+tags:
+  - "consistency"
+  - "camera"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX All Camera Shots & Angles Explained"
+    id: cite-1
+    title: "All Camera Shots & Angles Explained"
+    author: "org:LTX"
+  - resource: "cited:Synima The Language of Shot Sizes"
+    id: cite-2
+    title: "The Language of Shot Sizes"
+    author: "org:Synima"
+  - resource: "cited:StudioBinder Ultimate Guide to Camera Shots"
+    id: cite-3
+    title: "Ultimate Guide to Camera Shots"
+    author: "org:StudioBinder"
+  - resource: "cited:Granite River Power of Shot Composition"
+    id: cite-4
+    title: "Power of Shot Composition"
+    author: "org:Granite-River"
+  - resource: "https://ltx.io/blog/mastering-camera-shots-and-angles"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://www.synima.com/blog/the-language-of-shot-sizes/"
+    id: url-2
+    title: "synima.com"
+  - resource: "https://www.studiobinder.com/blog/ultimate-guide-to-camera-shots/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://www.graniteriverstudios.com/crafting-emotion-through-the-lens-how-shot-choice-and-composition-shape-viewer-experience/"
+    id: url-4
+    title: "graniteriverstudios.com"
+  - resource: "https://journalism.university/electronic-media/exploring-shot-sizes-close-ups-long-shots/"
+    id: url-5
+    title: "journalism.university"
+dx_id: "231"
+related:
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "227-camera-coverage-theory/camera-coverage-theory.md"
+  - "01-camera-language/camera-language.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # 电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）
 
 > 本页为电影景别情绪理论：景别-情绪映射（特写亲密/近景情绪/中景平衡/全景孤立/远景环境）、景别的叙事节奏、AI 景别提示。知识本体来自 2026 景别理论指南（LTX/Synima/StudioBinder/Granite River）。AI 应用面向 DirectorX：景别决策（衔接 124 景别、231 对应、227 覆盖、197 情绪）。
@@ -80,3 +136,10 @@
 - StudioBinder — Ultimate Guide to Camera Shots：https://www.studiobinder.com/blog/ultimate-guide-to-camera-shots/
 - Granite River — Video Emotion: The Power of Shot Composition：https://www.graniteriverstudios.com/crafting-emotion-through-the-lens-how-shot-choice-and-composition-shape-viewer-experience/
 - Journalism.University — Exploring Shot Sizes：https://journalism.university/electronic-media/exploring-shot-sizes-close-ups-long-shots/
+
+## 相关概念
+
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [电影机位调度理论（Camera Coverage Theory — Master Shot, Coverage & Triangle System）](../227-camera-coverage-theory/camera-coverage-theory.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

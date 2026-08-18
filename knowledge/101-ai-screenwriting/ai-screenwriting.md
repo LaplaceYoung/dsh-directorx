@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 辅助剧本写作：术语详解 + AI 理解与实现（AI-Assisted Screenwriting — Deep Terms & Implementation）"
+description: "AI 编剧工作流手册（深化版）：**每个术语详解其具体内容**（AI 工具实际做什么、输入输出长什么样、机制如何工作），并给出 **AI 如何理解与实现**（可直接粘贴的提示词模板、检查标准、人机分工）"
+tags:
+  - "production"
+  - "prompt"
+  - "workflow"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Laper AI 编剧完整指南"
+    id: cite-1
+    title: "Laper AI 编剧完整指南"
+  - resource: "cited:Storyflow 12 款工具实测"
+    id: cite-2
+    title: "Storyflow 12 款工具实测"
+  - resource: "cited:阿里云 AI 编剧助手（GraphRAG+长记忆）"
+    id: cite-3
+    title: "阿里云 AI 编剧助手（GraphRAG+长记忆）"
+  - resource: "cited:提效录 AI 剧本实操。"
+    id: cite-4
+    title: "提效录 AI 剧本实操。"
+  - resource: "https://laper.ai/recent-highlights/2025-10-13-ai-screenplay-writing-guide/"
+    id: url-1
+    title: "laper.ai"
+  - resource: "https://storyflow.so/blog/best-ai-tools-screenwriters-2026"
+    id: url-2
+    title: "storyflow.so"
+  - resource: "https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/use-cases/ai-writer-assistant"
+    id: url-3
+    title: "help.aliyun.com"
+  - resource: "https://www.tixiaolu.com/v2/posts/v2-7f11a827.html"
+    id: url-4
+    title: "tixiaolu.com"
+  - resource: "https://inkshift.io/resources/best-ai-for-screenplays"
+    id: url-5
+    title: "inkshift.io"
+  - resource: "https://developer.volcengine.com/articles/7621132224541163556"
+    id: url-6
+    title: "developer.volcengine.com"
+dx_id: "101"
+related:
+  - "332-full-integration-practice/full-integration-practice.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+---
+
 # AI 辅助剧本写作：术语详解 + AI 理解与实现（AI-Assisted Screenwriting — Deep Terms & Implementation）
 
 > 本页是 DirectorX AI 编剧工作流手册（深化版）：**每个术语详解其具体内容**（AI 工具实际做什么、输入输出长什么样、机制如何工作），并给出 **AI 如何理解与实现**（可直接粘贴的提示词模板、检查标准、人机分工）。与 100 序列法 / 82 对白 / 92 改写衔接。
@@ -221,3 +275,9 @@ CRDT（无冲突复制数据类型）——多人同时编辑同一文档不冲�
 - GitHub: 0xsline/short-drama（短剧剧本创作 skill：选题立项到出海全流程） — 
 - Inkshift: Best AI for Screenplays in 2026 — https://inkshift.io/resources/best-ai-for-screenplays
 - 火山引擎: 从创作到拆片，2026 年专业剧本写作工具全维度评测 — https://developer.volcengine.com/articles/7621132224541163556
+
+## 相关概念
+
+- [电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）](../332-full-integration-practice/full-integration-practice.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)

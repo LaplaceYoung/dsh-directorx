@@ -116,6 +116,18 @@ function populatedBoard() {
   }
 }
 
+test('a detailed prompt that still names an IP cannot go ready', () => {
+  const report = assessGenerateReady({
+    kind: 'video',
+    intent: '蜘蛛侠在楼宇间摆荡',
+    prompt: `${DETAILED} 蜘蛛侠摆荡`,
+    snapshot: emptySnap(),
+  })
+  assert.equal(report.verdict, 'blocked')
+  assert.ok(report.ip?.some(hit => /蜘蛛侠/.test(hit.term)))
+  assert.ok(report.next.some(step => /ip_scan|ip_rewrite|213/.test(step)))
+})
+
 test('empty landscape t2v with a detailed prompt is ready', () => {
   const report = assessGenerateReady({
     kind: 'video',

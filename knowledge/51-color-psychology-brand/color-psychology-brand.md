@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "色彩心理学与品牌视觉（Color Psychology & Brand Visuals）"
+description: "色彩心理学手册：色彩=创作信号而非固定含义、品牌色情绪表、三分调色板工作流、字幕可读性规则、分格式用色（口播/产品/教学/广告）、色彩节奏与转化"
+tags:
+  - "foundation"
+  - "color"
+  - "sound"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CapCut 视频色彩心理学指南"
+    id: cite-1
+    title: "CapCut 视频色彩心理学指南"
+  - resource: "cited:Jasmine Directory 2026 数字广告"
+    id: cite-2
+    title: "Jasmine Directory 2026 数字广告"
+  - resource: "cited:Build Grow Scale 数据 vs 神话"
+    id: cite-3
+    title: "Build Grow Scale 数据 vs 神话"
+  - resource: "cited:Kelpi Meta 广告用色。"
+    id: cite-4
+    title: "Kelpi Meta 广告用色。"
+  - resource: "https://www.capcut.com/create/video-color-psychology-for-creators"
+    id: url-1
+    title: "capcut.com"
+  - resource: "https://www.jasminedirectory.com/blog/the-psychology-of-color-in-2026-digital-advertising/"
+    id: url-2
+    title: "jasminedirectory.com"
+  - resource: "https://buildgrowscale.com/color-psychology-conversion-rates"
+    id: url-3
+    title: "buildgrowscale.com"
+  - resource: "https://kelpi.ai/blog/colors-in-ads"
+    id: url-4
+    title: "kelpi.ai"
+  - resource: "https://lucky.graphics/learn/brand-color-psychology-guide-2026/"
+    id: url-5
+    title: "lucky.graphics"
+  - resource: "https://www.influencers-time.com/color-pacing-in-short-videos-boosts-viewership-and-engagement/"
+    id: url-6
+    title: "influencers-time.com"
+dx_id: "51"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "20-color-practice/color-practice-davinci.md"
+  - "27-caption-localization/caption-localization.md"
+---
+
 # 色彩心理学与品牌视觉（Color Psychology & Brand Visuals）
 
 > 本页是 DirectorX 色彩心理学手册：色彩=创作信号而非固定含义、品牌色情绪表、三分调色板工作流、字幕可读性规则、分格式用色（口播/产品/教学/广告）、色彩节奏与转化。与 36 调色 / 45 风格统一 / 43 竖屏可读性衔接。
@@ -110,3 +165,9 @@ Accent 强调色：高亮、按钮、箭头、关键词
 - Influencers Time: Color Pacing in Short Videos — Boost Retention & Engagement — https://www.influencers-time.com/color-pacing-in-short-videos-boosts-viewership-and-engagement/
 - 视觉灵动: 色彩心理学在视频广告中的应用与实践 — https://www.briskvision.cn/29291.html
 - 汉斯出版社: 动画视听符号在电子商务广告中的情感传播研究 — https://pdf.hanspub.org/ecl_2318551.pdf
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [调色实操与 DaVinci 流程（Color Practice & DaVinci）](../20-color-practice/color-practice-davinci.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)

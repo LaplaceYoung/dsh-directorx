@@ -1,3 +1,53 @@
+---
+type: Reference
+title: "平台运营与数据分析（Platform Growth & Analytics）"
+description: "运营知识库：YouTube 四大核心指标、短视频爆款四步拆解复盘、流量来源诊断、转化漏斗、选题与系列化策略"
+tags:
+  - "foundation"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:YouTube 官方博客（四大指标）"
+    id: cite-1
+    title: "YouTube 官方博客（四大指标）"
+  - resource: "cited:蝉妈妈爆款复盘方法论"
+    id: cite-2
+    title: "蝉妈妈爆款复盘方法论"
+  - resource: "cited:YouTube Help 文档。"
+    id: cite-3
+    title: "YouTube Help 文档。"
+  - resource: "https://blog.youtube/creator-and-artist-stories/master-these-4-metrics/"
+    id: url-1
+    title: "blog.youtube"
+  - resource: "https://support.google.com/youtube/answer/9314415"
+    id: url-2
+    title: "support.google.com"
+  - resource: "https://support.google.com/youtube/answer/16767369"
+    id: url-3
+    title: "support.google.com"
+  - resource: "https://www.chanmama.com/yunyingquan/article/1879.html"
+    id: url-4
+    title: "chanmama.com"
+  - resource: "https://metricool.com/youtube-analytics-metrics/"
+    id: url-5
+    title: "metricool.com"
+  - resource: "https://vidiq.com/blog/post/youtube-analytics-for-brands/"
+    id: url-6
+    title: "vidiq.com"
+dx_id: "16"
+related:
+  - "05-short-video/short-video-techniques.md"
+  - "24-platform-china/china-platform-playbook.md"
+  - "42-article-to-video/article-to-video.md"
+---
+
 # 平台运营与数据分析（Platform Growth & Analytics）
 
 > 本页是 DirectorX 运营知识库：YouTube 四大核心指标、短视频爆款四步拆解复盘、流量来源诊断、转化漏斗、选题与系列化策略。每个概念含指标定义、判断方法与行动指令。
@@ -175,3 +225,9 @@ CTR 低？
 - 蝉妈妈: 短视频运营如何拆解爆款？4 步复盘核心逻辑 — https://www.chanmama.com/yunyingquan/article/1879.html
 - Metricool: YouTube Analytics Metrics That Matter 2026 — https://metricool.com/youtube-analytics-metrics/
 - vidIQ: YouTube Analytics for Brands — https://vidiq.com/blog/post/youtube-analytics-for-brands/
+
+## 相关概念
+
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [中国平台专项运营（China Platform Playbook）](../24-platform-china/china-platform-playbook.md)
+- [图文转视频工作流（Article-to-Video Repurposing）](../42-article-to-video/article-to-video.md)

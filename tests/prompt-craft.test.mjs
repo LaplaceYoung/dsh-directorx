@@ -11,6 +11,7 @@ import {
   requireCraft,
   corpus,
   skillIndex,
+  IpMemoryStore,
 } from '../lib/testing.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -71,6 +72,46 @@ test('craft refuses until knowledge and skill have been read', async () => {
     assert.equal(required.ok, true)
     const missing = await requireCraft(dir, undefined)
     assert.equal(missing.ok, false)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('craft refuses a dirty IP prompt and remembers a clean rewrite', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-craft-ip-'))
+  corpus.setRoot(join(root, 'knowledge'))
+  skillIndex.setRoot(join(root, 'skills'))
+  try {
+    const ledger = new ResearchLedger(dir)
+    await ledger.record({ kind: 'knowledge', ref: '213' })
+    await ledger.record({ kind: 'skill', ref: 'cinematic-style' })
+    const dirty = await craftPrompt({
+      outputDir: dir,
+      kind: 'video',
+      intent: '蜘蛛侠在楼宇间摆荡',
+      prompt: 'Medium shot, Spider-Man swings between rain-soaked towers, 35mm cinematic night, wet asphalt reflections.',
+      knowledgeRefs: ['213'],
+      skillNames: ['cinematic-style'],
+      externalNotes: 'corpus-sufficient',
+    })
+    assert.equal(dirty.ok, false)
+    assert.match(String(dirty.next), /ip_rewrite|专名/)
+
+    const cleanPrompt = 'Medium shot, eye-level, a young athlete in a red-black elastic bodysuit and full-face mask swings between rain-soaked towers on a geometric line, 35mm cinematic night, wet asphalt reflections, no logos.'
+    const done = await craftPrompt({
+      outputDir: dir,
+      kind: 'video',
+      intent: '蜘蛛侠在楼宇间摆荡',
+      prompt: cleanPrompt,
+      knowledgeRefs: ['213'],
+      skillNames: ['cinematic-style'],
+      externalNotes: 'corpus-sufficient',
+    })
+    assert.equal(done.ok, true)
+    assert.equal(done.ipRemembered, true)
+    const memory = await new IpMemoryStore(dir).recall('蜘蛛侠')
+    assert.ok(memory.length >= 1)
+    assert.match(memory[0].rewrite, /elastic bodysuit/)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

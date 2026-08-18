@@ -98,6 +98,17 @@ function nextOpenSlot(nodes: CanvasNode[]): { x: number; y: number } {
   return { x: right + SHOT_GAP, y: topY }
 }
 
+const KIND_RANK: Record<CanvasNodeKind, number> = { text: 0, image: 1, video: 2, group: 3 }
+
+/** Generation graph: media may feed media; text may feed media; video never feeds image. */
+export function canvasEdgeAllowed(from: CanvasNode, to: CanvasNode): boolean {
+  if (to.locked === true) return false
+  if (to.kind === 'text' || to.kind === 'group') return false
+  if (from.kind === 'group') return false
+  if (from.kind === 'video' && to.kind === 'image') return false
+  return to.kind === 'image' || to.kind === 'video'
+}
+
 function layoutStoryboard(nodes: CanvasNode[]): void {
   const groups = nodes.filter(node => node.kind === 'group' && node.parent === undefined)
   const loose = nodes.filter(node => node.kind !== 'group' && node.parent === undefined)
@@ -114,7 +125,11 @@ function layoutStoryboard(nodes: CanvasNode[]): void {
   for (const group of groups) {
     const members = nodes
       .filter(node => node.parent === group.id)
-      .sort((left, right) => (left.shotIndex ?? 1e9) - (right.shotIndex ?? 1e9))
+      .sort((left, right) => {
+        const shot = (left.shotIndex ?? 1e9) - (right.shotIndex ?? 1e9)
+        if (shot !== 0) return shot
+        return KIND_RANK[left.kind] - KIND_RANK[right.kind]
+      })
     const count = Math.max(1, members.length)
     group.x = 48
     group.y = cursorY
@@ -145,7 +160,12 @@ function sanitizeNode(input: Record<string, unknown>): CanvasNode {
   const node: CanvasNode = {
     id: typeof input.id === 'string' && input.id !== '' ? input.id : newId(kind),
     kind,
-    label: resolveStoredLabel(undefined, typeof input.label === 'string' ? input.label.slice(0, 200) : '', prompt, shotIndex).slice(0, 200),
+    label: resolveStoredLabel(
+      undefined,
+      typeof input.label === 'string' ? input.label.slice(0, kind === 'text' ? 8000 : 200) : '',
+      prompt,
+      shotIndex,
+    ).slice(0, kind === 'text' ? 8000 : 200),
     ...(typeof input.path === 'string' && input.path !== '' ? { path: input.path.slice(0, 1000) } : {}),
     ...(typeof rawParent === 'string' && rawParent !== '' ? { parent: rawParent.slice(0, 100) } : {}),
     x: numberOr(input.x, 0),
@@ -359,19 +379,16 @@ export class DirectorxCanvasStore {
     if (toNode?.locked === true) {
       throw new Error(`edge reason: 目标节点 ${edge.to} 已锁定（定妆用途），拒绝新入边；解锁 = update 该节点 patch {locked: false}`)
     }
-    if (fromKind !== undefined && toKind !== undefined) {
+    if (fromNode !== undefined && toNode !== undefined && !canvasEdgeAllowed(fromNode, toNode)) {
       if (toKind === 'text' || toKind === 'group') throw new Error(`edge reason: 目标节点是 ${toKind}，不能作为输入依赖（连线只能指向 image/video）`)
       if (fromKind === 'video' && toKind === 'image') throw new Error('edge reason: video 不能喂给 image（视频只能接力到 video）')
       if (fromKind === 'group') throw new Error('edge reason: group 只作容器，不能作为连线源')
+      throw new Error(`edge reason: ${fromKind} 不能连到 ${toKind}`)
     }
   }
 
   private canConnect(from: CanvasNode, to: CanvasNode): boolean {
-    if (to.locked === true) return false
-    if (to.kind === 'text' || to.kind === 'group') return false
-    if (from.kind === 'group') return false
-    if (from.kind === 'video' && to.kind === 'image') return false
-    return to.kind === 'image' || to.kind === 'video'
+    return canvasEdgeAllowed(from, to)
   }
 
   async update(id: string, patch: Record<string, unknown>): Promise<CanvasDocument> {

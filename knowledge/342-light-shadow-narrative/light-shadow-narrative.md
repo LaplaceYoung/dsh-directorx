@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片光影叙事（Light-Shadow Narrative — Silhouette, Backlight & Shadow as Story）"
+description: "AI 图片的光影叙事：剪影（Silhouette：形态叙事/匿名性）、逆光/轮廓光（分离/神圣感）、阴影叙事（长影/柔边/锐影的情绪）、情绪先行+光质+方向"
+tags:
+  - "synthesis"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Text2Img Describe Lighting & Mood in AI Prompts"
+    id: cite-1
+    title: "Describe Lighting & Mood in AI Prompts"
+    author: "org:Text2Img"
+  - resource: "cited:Civitai Light and Shadow Edition"
+    id: cite-2
+    title: "Light and Shadow Edition"
+    author: "org:Civitai"
+  - resource: "cited:HelpingPrompt Powerful Silhouette Images"
+    id: cite-3
+    title: "Powerful Silhouette Images"
+    author: "org:HelpingPrompt"
+  - resource: "cited:ZSky 12 AI Dark Moody Prompts"
+    id: cite-4
+    title: "12 AI Dark Moody Prompts"
+    author: "org:ZSky"
+  - resource: "https://www.text2img.pro/describe-lighting-mood-ai-prompts-2026-6/"
+    id: url-1
+    title: "text2img.pro"
+  - resource: "https://civitai.com/articles/18530/simple-composition-tricks-to-instantly-improve-ai-images-with-prompts-light-and-shadow-edition"
+    id: url-2
+    title: "civitai.com"
+  - resource: "https://helpingprompt.in/create-powerful-silhouette-images-using-ai-prompts/"
+    id: url-3
+    title: "helpingprompt.in"
+  - resource: "https://zsky.ai/blog/ai-dark-moody-prompts"
+    id: url-4
+    title: "zsky.ai"
+  - resource: "https://www.text2img.pro/how-to-describe-lighting-mood-ai-prompts-2026/"
+    id: url-5
+    title: "text2img.pro"
+dx_id: "342"
+related:
+  - "236-chiaroscuro-light/chiaroscuro-light.md"
+  - "261-light-direction-emotion/light-direction-emotion.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+  - "274-suspense-visual-language/suspense-visual-language.md"
+---
+
 # AI 图片光影叙事（Light-Shadow Narrative — Silhouette, Backlight & Shadow as Story）
 
 > 本页为 AI 图片的光影叙事：剪影（Silhouette：形态叙事/匿名性）、逆光/轮廓光（分离/神圣感）、阴影叙事（长影/柔边/锐影的情绪）、情绪先行+光质+方向。知识本体来自 2026 光影提示词（Text2Img/Civitai/HelpingPrompt）。AI 应用面向 DirectorX：光影图（衔接 236 明暗、342 对应、261 光位、181 氛围）。
@@ -81,3 +137,10 @@
 - HelpingPrompt — Create Powerful Silhouette Images：https://helpingprompt.in/create-powerful-silhouette-images-using-ai-prompts/
 - ZSky — 12 AI Dark Moody Prompts：https://zsky.ai/blog/ai-dark-moody-prompts
 - Text2Img — How to Describe Lighting & Mood (2026)：https://www.text2img.pro/how-to-describe-lighting-mood-ai-prompts-2026/
+
+## 相关概念
+
+- [AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）](../236-chiaroscuro-light/chiaroscuro-light.md)
+- [AI 图片光影方向情绪库（Light Direction Emotion — Side, Top, Back & Under Light）](../261-light-direction-emotion/light-direction-emotion.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)
+- [电影悬念视听语言（Suspense Visual Language — Cinematography, Sound & Timing of Tension）](../274-suspense-visual-language/suspense-visual-language.md)

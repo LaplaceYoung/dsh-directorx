@@ -1,3 +1,62 @@
+---
+type: Playbook
+title: "AI 视觉特效管线（VFX Pipeline — Roto / Matchmove / Comp & AI Application）"
+description: "本页知识本体来自真实视效（VFX）工作室的工业化管线：Roto（抠像）→ Paint/Prep（擦除清理）→ Matchmove/相机跟踪 → CG 渲染 → 合成（Compositing）→ 成片"
+tags:
+  - "production"
+  - "workflow"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CG Spectrum The Visual Effects Pipeline"
+    id: cite-1
+    title: "The Visual Effects Pipeline"
+    author: "org:CG-Spectrum"
+  - resource: "cited:LucidLink VFX pipeline 2026 guide"
+    id: cite-2
+    title: "VFX pipeline 2026 guide"
+    author: "org:LucidLink"
+  - resource: "cited:Brighten The Art of Seamless Compositing"
+    id: cite-3
+    title: "The Art of Seamless Compositing"
+    author: "org:Brighten"
+  - resource: "cited:DigiAura Roto to Final Comp"
+    id: cite-4
+    title: "Roto to Final Comp"
+    author: "org:DigiAura"
+  - resource: "cited:Pixune VFX Pipeline Breakdown"
+    id: cite-5
+    title: "VFX Pipeline Breakdown"
+    author: "org:Pixune"
+  - resource: "https://www.cgspectrum.com/blog/the-visual-effects-pipeline"
+    id: url-1
+    title: "cgspectrum.com"
+  - resource: "https://www.lucidlink.com/blog/vfx-pipeline"
+    id: url-2
+    title: "lucidlink.com"
+  - resource: "https://www.brighten.top/posts/the-art-of-seamless-compositing-blending-cgi-with-live-action-footage"
+    id: url-3
+    title: "brighten.top"
+  - resource: "https://digiaura.co.in/blog/vfx-compositing-pipeline-roto-to-final-comp/"
+    id: url-4
+    title: "digiaura.co.in"
+  - resource: "https://pixune.com/blog/vfx-pipeline/"
+    id: url-5
+    title: "pixune.com"
+dx_id: "110"
+related:
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "55-global-localization-visual/global-localization-visual.md"
+---
+
 # AI 视觉特效管线（VFX Pipeline — Roto / Matchmove / Comp & AI Application）
 
 > 本页知识本体来自真实视效（VFX）工作室的工业化管线：Roto（抠像）→ Paint/Prep（擦除清理）→ Matchmove/相机跟踪 → CG 渲染 → 合成（Compositing）→ 成片。核心论点：**特效是"叠加层"，不是"重画整帧"**——真实行业靠分层合成保留主体，这正是案例 2「影视打斗与 VFX（保留原人物和场景加效果）」的正确语义。
@@ -107,3 +166,9 @@ Compositing 合成 → 多图层叠成最终画面
 - Brighten — The Art of Seamless Compositing：Blending CGI with Live-Action：https://www.brighten.top/posts/the-art-of-seamless-compositing-blending-cgi-with-live-action-footage
 - DigiAura — From Roto to Final Comp: VFX Compositing Pipeline：https://digiaura.co.in/blog/vfx-compositing-pipeline-roto-to-final-comp/
 - Pixune — VFX Pipeline Breakdown From Previs to Compositing：https://pixune.com/blog/vfx-pipeline/
+
+## 相关概念
+
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [多语言出海视觉本地化（Global Localization & Visual Adaptation）](../55-global-localization-visual/global-localization-visual.md)

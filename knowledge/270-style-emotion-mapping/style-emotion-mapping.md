@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片风格情绪映射库（Style-Emotion Mapping — EmoStyle & Affective Art）"
+description: "AI 图片的风格情绪映射：情绪驱动风格化（EmoStyle）、风格-情绪对应（色彩/纹理/感受）、情感艺术数据集（AffectiveArt）、风格评价方法论（评风格非表情）"
+tags:
+  - "synthesis"
+  - "color"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv EmoStyle: Emotion-Driven Image Stylization"
+    id: cite-1
+    title: "EmoStyle: Emotion-Driven Image Stylization"
+    author: "org:arXiv"
+  - resource: "cited:Imaging.org Emotionally Aware Portrait System"
+    id: cite-2
+    title: "Emotionally Aware Portrait System"
+    author: "org:Imaging.org"
+  - resource: "cited:OpenReview AffectiveArt Challenge 2026"
+    id: cite-3
+    title: "AffectiveArt Challenge 2026"
+    author: "org:OpenReview"
+  - resource: "cited:arXiv Emotion-Aware Artistic Generation Dataset"
+    id: cite-4
+    title: "Emotion-Aware Artistic Generation Dataset"
+    author: "org:arXiv"
+  - resource: "https://arxiv.org/html/2512.05478v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://library.imaging.org/jpi/articles/8/0/000503"
+    id: url-2
+    title: "library.imaging.org"
+  - resource: "https://openreview.net/pdf?id=LbbHX8ofXZ"
+    id: url-3
+    title: "openreview.net"
+  - resource: "https://arxiv.org/html/2506.03652v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://openreview.net/pdf/9110652108c520870f912cce5f5efeb745f549cf.pdf"
+    id: url-5
+    title: "openreview.net"
+dx_id: "270"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "155-color-psychology/color-psychology.md"
+  - "175-micro-expression/micro-expression.md"
+---
+
 # AI 图片风格情绪映射库（Style-Emotion Mapping — EmoStyle & Affective Art）
 
 > 本页为 AI 图片的风格情绪映射：情绪驱动风格化（EmoStyle）、风格-情绪对应（色彩/纹理/感受）、情感艺术数据集（AffectiveArt）、风格评价方法论（评风格非表情）。知识本体来自 2026 情绪风格研究（arXiv EmoStyle/Imaging.org/OpenReview）。AI 应用面向 DirectorX：风格选型（衔接 224 风格、270 对应、155 色彩心理）。
@@ -75,3 +131,9 @@
 - OpenReview — AffectiveArt Challenge 2026：https://openreview.net/pdf?id=LbbHX8ofXZ
 - arXiv — Multidimensional Dataset for Emotion-Aware Artistic Generation（2506.03652）：https://arxiv.org/html/2506.03652v1
 - OpenReview — AffectiveArt Challenge 2026 (PDF)：https://openreview.net/pdf/9110652108c520870f912cce5f5efeb745f549cf.pdf
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）](../175-micro-expression/micro-expression.md)

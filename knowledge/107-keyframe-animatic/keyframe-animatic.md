@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "关键帧与动画预演（Keyframes & Animatic — From Concept Art to Screen）"
+description: "本页知识本体来自真实动画/视效工作室的生产管线：概念图（Concept Art）→ 故事板 → Animatic（预演剪辑）→ 布局（Layout）→ 资产 → 动画 → 光照渲染 → 合成 → 成片"
+tags:
+  - "production"
+  - "editing"
+  - "storyboard"
+  - "workflow"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:RMCAD Breaking Down the Animation Pipeline"
+    id: cite-1
+    title: "Breaking Down the Animation Pipeline"
+    author: "org:RMCAD"
+  - resource: "cited:CG Spectrum Guide to Animation Pipeline"
+    id: cite-2
+    title: "Guide to Animation Pipeline"
+    author: "org:CG-Spectrum"
+  - resource: "cited:Shortfilmcentral Animation Production Pipeline 2026"
+    id: cite-3
+    title: "Animation Production Pipeline 2026"
+    author: "org:Shortfilmcentral"
+  - resource: "cited:Meshy Key Stages for 3D Artists"
+    id: cite-4
+    title: "Key Stages for 3D Artists"
+    author: "org:Meshy"
+  - resource: "https://www.rmcad.edu/blog/breaking-down-the-animation-pipeline-from-concept-to-screen/"
+    id: url-1
+    title: "rmcad.edu"
+  - resource: "https://www.cgspectrum.com/blog/guide-to-animation-pipeline"
+    id: url-2
+    title: "cgspectrum.com"
+  - resource: "https://www.shortfilmcentral.com/what-is-the-animation-production-pipeline/"
+    id: url-3
+    title: "shortfilmcentral.com"
+  - resource: "https://www.meshy.ai/blog/animation-pipeline"
+    id: url-4
+    title: "meshy.ai"
+  - resource: "https://www.lucidlink.com/blog/animation-pipeline"
+    id: url-5
+    title: "lucidlink.com"
+dx_id: "107"
+related:
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "07-directing/directing-techniques.md"
+---
+
 # 关键帧与动画预演（Keyframes & Animatic — From Concept Art to Screen）
 
 > 本页知识本体来自真实动画/视效工作室的生产管线：概念图（Concept Art）→ 故事板 → Animatic（预演剪辑）→ 布局（Layout）→ 资产 → 动画 → 光照渲染 → 合成 → 成片。核心论点：**动画和视效从不"文本直出成片"——每一镜在生成前都有确定的关键帧/参考帧/预演**，这正是"生成视频前必须有图参考"的行业依据。
@@ -101,3 +158,9 @@ Animatic = 分镜画面 + 时间 + 声音：
 - Shortfilmcentral — What Is the Animation Production Pipeline (2026)：https://www.shortfilmcentral.com/what-is-the-animation-production-pipeline/
 - Meshy — Animation Pipeline: Key Stages for 3D Artists：https://www.meshy.ai/blog/animation-pipeline
 - LucidLink — 2D vs 3D animation pipeline：https://www.lucidlink.com/blog/animation-pipeline
+
+## 相关概念
+
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)

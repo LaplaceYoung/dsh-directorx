@@ -1,3 +1,58 @@
+---
+type: Playbook
+title: "访谈口播实拍全流程（Interview & Talking-Head On-Set System）"
+description: "访谈实拍手册：四大决策（视线/背景/声音/采访者位置）、实操灯光、事前准备（预访谈/同意书）、进行中技巧、多访谈换边陷阱、单双机覆盖、常见错误"
+tags:
+  - "production"
+  - "lighting"
+  - "sound"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storyflow 2026 访谈设置指南"
+    id: cite-1
+    title: "Storyflow 2026 访谈设置指南"
+  - resource: "cited:ASC Shot Craft"
+    id: cite-2
+    title: "ASC Shot Craft"
+  - resource: "cited:昆仑影视人物采访终极大法"
+    id: cite-3
+    title: "昆仑影视人物采访终极大法"
+  - resource: "cited:中国教育网采访技巧。"
+    id: cite-4
+    title: "中国教育网采访技巧。"
+  - resource: "https://storyflow.so/blog/how-to-set-up-an-interview-shoot"
+    id: url-1
+    title: "storyflow.so"
+  - resource: "https://theasc.com/articles/shot-craft-the-talking-head-shooting-interviews"
+    id: url-2
+    title: "theasc.com"
+  - resource: "https://www.gvigu.com/index/index/newsdetail/id/100.html"
+    id: url-3
+    title: "gvigu.com"
+  - resource: "https://it.chinaedu.net/article/info?art=134"
+    id: url-4
+    title: "it.chinaedu.net"
+  - resource: "https://cinehello.com/stream/141561"
+    id: url-5
+    title: "cinehello.com"
+  - resource: "https://www.outlivecommercial.com/blog/talking-head-interviews-framing-lighting-and-shooting"
+    id: url-6
+    title: "outlivecommercial.com"
+dx_id: "95"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "19-live-production/live-production.md"
+  - "27-caption-localization/caption-localization.md"
+---
+
 # 访谈口播实拍全流程（Interview & Talking-Head On-Set System）
 
 > 本页是 DirectorX 访谈实拍手册：四大决策（视线/背景/声音/采访者位置）、实操灯光、事前准备（预访谈/同意书）、进行中技巧、多访谈换边陷阱、单双机覆盖、常见错误。与 13 纪录片 / 47 纪录片视觉 / 88 声画协同衔接。
@@ -116,3 +171,9 @@
 - 影视工业网: "人物采访"拍不好？看看这 6 大因素 — https://cinehello.com/stream/141561
 - Outlive: Talking Head Interviews — Framing, Lighting, and Shooting — https://www.outlivecommercial.com/blog/talking-head-interviews-framing-lighting-and-shooting
 - The Post Flow: Talking-Head Video Setup — The Full Kit — https://thepostflow.com/production/lighting/talking-head-studio-kit/
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [直播与实时制作（Live Production）](../19-live-production/live-production.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)

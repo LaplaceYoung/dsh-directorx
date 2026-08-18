@@ -1,3 +1,64 @@
+---
+type: Reference
+title: "电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）"
+description: "电影叙事-视听-类型三整合：镜头/剪辑/声音/配乐支持叙事流与类型预期、叙事结构（线性/非线性）× 类型遵循/颠覆 × 风格-节奏-角色对齐、多模态分析"
+tags:
+  - "synthesis"
+  - "camera"
+  - "editing"
+  - "sound"
+  - "character"
+  - "style"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Cambridge From Shots to Narratives: Multimodal Approaches"
+    id: cite-1
+    title: "From Shots to Narratives: Multimodal Approaches"
+    author: "org:Cambridge"
+  - resource: "cited:arXiv Bridging Cinematic Principles and Generative AI"
+    id: cite-2
+    title: "Bridging Cinematic Principles and Generative AI"
+    author: "org:arXiv"
+  - resource: "cited:Fiveable Key Elements of Film Language"
+    id: cite-3
+    title: "Key Elements of Film Language"
+    author: "org:Fiveable"
+  - resource: "cited:Berklee Film Score Analysis"
+    id: cite-4
+    title: "Film Score Analysis"
+    author: "org:Berklee"
+  - resource: "https://www.cambridge.org/core/journals/computational-humanities-research/article/from-shots-to-narratives-expanding-multimodal-approaches-to-filmic-storytelling-in-the-digital-humanities/3F4871C15098F72F601453A4E1E9E907"
+    id: url-1
+    title: "cambridge.org"
+  - resource: "https://arxiv.org/html/2506.18899v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://fiveable.me/introduction-to-film-theory/unit-1/key-elements-film-language-visual-storytelling/study-guide/kzm0IgJB1OpaAxaT"
+    id: url-3
+    title: "fiveable.me"
+  - resource: "https://online.berklee.edu/courses/film-score-analysis"
+    id: url-4
+    title: "online.berklee.edu"
+  - resource: "https://advice.writing.utoronto.ca/types-of-writing/film-analysis/"
+    id: url-5
+    title: "advice.writing.utoronto.ca"
+dx_id: "282"
+related:
+  - "150-narrative-structure/narrative-structure.md"
+  - "155-color-psychology/color-psychology.md"
+  - "265-genre-visual-semiotics/genre-visual-semiotics.md"
+  - "239-montage-theory/montage-theory.md"
+  - "248-shot-language-semiotics/shot-language-semiotics.md"
+---
+
 # 电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）
 
 > 本页为电影叙事-视听-类型三整合：镜头/剪辑/声音/配乐支持叙事流与类型预期、叙事结构（线性/非线性）× 类型遵循/颠覆 × 风格-节奏-角色对齐、多模态分析。知识本体来自 2026 电影语言整合（Cambridge/arXiv/Fiveable）。AI 应用面向 DirectorX：统一设计（衔接 150 叙事、272 三通道、265 类型、282 对应）。
@@ -78,3 +139,11 @@
 - Fiveable — Key Elements of Film Language and Visual Storytelling：https://fiveable.me/introduction-to-film-theory/unit-1/key-elements-film-language-visual-storytelling/study-guide/kzm0IgJB1OpaAxaT
 - Berklee — Film Score Analysis Course：https://online.berklee.edu/courses/film-score-analysis
 - Toronto — Film Analysis (Academic Writing)：https://advice.writing.utoronto.ca/types-of-writing/film-analysis/
+
+## 相关概念
+
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [电影类型片视觉符号（Genre Visual Semiotics — Iconography & Conventions）](../265-genre-visual-semiotics/genre-visual-semiotics.md)
+- [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](../239-montage-theory/montage-theory.md)
+- [电影镜头语言符号学（Shot Language Semiotics — Metz, Denotation & Connotation）](../248-shot-language-semiotics/shot-language-semiotics.md)

@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片光影方向情绪库（Light Direction Emotion — Side, Top, Back & Under Light）"
+description: "AI 图片的光影方向情绪库：光位-情绪映射（正面平/侧面神秘/顶光压迫/背光光环/底光诡异）、组合光（暖侧+冷环境）、提示词模板（情绪先行+光质+方向）"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Text2Img Describe Lighting & Mood in AI Prompts"
+    id: cite-1
+    title: "Describe Lighting & Mood in AI Prompts"
+    author: "org:Text2Img"
+  - resource: "cited:ZSky 38 AI Lighting Prompts"
+    id: cite-2
+    title: "38 AI Lighting Prompts"
+    author: "org:ZSky"
+  - resource: "cited:Gera Lighting Style Prompt Library"
+    id: cite-3
+    title: "Lighting Style Prompt Library"
+    author: "org:Gera"
+  - resource: "cited:ZSky AI Portrait Lighting Prompts"
+    id: cite-4
+    title: "AI Portrait Lighting Prompts"
+    author: "org:ZSky"
+  - resource: "https://www.text2img.pro/describe-lighting-mood-ai-prompts-2026-6/"
+    id: url-1
+    title: "text2img.pro"
+  - resource: "https://zsky.ai/blog/ai-lighting-prompts"
+    id: url-2
+    title: "zsky.ai"
+  - resource: "https://geratools.com/lighting-style-library"
+    id: url-3
+    title: "geratools.com"
+  - resource: "https://zsky.ai/blog/ai-portrait-lighting-prompts"
+    id: url-4
+    title: "zsky.ai"
+  - resource: "https://www.text2img.pro/describe-lighting-and-mood-in-ai-prompts-2026-2/"
+    id: url-5
+    title: "text2img.pro"
+dx_id: "261"
+related:
+  - "217-portrait-lighting-schemes/portrait-lighting-schemes.md"
+  - "236-chiaroscuro-light/chiaroscuro-light.md"
+  - "225-film-lighting-theory/film-lighting-theory.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 图片光影方向情绪库（Light Direction Emotion — Side, Top, Back & Under Light）
 
 > 本页为 AI 图片的光影方向情绪库：光位-情绪映射（正面平/侧面神秘/顶光压迫/背光光环/底光诡异）、组合光（暖侧+冷环境）、提示词模板（情绪先行+光质+方向）。知识本体来自 2026 光位指南（Text2Img/ZSky/Gera Tools）。AI 应用面向 DirectorX：光位设计（衔接 217 人像光、236 明暗、261 对应、225 布光）。
@@ -79,3 +135,10 @@
 - Gera Tools — Lighting Style Prompt Library：https://geratools.com/lighting-style-library
 - ZSky — 20+ AI Portrait Lighting Prompts：https://zsky.ai/blog/ai-portrait-lighting-prompts
 - Text2Img — Describe Lighting and Mood in AI Prompts (2026)：https://www.text2img.pro/describe-lighting-and-mood-in-ai-prompts-2026-2/
+
+## 相关概念
+
+- [AI 图片人像用光体系（Portrait Lighting — Rembrandt, Butterfly, Loop & Split Patterns）](../217-portrait-lighting-schemes/portrait-lighting-schemes.md)
+- [AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）](../236-chiaroscuro-light/chiaroscuro-light.md)
+- [电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）](../225-film-lighting-theory/film-lighting-theory.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

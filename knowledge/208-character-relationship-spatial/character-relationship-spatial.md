@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 角色关系视觉化（Character Relationship Spatial — Blocking as Relationship Language）"
+description: "AI 角色关系的空间视觉化：空间距离定义情感（近=亲密/远=冲突）、遮挡表达权力（前景/障碍/高低）、进出门时机暗示（Entrance/Exit Timing）、AI 提示词映射"
+tags:
+  - "consistency"
+  - "prompt"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:EloR Blocking Shapes Emotional Performance"
+    id: cite-1
+    title: "Blocking Shapes Emotional Performance"
+    author: "org:EloR"
+  - resource: "cited:Jigreel Blocking to Convey Power Dynamics"
+    id: cite-2
+    title: "Blocking to Convey Power Dynamics"
+    author: "org:Jigreel"
+  - resource: "cited:StudioBinder Film Blocking Techniques"
+    id: cite-3
+    title: "Film Blocking Techniques"
+    author: "org:StudioBinder"
+  - resource: "cited:Fiveable Blocking and Actor Placement"
+    id: cite-4
+    title: "Blocking and Actor Placement"
+    author: "org:Fiveable"
+  - resource: "https://elorproduction.com/blocking-actors-emotional-performance-film-directing/"
+    id: url-1
+    title: "elorproduction.com"
+  - resource: "https://jigreelstudios.com/using-blocking-to-convey-power-dynamics-in-a-scene/"
+    id: url-2
+    title: "jigreelstudios.com"
+  - resource: "https://www.studiobinder.com/filmmaking-techniques-film-blocking/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://fiveable.me/film-aesthetics/unit-3/blocking-actor-placement/study-guide/SeaXJpxJmQnYtYIe"
+    id: url-4
+    title: "fiveable.me"
+  - resource: "https://fiveable.me/introduction-to-film-theory/key-terms/blocking"
+    id: url-5
+    title: "fiveable.me"
+dx_id: "208"
+related:
+  - "187-blocking-staging/blocking-staging.md"
+  - "94-staging-master-scene/staging-master-scene.md"
+  - "171-continuity-physics/continuity-physics.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 角色关系视觉化（Character Relationship Spatial — Blocking as Relationship Language）
 
 > 本页为 AI 角色关系的空间视觉化：空间距离定义情感（近=亲密/远=冲突）、遮挡表达权力（前景/障碍/高低）、进出门时机暗示（Entrance/Exit Timing）、AI 提示词映射。知识本体来自 2026 调度语义指南（EloR/Fiveable/Jigreel/StudioBinder）。AI 应用面向 DirectorX：关系叙事（衔接 187 调度、94 场景调度、171 连续性、208 对应）。
@@ -81,3 +138,11 @@
 - StudioBinder — Film Blocking: Filmmaking Techniques：https://www.studiobinder.com/filmmaking-techniques-film-blocking/
 - Fiveable — Blocking and Actor Placement (Film Aesthetics)：https://fiveable.me/film-aesthetics/unit-3/blocking-actor-placement/study-guide/SeaXJpxJmQnYtYIe
 - Fiveable — Blocking: Intro to Film Theory：https://fiveable.me/introduction-to-film-theory/key-terms/blocking
+
+## 相关概念
+
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)
+- [场景调度深化（Staging & Master Scene Craft）](../94-staging-master-scene/staging-master-scene.md)
+- [AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）](../171-continuity-physics/continuity-physics.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

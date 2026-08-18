@@ -1,3 +1,56 @@
+---
+type: Method
+title: "AI 图片生成提示词手册（AI Image Prompting）"
+description: "文生图提示词手册：五层提示词公式、模型差异（Midjourney/SD/Flux）、参数体系、负面提示、风格专项模板、产品图/概念图/人像配方"
+tags:
+  - "foundation"
+  - "prompt"
+  - "model"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Midjourney 官方参数文档"
+    id: cite-1
+    title: "Midjourney 官方参数文档"
+  - resource: "cited:Apatero 提示词工程指南（6 万+ 张生成经验）"
+    id: cite-2
+    title: "Apatero 提示词工程指南（6 万+ 张生成经验）"
+  - resource: "cited:即梦/豆包中文生态要点。"
+    id: cite-3
+    title: "即梦/豆包中文生态要点。"
+  - resource: "https://docs.midjourney.com/hc/en-us/articles/32859204029709-Parameter-List"
+    id: url-1
+    title: "docs.midjourney.com"
+  - resource: "https://apatero.com/zh/blog/ai-image-prompts-engineering-guide-2026"
+    id: url-2
+    title: "apatero.com"
+  - resource: "https://theaimap.app/how-to-prompt-midjourney"
+    id: url-3
+    title: "theaimap.app"
+  - resource: "https://neodrop.ai/post/dv-vR69ss-R"
+    id: url-4
+    title: "neodrop.ai"
+  - resource: "https://www.youres.cn/post/139.html"
+    id: url-5
+    title: "youres.cn"
+  - resource: "https://blog.51cto.com/u_12227/14741889"
+    id: url-6
+    title: "blog.51cto.com"
+dx_id: "33"
+related:
+  - "266-cross-media-fusion/cross-media-fusion.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+  - "213-copyright-safe-prompting/copyright-safe-prompting.md"
+---
+
 # AI 图片生成提示词手册（AI Image Prompting）
 
 > 本页是 DirectorX 文生图提示词手册：五层提示词公式、模型差异（Midjourney/SD/Flux）、参数体系、负面提示、风格专项模板、产品图/概念图/人像配方。每个概念含公式、示例与参数。
@@ -160,3 +213,9 @@ vibrant California poppies --ar 2:3
 - Neodrop: V8.1 提示词公式 — https://neodrop.ai/post/dv-vR69ss-R
 - 所思即所见: 豆包 AI 绘图提示词 7 大公式 — https://www.youres.cn/post/139.html
 - 51CTO: 即梦 AI 提示词导演方案 6 技巧 — https://blog.51cto.com/u_12227/14741889
+
+## 相关概念
+
+- [AI 图片多媒介融合（Cross-Media Fusion — Photo, Illustration & 3D Blending）](../266-cross-media-fusion/cross-media-fusion.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)
+- [AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）](../213-copyright-safe-prompting/copyright-safe-prompting.md)

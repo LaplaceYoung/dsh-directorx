@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 视频团队协作与版本管理（Team Collaboration — Review, Version Control & Approval Workflow）"
+description: "AI 视频团队的协作体系：版本控制的时间线、审阅批注绑定具体资产、模型/提示词来源（Provenance）、审批工作流、交付导出状态管理"
+tags:
+  - "consistency"
+  - "prompt"
+  - "model"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX Best AI Video Workflow Guide & Tool Stack 2026"
+    id: cite-1
+    title: "Best AI Video Workflow Guide & Tool Stack 2026"
+    author: "org:LTX"
+  - resource: "cited:Ziflow Video Review Software Compared"
+    id: cite-2
+    title: "Video Review Software Compared"
+    author: "org:Ziflow"
+  - resource: "cited:MergeMate AI Video Approval Workflow"
+    id: cite-3
+    title: "AI Video Approval Workflow"
+    author: "org:MergeMate"
+  - resource: "cited:LucidLink Video Collaboration Tools"
+    id: cite-4
+    title: "Video Collaboration Tools"
+    author: "org:LucidLink"
+  - resource: "https://ltx.io/blog/ai-video-workflow"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://mergemate.ai/blog/ai-video-approval-workflow"
+    id: url-2
+    title: "mergemate.ai"
+  - resource: "https://www.ziflow.com/blog/video-review-software"
+    id: url-3
+    title: "ziflow.com"
+  - resource: "https://www.lucidlink.com/blog/video-collaboration"
+    id: url-4
+    title: "lucidlink.com"
+  - resource: "https://ltx.io/blog/best-enterprise-collaboration-tools"
+    id: url-5
+    title: "ltx.io"
+dx_id: "157"
+related:
+  - "131-asset-management/asset-management.md"
+  - "109-shot-notation/shot-notation.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+  - "112-delivery-specs/delivery-specs.md"
+  - "138-params-tuning/params-tuning.md"
+---
+
 # AI 视频团队协作与版本管理（Team Collaboration — Review, Version Control & Approval Workflow）
 
 > 本页为 AI 视频团队的协作体系：版本控制的时间线、审阅批注绑定具体资产、模型/提示词来源（Provenance）、审批工作流、交付导出状态管理。知识本体来自 2026 协作工具指南（LTX/Ziflow/LucidLink/MergeMate）。AI 应用面向 DirectorX：团队项目协作（衔接 131 资产管理、109 场记、113 审片）。
@@ -77,3 +135,11 @@
 - Ziflow — Video Review Software: 6 Tools Compared：https://www.ziflow.com/blog/video-review-software
 - LucidLink — Best Video Review & Collaboration Tools：https://www.lucidlink.com/blog/video-collaboration
 - LTX — Best Enterprise Collaboration Tools for Creative Teams：https://ltx.io/blog/best-enterprise-collaboration-tools
+
+## 相关概念
+
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)
+- [镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）](../109-shot-notation/shot-notation.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）](../138-params-tuning/params-tuning.md)

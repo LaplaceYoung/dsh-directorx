@@ -1,3 +1,62 @@
+---
+type: Playbook
+title: "AI 视频生成工作流（AI Video Generation）"
+description: "AI 生成知识库：主流模型能力、官方提示词方法论（Runway Gen-4 / Google Veo 3.1）、五段式提示词公式、首尾帧与参考图工作流、时间戳导演、一致性控制与生成后审查"
+tags:
+  - "foundation"
+  - "prompt"
+  - "model"
+  - "workflow"
+  - "continuity"
+  - "i2v"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Runway Gen-4 官方提示词指南"
+    id: cite-1
+    title: "Runway Gen-4 官方提示词指南"
+  - resource: "cited:Google Veo 3.1 官方指南"
+    id: cite-2
+    title: "Google Veo 3.1 官方指南"
+  - resource: "cited:Runway Text-to-Video 指南"
+    id: cite-3
+    title: "Runway Text-to-Video 指南"
+  - resource: "cited:行业模型对比。"
+    id: cite-4
+    title: "行业模型对比。"
+  - resource: "https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-veo-3-1"
+    id: url-1
+    title: "cloud.google.com"
+  - resource: "https://help.runwayml.com/hc/en-us/articles/39789879462419-Gen-4-Video-Prompting-Guide"
+    id: url-2
+    title: "help.runwayml.com"
+  - resource: "https://help.runwayml.com/hc/en-us/articles/42460036199443-Text-to-Video-Prompting-Guide"
+    id: url-3
+    title: "help.runwayml.com"
+  - resource: "https://www.mindstudio.ai/blog/storyboards-character-sheets-ai-video-generation"
+    id: url-4
+    title: "mindstudio.ai"
+  - resource: "https://agentbrisk.com/blog/ai-video-prompting-guide-2026/"
+    id: url-5
+    title: "agentbrisk.com"
+  - resource: "https://queststudio.io/blog/ai-video-prompt-mistakes-25"
+    id: url-6
+    title: "queststudio.io"
+dx_id: "14"
+aliases:
+  - "34"
+related:
+  - "39-image-consistency/character-consistency.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "45-style-unification/style-unification.md"
+---
+
 # AI 视频生成工作流（AI Video Generation）
 
 > 本页是 DirectorX AI 生成知识库：主流模型能力、官方提示词方法论（Runway Gen-4 / Google Veo 3.1）、五段式提示词公式、首尾帧与参考图工作流、时间戳导演、一致性控制与生成后审查。
@@ -278,3 +337,9 @@ Character A says: "The prototype is ready."
 - Sovra: Advanced AI Video Prompt Techniques — https://sovra.video/blog/advanced-ai-video-prompt-techniques
 
 <!-- merged from: #34-ai-video-models -->
+
+## 相关概念
+
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)

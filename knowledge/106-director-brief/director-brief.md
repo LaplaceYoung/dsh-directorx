@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "导演需求澄清与创意简报（Director Briefing & Creative Brief — Terms & Practice）"
+description: "本页知识本体来自真实广告/影视行业的简报制度：创意简报（Creative Brief）的要素、导演接案前的提问清单、简报评审的\"先问后做\""
+tags:
+  - "production"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe Creative Brief 指南"
+    id: cite-1
+    title: "Adobe Creative Brief 指南"
+  - resource: "cited:Zapier/Forms.app 创意简报问题清单"
+    id: cite-2
+    title: "Zapier/Forms.app 创意简报问题清单"
+  - resource: "cited:Coloarts 问题式简报"
+    id: cite-3
+    title: "问题式简报"
+    author: "org:Coloarts"
+  - resource: "cited:Tigheland 如何向导演下简报"
+    id: cite-4
+    title: "如何向导演下简报"
+    author: "org:Tigheland"
+  - resource: "cited:Sproutbox 开拍前 9 问"
+    id: cite-5
+    title: "开拍前 9 问"
+    author: "org:Sproutbox"
+  - resource: "cited:Creative Brief Workshops 创意必问 6 问"
+    id: cite-6
+    title: "创意必问 6 问"
+    author: "org:Creative-Brief-Workshops"
+  - resource: "https://business.adobe.com/blog/basics/creative-brief"
+    id: url-1
+    title: "business.adobe.com"
+  - resource: "https://zapier.com/blog/creative-brief-questions/"
+    id: url-2
+    title: "zapier.com"
+  - resource: "https://forms.app/en/blog/creative-brief-questions"
+    id: url-3
+    title: "forms.app"
+  - resource: "https://coloarts.com/question-based-briefs-commercial-video-production/"
+    id: url-4
+    title: "coloarts.com"
+dx_id: "106"
+---
+
 # 导演需求澄清与创意简报（Director Briefing & Creative Brief — Terms & Practice）
 
 > 本页知识本体来自真实广告/影视行业的简报制度：创意简报（Creative Brief）的要素、导演接案前的提问清单、简报评审的"先问后做"。AI 应用面向 DirectorX：把简报提问结构化为 AI 的需求澄清流程（案例 3「一句话生成广告」的确认型工作流），并给出可执行的简报模板。

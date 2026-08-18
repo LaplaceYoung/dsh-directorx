@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影场面调度全要素（Mise-en-Scène — Setting, Costume, Lighting & Staging）"
+description: "电影场面调度（Mise-en-Scène）全要素：四大领域（场景/服装化妆/灯光/调度构图）、道具/色板/美术设计补充、场面调度的叙事功能（时空/情绪/性格/强调）"
+tags:
+  - "consistency"
+  - "lighting"
+  - "color"
+  - "style"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CSUN Mise-en-Scène (Film Art)"
+    id: cite-1
+    title: "Mise-en-Scène (Film Art)"
+    author: "org:CSUN"
+  - resource: "cited:OKState Mise-en-Scène Intro"
+    id: cite-2
+    title: "Mise-en-Scène Intro"
+    author: "org:OKState"
+  - resource: "cited:Wikipedia Mise-en-scène"
+    id: cite-3
+    title: "Mise-en-scène"
+    author: "org:Wikipedia"
+  - resource: "cited:Filmmakers Academy Mise en Scène Glossary"
+    id: cite-4
+    title: "Mise en Scène Glossary"
+    author: "org:Filmmakers-Academy"
+  - resource: "http://www.csun.edu/~med61203/Film%20Art%20Mise-en-scene.pdf"
+    id: url-1
+    title: "csun.edu"
+  - resource: "https://open.library.okstate.edu/introfilmtv/part/mise-en-scene/"
+    id: url-2
+    title: "open.library.okstate.edu"
+  - resource: "https://en.wikipedia.org/wiki/Mise-en-sc%C3%A8ne"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://www.filmmakersacademy.com/glossary/mise-en-scene/"
+    id: url-4
+    title: "filmmakersacademy.com"
+  - resource: "https://alg.manifoldapp.org/read/film-appreciation/section/6c87565c-8398-40fd-9c82-7d9aec5ead99"
+    id: url-5
+    title: "alg.manifoldapp.org"
+dx_id: "233"
+related:
+  - "222-production-design-unified/production-design-unified.md"
+  - "218-film-color-design/film-color-design.md"
+  - "225-film-lighting-theory/film-lighting-theory.md"
+  - "227-camera-coverage-theory/camera-coverage-theory.md"
+---
+
 # 电影场面调度全要素（Mise-en-Scène — Setting, Costume, Lighting & Staging）
 
 > 本页为电影场面调度（Mise-en-Scène）全要素：四大领域（场景/服装化妆/灯光/调度构图）、道具/色板/美术设计补充、场面调度的叙事功能（时空/情绪/性格/强调）。知识本体来自 2026 场面调度理论（CSUN Film Art/OKState/OpenALG/Wikipedia）。AI 应用面向 DirectorX：视觉世界（衔接 222 美术、218 色彩、225 布光、227 调度、233 对应）。
@@ -87,3 +145,10 @@
 - Wikipedia — Mise-en-scène：https://en.wikipedia.org/wiki/Mise-en-sc%C3%A8ne
 - Filmmakers Academy — Mise en Scène Glossary：https://www.filmmakersacademy.com/glossary/mise-en-scene/
 - OpenALG — Mise-En-Scène (Film Appreciation)：https://alg.manifoldapp.org/read/film-appreciation/section/6c87565c-8398-40fd-9c82-7d9aec5ead99
+
+## 相关概念
+
+- [电影美术设计统一（Production Design — Unified Visual World & Art Department）](../222-production-design-unified/production-design-unified.md)
+- [电影色彩设计（Film Color Design — Master Palette & Cross-Department Cohesion）](../218-film-color-design/film-color-design.md)
+- [电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）](../225-film-lighting-theory/film-lighting-theory.md)
+- [电影机位调度理论（Camera Coverage Theory — Master Shot, Coverage & Triangle System）](../227-camera-coverage-theory/camera-coverage-theory.md)

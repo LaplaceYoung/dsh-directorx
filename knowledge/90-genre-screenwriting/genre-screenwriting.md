@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "类型片剧本写作（Genre Screenwriting Craft）"
+description: "类型剧本深化手册：类型片剧作 66 技巧精选（压迫驱动/规则交代/两难抉择/晚进早出等）、类型结构模板（爱情/喜剧/恐怖/动作/惊悚节拍）、剧本格式与页时换算、类型化写作纪律"
+tags:
+  - "production"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:孙武类型片剧作 66 技巧（影视工业网）"
+    id: cite-1
+    title: "孙武类型片剧作 66 技巧（影视工业网）"
+  - resource: "cited:FreeScreenwriter 20 类型模板"
+    id: cite-2
+    title: "FreeScreenwriter 20 类型模板"
+  - resource: "cited:No Film School 节拍表"
+    id: cite-3
+    title: "No Film School 节拍表"
+  - resource: "cited:编剧拉片方法论。"
+    id: cite-4
+    title: "编剧拉片方法论。"
+  - resource: "https://cinehello.com/stream/94166/"
+    id: url-1
+    title: "cinehello.com"
+  - resource: "https://freescreenwriter.com/templates/feature"
+    id: url-2
+    title: "freescreenwriter.com"
+  - resource: "https://www.douban.com/note/755007627/"
+    id: url-3
+    title: "douban.com"
+  - resource: "https://nofilmschool.com/beat-sheet"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://rivereditor.com/guides/how-to-create-screenplay-beat-sheets-2026"
+    id: url-5
+    title: "rivereditor.com"
+  - resource: "https://storyflow.so/blog/what-is-a-beat-sheet-complete-guide"
+    id: url-6
+    title: "storyflow.so"
+dx_id: "90"
+related:
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "12-genre-music-performance/music-video-performance.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 类型片剧本写作（Genre Screenwriting Craft）
 
 > 本页是 DirectorX 类型剧本深化手册：类型片剧作 66 技巧精选（压迫驱动/规则交代/两难抉择/晚进早出等）、类型结构模板（爱情/喜剧/恐怖/动作/惊悚节拍）、剧本格式与页时换算、类型化写作纪律。与 03 结构 / 66 短剧编剧 / 82 对白衔接。
@@ -126,3 +178,9 @@
 - Storyflow: What is a Beat Sheet? The Complete Guide — https://storyflow.so/blog/what-is-a-beat-sheet-complete-guide
 - 搜狐: 影·课堂——影视剧本的 40 种题材类型 — https://www.sohu.com/a/165100793_99908894
 - Boords: How to Write a Beat Sheet (FREE Template) — https://boords.com/blog/how-to-write-a-beat-sheet-free-template
+
+## 相关概念
+
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

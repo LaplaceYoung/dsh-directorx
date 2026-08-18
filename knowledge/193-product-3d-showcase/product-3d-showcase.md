@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）"
+description: "AI 产品三维展示：360° 旋转台视频（Turntable）、图生 3D 模型（GLB）、AR 预览、嵌入式展示、电商页面集成"
+tags:
+  - "consistency"
+  - "model"
+  - "i2v"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Shopify Best AI 3D Model Generators"
+    id: cite-1
+    title: "Best AI 3D Model Generators"
+    author: "org:Shopify"
+  - resource: "cited:3DAI Studio Product Visualization 2026"
+    id: cite-2
+    title: "Product Visualization 2026"
+    author: "org:3DAI-Studio"
+  - resource: "cited:RotateProduct AI-Powered 3D Product Videos"
+    id: cite-3
+    title: "AI-Powered 3D Product Videos"
+    author: "org:RotateProduct"
+  - resource: "cited:OpenCreator AI 360 Product Video"
+    id: cite-4
+    title: "AI 360 Product Video"
+    author: "org:OpenCreator"
+  - resource: "https://www.shopify.com/blog/ai-3d-model-generation"
+    id: url-1
+    title: "shopify.com"
+  - resource: "https://www.3daistudio.com/blog/best-ai-tools-for-product-visualization-ecommerce-3d-2026"
+    id: url-2
+    title: "3daistudio.com"
+  - resource: "https://rotateproduct.com/home"
+    id: url-3
+    title: "rotateproduct.com"
+  - resource: "https://opencreator.io/template-product-360-video"
+    id: url-4
+    title: "opencreator.io"
+  - resource: "https://image-to-video.app/ai/360-product-video"
+    id: url-5
+    title: "image-to-video.app"
+dx_id: "193"
+related:
+  - "179-surface-material-consistency/surface-material-consistency.md"
+  - "186-multi-camera-same-scene/multi-camera-same-scene.md"
+  - "188-opening-hook/opening-hook.md"
+  - "135-ad-creative-gen/ad-creative-gen.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+---
+
 # AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）
 
 > 本页为 AI 产品三维展示：360° 旋转台视频（Turntable）、图生 3D 模型（GLB）、AR 预览、嵌入式展示、电商页面集成。知识本体来自 2026 3D 产品展示指南（Shopify/3DAI Studio/RotateProduct/OpenCreator）。AI 应用面向 DirectorX：电商产品（衔接 179 材质、186 多机位、188 钩子、135 广告、148→已并入 135）。
@@ -85,3 +142,11 @@
 - RotateProduct — AI-Powered 3D Product Videos：https://rotateproduct.com/home
 - OpenCreator — AI 360 Product Video Generator：https://opencreator.io/template-product-360-video
 - VirWorld — AI Product 360° Video Generator：https://image-to-video.app/ai/360-product-video
+
+## 相关概念
+
+- [AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）](../179-surface-material-consistency/surface-material-consistency.md)
+- [AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）](../186-multi-camera-same-scene/multi-camera-same-scene.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)

@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影类型片场景惯例（Genre Settings — Horror House, Western Frontier & Sci-Fi Spaces）"
+description: "电影类型片的场景惯例：类型-场景映射（恐怖宅邸/西部边疆/科幻飞船）、场景图符（Location Tropes）、类型杂交场景（太空西部）"
+tags:
+  - "synthesis"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia List of Genres"
+    id: cite-1
+    title: "List of Genres"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Weird Western"
+    id: cite-2
+    title: "Weird Western"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia List of Western Subgenres"
+    id: cite-3
+    title: "List of Western Subgenres"
+    author: "org:Wikipedia"
+  - resource: "cited:TVTropes Sci-Fi Horror"
+    id: cite-4
+    title: "Sci-Fi Horror"
+    author: "org:TVTropes"
+  - resource: "cited:Aesthetics Wiki Space Western"
+    id: cite-5
+    title: "Space Western"
+    author: "org:Aesthetics-Wiki"
+  - resource: "https://en.wikipedia.org/wiki/List_of_genres"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Weird_Western"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/List_of_Western_subgenres"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://tvtropes.org/pmwiki/pmwiki.php/Main/SciFiHorror"
+    id: url-4
+    title: "tvtropes.org"
+  - resource: "https://aesthetics.fandom.com/wiki/Space_Western"
+    id: url-5
+    title: "aesthetics.fandom.com"
+dx_id: "287"
+related:
+  - "265-genre-visual-semiotics/genre-visual-semiotics.md"
+  - "228-environment-concept-art/environment-concept-art.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+---
+
 # 电影类型片场景惯例（Genre Settings — Horror House, Western Frontier & Sci-Fi Spaces）
 
 > 本页为电影类型片的场景惯例：类型-场景映射（恐怖宅邸/西部边疆/科幻飞船）、场景图符（Location Tropes）、类型杂交场景（太空西部）。知识本体来自 2026 类型场景（Wikipedia 多条目/TVTropes）。AI 应用面向 DirectorX：类型环境（衔接 265 类型符号、287 对应、228 场景概念、181 氛围）。
@@ -79,3 +136,9 @@
 - Wikipedia — List of Western Subgenres：https://en.wikipedia.org/wiki/List_of_Western_subgenres
 - TVTropes — Sci-Fi Horror：https://tvtropes.org/pmwiki/pmwiki.php/Main/SciFiHorror
 - Aesthetics Wiki — Space Western：https://aesthetics.fandom.com/wiki/Space_Western
+
+## 相关概念
+
+- [电影类型片视觉符号（Genre Visual Semiotics — Iconography & Conventions）](../265-genre-visual-semiotics/genre-visual-semiotics.md)
+- [AI 图片场景概念设计（Environment Concept Art — World Building & Key Art）](../228-environment-concept-art/environment-concept-art.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)

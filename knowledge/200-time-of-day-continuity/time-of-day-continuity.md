@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）"
+description: "AI 场景时间连续性：主参考光照计划（黄金时刻/蓝调/正午）、光方向/色温/阴影跨镜一致、帧间条件化锁定、桥接镜头防漂移、时间流逝叙事（Time Flow）"
+tags:
+  - "consistency"
+  - "camera"
+  - "lighting"
+  - "continuity"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Hailuo Golden Hour AI: Master Natural Light"
+    id: cite-1
+    title: "Golden Hour AI: Master Natural Light"
+    author: "org:Hailuo"
+  - resource: "cited:LongStories Avoid Continuity Errors in AI Videos"
+    id: cite-2
+    title: "Avoid Continuity Errors in AI Videos"
+    author: "org:LongStories"
+  - resource: "cited:Skywork Veo 3.1 Multi-Prompt Consistency"
+    id: cite-3
+    title: "Veo 3.1 Multi-Prompt Consistency"
+    author: "org:Skywork"
+  - resource: "cited:Kling Cinematic Prompt Guide"
+    id: cite-4
+    title: "Cinematic Prompt Guide"
+    author: "org:Kling"
+  - resource: "https://hailuoai.video/pages/knowledge/ai-video-golden-hour-lighting"
+    id: url-1
+    title: "hailuoai.video"
+  - resource: "https://longstories.ai/blog/avoid-continuity-errors-ai-generated-videos"
+    id: url-2
+    title: "longstories.ai"
+  - resource: "https://skywork.ai/blog/multi-prompt-multi-shot-consistency-veo-3-1-best-practices/"
+    id: url-3
+    title: "skywork.ai"
+  - resource: "https://kling.ai/blog/kling-ai-prompt-guide"
+    id: url-4
+    title: "kling.ai"
+  - resource: "https://magichour.ai/blog/cinematic-ai-video-prompt-cookbook"
+    id: url-5
+    title: "magichour.ai"
+dx_id: "200"
+related:
+  - "123-longform-consistency/longform-consistency.md"
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "170-light-matching/light-matching.md"
+---
+
 # AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）
 
 > 本页为 AI 场景时间连续性：主参考光照计划（黄金时刻/蓝调/正午）、光方向/色温/阴影跨镜一致、帧间条件化锁定、桥接镜头防漂移、时间流逝叙事（Time Flow）。知识本体来自 2026 光照连续性指南（Hailuo/Kling/LongStories/Skywork）。AI 应用面向 DirectorX：跨镜场景（衔接 123 场景卡、125 光线、170 光匹配、200 对应）。
@@ -83,3 +140,9 @@
 - Skywork — Veo 3.1 Multi-Prompt Storytelling Best Practices：https://skywork.ai/blog/multi-prompt-multi-shot-consistency-veo-3-1-best-practices/
 - Kling — AI Prompt Guide: Cinematic Video Secrets：https://kling.ai/blog/kling-ai-prompt-guide
 - MagicHour — Cinematic AI Video Prompt Cookbook (2026)：https://magichour.ai/blog/cinematic-ai-video-prompt-cookbook
+
+## 相关概念
+
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)

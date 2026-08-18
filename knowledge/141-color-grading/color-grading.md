@@ -1,3 +1,60 @@
+---
+type: Playbook
+title: "AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）"
+description: "AI 视频色彩分级与调色体系：主调色（一级）与精修（二级）、AI 生成 LUT、肤色校正、胶片质感收尾，以及 AI 生成素材的调色工作流"
+tags:
+  - "production"
+  - "color"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Nerdfx AI Color Grading and Post-Production: Complete Guide"
+    id: cite-1
+    title: "AI Color Grading and Post-Production: Complete Guide"
+    author: "org:Nerdfx"
+  - resource: "cited:DaVinci Resolve Generative AI Color Grading"
+    id: cite-2
+    title: "Generative AI Color Grading"
+    author: "org:DaVinci-Resolve"
+  - resource: "cited:PresetCurator AI Color Grading for Video Editors 2026"
+    id: cite-3
+    title: "AI Color Grading for Video Editors 2026"
+    author: "org:PresetCurator"
+  - resource: "cited:Pixflow 10 Best AI Color Grading Tools"
+    id: cite-4
+    title: "10 Best AI Color Grading Tools"
+    author: "org:Pixflow"
+  - resource: "https://nerdfx.ai/blog/ai-color-grading-post-production"
+    id: url-1
+    title: "nerdfx.ai"
+  - resource: "https://www.youtube.com/watch?v=tcpIHeMNS5E"
+    id: url-2
+    title: "youtube.com"
+  - resource: "https://www.youtube.com/watch?v=HYhtr3tYx2A"
+    id: url-3
+    title: "youtube.com"
+  - resource: "https://presetcurator.com/ai-color-grading-video-editors-2026-5/"
+    id: url-4
+    title: "presetcurator.com"
+  - resource: "https://pixflow.net/blog/ai-color-grading-tools/"
+    id: url-5
+    title: "pixflow.net"
+dx_id: "141"
+related:
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "126-style-art-direction/style-art-direction.md"
+  - "112-delivery-specs/delivery-specs.md"
+  - "76-ai-enhancement/ai-enhancement.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）
 
 > 本页为 AI 视频色彩分级与调色体系：主调色（一级）与精修（二级）、AI 生成 LUT、肤色校正、胶片质感收尾，以及 AI 生成素材的调色工作流。知识本体来自 2026 调色指南（DaVinci Resolve AI 教程/Nerdfx/PresetCurator/Pixflow）。AI 应用面向 DirectorX：后期统一视觉风格（衔接 125 光线、126 风格、112 交付、136 修复）。
@@ -90,3 +147,11 @@ AI 素材（Runway/Luma/Sora/Veo 混合）
 - DaVinci Resolve — Making AI Footage Cinematic（AI 素材调色）：https://www.youtube.com/watch?v=HYhtr3tYx2A
 - PresetCurator — AI Color Grading for Video Editors: 2026 Complete Guide：https://presetcurator.com/ai-color-grading-video-editors-2026-5/
 - Pixflow — AI Color Grading Tools 2026: 10 Best AI Tools Reviewed：https://pixflow.net/blog/ai-color-grading-tools/
+
+## 相关概念
+
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [实拍素材 AI 增强（AI Video Enhancement & Restoration）](../76-ai-enhancement/ai-enhancement.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

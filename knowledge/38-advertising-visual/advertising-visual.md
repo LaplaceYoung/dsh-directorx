@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "广告视觉语言（Advertising & Commercial Visual Language）"
+description: "广告视觉手册：产品镜头角度库（15 选 10+核心）、产品打光与人物打光的本质区别、品牌片\"少而精\"趋势、2026 客户期望、AI 广告素材生成应用"
+tags:
+  - "foundation"
+  - "camera"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Cybertize Media 产品镜头角度指南"
+    id: cite-1
+    title: "Cybertize Media 产品镜头角度指南"
+  - resource: "cited:Drew Lauer 商业摄影 2026"
+    id: cite-2
+    title: "Drew Lauer 商业摄影 2026"
+  - resource: "cited:Tigheland 产品 vs 人物打光"
+    id: cite-3
+    title: "Tigheland 产品 vs 人物打光"
+  - resource: "cited:Enlightened Pictures 品牌片。"
+    id: cite-4
+    title: "Enlightened Pictures 品牌片。"
+  - resource: "https://cybertizemedia.com/blog/product/product-shot-angles/"
+    id: url-1
+    title: "cybertizemedia.com"
+  - resource: "https://cybertizemedia.com/blog/product/lighting-references-for-premium-product-ads/"
+    id: url-2
+    title: "cybertizemedia.com"
+  - resource: "https://www.drewlauer.com/blog/commercial-cinematography-in-2026-what-clients-actually-expect-now"
+    id: url-3
+    title: "drewlauer.com"
+  - resource: "https://www.drewlauer.com/blog/product-cinematography-beyond-food-amp-beverage-beauty-automotive-and-everyday-objects-at-a-cinematic-level"
+    id: url-4
+    title: "drewlauer.com"
+  - resource: "https://tigheland.com/2026/05/06/uncategorized/lighting-a-product-vs-lighting-a-person-why-the-approach-is-completely-different/"
+    id: url-5
+    title: "tigheland.com"
+  - resource: "https://enlightenedpictures.com/2026/02/27/inside-a-2026-brand-film-shoot-why-we-now-design-6-8-frames-that-do-the-work-of-40-shots/"
+    id: url-6
+    title: "enlightenedpictures.com"
+dx_id: "38"
+related:
+  - "01-camera-language/camera-language.md"
+  - "07-directing/directing-techniques.md"
+  - "10-camera-gear/camera-gear.md"
+---
+
 # 广告视觉语言（Advertising & Commercial Visual Language）
 
 > 本页是 DirectorX 广告视觉手册：产品镜头角度库（15 选 10+核心）、产品打光与人物打光的本质区别、品牌片"少而精"趋势、2026 客户期望、AI 广告素材生成应用。
@@ -118,3 +171,9 @@
 - Enlightened Pictures: Inside a 2026 Brand Film Shoot — 6-8 Frames That Do the Work of 40 Shots — https://enlightenedpictures.com/2026/02/27/inside-a-2026-brand-film-shoot-why-we-now-design-6-8-frames-that-do-the-work-of-40-shots/
 - Cuson Imagity: 廣告影片鏡頭語言運用技巧 — https://www.imagity.com.hk/post/advertising-video-cinematography-techniques-hong-kong
 - 曼富图: 如何拍摄产品广告大片 — https://www.manfrotto.com/cn-zh/stories/how-to-shoot-cinematic-videos-secrets-from-the-best-in-class/
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [摄影机与器材（Camera & Gear）](../10-camera-gear/camera-gear.md)

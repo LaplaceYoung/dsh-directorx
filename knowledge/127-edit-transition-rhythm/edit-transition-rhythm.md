@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）"
+description: "AI 剪辑能力体系：智能剪辑（自动粗剪/选材）、节拍同步（Beat-Sync 卡点）、转场类型与节奏控制、AI 辅助工具分类"
+tags:
+  - "production"
+  - "editing"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OpusClip 12 Best AI Beat-Sync Tools"
+    id: cite-1
+    title: "12 Best AI Beat-Sync Tools"
+    author: "org:OpusClip"
+  - resource: "cited:ReelMind Automated Video Rhythm Editing"
+    id: cite-2
+    title: "Automated Video Rhythm Editing"
+    author: "org:ReelMind"
+  - resource: "cited:Cutback Best AI Video Editing Tools 2026"
+    id: cite-3
+    title: "Best AI Video Editing Tools 2026"
+    author: "org:Cutback"
+  - resource: "cited:Superprompt 10 Best AI Video Editing Apps"
+    id: cite-4
+    title: "10 Best AI Video Editing Apps"
+    author: "org:Superprompt"
+  - resource: "cited:BeatCut。"
+    id: cite-5
+    title: "BeatCut。"
+  - resource: "https://www.opus.pro/blog/best-ai-beat-sync"
+    id: url-1
+    title: "opus.pro"
+  - resource: "https://reelmind.ai/blog/automated-video-rhythm-editing-ai-that-cuts-to-the-beat-of-any-music-track"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://cutback.video/blog/ai-video-editing-in-2026-best-tools-workflows-automation-explained"
+    id: url-3
+    title: "cutback.video"
+  - resource: "https://superprompt.com/blog/best-ai-video-editing-apps-auto-edit-features-2026"
+    id: url-4
+    title: "superprompt.com"
+  - resource: "https://www.beatcut.app/"
+    id: url-5
+    title: "beatcut.app"
+dx_id: "127"
+related:
+  - "02-editing-transitions/editing-transitions.md"
+  - "44-ai-editing-tools/ai-editing-tools.md"
+  - "63-copy-visual-synergy/copy-visual-synergy.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+---
+
 # AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）
 
 > 本页为 AI 剪辑能力体系：智能剪辑（自动粗剪/选材）、节拍同步（Beat-Sync 卡点）、转场类型与节奏控制、AI 辅助工具分类。知识本体来自 2026 AI 剪辑工具评测（OpusClip/ReelMind/Cutback/Superprompt）。AI 应用面向 DirectorX：剪辑端能力（衔接 02 剪辑转场、44 AI 剪辑工具、63 字幕节奏）。
@@ -90,3 +150,11 @@
 - Cutback — Best AI Video Editing Tools 2026：https://cutback.video/blog/ai-video-editing-in-2026-best-tools-workflows-automation-explained
 - Superprompt — 10 Best AI Video Editing Apps with Auto-Edit Features (2026)：https://superprompt.com/blog/best-ai-video-editing-apps-auto-edit-features-2026
 - BeatCut — Beat-Synced Video Editing：https://www.beatcut.app/
+
+## 相关概念
+
+- [剪辑与转场（Editing & Transitions）](../02-editing-transitions/editing-transitions.md)
+- [AI 剪辑与智能后期工具（AI Editing & Smart Post-Production）](../44-ai-editing-tools/ai-editing-tools.md)
+- [文案与视觉协同体系（Copy-Visual Synergy System）](../63-copy-visual-synergy/copy-visual-synergy.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)

@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）"
+description: "电影布光理论深化：三点布光（主光/辅光/背光）、硬光 vs 软光（阴影边缘）、高调 vs 低调（亮度对比）、光比（Lighting Ratio）、布光塑造维度"
+tags:
+  - "consistency"
+  - "lighting"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Three-Point Lighting"
+    id: cite-1
+    title: "Three-Point Lighting"
+    author: "org:Wikipedia"
+  - resource: "cited:StudioBinder Three-Point Video Lighting"
+    id: cite-2
+    title: "Three-Point Video Lighting"
+    author: "org:StudioBinder"
+  - resource: "cited:Backstage Film Lighting Explained"
+    id: cite-3
+    title: "Film Lighting Explained"
+    author: "org:Backstage"
+  - resource: "cited:Rosco Basics of Film Lighting"
+    id: cite-4
+    title: "Basics of Film Lighting"
+    author: "org:Rosco"
+  - resource: "https://en.wikipedia.org/wiki/Three-point_lighting"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Key_light"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://www.studiobinder.com/blog/three-point-lighting-setup/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://www.backstage.com/magazine/article/film-lighting-techniques-76277/"
+    id: url-4
+    title: "backstage.com"
+  - resource: "https://spectrum.rosco.com/the-basics-of-film-lighting"
+    id: url-5
+    title: "spectrum.rosco.com"
+dx_id: "225"
+related:
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "217-portrait-lighting-schemes/portrait-lighting-schemes.md"
+---
+
 # 电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）
 
 > 本页为电影布光理论深化：三点布光（主光/辅光/背光）、硬光 vs 软光（阴影边缘）、高调 vs 低调（亮度对比）、光比（Lighting Ratio）、布光塑造维度。知识本体来自 2026 布光指南（Wikipedia/StudioBinder/Backstage/Rosco）。AI 应用面向 DirectorX：布光设计（衔接 125 光线、217 人像光型、225 对应）。
@@ -82,3 +135,8 @@
 - StudioBinder — Three-Point Video Lighting Setup Guide：https://www.studiobinder.com/blog/three-point-lighting-setup/
 - Backstage — Film Lighting, Explained: Techniques & Examples：https://www.backstage.com/magazine/article/film-lighting-techniques-76277/
 - Rosco — The Basics of Film Lighting：https://spectrum.rosco.com/the-basics-of-film-lighting
+
+## 相关概念
+
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 图片人像用光体系（Portrait Lighting — Rembrandt, Butterfly, Loop & Split Patterns）](../217-portrait-lighting-schemes/portrait-lighting-schemes.md)

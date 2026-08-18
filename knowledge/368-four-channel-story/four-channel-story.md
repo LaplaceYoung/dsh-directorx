@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影光效-运动-声音-叙事四通道（Four-Channel Story — Light × Motion × Sound × Narrative）"
+description: "电影光效-运动-声音-叙事四通道整合：四层同步（节奏/多感官线索/模块化叙事模块/场景结构映射）、统一体验（四通道为叙事服务）、模块化设计（可组合）"
+tags:
+  - "synthesis"
+  - "lighting"
+  - "sound"
+  - "narrative"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:本页为知识库 272/282/359 等通道理论的四通道综合"
+    id: cite-1
+    title: "本页为知识库 272/282/359 等通道理论的四通道综合"
+  - resource: "cited:基础来源：Adobe Cinematography"
+    id: cite-2
+    title: "Cinematography"
+    author: "org:基础来源：Adobe"
+  - resource: "cited:Filigrane Sound-Design Score"
+    id: cite-4
+    title: "Sound-Design Score"
+    author: "org:Filigrane"
+  - resource: "https://www.adobe.com/creativecloud/video/production/cinematography.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://en.wikipedia.org/wiki/Cinematography"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://journals.openedition.org/filigrane/1328?lang=en"
+    id: url-3
+    title: "journals.openedition.org"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5133278/"
+    id: url-4
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://academic.oup.com/screen/article/66/4/475/8407479"
+    id: url-5
+    title: "academic.oup.com"
+dx_id: "368"
+related:
+  - "155-color-psychology/color-psychology.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "01-camera-language/camera-language.md"
+  - "350-motivated-light-narrative/motivated-light-narrative.md"
+---
+
 # 电影光效-运动-声音-叙事四通道（Four-Channel Story — Light × Motion × Sound × Narrative）
 
 > 本页为电影光效-运动-声音-叙事四通道整合：四层同步（节奏/多感官线索/模块化叙事模块/场景结构映射）、统一体验（四通道为叙事服务）、模块化设计（可组合）。知识本体来自 2026 四通道综合（综合多源：359/272/282 整合）。AI 应用面向 DirectorX：四通道统一（衔接 359 三通道、368 对应、272 三通道、282 三整合）。
@@ -78,3 +132,11 @@
 - Filigrane — From Separation to Integration：https://journals.openedition.org/filigrane/1328?lang=en
 - PMC — Narrative Theory and Popular Movies：https://pmc.ncbi.nlm.nih.gov/articles/PMC5133278/
 - OUP — Rhythmic Phrasing in Narrative Film：https://academic.oup.com/screen/article/66/4/475/8407479
+
+## 相关概念
+
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [电影实拍光效-动机-叙事三整合（Motivated Light × Narrative — Unmotivated as Tool）](../350-motivated-light-narrative/motivated-light-narrative.md)

@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影杂交配乐-表演-场景三整合（Hybrid Score-Acting-Scene — One World, One Performance）"
+description: "电影杂交配乐-表演-场景三整合：管弦+电子统一（共享房间/链处理=一个世界）、表演-配乐-场景共构情绪（三者互证）、过度叠加风险（减内聚力）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Kaspar Noe Hybrid Orchestral Music"
+    id: cite-1
+    title: "Hybrid Orchestral Music"
+    author: "org:Kaspar-Noe"
+  - resource: "cited:Richard Dobeson Hybrid Sound"
+    id: cite-2
+    title: "Hybrid Sound"
+    author: "org:Richard-Dobeson"
+  - resource: "cited:Nathan Fields Hybrid Scores"
+    id: cite-3
+    title: "Hybrid Scores"
+    author: "org:Nathan-Fields"
+  - resource: "cited:NumberAnalytics Hybrid Scoring in Film"
+    id: cite-4
+    title: "Hybrid Scoring in Film"
+    author: "org:NumberAnalytics"
+  - resource: "https://kasparnoe.com/journal/hybrid-orchestral-music-in-modern-film-scoring"
+    id: url-1
+    title: "kasparnoe.com"
+  - resource: "https://richarddobeson.com/hybrid-sound-blending-orchestral-and-electronic-for-film/"
+    id: url-2
+    title: "richarddobeson.com"
+  - resource: "https://www.nathanfieldsmusic.com/blog/hybrid-scores-modern-cinematic-sound"
+    id: url-3
+    title: "nathanfieldsmusic.com"
+  - resource: "https://www.numberanalytics.com/blog/hybrid-scoring-in-film"
+    id: url-4
+    title: "numberanalytics.com"
+  - resource: "https://en.wikipedia.org/wiki/The_Odyssey_(2026_film"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "329"
+related:
+  - "309-hybrid-scoring/hybrid-scoring.md"
+  - "278-genre-acting/genre-acting.md"
+  - "155-color-psychology/color-psychology.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "287-genre-settings/genre-settings.md"
+---
+
 # 电影杂交配乐-表演-场景三整合（Hybrid Score-Acting-Scene — One World, One Performance）
 
 > 本页为电影杂交配乐-表演-场景三整合：管弦+电子统一（共享房间/链处理=一个世界）、表演-配乐-场景共构情绪（三者互证）、过度叠加风险（减内聚力）。知识本体来自 2026 杂交整合（Kaspar Noe/Richard Dobeson/Nathan Fields）。AI 应用面向 DirectorX：统一表现（衔接 309 杂交配乐、329 对应、318 三整合、272 三通道）。
@@ -76,3 +133,11 @@
 - Nathan Fields — Hybrid Scores: Modern Cinematic Sound：https://www.nathanfieldsmusic.com/blog/hybrid-scores-modern-cinematic-sound
 - NumberAnalytics — Hybrid Scoring in Film：https://www.numberanalytics.com/blog/hybrid-scoring-in-film
 - Wikipedia — The Odyssey (2026 Film)：https://en.wikipedia.org/wiki/The_Odyssey_(2026_film)
+
+## 相关概念
+
+- [电影杂交类型配乐（Hybrid Scoring — Orchestral + Electronic in One Sound）](../309-hybrid-scoring/hybrid-scoring.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影类型片场景惯例（Genre Settings — Horror House, Western Frontier & Sci-Fi Spaces）](../287-genre-settings/genre-settings.md)

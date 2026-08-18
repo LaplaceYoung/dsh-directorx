@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 图片六问沉浸应用（Six Questions in Images — Engagement Prompts & Frame Progression）"
+description: "AI 图片的六问沉浸应用：六问逐帧设计（我在哪/与谁/能做什么/发生什么/有进展/为何重要）、互动帧提示（预测下一帧/重混色板）、实时互动（选择/投票引导后续图）、英雄之旅弧跨系列"
+tags:
+  - "synthesis"
+  - "color"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:HBR Why the Best Immersive Experiences Succeed"
+    id: cite-1
+    title: "Why the Best Immersive Experiences Succeed"
+    author: "org:HBR"
+  - resource: "cited:Tandfonline Narrate, Act, and Resonate"
+    id: cite-2
+    title: "Narrate, Act, and Resonate"
+    author: "org:Tandfonline"
+  - resource: "cited:Sessions Visual Storytelling Techniques"
+    id: cite-3
+    title: "Visual Storytelling Techniques"
+    author: "org:Sessions"
+  - resource: "cited:CreativeAdsLab Visual Storytelling 2026"
+    id: cite-4
+    title: "Visual Storytelling 2026"
+    author: "org:CreativeAdsLab"
+  - resource: "https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed"
+    id: url-1
+    title: "hbr.org"
+  - resource: "https://www.tandfonline.com/doi/abs/10.1080/00913367.2024.2309921"
+    id: url-2
+    title: "tandfonline.com"
+  - resource: "https://www.sessions.edu/notes-on-design/visual-storytelling-techniques-that-engage-audiences/"
+    id: url-3
+    title: "sessions.edu"
+  - resource: "https://creativeadslab.com/visual-storytelling-win-audiences-in-2026/"
+    id: url-4
+    title: "creativeadslab.com"
+  - resource: "https://www.aiphotogenerator.net/blog/2025/07/visual-storytelling-techniques"
+    id: url-5
+    title: "aiphotogenerator.net"
+dx_id: "339"
+related:
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "186-multi-camera-same-scene/multi-camera-same-scene.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+---
+
 # AI 图片六问沉浸应用（Six Questions in Images — Engagement Prompts & Frame Progression）
 
 > 本页为 AI 图片的六问沉浸应用：六问逐帧设计（我在哪/与谁/能做什么/发生什么/有进展/为何重要）、互动帧提示（预测下一帧/重混色板）、实时互动（选择/投票引导后续图）、英雄之旅弧跨系列。知识本体来自 2026 六问应用（HBR/Sessions/CreativeAdsLab）。AI 应用面向 DirectorX：图片参与（衔接 323 六问、339 对应、275 情绪弧、254 序列）。
@@ -80,3 +138,11 @@
 - Sessions — Visual Storytelling Techniques：https://www.sessions.edu/notes-on-design/visual-storytelling-techniques-that-engage-audiences/
 - CreativeAdsLab — Visual Storytelling Tactics for 2026：https://creativeadslab.com/visual-storytelling-win-audiences-in-2026/
 - AIPhotoGenerator — 8 Visual Storytelling Techniques：https://www.aiphotogenerator.net/blog/2025/07/visual-storytelling-techniques
+
+## 相关概念
+
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）](../186-multi-camera-same-scene/multi-camera-same-scene.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)

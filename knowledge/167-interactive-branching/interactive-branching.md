@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）"
+description: "AI 互动分支叙事的体系：分支逻辑（Branching Logic）、选择记忆（Memory of Prior Choices）、动态场景转换、AI 生成视频分支、无代码/低代码设计"
+tags:
+  - "consistency"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind Creating Branching Narrative Videos"
+    id: cite-1
+    title: "Creating Branching Narrative Videos"
+    author: "org:ReelMind"
+  - resource: "cited:Alibaba AI Choose-Your-Own-Adventure Stories"
+    id: cite-2
+    title: "AI Choose-Your-Own-Adventure Stories"
+    author: "org:Alibaba"
+  - resource: "cited:ReelMind AI-Generated Video Adventures"
+    id: cite-3
+    title: "AI-Generated Video Adventures"
+    author: "org:ReelMind"
+  - resource: "cited:Gameer AI Interactive Stories"
+    id: cite-4
+    title: "AI Interactive Stories"
+    author: "org:Gameer"
+  - resource: "https://reelmind.ai/blog/creating-branching-narrative-videos-ai-interactive-story-tools"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://www.alibaba.com/product-insights/how-to-use-ai-to-generate-interactive-choose-your-own-adventure-stories-with-branching-logic-that-makes-sense.html"
+    id: url-2
+    title: "alibaba.com"
+  - resource: "https://reelmind.ai/blog/ai-generated-video-adventures-create-interactive-choose-your-own-path-stories"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://www.gameer.io/ai-interactive-stories"
+    id: url-4
+    title: "gameer.io"
+  - resource: "https://reelmind.ai/blog/the-interactive-video-frontier-ai-tools-for-creating-choose-your-own-adventure-content"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "167"
+related:
+  - "150-narrative-structure/narrative-structure.md"
+  - "146-real-time-live/real-time-live.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "123-longform-consistency/longform-consistency.md"
+---
+
 # AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）
 
 > 本页为 AI 互动分支叙事的体系：分支逻辑（Branching Logic）、选择记忆（Memory of Prior Choices）、动态场景转换、AI 生成视频分支、无代码/低代码设计。知识本体来自 2026 互动叙事指南（ReelMind/Alibaba/Gameer）。AI 应用面向 DirectorX：互动内容项目（衔接 150 叙事、146 实时、121 编排）。
@@ -81,3 +137,11 @@
 - ReelMind — AI-Generated Video Adventures: Interactive Choose-Your-Own-Path Stories：https://reelmind.ai/blog/ai-generated-video-adventures-create-interactive-choose-your-own-path-stories
 - Gameer — AI Interactive Stories: Choose-Your-Own-Adventure：https://www.gameer.io/ai-interactive-stories
 - ReelMind — The Interactive Video Frontier: AI Tools for CYOA Content：https://reelmind.ai/blog/the-interactive-video-frontier-ai-tools-for-creating-choose-your-own-adventure-content
+
+## 相关概念
+
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 实时生成与直播（Real-Time Generation & Live — Streaming Avatars & Interactive Video）](../146-real-time-live/real-time-live.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)

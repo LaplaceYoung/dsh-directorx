@@ -1,3 +1,65 @@
+---
+type: Method
+title: "AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）"
+description: "AI 视频的景深与焦点控制：主体-背景-距离框架（Subject-Background-Distance）、光圈/焦段/物距模拟、散景（Bokeh）质感、跨镜头焦点一致、跟焦（Rack Focus）"
+tags:
+  - "consistency"
+  - "camera"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Hailuo Mastering Depth of Field: Cinematic Bokeh Prompting"
+    id: cite-1
+    title: "Mastering Depth of Field: Cinematic Bokeh Prompting"
+    author: "org:Hailuo"
+  - resource: "cited:ApiMart Top AI Models for Cinematic Depth of Field"
+    id: cite-2
+    title: "Top AI Models for Cinematic Depth of Field"
+    author: "org:ApiMart"
+  - resource: "cited:ReelMind AI Video Depth of Field Effects"
+    id: cite-3
+    title: "AI Video Depth of Field Effects"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind AI Director's Focus"
+    id: cite-4
+    title: "AI Director's Focus"
+    author: "org:ReelMind"
+  - resource: "https://www.videomaker.com/shooting/visual-storytelling/what-is-the-rack-focus-shot/"
+    id: url-1
+    title: "videomaker.com"
+  - resource: "https://www.filmmakersacademy.com/depth-field-character-story/"
+    id: url-2
+    title: "filmmakersacademy.com"
+  - resource: "https://fiveable.me/film-aesthetics/unit-4/depth-field-focus-techniques/study-guide/NGDG6mGKvFOOL663"
+    id: url-3
+    title: "fiveable.me"
+  - resource: "https://www.nfi.edu/rack-focus/"
+    id: url-4
+    title: "nfi.edu"
+  - resource: "https://nofilmschool.com/rack-focus"
+    id: url-5
+    title: "nofilmschool.com"
+  - resource: "https://hailuoai.video/pages/knowledge/mastering-depth-of-field-cinematic-bokeh-prompting"
+    id: url-6
+    title: "hailuoai.video"
+dx_id: "176"
+aliases:
+  - "255"
+related:
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "01-camera-language/camera-language.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "231-shot-size-emotion/shot-size-emotion.md"
+---
+
 # AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）
 
 > 本页为 AI 视频的景深与焦点控制：主体-背景-距离框架（Subject-Background-Distance）、光圈/焦段/物距模拟、散景（Bokeh）质感、跨镜头焦点一致、跟焦（Rack Focus）。知识本体来自 2026 景深指南（Hailuo/ReelMind/ApiMart）。AI 应用面向 DirectorX：镜头质感（衔接 124 镜头语言、116 首末帧、168 运镜）。
@@ -140,3 +202,11 @@ AI 提示："deep focus, everything sharp from foreground to background, f/16 lo
 - ReelMind — AI Video Depth of Field Effects: Professional Bokeh：https://reelmind.ai/blog/ai-video-depth-of-field-effects-professional-bokeh-without-expensive-lenses
 - ReelMind — The AI Director's Focus: Perfect Depth of Field：https://reelmind.ai/blog/the-ai-director-s-focus-achieving-perfect-depth-of-field-in-ai-renders
 - ReelMind — Bokeh Background HD: Cinematic Depth on Any Footage：https://reelmind.ai/blog/bokeh-background-hd-generating-cinematic-depth-on-any-footage
+
+## 相关概念
+
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）](../231-shot-size-emotion/shot-size-emotion.md)

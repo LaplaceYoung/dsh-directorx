@@ -1,3 +1,50 @@
+---
+type: Case
+title: "拉片笔记系统（Film Analysis Notes System）"
+description: "拉片手册：真实电影分析的专业方法为知识本体——每个术语给出具体含义（是什么、怎么看、解决什么问题），并给出 AI 如何理解与实现（AI 辅助拉片/AI 从拉片学什么/拉片产出如何反哺 AI 生成）"
+tags:
+  - "production"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:UNC 写作中心电影分析指南"
+    id: cite-1
+    title: "UNC 写作中心电影分析指南"
+  - resource: "cited:拉片艺术详解"
+    id: cite-2
+    title: "拉片艺术详解"
+  - resource: "cited:B 站拉片片单"
+    id: cite-3
+    title: "B 站拉片片单"
+  - resource: "cited:No Film School 分析速查。"
+    id: cite-4
+    title: "No Film School 分析速查。"
+  - resource: "https://writingcenter.unc.edu/tips-and-tools/film-analysis/"
+    id: url-1
+    title: "writingcenter.unc.edu"
+  - resource: "https://baijiahao.baidu.com/s?id=1799723094280105231"
+    id: url-2
+    title: "baijiahao.baidu.com"
+  - resource: "https://www.bilibili.com/read/cv7100524/"
+    id: url-3
+    title: "bilibili.com"
+  - resource: "https://nofilmschool.com/film-analysis"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://www.studiobinder.com/blog/film-analysis/"
+    id: url-5
+    title: "studiobinder.com"
+  - resource: "http://www.fullshotcine.com/post/104.html"
+    id: url-6
+    title: "fullshotcine.com"
+dx_id: "103"
+---
+
 # 拉片笔记系统（Film Analysis Notes System）
 
 > 本页是 DirectorX 拉片手册：真实电影分析的专业方法为知识本体——每个术语给出具体含义（是什么、怎么看、解决什么问题），并给出 AI 如何理解与实现（AI 辅助拉片/AI 从拉片学什么/拉片产出如何反哺 AI 生成）。面向 AI 生成制作。

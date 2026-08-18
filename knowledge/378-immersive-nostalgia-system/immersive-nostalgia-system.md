@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "AI 图片沉浸怀旧参与系统（Immersive Nostalgia Engagement — Room-Based & Coherent Experience）"
+description: "AI 图片的沉浸怀旧参与系统：房间级沉浸（Storycaster：投影+图像随场景文本适配）、多代理叙事（故事状态驱动图像/音乐提示）、心理吸收+连贯进展（六问：位置/参与者/动作/事件/进展/意义）"
+tags:
+  - "synthesis"
+  - "narrative"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Storycaster: Immersive Room-Based Storytelling"
+    id: cite-1
+    title: "Storycaster: Immersive Room-Based Storytelling"
+    author: "org:arXiv"
+  - resource: "cited:CVPR Multi-Agent Multimodal Storytelling"
+    id: cite-2
+    title: "Multi-Agent Multimodal Storytelling"
+    author: "org:CVPR"
+  - resource: "cited:HBR Why the Best Immersive Experiences Succeed"
+    id: cite-3
+    title: "Why the Best Immersive Experiences Succeed"
+    author: "org:HBR"
+  - resource: "https://arxiv.org/html/2510.22857v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026W/AISTORY/papers/Wei_Multi-Agent_Orchestration_for_Interactive_Multimodal_Storytelling_in_Visual-Novel-Style_Adventure_Games_CVPRW_2026_paper.pdf"
+    id: url-2
+    title: "openaccess.thecvf.com"
+  - resource: "https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed"
+    id: url-3
+    title: "hbr.org"
+  - resource: "https://shura.shu.ac.uk/35244/1/Book%20Chapter.pdf"
+    id: url-4
+    title: "shura.shu.ac.uk"
+  - resource: "https://www.mimicimmersive.com/post/immersive-experiences-trends-2026"
+    id: url-5
+    title: "mimicimmersive.com"
+dx_id: "378"
+related:
+  - "360-silhouette-era-emotion/silhouette-era-emotion.md"
+  - "321-immersive-series/immersive-series.md"
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+---
+
 # AI 图片沉浸怀旧参与系统（Immersive Nostalgia Engagement — Room-Based & Coherent Experience）
 
 > 本页为 AI 图片的沉浸怀旧参与系统：房间级沉浸（Storycaster：投影+图像随场景文本适配）、多代理叙事（故事状态驱动图像/音乐提示）、心理吸收+连贯进展（六问：位置/参与者/动作/事件/进展/意义）。知识本体来自 2026 沉浸系统（arXiv Storycaster/CVPR Multi-Agent/HBR）。AI 应用面向 DirectorX：沉浸怀旧（衔接 369 互动怀旧、378 对应、321 沉浸、323 六问）。
@@ -73,3 +126,10 @@
 - HBR — Why the Best Immersive Experiences Succeed：https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed
 - SHU — Generative AI for Immersive Experiences：https://shura.shu.ac.uk/35244/1/Book%20Chapter.pdf
 - Mimic — Immersive Experiences in 2026: 7 Trends：https://www.mimicimmersive.com/post/immersive-experiences-trends-2026
+
+## 相关概念
+
+- [AI 图片剪影-年代-情绪三融合（Silhouette-Era-Emotion — Vintage Dramatic Fusion）](../360-silhouette-era-emotion/silhouette-era-emotion.md)
+- [AI 图片沉浸系列设计（Immersive Series — World Building & Scene-Focused Consistency）](../321-immersive-series/immersive-series.md)
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)

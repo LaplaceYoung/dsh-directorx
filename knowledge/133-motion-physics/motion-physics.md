@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）"
+description: "AI 视频相机运动的物理一致性技巧：惯性（Inertia）与加减速、轨迹一致性（跨镜 3D 映射）、手持模拟（Handheld Realism）、各运镜类型的物理难点（跟踪最强/环绕最难）"
+tags:
+  - "production"
+  - "camera"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind Virtual Camera Handheld Simulation / Kinematics of Motion"
+    id: cite-1
+    title: "Virtual Camera Handheld Simulation / Kinematics of Motion"
+    author: "org:ReelMind"
+  - resource: "cited:Traction Can AI Simulate Cinematic Camera Movement?"
+    id: cite-2
+    title: "Can AI Simulate Cinematic Camera Movement?"
+    author: "org:Traction"
+  - resource: "cited:arXiv 3D-Grounded Motion-Consistent Noise"
+    id: cite-3
+    title: "3D-Grounded Motion-Consistent Noise"
+    author: "org:arXiv"
+  - resource: "cited:Luma Add Cinematic Camera Motion"
+    id: cite-4
+    title: "Add Cinematic Camera Motion"
+    author: "org:Luma"
+  - resource: "https://reelmind.ai/blog/virtual-camera-handheld-simulation-add-organic-movement-in-post"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/the-kinematics-of-motion-gravity-physics-in-advanced-ai-video-generation"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://www.tractionco.com/insights/can-ai-simulate-cinematic-camera-movement"
+    id: url-3
+    title: "tractionco.com"
+  - resource: "https://arxiv.org/html/2607.02798v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://lumalabs.ai/video-to-video/add-dynamic-camera-motion-using-video-to-video-ai-editing"
+    id: url-5
+    title: "lumalabs.ai"
+dx_id: "133"
+related:
+  - "01-camera-language/camera-language.md"
+  - "65-ai-camera-control-benchmark/ai-camera-control-benchmark.md"
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "123-longform-consistency/longform-consistency.md"
+---
+
 # AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）
 
 > 本页为 AI 视频相机运动的物理一致性技巧：惯性（Inertia）与加减速、轨迹一致性（跨镜 3D 映射）、手持模拟（Handheld Realism）、各运镜类型的物理难点（跟踪最强/环绕最难）。知识本体来自 2026 相机物理指南（ReelMind/Traction/arXiv 物理模拟论文）。AI 应用面向 DirectorX：运镜层的物理可信度（衔接 49 运镜、65 运镜控制、124 镜头语言）。
@@ -82,3 +138,10 @@
 - Traction — Can AI Simulate Cinematic Camera Movement?：https://www.tractionco.com/insights/can-ai-simulate-cinematic-camera-movement
 - arXiv — 3D-Grounded Motion-Consistent Noise for Controllable：https://arxiv.org/html/2607.02798v1
 - Luma — Add Cinematic Camera Motion to Any Video with AI：https://lumalabs.ai/video-to-video/add-dynamic-camera-motion-using-video-to-video-ai-editing
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 运镜控制精度实测（Camera Control Precision Field Test）](../65-ai-camera-control-benchmark/ai-camera-control-benchmark.md)
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)

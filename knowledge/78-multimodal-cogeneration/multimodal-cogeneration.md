@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "多模态协同生成（Multimodal Co-Generation Workflows）"
+description: "多模态协同手册：多模态生产四大痛点、无限画布一站式链路（Agent 集群+节点编排+统一模型接入）、七节点流水线、同提示词多模型并行对比、4K 直出、团队协作唯一性、统一音视频生成前沿（UniAVGen/TV2TV/U-Mind）"
+tags:
+  - "production"
+  - "prompt"
+  - "model"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:腾讯云创意工坊实践（TCADP）"
+    id: cite-1
+    title: "腾讯云创意工坊实践（TCADP）"
+  - resource: "cited:CVPR 2026 统一生成研究"
+    id: cite-2
+    title: "CVPR 2026 统一生成研究"
+  - resource: "cited:无限画布开源生态。"
+    id: cite-3
+    title: "无限画布开源生态。"
+  - resource: "https://cloud.tencent.com/developer/article/2656026"
+    id: url-1
+    title: "cloud.tencent.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Zhang_UniAVGen_Unified_Audio_and_Video_Generation_with_Asymmetric_Cross-Modal_Interactions_CVPR_2026_paper.pdf"
+    id: url-2
+    title: "openaccess.thecvf.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Han_TV2TV_A_Unified_Framework_for_Interleaved_Language_and_Video_Generation_CVPR_2026_paper.pdf"
+    id: url-3
+    title: "openaccess.thecvf.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Deng_U-Mind_A_Unified_Framework_for_Real-Time_Multimodal_Interaction_with_Audiovisual_CVPR_2026_paper.pdf"
+    id: url-4
+    title: "openaccess.thecvf.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Dai_Omni2Sound_Towards_Unified_Video-Text-to-Audio_Generation_CVPR_2026_paper.pdf"
+    id: url-5
+    title: "openaccess.thecvf.com"
+  - resource: "https://xiangyugongzuoliu.com/ai-image-video-generation-guide/"
+    id: url-6
+    title: "xiangyugongzuoliu.com"
+dx_id: "78"
+related:
+  - "44-ai-editing-tools/ai-editing-tools.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "53-shotlist-to-prompt/shotlist-to-prompt.md"
+---
+
 # 多模态协同生成（Multimodal Co-Generation Workflows）
 
 > 本页是 DirectorX 多模态协同手册：多模态生产四大痛点、无限画布一站式链路（Agent 集群+节点编排+统一模型接入）、七节点流水线、同提示词多模型并行对比、4K 直出、团队协作唯一性、统一音视频生成前沿（UniAVGen/TV2TV/U-Mind）。与 48 短剧工厂 / 77 灵感系统 / 73 提示词衔接。
@@ -103,3 +155,9 @@
 - GitHub: ddcat-ai/open-ai-canvas（开源无限画布） — 
 - GitHub: joyhpc/unified-video-creator — 
 - 想喻工作流: AI 图片与视频生成指南（2026）——提示词、工具、工作流 — https://xiangyugongzuoliu.com/ai-image-video-generation-guide/
+
+## 相关概念
+
+- [AI 剪辑与智能后期工具（AI Editing & Smart Post-Production）](../44-ai-editing-tools/ai-editing-tools.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [镜头表→提示词转换器（Shot List → Prompt Translation）](../53-shotlist-to-prompt/shotlist-to-prompt.md)

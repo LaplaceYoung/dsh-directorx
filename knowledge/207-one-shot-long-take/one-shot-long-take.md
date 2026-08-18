@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 长镜头生成（One-Shot & Long Take — Segment Chaining with Hidden Joins）"
+description: "AI 长镜头（One-Shot/Long Take）生成：分段链式生成（Segment Chaining）、尾帧续接（Tail-Feed Reference）、隐藏接缝（Motion Trick + 色彩匹配）、10-15 秒/段扩展到长时长"
+tags:
+  - "consistency"
+  - "camera"
+  - "color"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Invideo Best AI Tool for Long Continuous Video Shots"
+    id: cite-1
+    title: "Best AI Tool for Long Continuous Video Shots"
+    author: "org:Invideo"
+  - resource: "cited:Invideo Seamless Long Takes"
+    id: cite-2
+    title: "Seamless Long Takes"
+    author: "org:Invideo"
+  - resource: "cited:Opus One-Shot Continuous Videos with Seedance 2.0"
+    id: cite-3
+    title: "One-Shot Continuous Videos with Seedance 2.0"
+    author: "org:Opus"
+  - resource: "cited:Textideo AI Long Take"
+    id: cite-4
+    title: "AI Long Take"
+    author: "org:Textideo"
+  - resource: "https://invideo.io/faq/what-is-the-best-ai-tool-for-generating-a-single/"
+    id: url-1
+    title: "invideo.io"
+  - resource: "https://invideo.io/faq/how-do-you-create-a-cinematic-long-shot-using-ai-video/"
+    id: url-2
+    title: "invideo.io"
+  - resource: "https://www.opus.pro/blog/one-shot-continuous-video-seedance"
+    id: url-3
+    title: "opus.pro"
+  - resource: "https://invideo.io/faq/how-do-you-create-a-consistent-multi-shot-ai-video-that/"
+    id: url-4
+    title: "invideo.io"
+  - resource: "https://textideo.com/video-tools/long-take"
+    id: url-5
+    title: "textideo.com"
+dx_id: "207"
+related:
+  - "01-camera-language/camera-language.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "186-multi-camera-same-scene/multi-camera-same-scene.md"
+  - "200-time-of-day-continuity/time-of-day-continuity.md"
+---
+
 # AI 长镜头生成（One-Shot & Long Take — Segment Chaining with Hidden Joins）
 
 > 本页为 AI 长镜头（One-Shot/Long Take）生成：分段链式生成（Segment Chaining）、尾帧续接（Tail-Feed Reference）、隐藏接缝（Motion Trick + 色彩匹配）、10-15 秒/段扩展到长时长。知识本体来自 2026 长镜头指南（Invideo/Opus/Textideo）。AI 应用面向 DirectorX：沉浸镜头（衔接 168 运镜、183 参考、186 多机位、197 运镜心理）。
@@ -80,3 +136,10 @@
 - Opus — How to Create One-Shot Continuous Videos with Seedance 2.0：https://www.opus.pro/blog/one-shot-continuous-video-seedance
 - Invideo — Consistent Multi-Shot AI Video in One Take：https://invideo.io/faq/how-do-you-create-a-consistent-multi-shot-ai-video-that/
 - Textideo — Create Seamless Cinematic Video with AI Long Take：https://textideo.com/video-tools/long-take
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）](../186-multi-camera-same-scene/multi-camera-same-scene.md)
+- [AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）](../200-time-of-day-continuity/time-of-day-continuity.md)

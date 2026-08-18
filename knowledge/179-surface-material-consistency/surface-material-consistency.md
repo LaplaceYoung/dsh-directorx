@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）"
+description: "AI 视频的材质表面一致性：光-材质交互（albedo/粗糙度/金属度）、皮肤/布料/金属/玻璃的物理参数提示词、参考一致性、微细节后处理"
+tags:
+  - "consistency"
+  - "prompt"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:SOPHY Simulation-Ready Objects with Physical Materials (WACV 2026)"
+    id: cite-1
+    title: "Simulation-Ready Objects with Physical Materials (WACV 2026)"
+    author: "org:SOPHY"
+  - resource: "cited:Hailuo Rendering Glass and Metal in AI Product Videos"
+    id: cite-2
+    title: "Rendering Glass and Metal in AI Product Videos"
+    author: "org:Hailuo"
+  - resource: "cited:ReelMind Photorealistic Textures"
+    id: cite-3
+    title: "Photorealistic Textures"
+    author: "org:ReelMind"
+  - resource: "cited:Dreamina Photorealistic Fabrics with AI"
+    id: cite-4
+    title: "Photorealistic Fabrics with AI"
+    author: "org:Dreamina"
+  - resource: "https://openaccess.thecvf.com/content/WACV2026/papers/Cao_SOPHY_Generating_Simulation-Ready_Objects_with_Physical_Materials_WACV_2026_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://hailuoai.video/pages/knowledge/ai-product-videos-glass-metal-rendering"
+    id: url-2
+    title: "hailuoai.video"
+  - resource: "https://reelmind.ai/blog/photorealistic-textures-achieving-micro-detail-surface-realism-in-ai-renders-through-expert-parameter-tuning-and-the-application-of-advanced-material-simulation-techniques-for-true-visual-depth-and-tangibility"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://dreamina.capcut.com/ai-image/producing-photorealistic-fabrics-with-ai-generators"
+    id: url-4
+    title: "dreamina.capcut.com"
+  - resource: "https://reelmind.ai/blog/the-best-ai-for-creating-photorealistic-cloth-and-fabric-simulations"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "179"
+related:
+  - "133-motion-physics/motion-physics.md"
+  - "170-light-matching/light-matching.md"
+  - "169-props-wardrobe/props-wardrobe.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "174-qc-automation/qc-automation.md"
+---
+
 # AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）
 
 > 本页为 AI 视频的材质表面一致性：光-材质交互（albedo/粗糙度/金属度）、皮肤/布料/金属/玻璃的物理参数提示词、参考一致性、微细节后处理。知识本体来自 2026 材质真实感研究（SOPHY/ReelMind/Dreamina/Hailuo）。AI 应用面向 DirectorX：画面真实感（衔接 133 物理、170 光线、169 服装、176 景深）。
@@ -86,3 +143,11 @@
 - ReelMind — Photorealistic Textures: Micro-Detail Surface Realism：https://reelmind.ai/blog/photorealistic-textures-achieving-micro-detail-surface-realism-in-ai-renders-through-expert-parameter-tuning-and-the-application-of-advanced-material-simulation-techniques-for-true-visual-depth-and-tangibility
 - Dreamina — Producing Photorealistic Fabrics with AI Generators：https://dreamina.capcut.com/ai-image/producing-photorealistic-fabrics-with-ai-generators
 - ReelMind — The Best AI for Creating Photorealistic Cloth and Fabric：https://reelmind.ai/blog/the-best-ai-for-creating-photorealistic-cloth-and-fabric-simulations
+
+## 相关概念
+
+- [AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）](../133-motion-physics/motion-physics.md)
+- [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)
+- [AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）](../169-props-wardrobe/props-wardrobe.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）](../174-qc-automation/qc-automation.md)

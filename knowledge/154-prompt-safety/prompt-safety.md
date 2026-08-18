@@ -1,3 +1,57 @@
+---
+type: Method
+title: "AI 视频提示词安全防护（Prompt Safety — Injection, Jailbreak & Layered Guardrails）"
+description: "AI 视频生成的提示词安全防护：提示注入（Prompt Injection）、越狱攻击（Jailbreak）、视觉指令注入（Visual Instruction Injection）、分层护栏（输入/输出/运行时）"
+tags:
+  - "consistency"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Red Hat Defending Against Prompt Injection"
+    id: cite-1
+    title: "Defending Against Prompt Injection"
+    author: "org:Red-Hat"
+  - resource: "cited:arXiv Low-Effort Jailbreak Attacks"
+    id: cite-2
+    title: "Low-Effort Jailbreak Attacks"
+    author: "org:arXiv"
+  - resource: "cited:arXiv VII: Visual Instruction Injection"
+    id: cite-3
+    title: "VII: Visual Instruction Injection"
+    author: "org:arXiv"
+  - resource: "cited:微软 Jailbreak Detection"
+    id: cite-4
+    title: "Jailbreak Detection"
+    author: "org:微软"
+  - resource: "https://www.redhat.com/en/blog/ai-security-defending-against-prompt-injection-and-unsafe-actions"
+    id: url-1
+    title: "redhat.com"
+  - resource: "https://arxiv.org/html/2604.01888v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2602.20999v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2512.24044v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection"
+    id: url-5
+    title: "learn.microsoft.com"
+dx_id: "154"
+related:
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "72-ai-content-compliance/ai-content-compliance.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 视频提示词安全防护（Prompt Safety — Injection, Jailbreak & Layered Guardrails）
 
 > 本页为 AI 视频生成的提示词安全防护：提示注入（Prompt Injection）、越狱攻击（Jailbreak）、视觉指令注入（Visual Instruction Injection）、分层护栏（输入/输出/运行时）。知识本体来自 2026 安全研究（Red Hat/arXiv/微软）。AI 应用面向 DirectorX：生成安全关卡（衔接 145 合规、72 内容政策、131 资产来源）。
@@ -85,3 +139,9 @@
 - arXiv — VII: Visual Instruction Injection for Jailbreaking Image-to-Video（2602.20999）：https://arxiv.org/html/2602.20999v1
 - arXiv — Jailbreaking Attacks vs. Content Safety Filters（2512.24044）：https://arxiv.org/html/2512.24044v1
 - Microsoft — Jailbreak Detection（Prompt Shields）：https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection
+
+## 相关概念
+
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

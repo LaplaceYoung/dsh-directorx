@@ -1,3 +1,59 @@
+---
+type: Playbook
+title: "电影生产工作流实用（Production Workflow Practical — AI-Assisted Stage Execution）"
+description: "电影生产工作流实用：AI 辅助生产工作流（故事板生成+集成工具）、瓶颈管理（生成非瓶颈，生成后 59% 是）、无障碍音频叙述（Sonic Stage 交互空间音）、阶段化执行"
+tags:
+  - "synthesis"
+  - "sound"
+  - "workflow"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Sonic Stage: Interactive Spatial Audio"
+    id: cite-1
+    title: "Sonic Stage: Interactive Spatial Audio"
+    author: "org:arXiv"
+  - resource: "cited:LinkedIn AI Storyboards Streamlining Workflow"
+    id: cite-2
+    title: "AI Storyboards Streamlining Workflow"
+    author: "org:LinkedIn"
+  - resource: "cited:McKinsey How AI Could Reinvent Film"
+    id: cite-3
+    title: "How AI Could Reinvent Film"
+    author: "org:McKinsey"
+  - resource: "https://arxiv.org/abs/2607.20835"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://www.linkedin.com/posts/eranbarel_how-to-manage-your-storyboard-like-a-director-activity-7483947021188505600-QfK1"
+    id: url-2
+    title: "linkedin.com"
+  - resource: "https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/tech-forward/how-ai-could-reinvent-film-and-tv-production"
+    id: url-3
+    title: "mckinsey.com"
+  - resource: "https://www.imagine.art/blogs/ai-filmmaking-guide"
+    id: url-4
+    title: "imagine.art"
+  - resource: "https://arxiv.org/html/2506.18899v1"
+    id: url-5
+    title: "arxiv.org"
+dx_id: "383"
+aliases:
+  - "377"
+  - "pipeline-navigation"
+related:
+  - "332-full-integration-practice/full-integration-practice.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "174-qc-automation/qc-automation.md"
+  - "372-audio-narrative-harmony/audio-narrative-harmony.md"
+---
+
 # 电影生产工作流实用（Production Workflow Practical — AI-Assisted Stage Execution）
 
 > 本页为电影生产工作流实用：AI 辅助生产工作流（故事板生成+集成工具）、瓶颈管理（生成非瓶颈，生成后 59% 是）、无障碍音频叙述（Sonic Stage 交互空间音）、阶段化执行。知识本体来自 2026 生产实用（arXiv Sonic Stage/LinkedIn/McKinsey）。AI 应用面向 DirectorX：生产执行（衔接 383 对应、377 管线、332 落地、121 编排）。
@@ -55,6 +111,10 @@
 
 **DirectorX 纪律**：瓶颈在生成后；阶段化执行；无障碍内建；持续改进。
 
+## 管线与导航（原 377）
+
+把总合成套到生产上时：规划/分镜用 172，执行用本篇阶段，知识入口用 80，不要再读「管线-导航总应用」。
+
 ## 术语表（中英对照）
 
 | 中文 | English | 说明 |
@@ -73,3 +133,10 @@
 - McKinsey — How AI Could Reinvent Film and TV Production：https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/tech-forward/how-ai-could-reinvent-film-and-tv-production
 - Imagine.Art — A Complete Guide to AI Filmmaking 2026：https://www.imagine.art/blogs/ai-filmmaking-guide
 - arXiv — Bridging Cinematic Principles and Generative AI（2506.18899）：https://arxiv.org/html/2506.18899v1
+
+## 相关概念
+
+- [电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）](../332-full-integration-practice/full-integration-practice.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）](../174-qc-automation/qc-automation.md)
+- [电影听觉叙事和谐（Audio Narrative Harmony — Sound as Continuity Texture）](../372-audio-narrative-harmony/audio-narrative-harmony.md)

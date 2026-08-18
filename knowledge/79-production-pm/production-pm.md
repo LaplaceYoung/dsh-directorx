@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "视频制作项目管理（Video Production Project Management）"
+description: "制作管理手册：视频项目为何更难（移动工件）、五阶段管线（70% 时间在审片）、围绕版本的跟踪器、时间码反馈纪律、审片工作流检查清单、交付与归档、中文生态工具"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PlayPause 制作管理指南"
+    id: cite-1
+    title: "PlayPause 制作管理指南"
+  - resource: "cited:分秒帧审片平台"
+    id: cite-2
+    title: "分秒帧审片平台"
+  - resource: "cited:Frame.io 工作流"
+    id: cite-3
+    title: "Frame.io 工作流"
+  - resource: "cited:PingCode 剪辑协作实战。"
+    id: cite-4
+    title: "PingCode 剪辑协作实战。"
+  - resource: "https://playpause.io/blogs/video-production-project-management"
+    id: url-1
+    title: "playpause.io"
+  - resource: "https://playpause.io/blogs/how-to-track-video-project-approvals"
+    id: url-2
+    title: "playpause.io"
+  - resource: "https://cutsio.com/blog/video-review-and-approval-workflow-for-creative-teams"
+    id: url-3
+    title: "cutsio.com"
+  - resource: "https://frame.io/zh-cn/enterprise/video-workflows"
+    id: url-4
+    title: "frame.io"
+  - resource: "https://mediatrack.cn/"
+    id: url-5
+    title: "mediatrack.cn"
+  - resource: "https://docs.pingcode.com/academy/wb9g6cmdhu0whnqrkk89o40z"
+    id: url-6
+    title: "docs.pingcode.com"
+dx_id: "79"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 视频制作项目管理（Video Production Project Management）
 
 > 本页是 DirectorX 制作管理手册：视频项目为何更难（移动工件）、五阶段管线（70% 时间在审片）、围绕版本的跟踪器、时间码反馈纪律、审片工作流检查清单、交付与归档、中文生态工具。与 41 素材工厂 / 60 UGC / 77 灵感系统衔接。
@@ -114,3 +167,9 @@
 - PingCode: 如何团队做剪辑——流程、协作与数据化落地的完整实战指南 — https://docs.pingcode.com/academy/wb9g6cmdhu0whnqrkk89o40z
 - ONCE 一度影像: 视频制作母版源文件交付清单——项目结束时品牌方应拿到什么 — https://www.oncevisual.com/video-production/554.html
 - Dropbox: 视频制作项目管理技巧 — https://www.dropbox.com/zh_CN/resources/video-production-project-management
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

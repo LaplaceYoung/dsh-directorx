@@ -1,3 +1,57 @@
+---
+type: Spec
+title: "多平台规格总表（Cross-Platform Video Spec Matrix）"
+description: "多平台规格速查：规格错误的真实成本、录制/上传/广告三种限制的区别、通用规格配置、全平台对照表（海外+中文）、导出三杠杆（压缩）、规格纪律"
+tags:
+  - "production"
+  - "platform"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:SocialPilot 2026 规格速查"
+    id: cite-1
+    title: "SocialPilot 2026 规格速查"
+  - resource: "cited:365 工具箱对照"
+    id: cite-2
+    title: "365 工具箱对照"
+  - resource: "cited:色彩韵全平台分辨率"
+    id: cite-3
+    title: "色彩韵全平台分辨率"
+  - resource: "cited:Vibbit 时长策略。"
+    id: cite-4
+    title: "Vibbit 时长策略。"
+  - resource: "https://www.socialpilot.co/insights/social-media-video-sizes-cheat-sheet"
+    id: url-1
+    title: "socialpilot.co"
+  - resource: "https://www.toolbox365.cn/tutorials/video-compress-platform-upload-specs-2026/"
+    id: url-2
+    title: "toolbox365.cn"
+  - resource: "https://www.toolbox365.cn/topics/video-to-platform-spec/"
+    id: url-3
+    title: "toolbox365.cn"
+  - resource: "https://www.secaiyun.com/docs/video-size-platform-resolution-guide-2026-06-18.html"
+    id: url-4
+    title: "secaiyun.com"
+  - resource: "https://vibbit.ai/zh-CN/blog/social-media-video-aspect-ratios"
+    id: url-5
+    title: "vibbit.ai"
+  - resource: "https://vibbit.ai/zh-CN/blog/optimal-video-length-platform-guide"
+    id: url-6
+    title: "vibbit.ai"
+dx_id: "68"
+related:
+  - "58-content-matrix-series/content-matrix-series.md"
+  - "61-video-seo-visual/video-seo-visual.md"
+  - "71-ecommerce-visual-integration/ecommerce-visual-integration.md"
+---
+
 # 多平台规格总表（Cross-Platform Video Spec Matrix）
 
 > 本页是 DirectorX 多平台规格速查：规格错误的真实成本、录制/上传/广告三种限制的区别、通用规格配置、全平台对照表（海外+中文）、导出三杠杆（压缩）、规格纪律。与 43 安全区 / 27 字幕 / 42 分发衔接。
@@ -108,3 +162,9 @@
 - Vibbit: 视频时长优化完全指南——各平台最佳时长策略（2026 数据版） — https://vibbit.ai/zh-CN/blog/optimal-video-length-platform-guide
 - Toolora: 社交平台尺寸大全——小红书/B站/抖音/视频号/Instagram/YouTube — https://toolora.info/zh/t/social-aspect-ratio-guide/
 - Blitzcut: Social Video Specs 2026 — Shorts, Reels & TikTok Dimensions — https://blitzcutai.com/blog/social-video-specs-2026
+
+## 相关概念
+
+- [视频内容矩阵与系列化（Content Matrix & Format Engineering）](../58-content-matrix-series/content-matrix-series.md)
+- [视频 SEO 与搜索视觉优化（Video SEO & Searchable Visuals）](../61-video-seo-visual/video-seo-visual.md)
+- [电商视觉全案整合（E-commerce Visual Integration）](../71-ecommerce-visual-integration/ecommerce-visual-integration.md)

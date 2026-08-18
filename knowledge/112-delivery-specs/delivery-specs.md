@@ -1,3 +1,63 @@
+---
+type: Spec
+title: "电影级交付规格（Delivery Specs — Color / Audio / Master Standards）"
+description: "本页知识本体来自真实广播/流媒体交付规范：母版格式（IMF/ProRes）、色彩空间（SDR/HDR/广色域）、音频响度（LUFS/dBTP）与帧率标准"
+tags:
+  - "production"
+  - "color"
+  - "sound"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CBC Technical Specifications for Program Delivery 2026"
+    id: cite-1
+    title: "Technical Specifications for Program Delivery 2026"
+    author: "org:CBC"
+  - resource: "cited:Vitrina OTT Content Delivery Specs 2026"
+    id: cite-2
+    title: "OTT Content Delivery Specs 2026"
+    author: "org:Vitrina"
+  - resource: "cited:Amazon Studios Asset Technical Specifications"
+    id: cite-3
+    title: "Asset Technical Specifications"
+    author: "org:Amazon-Studios"
+  - resource: "cited:ToolsForFilm Audio Delivery Standards"
+    id: cite-4
+    title: "Audio Delivery Standards"
+    author: "org:ToolsForFilm"
+  - resource: "cited:Filmcane Deliver Your Film to Streaming Platforms 2026"
+    id: cite-5
+    title: "Deliver Your Film to Streaming Platforms 2026"
+    author: "org:Filmcane"
+  - resource: "https://site-cbc.radio-canada.ca/documents/working-travail/suppliers-fournisseurs/technical-specifications-for-program-delivery-version-8_january_23rd_2026_b.pdf"
+    id: url-1
+    title: "site-cbc.radio-canada.ca"
+  - resource: "https://vitrina.ai/blog/ott-content-delivery-specifications-2026/"
+    id: url-2
+    title: "vitrina.ai"
+  - resource: "https://portal.amazonstudios.com/hc/en-us/articles/15986845319323-Asset-Technical-Specifications"
+    id: url-3
+    title: "portal.amazonstudios.com"
+  - resource: "https://www.toolsforfilm.com/blog/audio-delivery-standards"
+    id: url-4
+    title: "toolsforfilm.com"
+  - resource: "https://filmcane.com/blog/how-to-deliver-film-to-streaming-platforms"
+    id: url-5
+    title: "filmcane.com"
+dx_id: "112"
+related:
+  - "51-color-psychology-brand/color-psychology-brand.md"
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+  - "190-color-space-conversion/color-space-conversion.md"
+---
+
 # 电影级交付规格（Delivery Specs — Color / Audio / Master Standards）
 
 > 本页知识本体来自真实广播/流媒体交付规范：母版格式（IMF/ProRes）、色彩空间（SDR/HDR/广色域）、音频响度（LUFS/dBTP）与帧率标准。AI 应用面向 DirectorX：交付前按平台规格校验（案例 5 多语言、案例 8 竖屏、案例 6 批量教学视频的成片规格）。
@@ -103,3 +163,9 @@
 - Amazon Studios — Asset Technical Specifications：https://portal.amazonstudios.com/hc/en-us/articles/15986845319323-Asset-Technical-Specifications
 - ToolsForFilm — Audio Delivery Standards for Film and Television：https://www.toolsforfilm.com/blog/audio-delivery-standards
 - Filmcane — How to Deliver Your Film to Streaming Platforms (2026)：https://filmcane.com/blog/how-to-deliver-film-to-streaming-platforms
+
+## 相关概念
+
+- [色彩心理学与品牌视觉（Color Psychology & Brand Visuals）](../51-color-psychology-brand/color-psychology-brand.md)
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
+- [AI 色彩空间转换实操（Color Space Conversion — Rec.709/2020, SDR/HDR & Working Space）](../190-color-space-conversion/color-space-conversion.md)

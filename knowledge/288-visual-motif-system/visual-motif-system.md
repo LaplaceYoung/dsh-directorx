@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片构图母题系统（Visual Motif System — Recurring Elements & Key Visuals）"
+description: "AI 图片的构图母题系统：视觉母题（Motif：重复视觉元素加深叙事意义）、关键视觉（Key Visual：品牌/系列主视觉）、母题提示词系统（跨帧复用）、主题符号化"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Creating and Using Visual Motifs"
+    id: cite-1
+    title: "Creating and Using Visual Motifs"
+    author: "org:Fiveable"
+  - resource: "cited:Medium Visual Motifs Across a Story"
+    id: cite-2
+    title: "Visual Motifs Across a Story"
+    author: "org:Medium"
+  - resource: "cited:Sweetlava Key Visual Glossary"
+    id: cite-3
+    title: "Key Visual Glossary"
+    author: "org:Sweetlava"
+  - resource: "cited:TheBrief Repetition in Design"
+    id: cite-4
+    title: "Repetition in Design"
+    author: "org:TheBrief"
+  - resource: "https://fiveable.me/advanced-visual-storytelling/unit-8/creating-visual-motifs/study-guide/KJNS7L6XbvfpBds9"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://nrao-prashanthi.medium.com/30-visual-motifs-across-a-story-90a1647df18d"
+    id: url-2
+    title: "nrao-prashanthi.medium.com"
+  - resource: "https://sweetlava.eu/en/glossary/key-visual/"
+    id: url-3
+    title: "sweetlava.eu"
+  - resource: "https://www.thebrief.ai/blog/what-is-repetition/"
+    id: url-4
+    title: "thebrief.ai"
+  - resource: "https://www.designmantic.com/blog/design-forecast-2026/"
+    id: url-5
+    title: "designmantic.com"
+dx_id: "288"
+related:
+  - "209-prop-storytelling/prop-storytelling.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "284-auteur-signature/auteur-signature.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+---
+
 # AI 图片构图母题系统（Visual Motif System — Recurring Elements & Key Visuals）
 
 > 本页为 AI 图片的构图母题系统：视觉母题（Motif：重复视觉元素加深叙事意义）、关键视觉（Key Visual：品牌/系列主视觉）、母题提示词系统（跨帧复用）、主题符号化。知识本体来自 2026 母题设计（Fiveable/Medium/Sweetlava）。AI 应用面向 DirectorX：系列符号（衔接 209 道具母题、288 对应、238 系列一致、284 签名）。
@@ -78,3 +135,10 @@
 - Sweetlava — Key Visual: Definition & Meaning：https://sweetlava.eu/en/glossary/key-visual/
 - TheBrief — What Is Repetition in Graphic Design：https://www.thebrief.ai/blog/what-is-repetition/
 - DesignMantic — 2026 Design Forecast：https://www.designmantic.com/blog/design-forecast-2026/
+
+## 相关概念
+
+- [AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）](../209-prop-storytelling/prop-storytelling.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）](../284-auteur-signature/auteur-signature.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)

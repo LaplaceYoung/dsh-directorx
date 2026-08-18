@@ -1,3 +1,50 @@
+---
+type: Method
+title: "镜头表→提示词转换器（Shot List → Prompt Translation）"
+description: "镜头表到提示词转换手册：转换器原理、摄影语言→提示词的映射表（景别/角度/运镜/光线/镜头感）、模型适配语法差异、三步转换工作流、开源工具生态、自建转换器规范"
+tags:
+  - "foundation"
+  - "camera"
+  - "prompt"
+  - "model"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Crevas 转换器（7.5 万+ 镜头表转换）"
+    id: cite-1
+    title: "Crevas 转换器（7.5 万+ 镜头表转换）"
+  - resource: "cited:GitHub shotlist-forge / Seedance ShotDesign"
+    id: cite-2
+    title: "GitHub shotlist-forge / Seedance ShotDesign"
+  - resource: "cited:OpenCreator 多机位拆解。"
+    id: cite-3
+    title: "OpenCreator 多机位拆解。"
+  - resource: "https://crevas.ai/shot-list-to-prompt"
+    id: url-1
+    title: "crevas.ai"
+  - resource: "https://blog.laozhang.ai/zh/posts/seedance-2-prompt-guide"
+    id: url-2
+    title: "blog.laozhang.ai"
+  - resource: "https://opencreator.io/zh/blog/ai-storyboard-multi-camera-workflow"
+    id: url-3
+    title: "opencreator.io"
+  - resource: "https://www.kavel.ai/video/sora-2-prompt-generator"
+    id: url-4
+    title: "kavel.ai"
+dx_id: "53"
+related:
+  - "73-ai-prompt-quickref/ai-prompt-quickref.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+---
+
 # 镜头表→提示词转换器（Shot List → Prompt Translation）
 
 > 本页是 DirectorX 镜头表到提示词转换手册：转换器原理、摄影语言→提示词的映射表（景别/角度/运镜/光线/镜头感）、模型适配语法差异、三步转换工作流、开源工具生态、自建转换器规范。
@@ -146,3 +193,9 @@
 - LaoZhang AI Blog: Seedance 2 提示词指南——主体标签、参考素材、分镜和修复流程 — https://blog.laozhang.ai/zh/posts/seedance-2-prompt-guide
 - OpenCreator: AI 分镜脚本怎么做才"能拍出来"——同场景多机位与镜头拆解 — https://opencreator.io/zh/blog/ai-storyboard-multi-camera-workflow
 - Kavel: Sora 2 Prompt Generator — Shot-by-Shot Prompt — https://www.kavel.ai/video/sora-2-prompt-generator
+
+## 相关概念
+
+- [AI 视频模型提示词总表（Prompt Format Quick Reference）](../73-ai-prompt-quickref/ai-prompt-quickref.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)

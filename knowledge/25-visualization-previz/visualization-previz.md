@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "分镜与叙事可视化（Storyboarding & Visualization）"
+description: "可视化知识库：分镜/动态分镜/预演三层工具体系、动态分镜制作七步法、各场景类型的工具选型框架、AI 分镜工作流"
+tags:
+  - "foundation"
+  - "model"
+  - "storyboard"
+  - "workflow"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storyflow Animatic 完整指南"
+    id: cite-1
+    title: "Storyflow Animatic 完整指南"
+  - resource: "cited:M Studio Previs 对比指南"
+    id: cite-2
+    title: "M Studio Previs 对比指南"
+  - resource: "cited:Autodesk 预演文档要点。"
+    id: cite-3
+    title: "Autodesk 预演文档要点。"
+  - resource: "https://storyflow.so/blog/what-is-an-animatic-complete-guide"
+    id: url-1
+    title: "storyflow.so"
+  - resource: "https://mstudio.ai/blog/storyboarding/previs-vs-storyboard-vs-animatic"
+    id: url-2
+    title: "mstudio.ai"
+  - resource: "https://www.autodesk.com/solutions/previsualization-software"
+    id: url-3
+    title: "autodesk.com"
+  - resource: "https://www.studiobinder.com/blog/how-to-make-an-animatic/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.masterclass.com/articles/how-to-create-an-animatic-for-your-next-film"
+    id: url-5
+    title: "masterclass.com"
+  - resource: "https://docs.toonboom.com/help/storyboard-pro-24/storyboard/getting-started/animatic.html"
+    id: url-6
+    title: "docs.toonboom.com"
+dx_id: "25"
+related:
+  - "62-storyboard-automation/storyboard-automation.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md"
+---
+
 # 分镜与叙事可视化（Storyboarding & Visualization）
 
 > 本页是 DirectorX 可视化知识库：分镜/动态分镜/预演三层工具体系、动态分镜制作七步法、各场景类型的工具选型框架、AI 分镜工作流。每个概念含定义、对比表与操作步骤。
@@ -120,3 +173,9 @@
 - StudioBinder: How to Make an Animatic（索引） — https://www.studiobinder.com/blog/how-to-make-an-animatic/
 - MasterClass: How to Create an Animatic in 5 Steps — https://www.masterclass.com/articles/how-to-create-an-animatic-for-your-next-film
 - Toon Boom: Storyboard Pro 官方动态分镜帮助 — https://docs.toonboom.com/help/storyboard-pro-24/storyboard/getting-started/animatic.html
+
+## 相关概念
+
+- [分镜图端到端自动化管线（Storyboard Automation Pipeline）](../62-storyboard-automation/storyboard-automation.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）](../172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md)

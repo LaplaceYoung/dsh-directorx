@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "AI 图片材质贴图生成（PBR Texture Generation — Albedo, Normal & Roughness Maps）"
+description: "AI 图片材质贴图生成：PBR 贴图集（反照率/法线/粗糙度/金属度/AO/高度）、无缝平铺（Seamless Tileable）、引擎导出（Unity/Unreal）、提示词描述表面"
+tags:
+  - "consistency"
+  - "prompt"
+  - "i2v"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Scenario AI PBR Texture Generator"
+    id: cite-1
+    title: "AI PBR Texture Generator"
+    author: "org:Scenario"
+  - resource: "cited:AIMagicX AI Texture Generator 2026"
+    id: cite-2
+    title: "AI Texture Generator 2026"
+    author: "org:AIMagicX"
+  - resource: "cited:Sorceress Photo to Game-Ready Textures"
+    id: cite-4
+    title: "Photo to Game-Ready Textures"
+    author: "org:Sorceress"
+  - resource: "https://www.scenario.com/features/generate-textures"
+    id: url-1
+    title: "scenario.com"
+  - resource: "https://www.aimagicx.com/blog/ai-texture-generator-game-development-2026"
+    id: url-2
+    title: "aimagicx.com"
+  - resource: "https://armox.ai/tools/ai-pbr-texture-generator"
+    id: url-3
+    title: "armox.ai"
+  - resource: "https://sorceress.games/blog/ai-pbr-texture-generator-one-photo-to-game-ready-textures"
+    id: url-4
+    title: "sorceress.games"
+  - resource: "https://aitextured.com/tools/"
+    id: url-5
+    title: "aitextured.com"
+dx_id: "230"
+related:
+  - "179-surface-material-consistency/surface-material-consistency.md"
+  - "193-product-3d-showcase/product-3d-showcase.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "165-environment-generation/environment-generation.md"
+---
+
 # AI 图片材质贴图生成（PBR Texture Generation — Albedo, Normal & Roughness Maps）
 
 > 本页为 AI 图片材质贴图生成：PBR 贴图集（反照率/法线/粗糙度/金属度/AO/高度）、无缝平铺（Seamless Tileable）、引擎导出（Unity/Unreal）、提示词描述表面。知识本体来自 2026 贴图生成指南（Scenario/AIMagicX/Armox/Sorceress）。AI 应用面向 DirectorX：材质资产（衔接 179 材质、193 3D、230 对应、165 环境）。
@@ -85,3 +138,10 @@
 - Armox — AI PBR Texture Generator：https://armox.ai/tools/ai-pbr-texture-generator
 - Sorceress — One Photo to Game-Ready Textures：https://sorceress.games/blog/ai-pbr-texture-generator-one-photo-to-game-ready-textures
 - AITEXTURED — Free 3D Texture Tools：https://aitextured.com/tools/
+
+## 相关概念
+
+- [AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）](../179-surface-material-consistency/surface-material-consistency.md)
+- [AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）](../193-product-3d-showcase/product-3d-showcase.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)

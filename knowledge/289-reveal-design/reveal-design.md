@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）"
+description: "电影悬念的揭示设计：种植-兑现（Plant and Payoff）、渐进揭示（Gradual Revelation：分片释放信息）、揭示结构（铺垫-埋伏-反语境化）、炸弹时机"
+tags:
+  - "synthesis"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MovieMaker Plant and Payoff Scenes"
+    id: cite-1
+    title: "Plant and Payoff Scenes"
+    author: "org:MovieMaker"
+  - resource: "cited:ScreenwritingU The Structure of a Reveal"
+    id: cite-2
+    title: "The Structure of a Reveal"
+    author: "org:ScreenwritingU"
+  - resource: "cited:Fiveable Gradual Revelation"
+    id: cite-3
+    title: "Gradual Revelation"
+    author: "org:Fiveable"
+  - resource: "cited:Medium The Tightrope Before the Twist Ending"
+    id: cite-4
+    title: "The Tightrope Before the Twist Ending"
+    author: "org:Medium"
+  - resource: "https://www.moviemaker.com/best-plant-and-payoff-scenes-screenwriters-can-learn-from/"
+    id: url-1
+    title: "moviemaker.com"
+  - resource: "https://screenwritingu.com/structure-reveal/"
+    id: url-2
+    title: "screenwritingu.com"
+  - resource: "https://fiveable.me/screenwriting-ii/key-terms/gradual-revelation"
+    id: url-3
+    title: "fiveable.me"
+  - resource: "https://medium.com/@TheChosenPen/craft-of-screenwriting-the-tightrope-before-the-twist-ending-334db79ededa"
+    id: url-4
+    title: "medium.com"
+  - resource: "https://screenwritingu.com/dramatic-reveals-can-save-your-script/"
+    id: url-5
+    title: "screenwritingu.com"
+dx_id: "289"
+related:
+  - "268-suspense-theory/suspense-theory.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "150-narrative-structure/narrative-structure.md"
+---
+
 # 电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）
 
 > 本页为电影悬念的揭示设计：种植-兑现（Plant and Payoff）、渐进揭示（Gradual Revelation：分片释放信息）、揭示结构（铺垫-埋伏-反语境化）、炸弹时机。知识本体来自 2026 揭示设计（MovieMaker/ScreenwritingU/Fiveable）。AI 应用面向 DirectorX：揭示规划（衔接 268 悬念、289 对应、280 节奏、150 叙事）。
@@ -77,3 +130,9 @@
 - Fiveable — Gradual Revelation in Screenwriting II：https://fiveable.me/screenwriting-ii/key-terms/gradual-revelation
 - Medium — The Tightrope Before the Twist Ending：https://medium.com/@TheChosenPen/craft-of-screenwriting-the-tightrope-before-the-twist-ending-334db79ededa
 - ScreenwritingU — Dramatic Reveals Can Save Your Script：https://screenwritingu.com/dramatic-reveals-can-save-your-script/
+
+## 相关概念
+
+- [电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）](../268-suspense-theory/suspense-theory.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)

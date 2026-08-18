@@ -6,7 +6,10 @@
 
 ### Changed
 
+- **知识库 OKF 治理**：语料按 Open Knowledge Format v0.2 带 `type` / `tags` / `description` / `sources`。删掉 10 篇重号占位，合并 11 篇导航/总合成/N+1 四融合（376/385/394→80，367/374→332 等）。有效文章 351→330；旧编号走重定向。`knowledge_search` 可按 type/tag 过滤，综合篇降权。维护命令 `npm run knowledge:audit` / `knowledge:check`。
+- **画布分镜排版**：镜号与标题叠在卡片底部，空卡显示意图而不是空白图标；多选时收起生成条，避免和多选栏叠在一起。编组给幕标题留出上边距。方向键按 8/16 网格微移，吸附打开时跟网格对齐。Tab / ⇧Tab 按镜号和阅读顺序换镜。
 - **画布卡片**：成图铺满卡片，不再叠齿孔/角标/底栏；文件名 slug 不当标题；双击节点居中缩放到合适位置。DSH 会话里生成结果出小图预览，双击加入画布（已在画布上则聚焦）。
+- **画布 / 编辑台**：E 打开所选媒体编辑；编辑台显示镜头名而非文件名；Esc 先取消裁剪/文字再返回画布；⌘S 保存；图片工具 V/C/B/T/A；视频时间线播放头带当前时间。
 - **适配 DeepSeek Harness 0.1.0-rc.7**：浏览器半侧同时注册 `settings.section` 与 `settings.plugin.item`（`id`/`key`=`directorx`）。现网 plugin.item 是 list 槽，必须带 `options.id`。RC.7 起 Host 服务全部已注册 settings 命名空间。
 - **README**：补入画布截图与成片演示（`docs/assets/`），并按当前画布会话、确认后落板、调色台、90 工具、DSH 0.1.0-rc.7 对齐说明。
 - **ffmpeg 8**：`delogo` 去掉已删除的 `band` 选项；烧录字幕改走 `subtitles` 滤镜（`ass` 不再读 SRT）。
@@ -17,6 +20,15 @@
 
 ### Added
 
+- **MiniMax H3 手册内化**：官方时长 4–15s、推荐 1440p、提示词三段式与首尾帧纪律写入 `h3-contract` / `h3-prompt` 和 `minimax-h3-prompt-copilot`。有首尾帧时不再叠 role:reference。
+- **画布工艺**：文本剧本可拆成「本→首帧→视频」分镜行（`directorx_canvas_script`，认 Fountain 场次与中文镜号）；成片视频可抽帧上板（`directorx_canvas_frames`，ffmpeg）；成片一键解析（`directorx_canvas_parse`，切点检测+分镜稿+代表帧）；片段重做（`directorx_canvas_reshoot` cut 切头尾、中段走 DSH 生成闸，再 assemble 拼回）；按角色名和词令重叠自动连参考边（`directorx_canvas_autolink`）。画布菜单与 `POST /directorx/canvas/craft` 同源。不写 generating，也不加音频节点。
+- **提示词 / 成片编排**：`directorx_prompt_plan` 按镜头给出六要素缺口、视频物理链、模型 copilot 和版权方法，不写死成稿。`brief.compose` 补上路（skill_route）和稿（plan→craft→ready）；阶段账本增加 `craft`。`directorx_chengpian` 的二到四个角度只是写法，返回 `flow`/`next` 让 DSH 自己写细。
+- **编排收口**：分诊类型只在 `brief.classifyRequestType` 一处判定；`brief` / 画布指令 / `orchestrate` 共用同一份 `prompt_plan`。成稿缺 refs 时优先走 route，不再重复搜库。IP 扫描与项目记忆短缓存；知识/技能检索共用分词；卡片只订阅本镜连线和同提示词变体，避免整图重绘。
+- **DSH 可编排的确定性编辑**：`directorx_edit_plan` 按意图路由；`directorx_image_edit` 做旋转/翻转/裁切/缩放；`edit` / `video_process` / `timeline` / `smart_cut` / `concat` 可带 `nodeId` 回写画布并记入 edits 账本。调色仍走 `directorx_studio`。不削弱 craft/ready/proposal 生成闸。
+- **技能/工具路由**：`directorx_skill_route` 按原话点名该 read 的 skill 与应按序调用的工具；`skill_search` 命中也带 `tools`/`next`。生成前必须 route → skill_read 正文，不能只看目录摘要。
+- **知识库 ↔ 技能对照**：同一套同义词；`skill_route` 带文章 id；`knowledge_search`/`read` 命中带该读的 skill；`skill_search`/`read` 命中带该读的文章。DSH 按 id 精读，不再两边各搜一遍。
+- **2026-08 X 现场管线**：方法论补规则 100-105（分镜事实源、参考隔离、资产护照、未锁不许写提示词、物理因果链、模型各吃各的提示词），制片统筹七步对照现有工具。
+- **版权安全改写（编排 + 记忆）**：工程只检出 IP 并给出论文方法轴（泛化 / 去专名 / 负向排除），不写死替换句。`directorx_ip_scan` 带回方法与项目记忆；`directorx_ip_rewrite` 验收成稿并按用户用法记入 `ip-memory.json`。画布红波浪线「交给 DSH 改写」。成稿仍含专名则 craft / ready / generate 拒绝。依据知识 213、Nature genericization、arXiv 2406.14526。
 - **生成模型自接入（A+B）**：用户只交模型 id、API 文档、Key。固定工具链 `directorx_provider_ingest` → `classify` → `draft` → `smoke` → `commit`。已有协议复用现成适配器；对不上的新 HTTP 走 `generic-rest`（JSON create/poll，禁止生成代码）。设置页「接入新模型」，`generate_*` 可带 `model` 覆盖，路由表合并用户 catalog。README 将自适应接入作为首页能力。
 - **提问卡 / 检索 / 阶段账本**：`directorx_ask` 把分叉做成 DSH 提问卡（禁止正文菜单）；知识检索加同义词与分组，并增加 `directorx_skill_search` / `directorx_skill_read`；`directorx_stage` 记录 brief→deliver 的阶段性产物。
 - **生成必须先成稿**：画布短句只是意图。`directorx_prompt_craft` 校验已 read 的知识库与 skill（必要时外部调研），`generate_*` / `propose` 必须带 `craftId`。

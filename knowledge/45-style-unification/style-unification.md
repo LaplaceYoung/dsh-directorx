@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "全片风格统一与美术指导（Style Unification & Art Direction）"
+description: "风格统一手册：Look Stack 五层模型（基调/色彩/光线/质感/运动）、Lookbook 八步制作流程、完整工作示例（\"Last Shift\" 暖转冷双联画）、AI 跨片风格一致性工作流"
+tags:
+  - "foundation"
+  - "color"
+  - "model"
+  - "style"
+  - "workflow"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storyflow 2026 Lookbook 指南"
+    id: cite-1
+    title: "Storyflow 2026 Lookbook 指南"
+  - resource: "cited:AI 工具指南跨片风格一致性"
+    id: cite-2
+    title: "AI 工具指南跨片风格一致性"
+  - resource: "cited:SunoMV 色调统一方法论。"
+    id: cite-3
+    title: "SunoMV 色调统一方法论。"
+  - resource: "https://storyflow.so/blog/how-to-make-a-lookbook-for-a-film-2026"
+    id: url-1
+    title: "storyflow.so"
+  - resource: "https://storyflow.so/film-lookbook"
+    id: url-2
+    title: "storyflow.so"
+  - resource: "https://www.studiobinder.com/blog/film-lookbook-examples/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://www.sundance.org/blogs/how-olivia-wilde-and-adam-newport-berra-crafted-the-visual-language-of-the-invite/"
+    id: url-4
+    title: "sundance.org"
+  - resource: "https://aitoolsguidebook.com/zh/articles/ai-video-style-consistency/"
+    id: url-5
+    title: "aitoolsguidebook.com"
+  - resource: "https://suno.bi/zh/blog/ai-music-video-color-grading-consistency-method-sunomv-2026"
+    id: url-6
+    title: "suno.bi"
+  - resource: "https://postperspective.com/the-drama-dp-and-colorist-on-look-of-emotional-decay/"
+    id: url-7
+    title: "postperspective.com"
+dx_id: "45"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "36-color-luts/color-luts.md"
+  - "39-image-consistency/character-consistency.md"
+---
+
 # 全片风格统一与美术指导（Style Unification & Art Direction）
 
 > 本页是 DirectorX 风格统一手册：Look Stack 五层模型（基调/色彩/光线/质感/运动）、Lookbook 八步制作流程、完整工作示例（"Last Shift" 暖转冷双联画）、AI 跨片风格一致性工作流。与 09 灯光 / 20 调色 / 28 风格流派 / 36 LUT 衔接。
@@ -108,3 +165,9 @@
 - AI 工具指南: AI 视频跨片风格一致性（2026 工作流） — https://aitoolsguidebook.com/zh/articles/ai-video-style-consistency/
 - SunoMV: AI 音乐视频色调统一方法论——让每个镜头的色彩说同一种情绪 — https://suno.bi/zh/blog/ai-music-video-color-grading-consistency-method-sunomv-2026
 - postPerspective: The Drama DP and Colorist on Look of Emotional Decay — https://postperspective.com/the-drama-dp-and-colorist-on-look-of-emotional-decay/
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)

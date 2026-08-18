@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "文案与视觉协同体系（Copy-Visual Synergy System）"
+description: "文案视觉协同手册：字幕=留存工具、钩子词视觉锚点、语音单位时机、断行规则、内容类型样式映射、钩子文案体系（前 3 秒/钩-反-转结构/8 变体）、字幕安全区"
+tags:
+  - "production"
+  - "continuity"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelWords 字幕留存指南"
+    id: cite-1
+    title: "ReelWords 字幕留存指南"
+  - resource: "cited:AI 工具指南钩子/脚本教程"
+    id: cite-2
+    title: "AI 工具指南钩子/脚本教程"
+  - resource: "cited:550W 爆款文案"
+    id: cite-3
+    title: "550W 爆款文案"
+  - resource: "cited:Blitzcut 字幕位置。"
+    id: cite-4
+    title: "Blitzcut 字幕位置。"
+  - resource: "https://reelwords.ai/blog/how-to-add-captions-to-short-form-video"
+    id: url-1
+    title: "reelwords.ai"
+  - resource: "https://aitoolsguidebook.com/zh/articles/ai-tiktok-script-tutorial/"
+    id: url-2
+    title: "aitoolsguidebook.com"
+  - resource: "https://aitoolsguidebook.com/zh/articles/short-form-video-hook-ai/"
+    id: url-3
+    title: "aitoolsguidebook.com"
+  - resource: "https://www.550wai.cn/blog/viral-copywriting-title-guide.html"
+    id: url-4
+    title: "550wai.cn"
+  - resource: "https://blitzcutai.com/blog/best-caption-placement-short-form-video"
+    id: url-5
+    title: "blitzcutai.com"
+  - resource: "https://slidycreator.com/blog/text-overlay-safe-zones/"
+    id: url-6
+    title: "slidycreator.com"
+dx_id: "63"
+related:
+  - "02-editing-transitions/editing-transitions.md"
+  - "04-character-worldbuilding/character-worldbuilding.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+---
+
 # 文案与视觉协同体系（Copy-Visual Synergy System）
 
 > 本页是 DirectorX 文案视觉协同手册：字幕=留存工具、钩子词视觉锚点、语音单位时机、断行规则、内容类型样式映射、钩子文案体系（前 3 秒/钩-反-转结构/8 变体）、字幕安全区。与 51 色彩可读性 / 43 安全区 / 05 钩子衔接。
@@ -114,3 +166,9 @@
 - Slidy Creator: Text Overlays and Safe Zones — Why Your Captions Keep Getting Cut Off — https://slidycreator.com/blog/text-overlay-safe-zones/
 - Digital Zoom Studio: Text Overlays for Reels and TikTok — What Actually Works in 2026 — https://digitalzoomstudio.net/2026/06/text-overlays-for-reels-and-tiktok-what-actually-works-in-2026/
 - Influencers Time: Sound-Off Video Brief — Captions & Overlays Guide — https://www.influencers-time.com/creator-brief-for-sound-off-social-video-captions-and-overla/
+
+## 相关概念
+
+- [剪辑与转场（Editing & Transitions）](../02-editing-transitions/editing-transitions.md)
+- [人物设定与世界观（Character & Worldbuilding）](../04-character-worldbuilding/character-worldbuilding.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)

@@ -1,3 +1,58 @@
+---
+type: Spec
+title: "AI 视频分发矩阵策略（Distribution Matrix — One Asset, Multi-Platform Leverage）"
+description: "AI 视频的分发矩阵策略：一源多平台（核心资产 + 平台裁剪）、发布节奏（首发 + 24-48h 短平台铺开）、平台决策矩阵、统一测量、90 天节奏建立"
+tags:
+  - "consistency"
+  - "platform"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:HubSpot Multi-Channel Content Distribution"
+    id: cite-1
+    title: "Multi-Channel Content Distribution"
+    author: "org:HubSpot"
+  - resource: "cited:CreatorSkills Cross-Platform Content Strategy 2026"
+    id: cite-2
+    title: "Cross-Platform Content Strategy 2026"
+    author: "org:CreatorSkills"
+  - resource: "cited:351Studio Multi-Platform Video Strategy 2026"
+    id: cite-3
+    title: "Multi-Platform Video Strategy 2026"
+    author: "org:351Studio"
+  - resource: "cited:Garage Multi-Platform Distribution"
+    id: cite-4
+    title: "Multi-Platform Distribution"
+    author: "org:Garage"
+  - resource: "https://blog.hubspot.com/marketing/multi-channel-content-distribution"
+    id: url-1
+    title: "blog.hubspot.com"
+  - resource: "https://creatorskills.co/blog/cross-platform-content-strategy"
+    id: url-2
+    title: "creatorskills.co"
+  - resource: "https://351studio.com/blog/multi-platform-video-strategy-2026-master-cross-platform-content"
+    id: url-3
+    title: "351studio.com"
+  - resource: "https://www.garageproductions.in/multi-platform-distribution-strategy-release-cadence-cross-platform-repurposing/"
+    id: url-4
+    title: "garageproductions.in"
+  - resource: "https://www.distribution.ai/blog/content-distribution-strategy"
+    id: url-5
+    title: "distribution.ai"
+dx_id: "156"
+related:
+  - "112-delivery-specs/delivery-specs.md"
+  - "142-short-form-platform/short-form-platform.md"
+  - "56-data-driven-iteration/data-driven-iteration.md"
+---
+
 # AI 视频分发矩阵策略（Distribution Matrix — One Asset, Multi-Platform Leverage）
 
 > 本页为 AI 视频的分发矩阵策略：一源多平台（核心资产 + 平台裁剪）、发布节奏（首发 + 24-48h 短平台铺开）、平台决策矩阵、统一测量、90 天节奏建立。知识本体来自 2026 分发策略指南（HubSpot/CreatorSkills/351Studio/Garage）。AI 应用面向 DirectorX：交付后分发（衔接 112 交付、142 平台适配、149 数据测试）。
@@ -89,3 +144,9 @@
 - 351Studio — Multi-Platform Video Strategy 2026：https://351studio.com/blog/multi-platform-video-strategy-2026-master-cross-platform-content
 - Garage Productions — Multi-Platform Distribution: Release & Growth 2026：https://www.garageproductions.in/multi-platform-distribution-strategy-release-cadence-cross-platform-repurposing/
 - Distribution.ai — Content Distribution Strategy: A 2026 Guide：https://www.distribution.ai/blog/content-distribution-strategy
+
+## 相关概念
+
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）](../142-short-form-platform/short-form-platform.md)
+- [素材数据驱动迭代（Data-Driven Creative Iteration）](../56-data-driven-iteration/data-driven-iteration.md)

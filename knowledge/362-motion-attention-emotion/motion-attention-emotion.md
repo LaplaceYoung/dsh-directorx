@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片运动-注意-情绪三融合（Motion-Attention-Emotion — Affective Saliency Fusion）"
+description: "AI 图片的运动-注意-情绪三融合：VA 情绪注入（EmotiCrafter）+ 跨模态注意融合（空间/时间显著区）、视觉提示（面部标注/AU/语境/身体）、情感显著引导（情绪相关区域强调）"
+tags:
+  - "synthesis"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ICCV EmotiCrafter"
+    id: cite-1
+    title: "EmotiCrafter"
+    author: "org:ICCV"
+  - resource: "cited:arXiv Visual and Textual Prompts for Emotion"
+    id: cite-2
+    title: "Visual and Textual Prompts for Emotion"
+    author: "org:arXiv"
+  - resource: "cited:Glos Cross-Modal Attention Fusion"
+    id: cite-3
+    title: "Cross-Modal Attention Fusion"
+    author: "org:Glos"
+  - resource: "cited:PMC Emotional World of Visual Media"
+    id: cite-4
+    title: "Emotional World of Visual Media"
+    author: "org:PMC"
+  - resource: "https://openaccess.thecvf.com/content/ICCV2025/papers/Dang_EmotiCrafter_Text-to-Emotional-Image_Generation_based_on_Valence-Arousal_Model_ICCV_2025_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://arxiv.org/html/2504.17224v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://eprints.glos.ac.uk/15593/9/15593%20Kumar,%20h.%20et%20al%20(2025"
+    id: url-3
+    title: "eprints.glos.ac.uk"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10586271/"
+    id: url-4
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10879976/"
+    id: url-5
+    title: "pmc.ncbi.nlm.nih.gov"
+dx_id: "362"
+related:
+  - "348-atmosphere-emotion-library/atmosphere-emotion-library.md"
+  - "355-saliency-gaze-gestalt/saliency-gaze-gestalt.md"
+  - "281-motivated-motion-image/motivated-motion-image.md"
+---
+
 # AI 图片运动-注意-情绪三融合（Motion-Attention-Emotion — Affective Saliency Fusion）
 
 > 本页为 AI 图片的运动-注意-情绪三融合：VA 情绪注入（EmotiCrafter）+ 跨模态注意融合（空间/时间显著区）、视觉提示（面部标注/AU/语境/身体）、情感显著引导（情绪相关区域强调）。知识本体来自 2026 情感融合（ICCV EmotiCrafter/arXiv/Glos）。AI 应用面向 DirectorX：情感显著（衔接 348 情绪库、362 对应、355 显著、281 运动）。
@@ -72,3 +127,9 @@
 - Glos — Cross-Modal Attention Fusion for Emotion Recognition：https://eprints.glos.ac.uk/15593/9/15593%20Kumar,%20h.%20et%20al%20(2025)%20Cross-Modal%20Attention%20Fusion%20-%20A%20Deep%20Learning%20and%20Affective%20Computing%20Model%20for%20Emotion%20Recognition.pdf
 - PMC — Unlocking the Emotional World of Visual Media：https://pmc.ncbi.nlm.nih.gov/articles/PMC10586271/
 - PMC — Capacity of Generative AI to Interpret Emotions：https://pmc.ncbi.nlm.nih.gov/articles/PMC10879976/
+
+## 相关概念
+
+- [AI 图片氛围情绪库（Atmosphere-Emotion Library — VA-Driven & Affective Generation）](../348-atmosphere-emotion-library/atmosphere-emotion-library.md)
+- [AI 图片显著-视线-格式塔应用（Saliency-Gaze-Gestalt — Attention Control Framework）](../355-saliency-gaze-gestalt/saliency-gaze-gestalt.md)
+- [AI 图片镜头动机（Motivated Motion in Images — Implied Movement & Direction）](../281-motivated-motion-image/motivated-motion-image.md)

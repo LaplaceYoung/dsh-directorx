@@ -1,3 +1,58 @@
+---
+type: Case
+title: "AI 运镜控制精度实测（Camera Control Precision Field Test）"
+description: "AI 运镜控制手册：镜头语言参数化（机位/轨道/焦段/角度/停顿五维）、21 个运镜参数模板、模型运镜控制对比（Veo 3.1/Kling/Seedance/即梦/海螺）、控制精度的叙事价值、参数化验证协议"
+tags:
+  - "production"
+  - "camera"
+  - "model"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:掘金即梦 4.0 运镜拆解"
+    id: cite-1
+    title: "掘金即梦 4.0 运镜拆解"
+  - resource: "cited:PonPon Veo 3.1 运镜参考"
+    id: cite-2
+    title: "PonPon Veo 3.1 运镜参考"
+  - resource: "cited:Picasso IA Veo 运镜处理"
+    id: cite-3
+    title: "Picasso IA Veo 运镜处理"
+  - resource: "cited:aistacknav 横评。"
+    id: cite-4
+    title: "aistacknav 横评。"
+  - resource: "https://juejin.cn/post/7609985140799422464"
+    id: url-1
+    title: "juejin.cn"
+  - resource: "https://ponpon.ai/blog/veo-3-camera-movements-reference"
+    id: url-2
+    title: "ponpon.ai"
+  - resource: "https://blog.picassoia.com/how-veo-31-handles-camera-movement"
+    id: url-3
+    title: "blog.picassoia.com"
+  - resource: "https://stensyl.ai/blog/seedance-vs-veo-vs-kling-comparison"
+    id: url-4
+    title: "stensyl.ai"
+  - resource: "https://aistacknav.com/kling-ai-jimeng-hailuo-runway-ai-video-tools-comparison/"
+    id: url-5
+    title: "aistacknav.com"
+  - resource: "https://17golang.com/article/511836.html"
+    id: url-6
+    title: "17golang.com"
+dx_id: "65"
+related:
+  - "00-visual-glossary/visual-diagrams.md"
+  - "12-genre-music-performance/music-video-performance.md"
+  - "17-narrative-advanced/narrative-advanced.md"
+---
+
 # AI 运镜控制精度实测（Camera Control Precision Field Test）
 
 > 本页是 DirectorX AI 运镜控制手册：镜头语言参数化（机位/轨道/焦段/角度/停顿五维）、21 个运镜参数模板、模型运镜控制对比（Veo 3.1/Kling/Seedance/即梦/海螺）、控制精度的叙事价值、参数化验证协议。与 49 运镜调度 / 34 模型 / 53 转换器衔接。
@@ -116,3 +171,9 @@
 - 17Golang: 海螺 AI 运镜控制技巧与眩晕解析 — https://17golang.com/article/511836.html
 - 人人都是产品经理: 实测可灵 3.0，普通人的导演梦成真了 — https://www.woshipm.com/ai/6341671.html
 - 掘金: AI 视频生成工具能力拆解——技术路线与可控性实际测评 — https://juejin.cn/post/7626916118331080742
+
+## 相关概念
+
+- [视觉术语图解（Visual Glossary with Diagrams）](../00-visual-glossary/visual-diagrams.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [叙事进阶与多线结构（Advanced Narrative）](../17-narrative-advanced/narrative-advanced.md)

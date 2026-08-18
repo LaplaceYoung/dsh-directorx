@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 运动风格迁移（Motion Style Transfer — Video-to-Video & Retargeting）"
+description: "AI 运动风格迁移：参考视频运动转移到新角色（舞蹈/动作/相机运动）、跨结构重定向（Unpaired Retargeting）、视频风格迁移（保留运动换视觉风格）、运动控制工作流"
+tags:
+  - "consistency"
+  - "character"
+  - "style"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Styvid Motion Transfer AI"
+    id: cite-1
+    title: "Motion Transfer AI"
+    author: "org:Styvid"
+  - resource: "cited:DeepMotion Unpaired Motion Style Transfer"
+    id: cite-2
+    title: "Unpaired Motion Style Transfer"
+    author: "org:DeepMotion"
+  - resource: "cited:OpenCreator Motion Transfer Workflow"
+    id: cite-3
+    title: "Motion Transfer Workflow"
+    author: "org:OpenCreator"
+  - resource: "cited:Morph Video-to-Video Style Transfer"
+    id: cite-4
+    title: "Video-to-Video Style Transfer"
+    author: "org:Morph"
+  - resource: "https://www.styvid.com/ai-tool/motion-control"
+    id: url-1
+    title: "styvid.com"
+  - resource: "https://deepmotionediting.github.io/style_transfer"
+    id: url-2
+    title: "deepmotionediting.github.io"
+  - resource: "https://opencreator.io/template-motion-transfer"
+    id: url-3
+    title: "opencreator.io"
+  - resource: "https://www.morphstudio.com/video-style-transfer"
+    id: url-4
+    title: "morphstudio.com"
+  - resource: "https://app.artificialstudio.ai/tools/motion-transfer"
+    id: url-5
+    title: "app.artificialstudio.ai"
+dx_id: "211"
+related:
+  - "164-motion-performance/motion-performance.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "126-style-art-direction/style-art-direction.md"
+---
+
 # AI 运动风格迁移（Motion Style Transfer — Video-to-Video & Retargeting）
 
 > 本页为 AI 运动风格迁移：参考视频运动转移到新角色（舞蹈/动作/相机运动）、跨结构重定向（Unpaired Retargeting）、视频风格迁移（保留运动换视觉风格）、运动控制工作流。知识本体来自 2026 运动迁移指南（Styvid/DeepMotion/OpenCreator/Morph）。AI 应用面向 DirectorX：动作复用（衔接 164 动作生成、183 参考、126 风格、211 对应）。
@@ -81,3 +137,9 @@
 - OpenCreator — Motion Transfer: Image + Video Motion Control Workflow：https://opencreator.io/template-motion-transfer
 - Morph — Video-to-Video AI: Free Video Style Transfer：https://www.morphstudio.com/video-style-transfer
 - ArtificialStudio — Motion Transfer AI：https://app.artificialstudio.ai/tools/motion-transfer
+
+## 相关概念
+
+- [AI 动作与表演生成（Motion & Performance — Motion Transfer, Pose Control & Mocap-Less）](../164-motion-performance/motion-performance.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)

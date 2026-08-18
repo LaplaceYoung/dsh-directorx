@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影美术设计统一（Production Design — Unified Visual World & Art Department）"
+description: "电影美术设计（Production Design）统一：美术指导（Production Designer）总控视觉概念、场景/道具/服装/环境跨部门统一、情绪板→预算→勘景→搭建→陈设→连续性检查全流程、美术部门职责"
+tags:
+  - "consistency"
+  - "style"
+  - "workflow"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:StudioBinder What Is Production Design"
+    id: cite-1
+    title: "What Is Production Design"
+    author: "org:StudioBinder"
+  - resource: "cited:BlockReel Art Department Production Guide"
+    id: cite-2
+    title: "Art Department Production Guide"
+    author: "org:BlockReel"
+  - resource: "cited:LTX Production Designer Glossary"
+    id: cite-3
+    title: "Production Designer Glossary"
+    author: "org:LTX"
+  - resource: "cited:Wikipedia Production Designer"
+    id: cite-4
+    title: "Production Designer"
+    author: "org:Wikipedia"
+  - resource: "https://www.studiobinder.com/blog/what-is-production-design-in-film/"
+    id: url-1
+    title: "studiobinder.com"
+  - resource: "https://blockreeldao.com/blog/art-department-production-guide-design-continuity-and-clearances"
+    id: url-2
+    title: "blockreeldao.com"
+  - resource: "https://ltx.io/glossary/production-designer"
+    id: url-3
+    title: "ltx.io"
+  - resource: "https://en.wikipedia.org/wiki/Production_designer"
+    id: url-4
+    title: "en.wikipedia.org"
+  - resource: "https://liftoff.network/roles-art-department/"
+    id: url-5
+    title: "liftoff.network"
+dx_id: "222"
+related:
+  - "165-environment-generation/environment-generation.md"
+  - "169-props-wardrobe/props-wardrobe.md"
+  - "209-prop-storytelling/prop-storytelling.md"
+  - "218-film-color-design/film-color-design.md"
+  - "108-moodboard-reference/moodboard-reference.md"
+---
+
 # 电影美术设计统一（Production Design — Unified Visual World & Art Department）
 
 > 本页为电影美术设计（Production Design）统一：美术指导（Production Designer）总控视觉概念、场景/道具/服装/环境跨部门统一、情绪板→预算→勘景→搭建→陈设→连续性检查全流程、美术部门职责。知识本体来自 2026 美术设计指南（StudioBinder/Wikipedia/LTX/BlockReel）。AI 应用面向 DirectorX：视觉世界统一（衔接 165 环境、169 服装、209 道具、218 色彩、222 对应）。
@@ -87,3 +145,11 @@
 - LTX — Production Designer Glossary：https://ltx.io/glossary/production-designer
 - Wikipedia — Production Designer：https://en.wikipedia.org/wiki/Production_designer
 - Liftoff — Roles in the Art Department：https://liftoff.network/roles-art-department/
+
+## 相关概念
+
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）](../169-props-wardrobe/props-wardrobe.md)
+- [AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）](../209-prop-storytelling/prop-storytelling.md)
+- [电影色彩设计（Film Color Design — Master Palette & Cross-Department Cohesion）](../218-film-color-design/film-color-design.md)
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)

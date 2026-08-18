@@ -5,9 +5,9 @@ import { SHOT_STATUS_COLOR, SHOT_STATUS_LABEL, asShotStatus } from './document.t
 import { IconCopy, IconDownload, IconEdit, IconImage, IconLock, IconPlay, IconPlus, IconSpark, IconText, IconTrash, IconUnlock, IconUpload, IconVideo, KindGlyph } from './icons.tsx'
 import { MarkdownView } from './MarkdownView.tsx'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
-import { incomingRefIds, takePeers, type GenerateSpec } from './workstation.ts'
+import { type GenerateSpec } from './workstation.ts'
 import { withProject } from './project.ts'
-import { displayCardTitle } from './card-label.ts'
+import { displayCardTitle, shotMark } from './card-label.ts'
 
 export type StageKind = 'image' | 'video' | 'text' | 'group'
 
@@ -146,18 +146,18 @@ function NodeFrame(props: {
         style={{
           ...card,
           boxShadow: props.selected === true ? dx.glow : card.boxShadow,
-          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.generating === true ? 'rgba(240,195,106,.62)' : props.selected === true ? 'rgba(255,255,255,.55)' : dx.hairline,
+          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.generating === true ? 'rgba(240,195,106,.62)' : props.selected === true ? 'rgba(255,244,228,.62)' : dx.hairline,
         }}
       >
         {props.children}
+        {props.title !== undefined ? (
+          <div className="nodrag nopan dx-card-caption">
+            {props.title}
+          </div>
+        ) : null}
       </div>
-      {props.title !== undefined ? (
-        <div className="nodrag nopan dx-card-caption" style={{ position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 6, zIndex: 5 }}>
-          {props.title}
-        </div>
-      ) : null}
       {props.dock !== undefined && props.selected === true ? (
-        <div className="nodrag nopan" style={{ position: 'absolute', left: 0, right: 0, top: '100%', marginTop: props.title !== undefined ? 34 : 8, zIndex: 8 }}>
+        <div className="nodrag nopan dx-card-dock">
           {props.dock}
         </div>
       ) : null}
@@ -251,10 +251,14 @@ function GeneratingHud(props: { kind: 'image' | 'video'; prompt?: string }): Rea
   )
 }
 
-function EmptyPlate(props: { kind: 'image' | 'video' }): ReactNode {
+function EmptyPlate(props: { kind: 'image' | 'video'; prompt?: string }): ReactNode {
+  const line = (props.prompt ?? '').trim()
   return (
     <div className="dx-empty-plate">
       <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={18} /> : <IconImage size={18} />}</span>
+      {line !== '' ? <div className="dx-empty-intent">{line}</div> : (
+        <div className="dx-empty-hint">{props.kind === 'video' ? '写下这一镜的动作' : '写下这一镜的画面'}</div>
+      )}
     </div>
   )
 }
@@ -268,26 +272,33 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
   const empty = data.path === undefined || data.path === ''
   const [shellRef, near] = useNearViewport()
   const src = empty ? '' : mediaUrl(data.path ?? '')
-  const graph = useStore(state => ({
-    nodes: state.nodes.map(node => ({
-      id: node.id,
-      parentId: node.parentId,
-      type: node.type,
-      prompt: typeof node.data.prompt === 'string' ? node.data.prompt : undefined,
-      path: typeof node.data.path === 'string' ? node.data.path : '',
-      label: typeof node.data.label === 'string' ? node.data.label : node.id,
-    })),
-    edges: state.edges.map(edge => ({ source: edge.source, target: edge.target })),
-  }))
-  const refs = incomingRefIds(props.id, graph.edges)
-  const peerIds = takePeers(
-    { id: props.id, parentId: graph.nodes.find(node => node.id === props.id)?.parentId, prompt: data.prompt },
-    graph.nodes,
-    graph.edges,
+  const incoming = useStore(state =>
+    state.edges.filter(edge => edge.target === props.id).map(edge => edge.source).sort().join('|'),
   )
-  const peers = [props.id, ...peerIds].map(id => graph.nodes.find(node => node.id === id)).filter((node): node is typeof graph.nodes[number] => node !== undefined)
-  const promptKey = (data.prompt ?? '').trim()
-  const takes = peers.filter(peer => peer.path !== '' && (peer.prompt ?? '').trim() === promptKey && promptKey !== '')
+  const takeDigest = useStore(state => {
+    const prompt = (data.prompt ?? '').trim()
+    if (prompt === '') return ''
+    const self = state.nodes.find(node => node.id === props.id)
+    const parent = self?.parentId ?? ''
+    return state.nodes
+      .filter(node =>
+        (node.type === 'media' || node.type === undefined)
+        && (node.parentId ?? '') === parent
+        && typeof node.data.prompt === 'string'
+        && node.data.prompt.trim() === prompt
+        && typeof node.data.path === 'string'
+        && node.data.path !== '',
+      )
+      .map(node => `${node.id}\t${String(node.data.path)}\t${String(node.data.label ?? node.id)}`)
+      .join('\n')
+  })
+  const refs = incoming === '' ? [] : incoming.split('|')
+  const takes = takeDigest === ''
+    ? []
+    : takeDigest.split('\n').map(row => {
+      const [id, path, label] = row.split('\t')
+      return { id: id ?? '', path: path ?? '', label: label ?? '' }
+    }).filter(item => item.id !== '')
   const kind = data.kind === 'video' ? 'video' as const : 'image' as const
   const generating = data.shotStatus === 'generating'
   const filled = !empty && !generating
@@ -312,6 +323,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       filled={filled}
       title={(
         <div className="dx-card-meta">
+          {shotMark(data.shotIndex) !== '' ? <span className="dx-shot-no">{shotMark(data.shotIndex)}</span> : null}
           <input
             className="dx-node-title nodrag nopan"
             value={title}
@@ -320,7 +332,8 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             style={{
               flex: 1, minWidth: 0, height: 22, padding: '0 2px', borderRadius: 6,
               border: '1px solid transparent', background: 'transparent',
-              color: '#dedede', fontSize: 11, fontFamily: dx.font, outline: 'none',
+              color: '#f2f2f2', fontSize: 12.5, fontWeight: 500, letterSpacing: -0.15,
+              fontFamily: dx.font, outline: 'none',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
           />
@@ -372,7 +385,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
         style={{ overflow: 'hidden' }}
       >
         {empty && !generating ? (
-          <EmptyPlate kind={kind} />
+          <EmptyPlate kind={kind} prompt={data.prompt} />
         ) : empty ? null : kind === 'video' ? (
           <div className="dx-media-bleed" style={{ opacity: generating ? 0.38 : 1 }}>
             {near ? (
@@ -395,13 +408,9 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
           </div>
         )}
         {generating ? <GeneratingHud kind={kind} prompt={data.prompt} /> : null}
-        {filled ? null : (
-          <span className="dx-kind-badge">
-            <KindGlyph kind={kind} size={11} />
-            {data.shotIndex !== undefined ? <span>#{String(data.shotIndex).padStart(2, '0')}</span> : null}
-            {kind === 'video' && data.durationSec !== undefined ? <span>{data.durationSec}s</span> : null}
-          </span>
-        )}
+        {kind === 'video' && data.durationSec !== undefined ? (
+          <span className="dx-kind-badge dx-kind-time">{data.durationSec}s</span>
+        ) : null}
         {data.shotStatus === 'failed' ? (
           <div className="nodrag nopan" style={{
             position: 'absolute', inset: 0, background: 'rgba(20,8,8,.62)',
@@ -414,7 +423,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
           </div>
         ) : null}
         {takes.length >= 2 ? (
-          <div className="nodrag nopan dx-take-row" style={{ position: 'absolute', left: 8, right: 8, bottom: 8, display: 'flex', gap: 4 }}>
+          <div className="nodrag nopan dx-take-row" style={{ position: 'absolute', left: 8, right: 8, bottom: 38, display: 'flex', gap: 4 }}>
             {takes.slice(0, 6).map(peer => {
               const path = peer.path
               return (
@@ -443,7 +452,7 @@ function StatusChip(props: { status?: string; onClick: () => void }): ReactNode 
   const status = asShotStatus(props.status) ?? 'idea'
   return (
     <button
-      className="nodrag nopan"
+      className="nodrag nopan dx-status-chip"
       title="循环镜头状态"
       onClick={event => { event.stopPropagation(); props.onClick() }}
       style={{
@@ -453,7 +462,7 @@ function StatusChip(props: { status?: string; onClick: () => void }): ReactNode 
         border: `1px solid ${SHOT_STATUS_COLOR[status]}33`,
         background: `${SHOT_STATUS_COLOR[status]}14`,
         color: SHOT_STATUS_COLOR[status],
-        fontSize: 10,
+        fontSize: 10.5,
         fontWeight: 500,
         cursor: 'pointer',
         fontFamily: dx.font,
@@ -462,7 +471,11 @@ function StatusChip(props: { status?: string; onClick: () => void }): ReactNode 
         gap: 5,
       }}
     >
-      {status === 'generating' ? <span className="dx-spin" style={{ width: 8, height: 8, borderWidth: 1.4, borderColor: 'rgba(240,195,106,.25)', borderTopColor: '#f0c36a' }} /> : null}
+      {status === 'generating' ? (
+        <span className="dx-spin" style={{ width: 8, height: 8, borderWidth: 1.4, borderColor: 'rgba(240,195,106,.25)', borderTopColor: '#f0c36a' }} />
+      ) : (
+        <span className="dx-status-dot" style={{ background: SHOT_STATUS_COLOR[status] }} />
+      )}
       {SHOT_STATUS_LABEL[status]}
     </button>
   )
@@ -559,8 +572,8 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
         width: '100%',
         height: '100%',
         borderRadius: 22,
-        border: `1px solid ${props.selected === true ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.08)'}`,
-        background: 'linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))',
+        border: `1px solid ${props.selected === true ? 'rgba(255,244,228,.28)' : 'rgba(255,255,255,.08)'}`,
+        background: 'linear-gradient(180deg, rgba(255,244,228,.045), rgba(255,255,255,.018))',
         color: dx.ink,
         padding: 12,
         fontSize: 13,
@@ -573,13 +586,13 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
           style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           color: dx.ink, fontWeight: 500, fontSize: 12,
-          padding: '6px 10px', borderRadius: 999,
-          background: 'rgba(12,12,12,.55)',
+          padding: '7px 12px', borderRadius: 999,
+          background: 'rgba(12,12,12,.62)',
           border: `1px solid ${dx.hairline}`,
           backdropFilter: 'blur(12px)',
         }}>
           <KindGlyph kind="group" size={13} />
-          <span style={{ color: dx.dim, fontSize: 10, letterSpacing: 0.4 }}>幕</span>
+          <span style={{ color: dx.dim, fontSize: 10, letterSpacing: 0.6, textTransform: 'uppercase' }}>幕</span>
           {editing ? (
             <input
               autoFocus

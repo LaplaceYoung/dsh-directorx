@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "拍摄端声画协同（Designing Picture for Sound）"
+description: "拍摄端声画协同手册：声音设计从剧本开始（POV 是核心）、给角色倾听的机会、饿眼养耳、画面为声音建立锚点、场景选择与美术的声学考量、剪辑为声音留空间、声音职能清单"
+tags:
+  - "production"
+  - "editing"
+  - "sound"
+  - "character"
+  - "style"
+  - "continuity"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Randy Thom Designing a Movie for Sound"
+    id: cite-1
+    title: "Designing a Movie for Sound"
+    author: "org:Randy-Thom"
+  - resource: "cited:Sound on Sound"
+    id: cite-2
+    title: "Sound on Sound"
+  - resource: "cited:Pixflow 声音设计指南。"
+    id: cite-3
+    title: "Pixflow 声音设计指南。"
+  - resource: "https://www.filmsound.org/articles/designing_for_sound.htm"
+    id: url-1
+    title: "filmsound.org"
+  - resource: "https://www.soundonsound.com/techniques/sound-design-visual-media"
+    id: url-2
+    title: "soundonsound.com"
+  - resource: "https://pixflow.net/blog/sound-design-for-film/"
+    id: url-3
+    title: "pixflow.net"
+  - resource: "https://www.studiobinder.com/blog/what-is-sound-design-for-film/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://blockreeldao.com/blog/sound-design-for-film-complete-guide-from-script-to-atmos"
+    id: url-5
+    title: "blockreeldao.com"
+  - resource: "https://en.wikipedia.org/wiki/Sound_design"
+    id: url-6
+    title: "en.wikipedia.org"
+dx_id: "88"
+related:
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+---
+
 # 拍摄端声画协同（Designing Picture for Sound）
 
 > 本页是 DirectorX 拍摄端声画协同手册：声音设计从剧本开始（POV 是核心）、给角色倾听的机会、饿眼养耳、画面为声音建立锚点、场景选择与美术的声学考量、剪辑为声音留空间、声音职能清单。音频技术部分从简（→ 06/23/31），重点在画面侧的设计配合。
@@ -101,3 +156,9 @@
 - StudioBinder: What is Sound Design for Film? — https://www.studiobinder.com/blog/what-is-sound-design-for-film/
 - BlockReel: Sound Design — From Script to Dolby Atmos — https://blockreeldao.com/blog/sound-design-for-film-complete-guide-from-script-to-atmos
 - Wikipedia: Sound Design — https://en.wikipedia.org/wiki/Sound_design
+
+## 相关概念
+
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)

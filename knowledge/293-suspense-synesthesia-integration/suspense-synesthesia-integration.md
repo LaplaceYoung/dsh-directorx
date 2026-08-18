@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影叙事-悬念-通感三整合（Narrative-Suspense-Synesthesia — PAL-D & Unified Tension Design）"
+description: "电影叙事-悬念-通感三整合：PAL-D 框架（预测-情感回路：导演决策→观众情感回路）、叙事内容+音乐独立驱动悬念、多感官氛围（声音/光/色/节奏）塑造沉浸"
+tags:
+  - "synthesis"
+  - "sound"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Frontiers PAL-D: Predictive-Affective Loop for Directors"
+    id: cite-1
+    title: "PAL-D: Predictive-Affective Loop for Directors"
+    author: "org:Frontiers"
+  - resource: "cited:Nature Building Blocks of Suspense"
+    id: cite-2
+    title: "Building Blocks of Suspense"
+    author: "org:Nature"
+  - resource: "cited:NoHo Sensory Atmosphere in Film"
+    id: cite-3
+    title: "Sensory Atmosphere in Film"
+    author: "org:NoHo"
+  - resource: "cited:ScienceDirect Inducing Narrative Tension"
+    id: cite-4
+    title: "Inducing Narrative Tension"
+    author: "org:ScienceDirect"
+  - resource: "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2026.1760222/full"
+    id: url-1
+    title: "frontiersin.org"
+  - resource: "https://www.nature.com/articles/s41599-022-01461-5"
+    id: url-2
+    title: "nature.com"
+  - resource: "https://nohoartsdistrict.com/sensory-atmosphere-in-film/"
+    id: url-3
+    title: "nohoartsdistrict.com"
+  - resource: "https://www.sciencedirect.com/science/article/pii/S0304422X22000262"
+    id: url-4
+    title: "sciencedirect.com"
+  - resource: "https://www.academia.edu/165582264/Suspense_Curiosity_and_Surprise_Towards_a_Comprehensive_Theory_of_Tension_in_Film"
+    id: url-5
+    title: "academia.edu"
+dx_id: "293"
+related:
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "268-suspense-theory/suspense-theory.md"
+  - "267-film-synesthesia/film-synesthesia.md"
+  - "219-film-sound-theory/film-sound-theory.md"
+  - "144-sound-design/sound-design.md"
+---
+
 # 电影叙事-悬念-通感三整合（Narrative-Suspense-Synesthesia — PAL-D & Unified Tension Design）
 
 > 本页为电影叙事-悬念-通感三整合：PAL-D 框架（预测-情感回路：导演决策→观众情感回路）、叙事内容+音乐独立驱动悬念、多感官氛围（声音/光/色/节奏）塑造沉浸。知识本体来自 2026 整合研究（Frontiers PAL-D/Nature/NoHo）。AI 应用面向 DirectorX：统一张力（衔接 282 三整合、293 对应、268 悬念、267 通感）。
@@ -78,3 +135,11 @@
 - NoHo — How Sensory Atmosphere Shapes Mood in Film：https://nohoartsdistrict.com/sensory-atmosphere-in-film/
 - ScienceDirect — Inducing Narrative Tension Through Suspense：https://www.sciencedirect.com/science/article/pii/S0304422X22000262
 - Academia — Suspense, Curiosity, and Surprise: Theory of Tension：https://www.academia.edu/165582264/Suspense_Curiosity_and_Surprise_Towards_a_Comprehensive_Theory_of_Tension_in_Film
+
+## 相关概念
+
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）](../268-suspense-theory/suspense-theory.md)
+- [电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）](../267-film-synesthesia/film-synesthesia.md)
+- [电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）](../219-film-sound-theory/film-sound-theory.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)

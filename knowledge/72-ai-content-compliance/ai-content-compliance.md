@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 内容合规实务（AI Content Compliance）"
+description: "AI 内容合规手册：中国《人工智能生成合成内容标识办法》要点（显式/隐式标识、各内容类型要求、传播义务、用户声明、禁止行为）、欧盟 AI 标识行为准则、加州 SB-1142、AI 内容版权边界、制作合规清单"
+tags:
+  - "production"
+  - "copyright"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:国家网信办标识办法（2025-09-01 施行）"
+    id: cite-1
+    title: "国家网信办标识办法（2025-09-01 施行）"
+  - resource: "cited:欧盟 Code of Practice"
+    id: cite-2
+    title: "欧盟 Code of Practice"
+  - resource: "cited:加州 SB-1142 Digital Dignity Act"
+    id: cite-3
+    title: "加州 SB-1142 Digital Dignity Act"
+  - resource: "cited:最高检 AI 创作版权边界。"
+    id: cite-4
+    title: "最高检 AI 创作版权边界。"
+  - resource: "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm"
+    id: url-1
+    title: "cac.gov.cn"
+  - resource: "https://www.miit.gov.cn/xwfb/mtbd/wzbd/art/2025/art_5e46c60f9a7141cdb584eb139f476ce9.html"
+    id: url-2
+    title: "miit.gov.cn"
+  - resource: "https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content"
+    id: url-3
+    title: "digital-strategy.ec.europa.eu"
+  - resource: "https://leginfo.legislature.ca.gov/faces/billCompareClient.xhtml?bill_id=202520260SB1142&showamends=false"
+    id: url-4
+    title: "leginfo.legislature.ca.gov"
+  - resource: "https://www.morganlewis.com/pubs/2026/08/new-california-ai-disclosure-rules-become-operative"
+    id: url-5
+    title: "morganlewis.com"
+  - resource: "https://www.spp.gov.cn/zdgz/202504/t20250425_694112.shtml"
+    id: url-6
+    title: "spp.gov.cn"
+dx_id: "72"
+related:
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "31-ai-audio/ai-audio.md"
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+---
+
 # AI 内容合规实务（AI Content Compliance）
 
 > 本页是 DirectorX AI 内容合规手册：中国《人工智能生成合成内容标识办法》要点（显式/隐式标识、各内容类型要求、传播义务、用户声明、禁止行为）、欧盟 AI 标识行为准则、加州 SB-1142、AI 内容版权边界、制作合规清单。与 31 AI 音频 / 55 出海 / 57 混合制作衔接。
@@ -107,3 +161,9 @@
 - 最高检: AI 创作的权利边界在哪里？ — https://www.spp.gov.cn/zdgz/202504/t20250425_694112.shtml
 - Harris Sliwoski: Deepfakes, Voice Cloning, and AI Impersonation — The Global Rules — https://harris-sliwoski.com/blog/deepfakes-voice-cloning-and-ai-impersonation-the-global-rules-are-already-here-and-they-dont-agree/
 - 新浪财经: 智能 AI 生成的视频合规吗？2026 年最新版权、标识与平台规则 — https://cj.sina.cn/articles/view/7879776492/1d5abd8ec06801d8zu
+
+## 相关概念
+
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [AI 音频专项（AI Audio: Voice, Music & Restoration）](../31-ai-audio/ai-audio.md)
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)

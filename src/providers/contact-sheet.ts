@@ -27,6 +27,10 @@ export async function contactSheet(input: ContactSheetInput): Promise<ContactShe
 
   const frames: Array<{ source: string; t: number; framePath: string }> = []
   for (const source of input.sources) {
+    if (/\.(png|jpe?g|webp|gif)$/i.test(source)) {
+      frames.push({ source, t: 0, framePath: source })
+      continue
+    }
     const probe = probeMedia(source)
     const duration = probe.durationSec ?? 0
     const midpoint = Number((duration / 2).toFixed(2))

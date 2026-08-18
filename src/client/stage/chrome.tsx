@@ -3,14 +3,20 @@ import { dx, dxChrome, dxGhostBtn, dxPill } from '../canvas-theme.ts'
 import { SHOT_STATUS_COLOR, SHOT_STATUS_LABEL, SHOT_STATUSES, asShotStatus, type ShotStatus } from './document.ts'
 import {
   IconAlign, IconCheck, IconChevron, IconClose, IconCompare, IconCopy, IconDownload, IconEdit, IconFit,
-  IconFolder, IconGrid, IconGroup, IconHelp, IconImage, IconLock, IconMinus, IconPlus, IconRedo, IconSearch,
+  IconFolder, IconGrid, IconGroup, IconHelp, IconImage, IconLink, IconLock, IconMinus, IconPlus, IconRedo, IconScissors, IconSearch,
   IconSend, IconSpark, IconText, IconTrash, IconUndo, IconUnlink, IconUnlock, IconUpload, IconVideo, KindGlyph,
 } from './icons.tsx'
 import { clampMenu, type AlignKind } from './layout.ts'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
+import { PromptIpField } from './ip-prompt.tsx'
 import { mediaUrl } from './nodes.tsx'
 
-export type AddKind = 'image' | 'video' | 'text' | 'group' | 'upload' | 'assets' | 'edit-image' | 'edit-video'
+export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'upload' | 'assets' | 'edit-image' | 'edit-video'
+
+export const SCRIPT_STARTER = `第一场 咖啡馆 日内
+镜头1：近景，推门进来，5s
+镜头2：过肩，店员抬头，3s
+`
 
 const menu: CSSProperties = {
   ...dxChrome,
@@ -60,6 +66,20 @@ const kbd: CSSProperties = {
   fontFamily: dx.font,
 }
 
+function MenuLabel(props: { children: ReactNode }): ReactNode {
+  return (
+    <div className="dx-menu-label" style={{
+      padding: '7px 10px 3px',
+      fontSize: 10,
+      letterSpacing: 0.7,
+      color: dx.dim,
+      fontWeight: 600,
+    }}>
+      {props.children}
+    </div>
+  )
+}
+
 export function TitlePill(props: {
   value: string
   onChange: (value: string) => void
@@ -71,9 +91,10 @@ export function TitlePill(props: {
       onChange={event => props.onChange(event.target.value)}
       className="dx-title"
       style={{
-        width: 240,
-        height: 36,
-        padding: '0 16px',
+        width: 220,
+        maxWidth: '42vw',
+        height: 32,
+        padding: '0 14px',
         borderRadius: 999,
         textAlign: 'center',
         fontSize: 13,
@@ -102,44 +123,48 @@ export function TopBar(props: {
   return (
     <div className="dx-topbar" style={{
       position: 'absolute',
-      top: 14,
+      top: 12,
       left: 72,
       right: 14,
       zIndex: 24,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 10,
       pointerEvents: 'none',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+      <div className="dx-topbar-cluster" style={{
+        ...dxChrome,
+        pointerEvents: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: 4,
+        borderRadius: 999,
+        maxWidth: 'min(720px, calc(100% - 8px))',
+      }}>
         {props.projects.length > 0 ? (
-          <ProjectChip projects={props.projects} value={props.project} onChange={props.onProject} />
+          <ProjectChip projects={props.projects} value={props.project} onChange={props.onProject} embedded />
         ) : null}
-        <div style={{ ...dxChrome, borderRadius: 999, padding: 3 }}>
-          <TitlePill value={props.title} onChange={props.onTitle} />
-        </div>
-      </div>
-      <div style={{ position: 'absolute', right: 0, display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
-        <div style={{
-          ...dxChrome,
-          height: 36,
-          padding: '0 12px',
+        <TitlePill value={props.title} onChange={props.onTitle} />
+        <div className="dx-topbar-meta" style={{
+          height: 32,
+          padding: '0 10px',
           borderRadius: 999,
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 7,
           fontSize: 11,
           color: dx.mute,
           letterSpacing: 0.2,
+          flexShrink: 0,
         }}>
           <span className={props.saveState === '未保存' ? 'dx-dot-warn' : 'dx-dot'} />
           {props.saveState}
-          <span style={{ opacity: .45 }}>·</span>
-          {props.count}
+          <span style={{ opacity: .4 }}>·</span>
+          {props.count} 镜
         </div>
         {props.onClose !== undefined ? (
-          <button className="dx-hit" style={{ ...dxChrome, ...dxGhostBtn, width: 36, height: 36, borderRadius: 999 }} onClick={props.onClose} title="关闭画布">
+          <button className="dx-hit" style={{ ...dxGhostBtn, width: 32, height: 32, borderRadius: 999 }} onClick={props.onClose} title="关闭画布">
             <IconClose size={14} />
           </button>
         ) : null}
@@ -152,6 +177,7 @@ function ProjectChip(props: {
   projects: Array<{ path: string; title: string }>
   value?: string
   onChange: (path: string) => void
+  embedded?: boolean
 }): ReactNode {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement | null>(null)
@@ -171,16 +197,18 @@ function ProjectChip(props: {
         title="当前项目（每个工作区一份画布）"
         onClick={() => setOpen(value => !value)}
         style={{
-          ...dxChrome,
-          height: 36,
-          padding: '0 12px 0 10px',
+          ...(props.embedded === true ? {} : dxChrome),
+          height: 32,
+          padding: '0 10px 0 8px',
           borderRadius: 999,
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
-          maxWidth: 220,
+          gap: 6,
+          maxWidth: 168,
           fontSize: 12,
           fontWeight: 500,
+          background: props.embedded === true ? 'transparent' : dxChrome.background,
+          border: props.embedded === true ? 'none' : dxChrome.border,
         }}
       >
         <IconFolder size={14} />
@@ -226,7 +254,7 @@ export function StageRail(props: {
     { label: '快捷键 ?', onClick: props.onHelp, icon: <IconHelp /> },
   ]
   return (
-    <div style={{
+    <div className="dx-rail" style={{
       ...dxChrome,
       position: 'absolute',
       top: '50%',
@@ -291,6 +319,7 @@ export function AddMenu(props: {
     { kind: 'image', label: '图片', icon: <IconImage size={15} /> },
     { kind: 'video', label: '视频', icon: <IconVideo size={15} /> },
     { kind: 'text', label: '文本', icon: <IconText size={15} /> },
+    { kind: 'script', label: '剧本', icon: <IconText size={15} /> },
     { kind: 'group', label: '分组', icon: <IconGroup size={15} /> },
   ]
   const extras: Array<{ kind: AddKind; label: string; icon: ReactNode }> = [
@@ -299,7 +328,7 @@ export function AddMenu(props: {
     { kind: 'upload', label: '上传文件', icon: <IconUpload size={15} /> },
     { kind: 'assets', label: '从资源库加入', icon: <IconGrid size={15} /> },
   ]
-  const pos = clampMenu(props.x, props.y, 220, 380, viewSize())
+  const pos = clampMenu(props.x, props.y, 220, 460, viewSize())
   const rowOf = (row: { kind: AddKind; label: string; icon: ReactNode }) => (
     <button key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
       <span style={{ opacity: .7, display: 'flex' }}>{row.icon}</span>
@@ -308,8 +337,10 @@ export function AddMenu(props: {
   )
   return (
     <div style={{ ...menu, left: pos.left, top: pos.top }} onMouseDown={event => event.stopPropagation()}>
+      <MenuLabel>节点</MenuLabel>
       {nodes.map(rowOf)}
-      <div style={{ height: 1, margin: '4px 8px', background: 'rgba(255,255,255,.08)' }} />
+      <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} />
+      <MenuLabel>导入</MenuLabel>
       {extras.map(rowOf)}
     </div>
   )
@@ -322,6 +353,16 @@ export function NodeMenu(props: {
   canDownload: boolean
   locked: boolean
   canUngroup: boolean
+  canScript?: boolean
+  canFrames?: boolean
+  canParse?: boolean
+  canReshoot?: boolean
+  canAssemble?: boolean
+  canSplit?: boolean
+  canDesub?: boolean
+  canExtend?: boolean
+  canGif?: boolean
+  canRevise?: boolean
   onGenerate: () => void
   onEdit: () => void
   onDuplicate: () => void
@@ -329,12 +370,45 @@ export function NodeMenu(props: {
   onLock: () => void
   onDownload: () => void
   onUngroup: () => void
+  onScript?: () => void
+  onFrames?: () => void
+  onParse?: () => void
+  onReshoot?: () => void
+  onAssemble?: () => void
+  onAutolink?: () => void
+  onSplit?: () => void
+  onDesub?: () => void
+  onExtend?: () => void
+  onGif?: () => void
+  onRevise?: () => void
   onDelete: () => void
 }): ReactNode {
-  const pos = clampMenu(props.x, props.y, 200, 320, viewSize())
+  const pos = clampMenu(props.x, props.y, 200, 600, viewSize())
+  const craft = (
+    <>
+      {props.canScript === true && props.onScript !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onScript}><IconText size={15} />铺成分镜行</button> : null}
+      {props.canFrames === true && props.onFrames !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onFrames}><IconImage size={15} />抽帧上板</button> : null}
+      {props.canParse === true && props.onParse !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onParse}><IconSearch size={15} />一键解析</button> : null}
+      {props.canReshoot === true && props.onReshoot !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onReshoot}><IconScissors size={15} />片段重做…</button> : null}
+      {props.canAssemble === true && props.onAssemble !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onAssemble}><IconVideo size={15} />拼回成片</button> : null}
+      {props.canSplit === true && props.onSplit !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onSplit}><IconGrid size={15} />宫格切开</button> : null}
+      {props.canDesub === true && props.onDesub !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onDesub}><IconScissors size={15} />去硬字</button> : null}
+      {props.canExtend === true && props.onExtend !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onExtend}><IconVideo size={15} />续写位</button> : null}
+      {props.canGif === true && props.onGif !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onGif}><IconImage size={15} />导出动图</button> : null}
+      {props.canRevise === true && props.onRevise !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onRevise}><IconSpark size={15} />改这一镜…</button> : null}
+      {props.onAutolink !== undefined ? <button className="dx-menu-item" style={item} onClick={props.onAutolink}><IconLink size={15} />按引用连线</button> : null}
+    </>
+  )
+  const hasCraft = props.canScript === true || props.canFrames === true || props.canParse === true
+    || props.canReshoot === true || props.canAssemble === true || props.canSplit === true
+    || props.canRevise === true || props.onAutolink !== undefined
   return (
     <div style={{ ...menu, left: pos.left, top: pos.top }} onMouseDown={event => event.stopPropagation()}>
       <button className="dx-menu-item" style={item} onClick={props.onGenerate}><IconSpark size={15} />生成</button>
+      {hasCraft ? <MenuLabel>工艺</MenuLabel> : null}
+      {craft}
+      <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} />
+      <MenuLabel>节点</MenuLabel>
       {props.canEdit ? <button className="dx-menu-item" style={item} onClick={props.onEdit}><IconEdit size={15} />编辑</button> : null}
       {props.canDownload ? <button className="dx-menu-item" style={item} onClick={props.onDownload}><IconDownload size={15} />下载</button> : null}
       <button className="dx-menu-item" style={item} onClick={props.onDuplicate}><IconCopy size={15} />复制</button>
@@ -359,6 +433,105 @@ export function EdgeMenu(props: {
   )
 }
 
+export function ReshootDialog(props: {
+  durationSec?: number
+  prompt: string
+  onCancel: () => void
+  onSubmit: (input: { start: number; end: number; prompt: string }) => void
+}): ReactNode {
+  const fallback = Math.max(2, Math.min(8, props.durationSec ?? 5))
+  const [start, setStart] = useState('0')
+  const [end, setEnd] = useState(String(fallback))
+  const [prompt, setPrompt] = useState(props.prompt)
+  return (
+    <div
+      style={{
+        ...dxChrome,
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 40,
+        width: 360,
+        padding: 16,
+        borderRadius: 18,
+      }}
+      onMouseDown={event => event.stopPropagation()}
+    >
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>片段重做</div>
+      <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>切掉头尾，中段交给 DSH 生成，再拼回。窗长 1–15 秒。</div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+        <label style={{ flex: 1, fontSize: 11, color: dx.mute }}>
+          起点秒
+          <input className="nodrag nopan" value={start} onChange={event => setStart(event.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, height: 32, borderRadius: 10, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
+        </label>
+        <label style={{ flex: 1, fontSize: 11, color: dx.mute }}>
+          终点秒
+          <input className="nodrag nopan" value={end} onChange={event => setEnd(event.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, height: 32, borderRadius: 10, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
+        </label>
+      </div>
+      <textarea
+        className="nodrag nopan"
+        value={prompt}
+        onChange={event => setPrompt(event.target.value)}
+        placeholder="这一段要改成什么"
+        style={{ width: '100%', height: 72, resize: 'none', borderRadius: 12, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: 10, fontSize: 13, fontFamily: dx.font, marginBottom: 12 }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 12px' }} onClick={props.onCancel}>取消</button>
+        <button
+          className="dx-cta"
+          style={{ ...dxPill, width: 'auto', height: 32, padding: '0 14px', fontSize: 12 }}
+          onClick={() => props.onSubmit({ start: Number(start), end: Number(end), prompt })}
+        >
+          切出重做位
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function ReviseDialog(props: {
+  label: string
+  prompt: string
+  onCancel: () => void
+  onSubmit: (change: string) => void
+}): ReactNode {
+  const [change, setChange] = useState(props.prompt)
+  return (
+    <div
+      style={{
+        ...dxChrome,
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 40,
+        width: 360,
+        padding: 16,
+        borderRadius: 18,
+      }}
+      onMouseDown={event => event.stopPropagation()}
+    >
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>改这一镜</div>
+      <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>只重做「{props.label}」。人设、画风、其它镜不动。</div>
+      <textarea
+        className="nodrag nopan"
+        value={change}
+        onChange={event => setChange(event.target.value)}
+        placeholder="这里要改成什么，比如眼神更狠一点"
+        style={{ width: '100%', height: 88, resize: 'none', borderRadius: 12, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: 10, fontSize: 13, fontFamily: dx.font, marginBottom: 12 }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 12px' }} onClick={props.onCancel}>取消</button>
+        <button className="dx-cta" style={{ ...dxPill, width: 'auto', height: 32, padding: '0 14px', fontSize: 12 }} onClick={() => props.onSubmit(change)}>
+          交给 DSH 改
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function ZoomHud(props: {
   zoom: number
   canUndo: boolean
@@ -374,7 +547,7 @@ export function ZoomHud(props: {
 }): ReactNode {
   const percent = Math.round(props.zoom * 100)
   return (
-    <div style={{
+    <div className="dx-zoomhud" style={{
       ...dxChrome,
       position: 'absolute',
       left: 16,
@@ -426,34 +599,48 @@ export function ZoomHud(props: {
   )
 }
 
-export function EmptyHero(props: { onGenerate: () => void }): ReactNode {
+export function EmptyHero(props: {
+  onGenerate: () => void
+  onAdd?: () => void
+  onScript?: () => void
+}): ReactNode {
+  const ghost: CSSProperties = {
+    ...dxGhostBtn,
+    width: 'auto',
+    height: 34,
+    padding: '0 12px',
+    gap: 6,
+    fontSize: 12,
+    border: `1px solid ${dx.hairline}`,
+    background: 'rgba(255,255,255,.04)',
+  }
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', pointerEvents: 'none', zIndex: 5 }}>
-      <div style={{ textAlign: 'center', fontFamily: dx.font, maxWidth: 420 }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: 16,
+    <div className="dx-hero" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', pointerEvents: 'none', zIndex: 5, padding: '72px 16px 128px' }}>
+      <div style={{ textAlign: 'center', fontFamily: dx.font, maxWidth: 440, padding: '0 20px' }}>
+        <div className="dx-hero-mark" style={{
+          width: 76,
+          height: 44,
+          borderRadius: 10,
           margin: '0 auto 18px',
           display: 'grid',
           placeItems: 'center',
-          background: 'rgba(255,255,255,.06)',
-          border: `1px solid ${dx.hairline}`,
+          background: 'rgba(255,244,228,.04)',
+          border: '1px dashed rgba(255,236,210,.24)',
           color: '#fff',
         }}>
-          <IconSpark size={22} />
+          <IconSpark size={18} />
         </div>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.7, color: dx.ink }}>今天拍什么？</div>
         <div style={{ marginTop: 10, color: dx.mute, fontSize: 13, lineHeight: 1.7 }}>
-          双击节点居中 · 双击空白处添加 · 从端口拖线
+          双击镜头居中 · Tab 换镜 · 双击空白添加
         </div>
-        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', gap: 8, color: dx.dim, fontSize: 11 }}>
+        <div className="dx-hero-keys" style={{ marginTop: 16, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, color: dx.dim, fontSize: 11 }}>
           <span style={kbd}>G</span><span>生成</span>
           <span style={kbd}>⌘K</span><span>搜索节点</span>
           <span style={kbd}>⌘J</span><span>DSH</span>
           <span style={kbd}>Space</span><span>平移</span>
         </div>
-        <div style={{ marginTop: 22, pointerEvents: 'auto' }}>
+        <div style={{ marginTop: 22, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, pointerEvents: 'auto' }}>
           <button
             className="dx-cta"
             onClick={props.onGenerate}
@@ -470,6 +657,18 @@ export function EmptyHero(props: { onGenerate: () => void }): ReactNode {
             <IconSpark size={15} />
             交给 DSH 开拍
           </button>
+          {props.onAdd !== undefined ? (
+            <button className="dx-hit" onClick={props.onAdd} style={ghost}>
+              <IconPlus size={14} />
+              添加节点
+            </button>
+          ) : null}
+          {props.onScript !== undefined ? (
+            <button className="dx-hit" onClick={props.onScript} style={ghost}>
+              <IconText size={14} />
+              先写剧本
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
@@ -600,7 +799,7 @@ export function GenerateDock(props: {
 }): ReactNode {
   const right = props.reserveRight ?? (props.shift === true ? 428 : 24)
   return (
-    <div style={{
+    <div className="dx-gendock" style={{
       position: 'absolute',
       left: 72,
       right,
@@ -629,10 +828,18 @@ export function MultiSelectBar(props: {
   count: number
   canCompare: boolean
   canUngroup: boolean
+  canPack?: boolean
+  canSheet?: boolean
+  canJoin?: boolean
+  canStack?: boolean
   locked: boolean
   onCompare: () => void
   onGroup: () => void
   onUngroup: () => void
+  onPack?: () => void
+  onSheet?: () => void
+  onJoin?: () => void
+  onStack?: () => void
   onAlign: (kind: AlignKind) => void
   onDistribute: (axis: 'x' | 'y') => void
   onLock: () => void
@@ -641,11 +848,11 @@ export function MultiSelectBar(props: {
 }): ReactNode {
   const [align, setAlign] = useState(false)
   return (
-    <div style={{
+    <div className="dx-multibar" style={{
       ...dxChrome,
       position: 'absolute',
       left: '50%',
-      bottom: 92,
+      bottom: 16,
       transform: 'translateX(-50%)',
       zIndex: 27,
       display: 'flex',
@@ -653,11 +860,33 @@ export function MultiSelectBar(props: {
       gap: 4,
       padding: 6,
       borderRadius: 999,
+      maxWidth: 'min(920px, calc(100% - 32px))',
+      overflowX: 'auto',
     }}>
       <span style={{ padding: '0 10px', fontSize: 12, color: dx.mute, fontWeight: 500 }}>已选 {props.count}</span>
       {props.canCompare ? (
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onCompare}>
           <IconCompare size={14} />对比
+        </button>
+      ) : null}
+      {props.canPack === true && props.onPack !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onPack}>
+          <IconVideo size={14} />拼成片
+        </button>
+      ) : null}
+      {props.canSheet === true && props.onSheet !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onSheet}>
+          <IconGrid size={14} />接触表
+        </button>
+      ) : null}
+      {props.canJoin === true && props.onJoin !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onJoin}>
+          <IconGrid size={14} />宫格拼回
+        </button>
+      ) : null}
+      {props.canStack === true && props.onStack !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onStack}>
+          <IconCompare size={14} />分屏对照
         </button>
       ) : null}
       <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onGroup}>
@@ -730,7 +959,7 @@ export function InspectorSheet(props: {
 }): ReactNode {
   const status = asShotStatus(props.status) ?? 'idea'
   return (
-    <div style={{
+    <div className="dx-inspector" style={{
       ...dxChrome,
       position: 'absolute',
       top: 72,
@@ -766,10 +995,10 @@ export function InspectorSheet(props: {
         }}
       />
       <div style={{ fontSize: 11, color: dx.mute, marginBottom: 6 }}>提示词</div>
-      <textarea
+      <PromptIpField
         value={props.prompt}
         placeholder="镜头意图，不是成稿。DSH 会先检索再写提示词"
-        onChange={event => props.onPrompt(event.target.value)}
+        onChange={props.onPrompt}
         style={{
           width: '100%',
           minHeight: 88,
@@ -888,7 +1117,7 @@ export function AssetDrawer(props: {
     ? (props.tab === 'scene' ? '没有匹配的场景资产' : props.tab === 'prop' ? '还没有道具锚点' : props.tab === 'character' ? '还没有角色锚点' : props.tab === 'style' ? '还没有风格资产' : '输出目录还没有媒体')
     : undefined
   return (
-    <div style={{
+    <div className="dx-asset-drawer" style={{
       ...dxChrome,
       position: 'absolute',
       top: 72,
@@ -1037,10 +1266,13 @@ const SHORTCUTS: Array<{ keys: string; label: string }> = [
   { keys: '⌘D', label: '复制所选' },
   { keys: '⌘A', label: '全选' },
   { keys: '⌫', label: '删除所选' },
-  { keys: '↑↓←→', label: '微移 · ⇧ 加大' },
+  { keys: '↑↓←→', label: '微移一格 · ⇧ 加大' },
+  { keys: 'Tab', label: '按分镜顺序切换镜头' },
   { keys: 'G', label: '打开生成栏' },
   { keys: 'S', label: '循环镜头状态' },
   { keys: 'F', label: '适配所选' },
+  { keys: 'E', label: '编辑所选媒体' },
+  { keys: 'Esc', label: '关闭浮层 / 返回画布' },
   { keys: '双击节点', label: '居中并缩放到合适位置' },
   { keys: 'L', label: '锁定 / 解锁' },
   { keys: '⌘K / ⌘F', label: '搜索节点' },

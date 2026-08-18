@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "实拍布光专项（Practical Lighting Setups）"
+description: "实拍布光演练手册：六大经典人像布光模式（角度/位置/光比/用途）、单灯到多灯搭建顺序、场景布光分区控制、电影级布光风格+AI 提示词、棚拍实操步骤"
+tags:
+  - "production"
+  - "lighting"
+  - "prompt"
+  - "style"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:StudioBinder 8 种布光设置"
+    id: cite-1
+    title: "StudioBinder 8 种布光设置"
+  - resource: "cited:人像摄影布光完全指南"
+    id: cite-2
+    title: "人像摄影布光完全指南"
+  - resource: "cited:电影级打光 14 风格"
+    id: cite-3
+    title: "电影级打光 14 风格"
+  - resource: "cited:金贝基础布光。"
+    id: cite-4
+    title: "金贝基础布光。"
+  - resource: "https://www.studiobinder.com/blog/portrait-lighting-setup-guide/"
+    id: url-1
+    title: "studiobinder.com"
+  - resource: "https://www.qheying.com/news/364"
+    id: url-2
+    title: "qheying.com"
+  - resource: "https://videolens.cc/zh/blog/cinematic-lighting-guide"
+    id: url-3
+    title: "videolens.cc"
+  - resource: "https://amateurphotographerguide.com/portrait-lighting-techniques-guide/"
+    id: url-4
+    title: "amateurphotographerguide.com"
+  - resource: "https://digital-photography-school.com/6-portrait-lighting-patterns-every-photographer-should-know/"
+    id: url-5
+    title: "digital-photography-school.com"
+  - resource: "https://www.yituss.com/541.html"
+    id: url-6
+    title: "yituss.com"
+dx_id: "84"
+related:
+  - "09-lighting-color/lighting-color.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "37-genre-horror-suspense/horror-suspense.md"
+---
+
 # 实拍布光专项（Practical Lighting Setups）
 
 > 本页是 DirectorX 实拍布光演练手册：六大经典人像布光模式（角度/位置/光比/用途）、单灯到多灯搭建顺序、场景布光分区控制、电影级布光风格+AI 提示词、棚拍实操步骤。与 09 基础 / 50 混合光 / 65 提示词衔接。
@@ -105,3 +159,9 @@ Step 4 微调：光比/光质/色温稳定后收工
 - 雨图丝: 人像摄影室内布光完全指南——从单灯到多灯的专业布光方案 — https://www.yituss.com/541.html
 - 詹姆斯摄影博客: 一盏摄影灯的八种肖像布光 — https://blog.jamesphotography.com.au/5y2v54gv5bid5ywj5oqa5ben
 - 金贝: 人像摄影基础布光方法（一） — https://www.bilibili.com/opus/297418170193323502
+
+## 相关概念
+
+- [灯光与色彩（Lighting & Color）](../09-lighting-color/lighting-color.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [恐怖/悬疑视觉语言（Horror & Suspense Visual Language）](../37-genre-horror-suspense/horror-suspense.md)

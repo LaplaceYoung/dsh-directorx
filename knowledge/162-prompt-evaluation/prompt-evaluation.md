@@ -1,3 +1,62 @@
+---
+type: Method
+title: "AI 提示词测试与评估（Prompt Evaluation — Systematic Iteration & Control Variables）"
+description: "AI 视频提示词的系统测试与评估：六段式提示词脚手架（主体/动作/场景/相机/光线/风格）、单变量迭代规则（先便宜后重写）、锚点镜头与令牌复用（一致性）、评估驱动迭代（VPO/评测框架）"
+tags:
+  - "consistency"
+  - "camera"
+  - "prompt"
+  - "style"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX AI Video Prompt Guide 2026"
+    id: cite-1
+    title: "AI Video Prompt Guide 2026"
+    author: "org:LTX"
+  - resource: "cited:TrueFan AI Video Prompt Engineering 2026"
+    id: cite-2
+    title: "AI Video Prompt Engineering 2026"
+    author: "org:TrueFan"
+  - resource: "cited:arXiv VPO: Aligning Text-to-Video"
+    id: cite-3
+    title: "VPO: Aligning Text-to-Video"
+    author: "org:arXiv"
+  - resource: "cited:arXiv When 'Better' Prompts Hurt"
+    id: cite-4
+    title: "When 'Better' Prompts Hurt"
+    author: "org:arXiv"
+  - resource: "https://ltx.io/blog/ai-video-prompt-guide"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://www.truefan.ai/blogs/ai-video-prompt-engineering-2026-guide"
+    id: url-2
+    title: "truefan.ai"
+  - resource: "https://arxiv.org/html/2503.20491v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2601.22025v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://apxml.com/courses/prompt-engineering-agentic-workflows/chapter-6-debugging-optimizing-prompts-agentic-systems/systematic-prompt-iteration-testing"
+    id: url-5
+    title: "apxml.com"
+dx_id: "162"
+related:
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+  - "130-prompt-template-library/prompt-template-library.md"
+  - "129-eval-benchmark/eval-benchmark.md"
+  - "138-params-tuning/params-tuning.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 提示词测试与评估（Prompt Evaluation — Systematic Iteration & Control Variables）
 
 > 本页为 AI 视频提示词的系统测试与评估：六段式提示词脚手架（主体/动作/场景/相机/光线/风格）、单变量迭代规则（先便宜后重写）、锚点镜头与令牌复用（一致性）、评估驱动迭代（VPO/评测框架）。知识本体来自 2026 提示词工程指南（LTX/TrueFan/arXiv）。AI 应用面向 DirectorX：提示词生产质量（衔接 115 提示词、130 模板、129 评测、138 参数）。
@@ -91,3 +150,11 @@
 - arXiv — VPO: Aligning Text-to-Video Generation Models（2503.20491）：https://arxiv.org/html/2503.20491v1
 - arXiv — When "Better" Prompts Hurt: Evaluation-Driven Iteration（2601.22025）：https://arxiv.org/html/2601.22025v1
 - APXML — A Systematic Approach to Prompt Iteration and Testing：https://apxml.com/courses/prompt-engineering-agentic-workflows/chapter-6-debugging-optimizing-prompts-agentic-systems/systematic-prompt-iteration-testing
+
+## 相关概念
+
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)
+- [AI 视频提示词模板库（Prompt Template Library — Scenario-Based Templates）](../130-prompt-template-library/prompt-template-library.md)
+- [AI 视频评测与基准方法学（AI Video Evaluation — Benchmarks, Metrics & Human Eval）](../129-eval-benchmark/eval-benchmark.md)
+- [AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）](../138-params-tuning/params-tuning.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

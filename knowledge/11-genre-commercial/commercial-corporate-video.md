@@ -1,3 +1,45 @@
+---
+type: Reference
+title: "广告与宣传片制作（Commercial & Corporate Video）"
+description: "广告/宣传片知识库：广告片时长与字数规范、脚本结构模板、广告类型、企业宣传片 10 大类型、产品/电商视频打法与 AI 生成应用"
+tags:
+  - "foundation"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ScreenWeaver 广告脚本时长规范"
+    id: cite-1
+    title: "ScreenWeaver 广告脚本时长规范"
+  - resource: "cited:What a Story 企业视频制作指南 2026"
+    id: cite-2
+    title: "What a Story 企业视频制作指南 2026"
+  - resource: "cited:行业广告脚本模板常识。"
+    id: cite-3
+    title: "行业广告脚本模板常识。"
+  - resource: "https://www.screenweaver.ai/blog/commercial-script-length-timing"
+    id: url-1
+    title: "screenweaver.ai"
+  - resource: "https://www.whatastory.agency/blog/corporate-video-production-guide"
+    id: url-2
+    title: "whatastory.agency"
+  - resource: "https://mhigrowthengine.com/blog/ad-script-writing-dtc-brands/"
+    id: url-3
+    title: "mhigrowthengine.com"
+  - resource: "https://mhigrowthengine.com/blog/problem-solution-ad-format-dtc/"
+    id: url-4
+    title: "mhigrowthengine.com"
+  - resource: "https://westream.uk/brand-story-video-production"
+    id: url-5
+    title: "westream.uk"
+dx_id: "11"
+---
+
 # 广告与宣传片制作（Commercial & Corporate Video）
 
 > 本页是 DirectorX 广告/宣传片知识库：广告片时长与字数规范、脚本结构模板、广告类型、企业宣传片 10 大类型、产品/电商视频打法与 AI 生成应用。

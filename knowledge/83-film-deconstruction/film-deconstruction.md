@@ -1,3 +1,55 @@
+---
+type: Case
+title: "拉片实操系统（Film Deconstruction System）"
+description: "拉片深化手册：拉片定义与三种形式、五场景解剖案例（希区柯克重复预示/Safdie 空间压缩/Dune 多层说明/Rohmer 停顿标点/Fincher 阻挡构图）、五遍观察法、镜头表格式、拉片→创作的迁移"
+tags:
+  - "production"
+  - "camera"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Atharva Shah 场景解剖学"
+    id: cite-1
+    title: "Atharva Shah 场景解剖学"
+  - resource: "cited:全景视界拉片基础"
+    id: cite-2
+    title: "全景视界拉片基础"
+  - resource: "cited:豆瓣拉片认知"
+    id: cite-3
+    title: "豆瓣拉片认知"
+  - resource: "cited:Buckshot 电影拆解。"
+    id: cite-4
+    title: "Buckshot 电影拆解。"
+  - resource: "https://blog.atharvashah.com/p/film-school-in-scenes-6-anatomy-of-a-scene"
+    id: url-1
+    title: "blog.atharvashah.com"
+  - resource: "http://www.fullshotcine.com/post/104.html"
+    id: url-2
+    title: "fullshotcine.com"
+  - resource: "https://www.douban.com/note/865856056/"
+    id: url-3
+    title: "douban.com"
+  - resource: "https://buckshot-sf.com/movie-breakdowns-examples/"
+    id: url-4
+    title: "buckshot-sf.com"
+  - resource: "https://writingcenter.unc.edu/tips-and-tools/film-analysis/"
+    id: url-5
+    title: "writingcenter.unc.edu"
+  - resource: "https://www.storyboardworld.com/how-to-analyze-video"
+    id: url-6
+    title: "storyboardworld.com"
+dx_id: "83"
+related:
+  - "01-camera-language/camera-language.md"
+  - "07-directing/directing-techniques.md"
+  - "10-camera-gear/camera-gear.md"
+---
+
 # 拉片实操系统（Film Deconstruction System）
 
 > 本页是 DirectorX 拉片深化手册：拉片定义与三种形式、五场景解剖案例（希区柯克重复预示/Safdie 空间压缩/Dune 多层说明/Rohmer 停顿标点/Fincher 阻挡构图）、五遍观察法、镜头表格式、拉片→创作的迁移。与 22 案例 / 81 镜头语言 / 70 表演衔接。
@@ -123,3 +175,9 @@
 - 分镜世界: 如何分析影片（拉片） — https://www.storyboardworld.com/how-to-analyze-video
 - Bilibili: 一文看懂什么是电影拉片！附拉片片单 — https://www.bilibili.com/read/cv7100524/
 - CLARIAH Media Suite: Video Segmentation, Annotation and Structuralist Film Analysis — https://mediasuite.clariah.nl/learn/tool-tutorials/video-segmentation-annotation-and-structuralist-film-analysis
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [摄影机与器材（Camera & Gear）](../10-camera-gear/camera-gear.md)

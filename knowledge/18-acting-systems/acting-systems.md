@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "表演体系与肢体语言（Acting Systems & Body Language）"
+description: "表演知识库：三大表演体系（斯坦尼/方法派/迈斯纳/阿德勒）、情感记忆与想象路径、Ekman 七大基本情绪与微表情、FACS、肢体语言、声线表演"
+tags:
+  - "foundation"
+  - "character"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Casting Frontier 表演流派对比"
+    id: cite-1
+    title: "Casting Frontier 表演流派对比"
+  - resource: "cited:Paul Ekman Group 微表情资料"
+    id: cite-2
+    title: "Paul Ekman Group 微表情资料"
+  - resource: "cited:Wikipedia FACS/Affective memory"
+    id: cite-3
+    title: "Wikipedia FACS/Affective memory"
+  - resource: "cited:Topher Keene 声线框架。"
+    id: cite-4
+    title: "Topher Keene 声线框架。"
+  - resource: "https://castingfrontier.com/blog/the-technique-of-acting/"
+    id: url-1
+    title: "castingfrontier.com"
+  - resource: "https://www.paulekman.com/resources/micro-expressions/"
+    id: url-2
+    title: "paulekman.com"
+  - resource: "https://www.paulekman.com/facial-action-coding-system/"
+    id: url-3
+    title: "paulekman.com"
+  - resource: "https://en.wikipedia.org/wiki/Facial_Action_Coding_System"
+    id: url-4
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Affective_memory"
+    id: url-5
+    title: "en.wikipedia.org"
+  - resource: "https://www.topherkeene.com/articles/the-three-p-framework-for-voice-acting-performance-pitch-pace-and-projection"
+    id: url-6
+    title: "topherkeene.com"
+dx_id: "18"
+related:
+  - "04-character-worldbuilding/character-worldbuilding.md"
+  - "07-directing/directing-techniques.md"
+  - "12-genre-music-performance/music-video-performance.md"
+---
+
 # 表演体系与肢体语言（Acting Systems & Body Language）
 
 > 本页是 DirectorX 表演知识库：三大表演体系（斯坦尼/方法派/迈斯纳/阿德勒）、情感记忆与想象路径、Ekman 七大基本情绪与微表情、FACS、肢体语言、声线表演。每个概念含原理、练习与应用。
@@ -159,3 +211,9 @@
 - Wikipedia: Affective memory — https://en.wikipedia.org/wiki/Affective_memory
 - Topher Keene: The Three-P Framework (Pitch, Pace, Projection) — https://www.topherkeene.com/articles/the-three-p-framework-for-voice-acting-performance-pitch-pace-and-projection
 - Backstage: The Meisner Acting Technique Guide — https://www.backstage.com/magazine/article/the-definitive-guide-to-the-meisner-technique-67712/
+
+## 相关概念
+
+- [人物设定与世界观（Character & Worldbuilding）](../04-character-worldbuilding/character-worldbuilding.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)

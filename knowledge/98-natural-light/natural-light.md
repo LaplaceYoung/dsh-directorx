@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "自然光：术语详解 + AI 理解与实现（Natural Light — Deep Terms & AI Implementation）"
+description: "自然光手册（深化版）：以真实电影的摄影专业技巧为知识本体（Kubrick 自然主义/黄金蓝调时刻/窗光/读太阳/控光），**每个术语详解其具体内容**（光线实际长什么样、色温/方向/强度数值、真实片例如何用），并给出 **AI 如何理解与实现**（模型视角下的光线难点、提示词模板、生成后检查）"
+tags:
+  - "production"
+  - "prompt"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:FilmLocal 自然光大师指南"
+    id: cite-1
+    title: "FilmLocal 自然光大师指南"
+  - resource: "cited:Fiction Horizon 自然光电影案例"
+    id: cite-2
+    title: "Fiction Horizon 自然光电影案例"
+  - resource: "cited:PhotoPills 魔法时刻"
+    id: cite-3
+    title: "PhotoPills 魔法时刻"
+  - resource: "cited:BOLD 自然光摄影课。"
+    id: cite-4
+    title: "BOLD 自然光摄影课。"
+  - resource: "https://filmlocal.com/filmmaking/how-to-master-natural-light/"
+    id: url-1
+    title: "filmlocal.com"
+  - resource: "https://fictionhorizon.com/films-with-the-most-beautiful-use-of-natural-light/"
+    id: url-2
+    title: "fictionhorizon.com"
+  - resource: "https://fictionhorizon.com/17-movies-that-filmed-night-scenes-entirely-at-dawn/"
+    id: url-3
+    title: "fictionhorizon.com"
+  - resource: "https://www.photopills.com/articles/mastering-golden-hour-blue-hour-magic-hours-and-twilights"
+    id: url-4
+    title: "photopills.com"
+  - resource: "https://www.boldcine.com/university/lessons/natural-light-cinematography"
+    id: url-5
+    title: "boldcine.com"
+  - resource: "https://www.indieshortsmag.com/tutorials/production/2026/01/ultimate-guide-to-natural-light-in-cinematography/"
+    id: url-6
+    title: "indieshortsmag.com"
+dx_id: "98"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "41-ecommerce-assets/ecommerce-creative-factory.md"
+---
+
 # 自然光：术语详解 + AI 理解与实现（Natural Light — Deep Terms & AI Implementation）
 
 > 本页是 DirectorX 自然光手册（深化版）：以真实电影的摄影专业技巧为知识本体（Kubrick 自然主义/黄金蓝调时刻/窗光/读太阳/控光），**每个术语详解其具体内容**（光线实际长什么样、色温/方向/强度数值、真实片例如何用），并给出 **AI 如何理解与实现**（模型视角下的光线难点、提示词模板、生成后检查）。面向 AI 生成制作。
@@ -182,3 +236,9 @@
 - BOLD University: Natural Light Cinematography Guide（读太阳/负填充/扩散） — https://www.boldcine.com/university/lessons/natural-light-cinematography
 - Indie Shorts Mag: Ultimate Guide to Natural Light in Cinematography — https://www.indieshortsmag.com/tutorials/production/2026/01/ultimate-guide-to-natural-light-in-cinematography/
 - FrameThrower: Natural Light in Film — Real Examples — https://framethrower.ai/style/natural-light
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [电商素材批量生成工厂（E-commerce Creative Factory）](../41-ecommerce-assets/ecommerce-creative-factory.md)

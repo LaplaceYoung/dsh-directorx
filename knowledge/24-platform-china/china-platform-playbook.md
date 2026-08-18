@@ -1,3 +1,53 @@
+---
+type: Playbook
+title: "中国平台专项运营（China Platform Playbook）"
+description: "中国平台运营知识库：抖音/小红书/视频号/B站 的推荐与审核机制对比、各平台内容策略、CES 评分、冷启动与流量池、搜索优化"
+tags:
+  - "foundation"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:人人都是产品经理（小红书 8 大底层机制 / 三大平台推荐审核机制）"
+    id: cite-1
+    title: "人人都是产品经理（小红书 8 大底层机制 / 三大平台推荐审核机制）"
+  - resource: "cited:腾讯云视频号算法白皮书解读"
+    id: cite-2
+    title: "腾讯云视频号算法白皮书解读"
+  - resource: "cited:行业运营方法论。"
+    id: cite-3
+    title: "行业运营方法论。"
+  - resource: "https://www.woshipm.com/share/6406921.html"
+    id: url-1
+    title: "woshipm.com"
+  - resource: "https://www.woshipm.com/operate/6247202.html"
+    id: url-2
+    title: "woshipm.com"
+  - resource: "https://cloud.tencent.cn/developer/news/2543349"
+    id: url-3
+    title: "cloud.tencent.cn"
+  - resource: "https://www.jzl.com/news/bilibili-11"
+    id: url-4
+    title: "jzl.com"
+  - resource: "https://www.woshipm.com/share/6405856.html"
+    id: url-5
+    title: "woshipm.com"
+  - resource: "https://developers.weixin.qq.com/community/develop/article/doc/000aacb2a90f18a71e6ef45265b013"
+    id: url-6
+    title: "developers.weixin.qq.com"
+dx_id: "24"
+related:
+  - "05-short-video/short-video-techniques.md"
+  - "16-platform-growth/platform-growth-analytics.md"
+  - "42-article-to-video/article-to-video.md"
+---
+
 # 中国平台专项运营（China Platform Playbook）
 
 > 本页是 DirectorX 中国平台运营知识库：抖音/小红书/视频号/B站 的推荐与审核机制对比、各平台内容策略、CES 评分、冷启动与流量池、搜索优化。每个平台含机制、权重、打法与自检清单。
@@ -147,3 +197,9 @@
 - B站推荐机制解析 — https://www.jzl.com/news/bilibili-11
 - 人人都是产品经理: 深度解读 26 年抖音 6 月新规——从标签匹配到 AI 行为预测 — https://www.woshipm.com/share/6405856.html
 - 微信开发者社区: 视频号、抖音和快手推荐机制解析 — https://developers.weixin.qq.com/community/develop/article/doc/000aacb2a90f18a71e6ef45265b013
+
+## 相关概念
+
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [平台运营与数据分析（Platform Growth & Analytics）](../16-platform-growth/platform-growth-analytics.md)
+- [图文转视频工作流（Article-to-Video Repurposing）](../42-article-to-video/article-to-video.md)

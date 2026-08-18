@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片签名母题应用（Signature Motif — One Anchor Across Every Image）"
+description: "AI 图片的签名母题应用：单一签名母题作为视觉锚（重复元素贯穿全部图）、可复现提示结构（品牌母题+色集+构图规则）、参考图集引导、品牌世界（内容变但可识别）"
+tags:
+  - "synthesis"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:GetImg Consistent Style 2026"
+    id: cite-1
+    title: "Consistent Style 2026"
+    author: "org:GetImg"
+  - resource: "cited:GenaILast A Prompt Formula That Scales"
+    id: cite-2
+    title: "A Prompt Formula That Scales"
+    author: "org:GenaILast"
+  - resource: "cited:OakGen Consistent Brand Visual Style"
+    id: cite-3
+    title: "Consistent Brand Visual Style"
+    author: "org:OakGen"
+  - resource: "cited:YouMind Image-to-Prompt Brand Consistency"
+    id: cite-4
+    title: "Image-to-Prompt Brand Consistency"
+    author: "org:YouMind"
+  - resource: "https://getimg.ai/blog/how-to-generate-images-in-consistent-brand-style-with-ai"
+    id: url-1
+    title: "getimg.ai"
+  - resource: "https://www.genailast.com/blogs/how-to-create-consistent-brand-imagery-with-ai.php"
+    id: url-2
+    title: "genailast.com"
+  - resource: "https://oakgen.ai/blog/consistent-brand-style-ai-images"
+    id: url-3
+    title: "oakgen.ai"
+  - resource: "https://youmind.com/blog/image-to-prompt-brand-consistency"
+    id: url-4
+    title: "youmind.com"
+  - resource: "https://www.typeface.ai/blog/ai-brand-management-how-to-maintain-brand-consistency-with-ai-image-generators"
+    id: url-5
+    title: "typeface.ai"
+dx_id: "299"
+aliases:
+  - "303"
+  - "306"
+  - "310"
+related:
+  - "284-auteur-signature/auteur-signature.md"
+  - "288-visual-motif-system/visual-motif-system.md"
+  - "290-signature-practice/signature-practice.md"
+---
+
 # AI 图片签名母题应用（Signature Motif — One Anchor Across Every Image）
 
 > 本页为 AI 图片的签名母题应用：单一签名母题作为视觉锚（重复元素贯穿全部图）、可复现提示结构（品牌母题+色集+构图规则）、参考图集引导、品牌世界（内容变但可识别）。知识本体来自 2026 品牌一致（GetImg/GenaILast/OakGen）。AI 应用面向 DirectorX：签名落地（衔接 284 签名、299 对应、288 母题、290 指南）。
@@ -180,3 +238,9 @@
 <!-- merged from: #303-signature-cross-media -->
 <!-- merged from: #306-motif-signature-integration -->
 <!-- merged from: #310-cross-format-signature-series -->
+
+## 相关概念
+
+- [电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）](../284-auteur-signature/auteur-signature.md)
+- [AI 图片构图母题系统（Visual Motif System — Recurring Elements & Key Visuals）](../288-visual-motif-system/visual-motif-system.md)
+- [AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）](../290-signature-practice/signature-practice.md)

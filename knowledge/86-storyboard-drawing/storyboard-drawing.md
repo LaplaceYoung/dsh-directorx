@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "分镜绘制技巧（Storyboard Drawing & Notation）"
+description: "分镜绘制手册：十大分镜技术（缩略图/景别多样性/运动箭头/构图网格/节拍板/角色阻挡/连续性/对白注释/风格参考/AI 辅助）、箭头与标注符号标准、分镜表七要素、绘制纪律与常见错误"
+tags:
+  - "production"
+  - "camera"
+  - "storyboard"
+  - "character"
+  - "style"
+  - "continuity"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX 十大分镜技术（2026）"
+    id: cite-1
+    title: "LTX 十大分镜技术（2026）"
+  - resource: "cited:StudioBinder 分镜运镜"
+    id: cite-2
+    title: "StudioBinder 分镜运镜"
+  - resource: "cited:分镜表教学（Welly）"
+    id: cite-3
+    title: "分镜表教学（Welly）"
+  - resource: "cited:尊正分镜指南。"
+    id: cite-4
+    title: "尊正分镜指南。"
+  - resource: "https://ltx.io/blog/storyboard-techniques"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://www.studiobinder.com/blog/storyboard-camera-movement/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://www.studiobinder.com/blog/storyboard-composition-techniques/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://welly.tw/blog/storyboard"
+    id: url-4
+    title: "welly.tw"
+  - resource: "https://zunzheng.com/news/archives/39775"
+    id: url-5
+    title: "zunzheng.com"
+  - resource: "https://gugu.style/zh-CN/blog/storyboard-beginner-tutorial"
+    id: url-6
+    title: "gugu.style"
+dx_id: "86"
+related:
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "88-sound-image-on-set/sound-image-on-set.md"
+  - "123-longform-consistency/longform-consistency.md"
+---
+
 # 分镜绘制技巧（Storyboard Drawing & Notation）
 
 > 本页是 DirectorX 分镜绘制手册：十大分镜技术（缩略图/景别多样性/运动箭头/构图网格/节拍板/角色阻挡/连续性/对白注释/风格参考/AI 辅助）、箭头与标注符号标准、分镜表七要素、绘制纪律与常见错误。与 25 可视化 / 40 分镜生成 / 62 自动化衔接。
@@ -117,3 +175,9 @@
 - 咕咕: 漫剧分镜设计入门教程——零基础到专业分镜的学习路径 — https://gugu.style/zh-CN/blog/storyboard-beginner-tutorial
 - Bilibili: 30 条分镜设计的经验分享（网易游戏编导笔记） — https://www.bilibili.com/read/cv10367336/
 - Pixflow: How to Storyboard — The Complete Guide — https://pixflow.net/blog/how-to-storyboard/
+
+## 相关概念
+
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [拍摄端声画协同（Designing Picture for Sound）](../88-sound-image-on-set/sound-image-on-set.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)

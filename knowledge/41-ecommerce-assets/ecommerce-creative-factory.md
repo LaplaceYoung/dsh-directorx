@@ -1,3 +1,58 @@
+---
+type: Playbook
+title: "电商素材批量生成工厂（E-commerce Creative Factory）"
+description: "电商素材工厂手册：规模化素材生产运营模型（五层系统）、角色与 SLA、队列与升级规则、六步提示词配方、生产健康指标、大促排期法"
+tags:
+  - "foundation"
+  - "prompt"
+  - "model"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Riverflow 规模化指南"
+    id: cite-1
+    title: "Riverflow 规模化指南"
+  - resource: "cited:MerchLoom/Tadka 创意系统"
+    id: cite-2
+    title: "MerchLoom/Tadka 创意系统"
+  - resource: "cited:腾讯云/TrueSight 电商主图工作流。"
+    id: cite-3
+    title: "腾讯云/TrueSight 电商主图工作流。"
+  - resource: "https://www.riverflow.ai/guides/how-to-scale-ecommerce-creative-production"
+    id: url-1
+    title: "riverflow.ai"
+  - resource: "https://merchloom.ai/blog/ai-ad-creative-generator-for-ecommerce"
+    id: url-2
+    title: "merchloom.ai"
+  - resource: "https://tadkai.io/resources/ai-creative-workflow-2026"
+    id: url-3
+    title: "tadkai.io"
+  - resource: "https://adlibrary.com/posts/ai-ecommerce-ad-creative-strategies"
+    id: url-4
+    title: "adlibrary.com"
+  - resource: "https://www.dataiads.io/en/use-cases/scaler-catalog-ads"
+    id: url-5
+    title: "dataiads.io"
+  - resource: "https://developer.cloud.tencent.cn/article/2698007"
+    id: url-6
+    title: "developer.cloud.tencent.cn"
+  - resource: "https://tsight.io/articles/8066359"
+    id: url-7
+    title: "tsight.io"
+dx_id: "41"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "39-image-consistency/character-consistency.md"
+---
+
 # 电商素材批量生成工厂（E-commerce Creative Factory）
 
 > 本页是 DirectorX 电商素材工厂手册：规模化素材生产运营模型（五层系统）、角色与 SLA、队列与升级规则、六步提示词配方、生产健康指标、大促排期法。与 38 广告视觉 / 29 商业创作 / 32 数据工具衔接。**带货视频内容方法论（异议-证明/可购物视频）已并入 135 广告创意——2026-08 去重整理。**
@@ -121,3 +176,9 @@
 - 腾讯云开发者社区: 怎么搭建一套用 AI 持续产出电商主图的工作流 — https://developer.cloud.tencent.cn/article/2698007
 - TrueSight: 电商产品主图批量生成技术指南 (2026) — https://tsight.io/articles/8066359
 - PS AI Plugin: 批量出图节奏——电商大促前 7 天排期法 — https://psaiplugin.com/blog/ai-092cc2/
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)

@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "AI 图片知识引导生成（Knowledge-Guided Generation — Reference Mapping & Agentic Systems）"
+description: "AI 图片的知识引导生成：参考分析提取特征（跨场景身份/风格迁移）、图转提示词+转面参考表（多角度）、扩散+LoRA（快速风格/主体适配）、代理式多模态系统（从文生图到编辑工作流）"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "style"
+  - "workflow"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OpenAI Image Models Prompting Guide"
+    id: cite-1
+    title: "Image Models Prompting Guide"
+    author: "org:OpenAI"
+  - resource: "cited:Kittl AI Image Generation Guide 2026"
+    id: cite-2
+    title: "AI Image Generation Guide 2026"
+    author: "org:Kittl"
+  - resource: "cited:PMC Visual Guided Color Art Generation"
+    id: cite-3
+    title: "Visual Guided Color Art Generation"
+    author: "org:PMC"
+  - resource: "cited:Miraflow AI Image Arms Race"
+    id: cite-4
+    title: "AI Image Arms Race"
+    author: "org:Miraflow"
+  - resource: "https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide"
+    id: url-1
+    title: "developers.openai.com"
+  - resource: "https://www.kittl.com/blogs/ai-image-generation-guide-ais/"
+    id: url-2
+    title: "kittl.com"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC13003049/"
+    id: url-3
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://miraflow.ai/blog/ai-image-generation-arms-race-2026-everything-changes"
+    id: url-4
+    title: "miraflow.ai"
+  - resource: "https://isazeni.com/what-are-the-current-capabilities-of-ai-image-generation/"
+    id: url-5
+    title: "isazeni.com"
+dx_id: "384"
+related:
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "290-signature-practice/signature-practice.md"
+  - "375-full-stack-workflow/full-stack-workflow.md"
+  - "226-character-concept-design/character-concept-design.md"
+  - "333-world-engine-app/world-engine-app.md"
+---
+
 # AI 图片知识引导生成（Knowledge-Guided Generation — Reference Mapping & Agentic Systems）
 
 > 本页为 AI 图片的知识引导生成：参考分析提取特征（跨场景身份/风格迁移）、图转提示词+转面参考表（多角度）、扩散+LoRA（快速风格/主体适配）、代理式多模态系统（从文生图到编辑工作流）。知识本体来自 2026 知识引导（OpenAI/Kittl/PMC）。AI 应用面向 DirectorX：知识驱动（衔接 384 对应、183 参考、290 指南、375 全栈）。
@@ -72,3 +132,11 @@
 - PMC — Visual Guided AI Color Art Generation（Enhanced GAN）：https://pmc.ncbi.nlm.nih.gov/articles/PMC13003049/
 - Miraflow — The AI Image Generation Arms Race 2026：https://miraflow.ai/blog/ai-image-generation-arms-race-2026-everything-changes
 - IsaZeni — Current Capabilities of AI Image Generation：https://isazeni.com/what-are-the-current-capabilities-of-ai-image-generation/
+
+## 相关概念
+
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）](../290-signature-practice/signature-practice.md)
+- [AI 图片全栈工作流（Full-Stack Workflow — LLM + Multi-Model + Production Tooling）](../375-full-stack-workflow/full-stack-workflow.md)
+- [AI 图片角色概念设计（Character Concept Design — Sheets, Turnarounds & Silhouette）](../226-character-concept-design/character-concept-design.md)
+- [AI 图片世界引擎应用（World Engine Application — Production Pipelines & Versioned Assets）](../333-world-engine-app/world-engine-app.md)

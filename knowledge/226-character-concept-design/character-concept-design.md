@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 图片角色概念设计（Character Concept Design — Sheets, Turnarounds & Silhouette）"
+description: "AI 图片角色概念设计：角色设定图（三视转向/表情表/装备分解/配色研究/剪影对比）、概念设计提示词结构、风格简报、角色可读性"
+tags:
+  - "consistency"
+  - "prompt"
+  - "character"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:YouMind Character Concept Design Sheet Prompt"
+    id: cite-1
+    title: "Character Concept Design Sheet Prompt"
+    author: "org:YouMind"
+  - resource: "cited:Kalon AI Character Sheet Prompts"
+    id: cite-2
+    title: "AI Character Sheet Prompts"
+    author: "org:Kalon"
+  - resource: "cited:ReelMind AI Character Concept Art"
+    id: cite-3
+    title: "AI Character Concept Art"
+    author: "org:ReelMind"
+  - resource: "cited:AIUnpacker Character Design Sheet Prompts"
+    id: cite-4
+    title: "Character Design Sheet Prompts"
+    author: "org:AIUnpacker"
+  - resource: "https://youmind.com/prompts/character-concept-design-sheet-25891"
+    id: url-1
+    title: "youmind.com"
+  - resource: "https://www.kalon.ai/templates/ai-character-sheet-prompts"
+    id: url-2
+    title: "kalon.ai"
+  - resource: "https://reelmind.ai/blog/ai-character-concept-art-prompt-ai-for-gaming-design"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://aiunpacker.com/prompts/character-design-sheet-ai-prompts-for-game-artists"
+    id: url-4
+    title: "aiunpacker.com"
+  - resource: "https://promptomania.com/prompts/character-design-prompts"
+    id: url-5
+    title: "promptomania.com"
+dx_id: "226"
+related:
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "152-ip-character-economy/ip-character-economy.md"
+  - "212-expression-library/expression-library.md"
+---
+
 # AI 图片角色概念设计（Character Concept Design — Sheets, Turnarounds & Silhouette）
 
 > 本页为 AI 图片角色概念设计：角色设定图（三视转向/表情表/装备分解/配色研究/剪影对比）、概念设计提示词结构、风格简报、角色可读性。知识本体来自 2026 概念设计指南（YouMind/ReelMind/Kalon/AIUnpacker）。AI 应用面向 DirectorX：角色开发（衔接 117 一致性、183 参考、226 对应、69 表演）。
@@ -85,3 +144,11 @@
 - ReelMind — AI Character Concept Art Prompt for Gaming Design：https://reelmind.ai/blog/ai-character-concept-art-prompt-ai-for-gaming-design
 - AIUnpacker — AI Prompts for Character Design Sheets：https://aiunpacker.com/prompts/character-design-sheet-ai-prompts-for-game-artists
 - Promptomania — Best Character Design Prompts for AI：https://promptomania.com/prompts/character-design-prompts
+
+## 相关概念
+
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [AI 视频 IP 角色经济（IP Character Economy — Virtual Influencers & Franchise Monetization）](../152-ip-character-economy/ip-character-economy.md)
+- [AI 角色表情库管理（Expression Library — Emotion Reference Collection & Consistency）](../212-expression-library/expression-library.md)

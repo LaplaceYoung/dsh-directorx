@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）"
+description: "AI 视频的开场钩子专项设计：模式打断（Pattern Interrupt）、前 3 秒兑现承诺（Payoff）、钩子类型库（反驳/痛点/证明/社会认同/视觉破格）、三变体测试"
+tags:
+  - "consistency"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Captions Video Hooks: Scroll-Stopper"
+    id: cite-1
+    title: "Video Hooks: Scroll-Stopper"
+    author: "org:Captions"
+  - resource: "cited:Genra 3-Second Opener Templates"
+    id: cite-2
+    title: "3-Second Opener Templates"
+    author: "org:Genra"
+  - resource: "cited:PlayPlay 9 Most Effective Hooks"
+    id: cite-3
+    title: "9 Most Effective Hooks"
+    author: "org:PlayPlay"
+  - resource: "cited:Vivideo First 3 Seconds"
+    id: cite-4
+    title: "First 3 Seconds"
+    author: "org:Vivideo"
+  - resource: "https://captions.ai/blog/video-hooks-how-to-write-a-scroll-stopping-opening"
+    id: url-1
+    title: "captions.ai"
+  - resource: "https://genra.ai/blog/ai-video-script-hook-formula-3-second-opener"
+    id: url-2
+    title: "genra.ai"
+  - resource: "https://playplay.com/blog/video-hooks/"
+    id: url-3
+    title: "playplay.com"
+  - resource: "https://vivideo.ai/blog/how-to-hook-viewers-short-form-video"
+    id: url-4
+    title: "vivideo.ai"
+  - resource: "https://chaplinai.pro/en/foundation/hooks"
+    id: url-5
+    title: "chaplinai.pro"
+dx_id: "188"
+related:
+  - "142-short-form-platform/short-form-platform.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "135-ad-creative-gen/ad-creative-gen.md"
+  - "56-data-driven-iteration/data-driven-iteration.md"
+  - "187-blocking-staging/blocking-staging.md"
+---
+
 # AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）
 
 > 本页为 AI 视频的开场钩子专项设计：模式打断（Pattern Interrupt）、前 3 秒兑现承诺（Payoff）、钩子类型库（反驳/痛点/证明/社会认同/视觉破格）、三变体测试。知识本体来自 2026 钩子指南（Captions/PlayPlay/Swng/Genra/Vivideo）。AI 应用面向 DirectorX：开场设计（衔接 142 钩子堆叠、158 情绪曲线、135 广告、149 测试）。
@@ -84,3 +139,11 @@
 - PlayPlay — Video Hooks: The 9 Most Effective：https://playplay.com/blog/video-hooks/
 - Vivideo — The First 3 Seconds: How to Hook Viewers in Short-Form Video：https://vivideo.ai/blog/how-to-hook-viewers-short-form-video
 - ChaplinAI — Crafting High-Performing Video Hooks：https://chaplinai.pro/en/foundation/hooks
+
+## 相关概念
+
+- [AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）](../142-short-form-platform/short-form-platform.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)
+- [素材数据驱动迭代（Data-Driven Creative Iteration）](../56-data-driven-iteration/data-driven-iteration.md)
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)

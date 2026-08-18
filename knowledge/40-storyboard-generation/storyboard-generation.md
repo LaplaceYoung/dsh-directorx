@@ -1,3 +1,60 @@
+---
+type: Playbook
+title: "分镜图生成工作流（Storyboard-to-Video Pipeline）"
+description: "分镜图生成工作流手册：文生图→图生视频的完整 SOP（资产层/提示词脚手架/生成通道/日志契约）、镜头表→提示词模板、审查清单、中文生态同场景多机位拆解法"
+tags:
+  - "foundation"
+  - "camera"
+  - "prompt"
+  - "storyboard"
+  - "workflow"
+  - "i2v"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wan 2.7 Studio 生产级 SOP"
+    id: cite-1
+    title: "Wan 2.7 Studio 生产级 SOP"
+  - resource: "cited:HackerNoon 场景分镜"
+    id: cite-2
+    title: "HackerNoon 场景分镜"
+  - resource: "cited:OpenCreator 多机位拆解"
+    id: cite-3
+    title: "OpenCreator 多机位拆解"
+  - resource: "cited:Nano Banana Pro 分镜最佳实践。"
+    id: cite-4
+    title: "Nano Banana Pro 分镜最佳实践。"
+  - resource: "https://wan2-7ai.com/blog/wan-2-7-gpt-image-2-storyboard-i2v-production-sop"
+    id: url-1
+    title: "wan2-7ai.com"
+  - resource: "https://hackernoon.com/how-to-storyboard-a-scene-for-ai-video-generation-so-the-shot-actually-matches-the-panel"
+    id: url-2
+    title: "hackernoon.com"
+  - resource: "https://opencreator.io/zh/blog/ai-storyboard-multi-camera-workflow"
+    id: url-3
+    title: "opencreator.io"
+  - resource: "https://help.apiyi.com/nano-banana-pro-ai-video-storyboard-character-consistency-guide.html"
+    id: url-4
+    title: "help.apiyi.com"
+  - resource: "https://renoise.ai/zh-CN/guides/ai-storyboard"
+    id: url-5
+    title: "renoise.ai"
+  - resource: "https://cloud.tencent.com/developer/article/2697299"
+    id: url-6
+    title: "cloud.tencent.com"
+dx_id: "40"
+related:
+  - "07-directing/directing-techniques.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "53-shotlist-to-prompt/shotlist-to-prompt.md"
+---
+
 # 分镜图生成工作流（Storyboard-to-Video Pipeline）
 
 > 本页是 DirectorX 分镜图生成工作流手册：文生图→图生视频的完整 SOP（资产层/提示词脚手架/生成通道/日志契约）、镜头表→提示词模板、审查清单、中文生态同场景多机位拆解法。
@@ -153,3 +210,9 @@
 - Renoise: AI 分镜生成器——逐镜规划 — https://renoise.ai/zh-CN/guides/ai-storyboard
 - GitHub: liangdabiao/Seedance2-Storyboard-Generator — 
 - 腾讯云: 同一个角色跑通 5 大模型——AIGC 短片全流程提示词工作流 — https://cloud.tencent.com/developer/article/2697299
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [镜头表→提示词转换器（Shot List → Prompt Translation）](../53-shotlist-to-prompt/shotlist-to-prompt.md)

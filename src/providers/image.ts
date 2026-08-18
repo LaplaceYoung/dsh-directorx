@@ -1,6 +1,8 @@
-import { writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
-import { apiKeyOf, downloadToFile, ensureOutputDir, mediaSourceToDataUrl, readJsonResponse, saveBase64ToFile, slugify } from '../support.ts'
+import { existsSync } from 'node:fs'
+import { readFile, writeFile } from 'node:fs/promises'
+import { basename, join, resolve } from 'node:path'
+import { apiKeyOf, downloadToFile, ensureOutputDir, mediaSourceToDataUrl, mimeForPath, readJsonResponse, saveBase64ToFile, slugify } from '../support.ts'
+import { currentProjectRoot } from '../project.ts'
 import { pollModelverseTask, submitModelverseTask } from './tasks.ts'
 import { genericAsImage } from './generic-rest.ts'
 import type { ImageResult, MediaFile, ProviderContext } from './types.ts'
@@ -29,7 +31,93 @@ export async function mockImage(ctx: ProviderContext, prompt: string, size: stri
   }
 }
 
-export async function openaiImage(ctx: ProviderContext, prompt: string, size?: string, quality?: string): Promise<ImageResult> {
+function resolveLocalImage(source: string): string {
+  if (existsSync(source)) return source
+  const project = currentProjectRoot()
+  const hit = [resolve(source), resolve(project, source)].find(candidate => existsSync(candidate))
+  if (hit === undefined) throw new Error(`File not found: ${source}`)
+  return hit
+}
+
+async function filesFromImageEnvelope(ctx: ProviderContext, prompt: string, body: ImagesEnvelope): Promise<MediaFile[]> {
+  const first = body.data?.[0]
+  if (first === undefined) throw new Error(`Image response contained no data: ${JSON.stringify(body).slice(0, 300)}`)
+  const files: MediaFile[] = []
+  if (first.b64_json !== undefined) {
+    const path = await saveBase64ToFile(first.b64_json, ctx.settings.outputDir, slugify(prompt), 'png')
+    files.push({ path, mimeType: 'image/png' })
+  } else if (first.url !== undefined) {
+    if (/^https?:\/\//i.test(first.url)) {
+      const path = await downloadToFile(first.url, ctx.settings.outputDir, slugify(prompt), '.png')
+      files.push({ path, url: first.url, mimeType: 'image/png' })
+    } else {
+      files.push({ url: first.url })
+    }
+  } else {
+    throw new Error(`Image response item contained neither b64_json nor url: ${JSON.stringify(first).slice(0, 300)}`)
+  }
+  return files
+}
+
+async function openaiImageEdit(
+  ctx: ProviderContext,
+  prompt: string,
+  size: string | undefined,
+  quality: string | undefined,
+  referenceImagePaths: string[],
+): Promise<ImageResult> {
+  const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
+  const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_IMAGE_API_KEY', 'OPENAI_API_KEY'], baseURL)
+  const blobs: Array<{ blob: Blob; name: string }> = []
+  for (const source of referenceImagePaths.slice(0, 4)) {
+    const path = resolveLocalImage(source)
+    const bytes = await readFile(path)
+    blobs.push({ blob: new Blob([new Uint8Array(bytes)], { type: mimeForPath(path) }), name: basename(path) })
+  }
+  const post = async (field: 'image' | 'image[]', extras: Record<string, string>) => {
+    const form = new FormData()
+    form.append('model', ctx.capability.model)
+    form.append('prompt', prompt)
+    form.append('n', '1')
+    if (size !== undefined && size !== '') form.append('size', size)
+    if (quality !== undefined && quality !== '') form.append('quality', quality)
+    for (const [key, value] of Object.entries(extras)) form.append(key, value)
+    for (const item of blobs) form.append(field, item.blob, item.name)
+    const response = await fetch(`${baseURL}/images/edits`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: form,
+      signal: ctx.signal,
+    })
+    const body = await readJsonResponse<ImagesEnvelope>(response)
+    return { response, body }
+  }
+  let { response, body } = await post('image', {})
+  if (!response.ok) ({ response, body } = await post('image[]', {}))
+  if (!response.ok) ({ response, body } = await post('image', { input_fidelity: 'high' }))
+  if (!response.ok) {
+    throw new Error(`Image edit failed (HTTP ${response.status}): ${JSON.stringify(body.error ?? body).slice(0, 400)}`)
+  }
+  return { model: ctx.capability.model, prompt, files: await filesFromImageEnvelope(ctx, prompt, body), mode: 'openai-images' }
+}
+
+export async function openaiImage(
+  ctx: ProviderContext,
+  prompt: string,
+  size?: string,
+  quality?: string,
+  referenceImagePaths: string[] = [],
+): Promise<ImageResult> {
+  if (referenceImagePaths.length > 0) {
+    try {
+      return await openaiImageEdit(ctx, prompt, size, quality, referenceImagePaths)
+    } catch {
+      // gpt-image-2 is not a modelverse task model. If edits is down, keep
+      // generating so the shot still lands; identity then lives in the prompt
+      // and in the 16:9 first/last frames of the video step.
+      return openaiImage(ctx, `${prompt}\n\nUse the locked costume and face from the written character bible. Do not invent extra people.`, size, quality, [])
+    }
+  }
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_IMAGE_API_KEY', 'OPENAI_API_KEY'], baseURL)
   const payload: Record<string, unknown> = { model: ctx.capability.model, prompt, n: 1 }
@@ -45,18 +133,7 @@ export async function openaiImage(ctx: ProviderContext, prompt: string, size?: s
   if (!response.ok) {
     throw new Error(`Image generation failed (HTTP ${response.status}): ${JSON.stringify(body.error ?? body).slice(0, 400)}`)
   }
-  const first = body.data?.[0]
-  if (first === undefined) throw new Error(`Image response contained no data: ${JSON.stringify(body).slice(0, 300)}`)
-  const files: MediaFile[] = []
-  if (first.b64_json !== undefined) {
-    const path = await saveBase64ToFile(first.b64_json, ctx.settings.outputDir, slugify(prompt), 'png')
-    files.push({ path, mimeType: 'image/png' })
-  } else if (first.url !== undefined) {
-    files.push({ url: first.url })
-  } else {
-    throw new Error(`Image response item contained neither b64_json nor url: ${JSON.stringify(first).slice(0, 300)}`)
-  }
-  return { model: ctx.capability.model, prompt, files, mode: 'openai-images' }
+  return { model: ctx.capability.model, prompt, files: await filesFromImageEnvelope(ctx, prompt, body), mode: 'openai-images' }
 }
 
 export async function modelverseImage(
@@ -119,7 +196,9 @@ export async function runImage(
 ): Promise<ImageResult> {
   try {
     if (ctx.capability.mode === 'mock') return mockImage(ctx, prompt, options.size ?? '1024x1024')
-    if (ctx.capability.mode === 'openai-images') return openaiImage(ctx, prompt, options.size, options.quality)
+    if (ctx.capability.mode === 'openai-images') {
+      return openaiImage(ctx, prompt, options.size, options.quality, options.referenceImagePaths ?? [])
+    }
     if (ctx.capability.mode === 'modelverse-tasks') return modelverseImage(ctx, prompt, options.size, options.referenceImagePaths ?? [])
     if (ctx.capability.mode === 'generic-rest') {
       if (ctx.adapter === undefined) throw new Error('generic-rest 需要已 commit 的 AdapterSpec（directorx_provider_commit）')

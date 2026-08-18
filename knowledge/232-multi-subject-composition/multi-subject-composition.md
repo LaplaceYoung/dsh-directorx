@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片多主体互动构图（Multi-Subject Composition — Spatial Assignment & Interaction）"
+description: "AI 图片多主体互动构图：显式空间分配（左右/前后景指定）、互动姿势描述、防主体融合（Blending）、群体布置、关系表达"
+tags:
+  - "consistency"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Floniks Prompting Multiple Subjects Without Blending"
+    id: cite-1
+    title: "Prompting Multiple Subjects Without Blending"
+    author: "org:Floniks"
+  - resource: "cited:Scenario Generate Multi-Character Scenes"
+    id: cite-2
+    title: "Generate Multi-Character Scenes"
+    author: "org:Scenario"
+  - resource: "cited:Gemini3Prompt AI Multi-Person Scenes"
+    id: cite-3
+    title: "AI Multi-Person Scenes"
+    author: "org:Gemini3Prompt"
+  - resource: "cited:arXiv Iterative Pose-Image Generation for Multi-Person"
+    id: cite-4
+    title: "Iterative Pose-Image Generation for Multi-Person"
+    author: "org:arXiv"
+  - resource: "https://floniks.com/learn/prompting/prompting-multiple-subjects"
+    id: url-1
+    title: "floniks.com"
+  - resource: "https://help.scenario.com/articles/8459982289-generate-multi-character-scenes"
+    id: url-2
+    title: "help.scenario.com"
+  - resource: "https://gemini3prompt.com/articles/ai-multi-person-scene-composition/"
+    id: url-3
+    title: "gemini3prompt.com"
+  - resource: "https://arxiv.org/html/2605.23178v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://freeaipromptmaker.com/blog/2026-03-11-master-ai-art-spatial-prompts-control-placement"
+    id: url-5
+    title: "freeaipromptmaker.com"
+dx_id: "232"
+related:
+  - "187-blocking-staging/blocking-staging.md"
+  - "208-character-relationship-spatial/character-relationship-spatial.md"
+  - "216-composition-rules-deep/composition-rules-deep.md"
+---
+
 # AI 图片多主体互动构图（Multi-Subject Composition — Spatial Assignment & Interaction）
 
 > 本页为 AI 图片多主体互动构图：显式空间分配（左右/前后景指定）、互动姿势描述、防主体融合（Blending）、群体布置、关系表达。知识本体来自 2026 多主体提示词指南（Floniks/Scenario/Gemini3Prompt）。AI 应用面向 DirectorX：多人图片（衔接 187 调度、208 关系、216 构图、232 对应）。
@@ -80,3 +135,9 @@ they maintain eye contact, tense atmosphere"
 - Gemini3Prompt — AI Multi-Person Scenes: Composition Guide：https://gemini3prompt.com/articles/ai-multi-person-scene-composition/
 - arXiv — Iterative Pose-Image Generation for Multi-Person Scenes（2605.23178）：https://arxiv.org/html/2605.23178v1
 - FreeAIPromptMaker — Master AI Art Spatial Prompts：https://freeaipromptmaker.com/blog/2026-03-11-master-ai-art-spatial-prompts-control-placement
+
+## 相关概念
+
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)
+- [AI 角色关系视觉化（Character Relationship Spatial — Blocking as Relationship Language）](../208-character-relationship-spatial/character-relationship-spatial.md)
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)

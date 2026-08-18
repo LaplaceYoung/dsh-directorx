@@ -1,3 +1,60 @@
+---
+type: Spec
+title: "AI 视频模型提示词总表（Prompt Format Quick Reference）"
+description: "AI 视频提示词速查：四种专业提示词格式（时间轴/JSON/镜头表/自然语言）、模型×格式匹配表、双通道工作流（构图→运动，质量 10x）、五大致命错误、参考图法则、元提示词工作流、提示词库建设"
+tags:
+  - "production"
+  - "camera"
+  - "prompt"
+  - "model"
+  - "workflow"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:StudioList 2026 四种格式研究"
+    id: cite-1
+    title: "StudioList 2026 四种格式研究"
+  - resource: "cited:Google DeepMind Veo 提示指南"
+    id: cite-2
+    title: "Google DeepMind Veo 提示指南"
+  - resource: "cited:550W 提示词大全"
+    id: cite-3
+    title: "550W 提示词大全"
+  - resource: "cited:Seedance 官方指南。"
+    id: cite-4
+    title: "Seedance 官方指南。"
+  - resource: "https://studiolist.co/guides/ai-video-prompt-engineering-2026/"
+    id: url-1
+    title: "studiolist.co"
+  - resource: "https://deepmind.google/models/veo/prompt-guide/"
+    id: url-2
+    title: "deepmind.google"
+  - resource: "https://aiworkflowpro.com/ai-video-prompt-framework/"
+    id: url-3
+    title: "aiworkflowpro.com"
+  - resource: "https://www.550wai.cn/blog/ai-video-prompt-engineering.html"
+    id: url-4
+    title: "550wai.cn"
+  - resource: "https://www.volcengine.com/article/40840"
+    id: url-5
+    title: "volcengine.com"
+  - resource: "https://prompt-architects.com/blog/26-json-video-prompt-templates-veo3"
+    id: url-6
+    title: "prompt-architects.com"
+dx_id: "73"
+related:
+  - "53-shotlist-to-prompt/shotlist-to-prompt.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+---
+
 # AI 视频模型提示词总表（Prompt Format Quick Reference）
 
 > 本页是 DirectorX AI 视频提示词速查：四种专业提示词格式（时间轴/JSON/镜头表/自然语言）、模型×格式匹配表、双通道工作流（构图→运动，质量 10x）、五大致命错误、参考图法则、元提示词工作流、提示词库建设。与 34/52/53/65 全面衔接，是全模型提示词的"总目录页"。
@@ -117,3 +174,9 @@ Pass 2 运动：静帧作参考图 + 时间轴/JSON 只描述运动 → 构图�
 - Prompt Architects: JSON Video Prompt Templates for Veo 3 — https://prompt-architects.com/blog/26-json-video-prompt-templates-veo3
 - PromptMotion: Kling vs Seedance vs Veo Prompts Compared — https://www.seedancetool.com/blog/kling-vs-seedance-vs-veo-prompts
 - aiolaola: AI 视频提示词库——电影感 AI 短片提示词模板 — https://prompts.aiolaola.com/
+
+## 相关概念
+
+- [镜头表→提示词转换器（Shot List → Prompt Translation）](../53-shotlist-to-prompt/shotlist-to-prompt.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)

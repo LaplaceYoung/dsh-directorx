@@ -1,3 +1,64 @@
+---
+type: Reference
+title: "AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）"
+description: "AI 视频的情绪曲线与节奏心理学：张力-释放平衡（Tension-Release）、节奏匹配情绪节拍（快切兴奋/慢镜沉思）、节奏变化维持注意、音画对齐情绪时机"
+tags:
+  - "consistency"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Prudivo The Psychology of Pacing"
+    id: cite-1
+    title: "The Psychology of Pacing"
+    author: "org:Prudivo"
+  - resource: "cited:ReelMind Pacing and Flow: Psychology Behind Effective Edits"
+    id: cite-2
+    title: "Pacing and Flow: Psychology Behind Effective Edits"
+    author: "org:ReelMind"
+  - resource: "cited:Sound Idea Editing as Emotion Engineering"
+    id: cite-3
+    title: "Editing as Emotion Engineering"
+    author: "org:Sound-Idea"
+  - resource: "cited:InsideTheEdit Master Pacing for Maximum Impact"
+    id: cite-4
+    title: "Master Pacing for Maximum Impact"
+    author: "org:InsideTheEdit"
+  - resource: "https://prudivo.com/the-psychology-of-pacing-editing-that-maximizes-viewer-engagement/"
+    id: url-1
+    title: "prudivo.com"
+  - resource: "https://reelmind.ai/blog/pacing-and-flow-understanding-the-psychology-behind-effective-transition-video-edits-in-modern-storytelling"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://www.soundideavideoproduction.co.za/2025/10/20/editing-as-emotion-engineering-how-video-production-companies-move-audiences/"
+    id: url-3
+    title: "soundideavideoproduction.co.za"
+  - resource: "https://www.insidetheedit.com/blog/pacing-in-video-editing"
+    id: url-4
+    title: "insidetheedit.com"
+  - resource: "https://kweenmedia.in/pacing-in-video-editing/"
+    id: url-5
+    title: "kweenmedia.in"
+dx_id: "158"
+aliases:
+  - "275"
+  - "280"
+  - "298"
+  - "349"
+related:
+  - "127-edit-transition-rhythm/edit-transition-rhythm.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "144-sound-design/sound-design.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+---
+
 # AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）
 
 > 本页为 AI 视频的情绪曲线与节奏心理学：张力-释放平衡（Tension-Release）、节奏匹配情绪节拍（快切兴奋/慢镜沉思）、节奏变化维持注意、音画对齐情绪时机。知识本体来自 2026 节奏心理学指南（Prudivo/ReelMind/Sound Idea/Kween）。AI 应用面向 DirectorX：剪辑与生成节奏决策（衔接 127 剪辑节奏、150 叙事、119 音画）。
@@ -223,3 +284,11 @@
 <!-- merged from: #280-suspense-rhythm-structure -->
 <!-- merged from: #298-reveal-suspense-rhythm -->
 <!-- merged from: #349-rhythm-structure-viewpoint -->
+
+## 相关概念
+
+- [AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）](../127-edit-transition-rhythm/edit-transition-rhythm.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)

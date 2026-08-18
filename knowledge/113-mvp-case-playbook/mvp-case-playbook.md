@@ -1,3 +1,56 @@
+---
+type: Case
+title: "Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）"
+description: "本页以飞书「Video agent-MVP case」文档中的 11 个测试案例为锚点，逐个拆解每个案例的真实难点、当前 AI 能力现状与优化打法（提示词结构、参考策略、工作流编排、工具选择）"
+tags:
+  - "production"
+  - "prompt"
+  - "workflow"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:飞书 wiki Video agent-MVP case"
+    id: cite-1
+    title: "Video agent-MVP case"
+    author: "org:飞书-wiki"
+  - resource: "https://acnc6zeentra.feishu.cn/wiki/N7uEwbTpvifb8HkPZ4YcAJCinyE"
+    id: url-1
+    title: "acnc6zeentra.feishu.cn"
+  - resource: "https://www.kittl.com/blogs/ai-video-character-consistency-workflow/"
+    id: url-2
+    title: "kittl.com"
+  - resource: "https://skywork.ai/blog/multi-prompt-multi-shot-consistency-veo-3-1-best-practices/"
+    id: url-3
+    title: "skywork.ai"
+  - resource: "https://magichour.ai/blog/how-to-keep-characters-consistent-in-ai-video"
+    id: url-4
+    title: "magichour.ai"
+  - resource: "https://reap.video/blog/ai-video-editing-for-podcasters"
+    id: url-5
+    title: "reap.video"
+  - resource: "https://vizard.ai/blog/9-best-ai-video-clipping-tools-2026"
+    id: url-6
+    title: "vizard.ai"
+  - resource: "https://leadde.ai/blog/multilingual-ai-avatar-generators"
+    id: url-7
+    title: "leadde.ai"
+  - resource: "https://reelmind.ai/blog/ken-burns-effect-on-video-ai-for-editing"
+    id: url-8
+    title: "reelmind.ai"
+dx_id: "113"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "39-image-consistency/character-consistency.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+---
+
 # Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）
 
 > 本页以飞书「Video agent-MVP case」文档中的 11 个测试案例为锚点，逐个拆解每个案例的真实难点、当前 AI 能力现状与优化打法（提示词结构、参考策略、工作流编排、工具选择）。知识本体来自真实影视/内容行业的专业做法，AI 应用面向 DirectorX 可直接执行。
@@ -193,3 +246,9 @@
 - LeadDe — Multilingual AI Avatar Generators 2026：https://leadde.ai/blog/multilingual-ai-avatar-generators
 - ReelMind — Ken Burns Effect on Video: AI for Editing：https://reelmind.ai/blog/ken-burns-effect-on-video-ai-for-editing
 - vivideo — The AI Video Workflow in 2026：https://vivideo.ai/blog/state-of-ai-video-creation-2026
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)

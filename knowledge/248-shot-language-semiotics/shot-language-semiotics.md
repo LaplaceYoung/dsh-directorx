@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影镜头语言符号学（Shot Language Semiotics — Metz, Denotation & Connotation）"
+description: "电影镜头语言符号学：克里斯蒂安·麦茨（Christian Metz）电影语言论、镜头作为能指单位、明示义（Denotation）与隐含义（Connotation）、镜头句法（衔接 239 蒙太奇、248 对应、124 镜头语言）"
+tags:
+  - "synthesis"
+  - "camera"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Oxford Christian Metz"
+    id: cite-1
+    title: "Christian Metz"
+    author: "org:Oxford"
+  - resource: "cited:Chicago Film Language: A Semiotics of the Cinema"
+    id: cite-2
+    title: "Film Language: A Semiotics of the Cinema"
+    author: "org:Chicago"
+  - resource: "cited:OAPEN Christian Metz and the Codes of Cinema"
+    id: cite-3
+    title: "Christian Metz and the Codes of Cinema"
+    author: "org:OAPEN"
+  - resource: "cited:Project MUSE Semiology Interview with Metz"
+    id: cite-4
+    title: "Semiology Interview with Metz"
+    author: "org:Project-MUSE"
+  - resource: "https://academic.oup.com/reference/62339/reference-article/554206722"
+    id: url-1
+    title: "academic.oup.com"
+  - resource: "https://press.uchicago.edu/ucp/books/book/chicago/F/bo3645302.html"
+    id: url-2
+    title: "press.uchicago.edu"
+  - resource: "https://library.oapen.org/bitstream/id/ac079048-74bb-461a-a47b-d81d15e1b4e6/9789048527564.pdf"
+    id: url-3
+    title: "library.oapen.org"
+  - resource: "https://muse.jhu.edu/pub/315/oa_edited_volume/chapter/2346436"
+    id: url-4
+    title: "muse.jhu.edu"
+  - resource: "https://en.wikipedia.org/wiki/Christian_Metz_(theorist"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "248"
+related:
+  - "239-montage-theory/montage-theory.md"
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "231-shot-size-emotion/shot-size-emotion.md"
+  - "155-color-psychology/color-psychology.md"
+---
+
 # 电影镜头语言符号学（Shot Language Semiotics — Metz, Denotation & Connotation）
 
 > 本页为电影镜头语言符号学：克里斯蒂安·麦茨（Christian Metz）电影语言论、镜头作为能指单位、明示义（Denotation）与隐含义（Connotation）、镜头句法（衔接 239 蒙太奇、248 对应、124 镜头语言）。
@@ -80,3 +136,11 @@
 - OAPEN — Christian Metz and the Codes of Cinema：https://library.oapen.org/bitstream/id/ac079048-74bb-461a-a47b-d81d15e1b4e6/9789048527564.pdf
 - Project MUSE — Semiology, Linguistics, Cinema: Interview with Christian Metz：https://muse.jhu.edu/pub/315/oa_edited_volume/chapter/2346436
 - Wikipedia — Christian Metz (Theorist)：https://en.wikipedia.org/wiki/Christian_Metz_(theorist)
+
+## 相关概念
+
+- [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](../239-montage-theory/montage-theory.md)
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）](../231-shot-size-emotion/shot-size-emotion.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)

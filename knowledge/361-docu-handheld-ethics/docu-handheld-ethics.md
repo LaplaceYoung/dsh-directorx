@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影纪实-手持-伦理应用（Documentary-Handheld-Ethics — Duty of Care in Practice）"
+description: "电影纪实-手持-伦理应用：知情同意+参与者自主+编辑/AI 透明、关怀义务文档（Duty of Care：补偿/编辑控制/放映参与）、再现/素材/AI 元素不扭曲真实"
+tags:
+  - "synthesis"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Emory Documentary Dilemmas"
+    id: cite-1
+    title: "Documentary Dilemmas"
+    author: "org:Emory"
+  - resource: "cited:IDFA Documentary Distortion: Code of Ethics"
+    id: cite-2
+    title: "Documentary Distortion: Code of Ethics"
+    author: "org:IDFA"
+  - resource: "cited:NORC Ethical Documentary Filmmaking"
+    id: cite-3
+    title: "Ethical Documentary Filmmaking"
+    author: "org:NORC"
+  - resource: "cited:GovInfo Deepfake Harms"
+    id: cite-4
+    title: "Deepfake Harms"
+    author: "org:GovInfo"
+  - resource: "https://news.emory.edu/stories/2025/11/documentary-dilemmas-examining-ethics-nonfiction-storytelling"
+    id: url-1
+    title: "news.emory.edu"
+  - resource: "https://www.documentary.org/feature/what-do-about-documentary-distortion-toward-code-ethics"
+    id: url-2
+    title: "documentary.org"
+  - resource: "https://www.norc.org/research/projects/exploring-ethical-documentary-filmmaking-filmmaker-participant-relationships.html"
+    id: url-3
+    title: "norc.org"
+  - resource: "https://www.govinfo.gov/content/pkg/CHRG-118hhrg55181/html/CHRG-118hhrg55181.htm"
+    id: url-4
+    title: "govinfo.gov"
+  - resource: "https://www.ca10.uscourts.gov/sites/ca10/files/opinions/010111472484.pdf"
+    id: url-5
+    title: "ca10.uscourts.gov"
+dx_id: "361"
+related:
+  - "352-handheld-witness-documentary/handheld-witness-documentary.md"
+  - "166-documentary-ethics/documentary-ethics.md"
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "191-documentary-material-compliance/documentary-material-compliance.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+---
+
 # 电影纪实-手持-伦理应用（Documentary-Handheld-Ethics — Duty of Care in Practice）
 
 > 本页为电影纪实-手持-伦理应用：知情同意+参与者自主+编辑/AI 透明、关怀义务文档（Duty of Care：补偿/编辑控制/放映参与）、再现/素材/AI 元素不扭曲真实。知识本体来自 2026 纪实伦理（Emory/IDFA/CA10 判例）。AI 应用面向 DirectorX：纪实实践（衔接 352 手持纪实、361 对应、166 伦理、145 版权）。
@@ -76,3 +132,11 @@
 - NORC — Exploring Ethical Documentary Filmmaking：https://www.norc.org/research/projects/exploring-ethical-documentary-filmmaking-filmmaker-participant-relationships.html
 - GovInfo — Addressing Real Harm Done by Deepfakes：https://www.govinfo.gov/content/pkg/CHRG-118hhrg55181/html/CHRG-118hhrg55181.htm
 - CA10 — Document（判例参考）：https://www.ca10.uscourts.gov/sites/ca10/files/opinions/010111472484.pdf
+
+## 相关概念
+
+- [电影手持-见证-纪实三要素（Handheld × Witness × Documentary — Verité Aesthetics）](../352-handheld-witness-documentary/handheld-witness-documentary.md)
+- [AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）](../166-documentary-ethics/documentary-ethics.md)
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 纪录片素材合规矩阵（Documentary Clearance — Rights Layers & License Tracking）](../191-documentary-material-compliance/documentary-material-compliance.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)

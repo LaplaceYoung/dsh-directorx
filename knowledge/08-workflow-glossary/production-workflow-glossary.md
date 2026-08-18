@@ -1,3 +1,56 @@
+---
+type: Playbook
+title: "影视制作全流程与术语大全（Production Workflow & Glossary）"
+description: "制作流程知识库：制作三阶段、岗位职责、制作文档体系、技术规格、100+ 行业术语字典、交付规范"
+tags:
+  - "foundation"
+  - "workflow"
+  - "spec"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Glossary of motion picture terms / Film crew"
+    id: cite-1
+    title: "Wikipedia Glossary of motion picture terms / Film crew"
+  - resource: "cited:Careers In Film 剧组岗位指南"
+    id: cite-2
+    title: "Careers In Film 剧组岗位指南"
+  - resource: "cited:Netflix/Warner 交付规格"
+    id: cite-3
+    title: "Netflix/Warner 交付规格"
+  - resource: "cited:行业标准（Rec.709"
+    id: cite-4
+    title: "行业标准（Rec.709"
+  - resource: "cited:EBU R128 等）。"
+    id: cite-5
+    title: "EBU R128 等）。"
+  - resource: "https://en.wikipedia.org/wiki/Glossary_of_motion_picture_terms"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Film_crew"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://www.careersinfilm.com/film-crew/"
+    id: url-3
+    title: "careersinfilm.com"
+  - resource: "https://www.studiobinder.com/blog/stages-of-film-production/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.studiobinder.com/blog/movie-film-terms/"
+    id: url-5
+    title: "studiobinder.com"
+dx_id: "08"
+related:
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "73-ai-prompt-quickref/ai-prompt-quickref.md"
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+---
+
 # 影视制作全流程与术语大全（Production Workflow & Glossary）
 
 > 本页是 DirectorX 制作流程知识库：制作三阶段、岗位职责、制作文档体系、技术规格、100+ 行业术语字典、交付规范。术语定义供 Agent 精准描述需求与审查交付。
@@ -335,3 +388,9 @@
 - StudioBinder: Film Terms Glossary（索引） — https://www.studiobinder.com/blog/movie-film-terms/
 - Netflix Partner Help: Delivery Specifications — https://partnerhelp.netflixstudios.com/hc/en-us/articles/7262346654995
 - Warner Media: SDR Content Specs — https://partnerhub.warnermediagroup.com/ingest-specifications/sdr-content
+
+## 相关概念
+
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [AI 视频模型提示词总表（Prompt Format Quick Reference）](../73-ai-prompt-quickref/ai-prompt-quickref.md)
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)

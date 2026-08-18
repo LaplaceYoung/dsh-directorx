@@ -5,6 +5,8 @@
  * 成本 (budget & retry policy acknowledged), 权利 (IP/persona/music flags).
  */
 
+import { buildIpBrief, ipIssueLine, scanIpRisk, type IpHit, type IpRewriteBrief } from '../ip-lexicon.ts'
+
 export interface PreflightInput {
   prompt: string
   model?: string
@@ -27,6 +29,7 @@ export interface PreflightOutput {
   gates: { spec: GateResult; content: GateResult; cost: GateResult; rights: GateResult }
   verdict: 'pass' | 'review'
   summary: string
+  ip?: { hits: IpHit[]; dirty: boolean; brief: IpRewriteBrief; negatives: string[]; negativeLine: string }
 }
 
 const COMMON_SIZES = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9']
@@ -43,10 +46,8 @@ const ELEMENTS: Array<{ name: string; keywords: string[] }> = [
 ]
 
 const IP_FLAGS: Array<{ name: string; keywords: string[] }> = [
-  { name: '真人肖像', keywords: ['明星', '周杰伦', '刘亦菲', '杨幂', '成龙', '马斯克', '马云'] },
-  { name: '品牌/IP', keywords: ['米奇', '米老鼠', '迪士尼', '哈利波特', '奥特曼', '皮卡丘', 'Hello Kitty', '乐高', '耐克', 'Nike', '苹果logo'] },
-  { name: '音乐版权', keywords: ['周杰伦的歌', '原声带', '翻唱', '采样'] },
-  { name: '风格模仿', keywords: ['宫崎骏风格', '吉卜力风格', '新海诚风格', '梵高风格'] },
+  { name: '真人肖像', keywords: ['明星'] },
+  { name: '音乐版权', keywords: ['采样'] },
 ]
 
 export function preflight(input: PreflightInput): PreflightOutput {
@@ -94,6 +95,9 @@ export function preflight(input: PreflightInput): PreflightOutput {
   }
 
   // 权利
+  const ipHits = scanIpRisk(prompt)
+  const ipBrief = ipHits.length > 0 ? buildIpBrief(prompt) : undefined
+  for (const hit of ipHits) gates.rights.issues.push(ipIssueLine(hit))
   for (const flag of IP_FLAGS) {
     if (flag.keywords.some(keyword => prompt.includes(keyword))) {
       gates.rights.issues.push(`可能涉及${flag.name}授权：确认权利范围内再生成`)
@@ -108,5 +112,16 @@ export function preflight(input: PreflightInput): PreflightOutput {
     summary: pass
       ? '四道闸门通过，可提交生成。'
       : '存在待办闸门：先修复 issues（或与用户确认），按 directorx-playbook 先占位后生成。',
+    ...(ipBrief !== undefined
+      ? {
+          ip: {
+            hits: ipBrief.hits,
+            dirty: ipBrief.dirty,
+            brief: ipBrief,
+            negatives: ipBrief.exclude,
+            negativeLine: ipBrief.negativeLine,
+          },
+        }
+      : {}),
   }
 }

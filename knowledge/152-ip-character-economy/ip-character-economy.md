@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 视频 IP 角色经济（IP Character Economy — Virtual Influencers & Franchise Monetization）"
+description: "AI 视频角色 IP 的经济体系：虚拟网红（Virtual Influencer）的创建/运营/变现、IP 授权与特许经营、12 类收入流叠加、形象安全治理"
+tags:
+  - "consistency"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Communipass AI Influencer Monetization Strategies 2026"
+    id: cite-1
+    title: "AI Influencer Monetization Strategies 2026"
+    author: "org:Communipass"
+  - resource: "cited:CloneViral Create an AI Influencer 2026"
+    id: cite-2
+    title: "Create an AI Influencer 2026"
+    author: "org:CloneViral"
+  - resource: "cited:Sozee AI Virtual Influencer Monetization 2026"
+    id: cite-3
+    title: "AI Virtual Influencer Monetization 2026"
+    author: "org:Sozee"
+  - resource: "cited:Avatars.news AI Avatars for Creators 2026"
+    id: cite-4
+    title: "AI Avatars for Creators 2026"
+    author: "org:Avatars.news"
+  - resource: "https://communipass.com/blog/ai-influencer-monetization-strategies-2026/"
+    id: url-1
+    title: "communipass.com"
+  - resource: "https://www.cloneviral.ai/blog/how-to-create-ai-influencer-monetization-guide"
+    id: url-2
+    title: "cloneviral.ai"
+  - resource: "https://sozee.ai/resources/ai-monetization-strategies-creators/"
+    id: url-3
+    title: "sozee.ai"
+  - resource: "https://avatars.news/ai-avatars-for-creators-how-virtual-influencers-are-built-monetized-and-managed-safely-in-2026"
+    id: url-4
+    title: "avatars.news"
+  - resource: "https://khaby.ai/blog/ai-influencer-marketing-2026/"
+    id: url-5
+    title: "khaby.ai"
+dx_id: "152"
+related:
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "137-digital-human/digital-human.md"
+  - "145-copyright-ethics/copyright-ethics.md"
+---
+
 # AI 视频 IP 角色经济（IP Character Economy — Virtual Influencers & Franchise Monetization）
 
 > 本页为 AI 视频角色 IP 的经济体系：虚拟网红（Virtual Influencer）的创建/运营/变现、IP 授权与特许经营、12 类收入流叠加、形象安全治理。知识本体来自 2026 虚拟网红变现指南（Communipass/CloneViral/Avatars.news/Sozee）。AI 应用面向 DirectorX：角色 IP 项目（衔接 117 一致性、137 数字人、145 合规授权）。
@@ -87,3 +141,9 @@ IP 定位（形象/人设/世界观）
 - Sozee — AI Virtual Influencer Monetization Strategies 2026：https://sozee.ai/resources/ai-monetization-strategies-creators/
 - Avatars.news — AI Avatars for Creators in 2026：https://avatars.news/ai-avatars-for-creators-how-virtual-influencers-are-built-monetized-and-managed-safely-in-2026
 - Khaby — AI Influencer Marketing 2026：https://khaby.ai/blog/ai-influencer-marketing-2026/
+
+## 相关概念
+
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)

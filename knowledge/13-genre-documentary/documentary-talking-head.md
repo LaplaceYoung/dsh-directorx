@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "纪录片与口播知识类（Documentary & Talking Head）"
+description: "纪录片/口播知识库：纪录片采访全流程（场地、画面、灯光、收音）、纪实拍摄方法、纪录片叙事结构、口播视频与知识类内容制作"
+tags:
+  - "foundation"
+  - "lighting"
+  - "sound"
+  - "workflow"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:IDA 纪录片采访拍摄指南（Adam Irving）"
+    id: cite-1
+    title: "IDA 纪录片采访拍摄指南（Adam Irving）"
+  - resource: "cited:Teleprompter.com 口播指南"
+    id: cite-2
+    title: "Teleprompter.com 口播指南"
+  - resource: "cited:Cinéma vérité 维基词条"
+    id: cite-3
+    title: "Cinéma vérité 维基词条"
+  - resource: "cited:Nieman Storyboard 叙事采访要点。"
+    id: cite-4
+    title: "Nieman Storyboard 叙事采访要点。"
+  - resource: "https://www.documentary.org/feature/beyond-talking-head-step-step-guide-shooting-documentary-interviews"
+    id: url-1
+    title: "documentary.org"
+  - resource: "https://www.teleprompter.com/blog/what-is-a-talking-head-video"
+    id: url-2
+    title: "teleprompter.com"
+  - resource: "https://en.wikipedia.org/wiki/Cin%C3%A9ma_v%C3%A9rit%C3%A9"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://niemanstoryboard.org/2024/07/19/narrative-interviewing-nonfiction-journalism-story-arc-character/"
+    id: url-4
+    title: "niemanstoryboard.org"
+  - resource: "https://www.rev.com/blog/documentary-interview-questions-how-to-ask-good-questions-for-a-documentary-interview"
+    id: url-5
+    title: "rev.com"
+  - resource: "https://www.masterclass.com/classes/ken-burns-teaches-documentary-filmmaking/"
+    id: url-6
+    title: "masterclass.com"
+dx_id: "13"
+related:
+  - "27-caption-localization/caption-localization.md"
+  - "95-interview-onset/interview-onset.md"
+  - "172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md"
+---
+
 # 纪录片与口播知识类（Documentary & Talking Head）
 
 > 本页是 DirectorX 纪录片/口播知识库：纪录片采访全流程（场地、画面、灯光、收音）、纪实拍摄方法、纪录片叙事结构、口播视频与知识类内容制作。每个概念含参数与模板。
@@ -171,3 +226,9 @@
 - Nieman Storyboard: The art of the narrative interview — https://niemanstoryboard.org/2024/07/19/narrative-interviewing-nonfiction-journalism-story-arc-character/
 - Rev: Documentary Interview Questions — https://www.rev.com/blog/documentary-interview-questions-how-to-ask-good-questions-for-a-documentary-interview
 - MasterClass: Ken Burns Teaches Documentary Filmmaking（结构章节） — https://www.masterclass.com/classes/ken-burns-teaches-documentary-filmmaking/
+
+## 相关概念
+
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [访谈口播实拍全流程（Interview & Talking-Head On-Set System）](../95-interview-onset/interview-onset.md)
+- [AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）](../172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md)

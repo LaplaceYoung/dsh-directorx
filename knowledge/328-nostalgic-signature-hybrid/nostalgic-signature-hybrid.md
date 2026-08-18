@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片记忆签名杂交视觉（Nostalgic Signature Hybrid — Personal Brand & Style Fusion）"
+description: "AI 图片的记忆签名杂交视觉：品牌风格元素（@BrandStyle 标签）、怀旧美学（胶片颗粒/胶片型号/复古光）+杂交（类型混合）、个人叙事+品牌语言融合（亲密的视觉身份）、共享风格元素跨团队"
+tags:
+  - "synthesis"
+  - "style"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX AI Image Trends 2026"
+    id: cite-1
+    title: "AI Image Trends 2026"
+    author: "org:LTX"
+  - resource: "cited:GetImg Consistent Style 2026"
+    id: cite-2
+    title: "Consistent Style 2026"
+    author: "org:GetImg"
+  - resource: "cited:Piclumen 6 AI Image Trends"
+    id: cite-3
+    title: "6 AI Image Trends"
+    author: "org:Piclumen"
+  - resource: "cited:Pict.AI Viral AI Photo Trends 2026"
+    id: cite-4
+    title: "Viral AI Photo Trends 2026"
+    author: "org:Pict.AI"
+  - resource: "https://ltx.io/blog/ai-image-trends"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://getimg.ai/blog/how-to-generate-images-in-consistent-brand-style-with-ai"
+    id: url-2
+    title: "getimg.ai"
+  - resource: "https://www.piclumen.com/hub/article/6-ai-image-trends-taking-over-social-media-in-2026-69b3d6405b5c8543b603545b/"
+    id: url-3
+    title: "piclumen.com"
+  - resource: "https://pict.ai/blog/viral-ai-photo-trends-2026/"
+    id: url-4
+    title: "pict.ai"
+  - resource: "https://www.webeducationservices.com/ai-images-branding-7-styles-that-change-your-brand"
+    id: url-5
+    title: "webeducationservices.com"
+dx_id: "328"
+related:
+  - "294-emotional-memory-image/emotional-memory-image.md"
+  - "299-signature-motif/signature-motif.md"
+  - "278-genre-acting/genre-acting.md"
+  - "301-nostalgia-series/nostalgia-series.md"
+---
+
 # AI 图片记忆签名杂交视觉（Nostalgic Signature Hybrid — Personal Brand & Style Fusion）
 
 > 本页为 AI 图片的记忆签名杂交视觉：品牌风格元素（@BrandStyle 标签）、怀旧美学（胶片颗粒/胶片型号/复古光）+杂交（类型混合）、个人叙事+品牌语言融合（亲密的视觉身份）、共享风格元素跨团队。知识本体来自 2026 怀旧品牌（LTX/GetImg/Piclumen）。AI 应用面向 DirectorX：记忆品牌（衔接 294 情绪记忆、328 对应、306 母题签名、317 杂交视觉）。
@@ -77,3 +134,10 @@
 - Piclumen — 6 AI Image Trends Taking Over Social Media 2026：https://www.piclumen.com/hub/article/6-ai-image-trends-taking-over-social-media-in-2026-69b3d6405b5c8543b603545b/
 - Pict.AI — Viral AI Photo Trends 2026：https://pict.ai/blog/viral-ai-photo-trends-2026/
 - WebEducation — AI Images & Branding: 7 Styles：https://www.webeducationservices.com/ai-images-branding-7-styles-that-change-your-brand
+
+## 相关概念
+
+- [AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）](../294-emotional-memory-image/emotional-memory-image.md)
+- [AI 图片签名母题应用（Signature Motif — One Anchor Across Every Image）](../299-signature-motif/signature-motif.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [AI 图片情绪记忆系列（Nostalgia Series — Memory Sequence & Personal History）](../301-nostalgia-series/nostalgia-series.md)

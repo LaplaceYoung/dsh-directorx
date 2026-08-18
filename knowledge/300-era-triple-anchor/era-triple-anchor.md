@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影年代表演-场景-声音三锚（Era Triple Anchor — Acting, Setting & Sound Authenticity）"
+description: "电影年代表演-场景-声音三锚：年代真实三通道（表演语域/场景细节/声音锚定）、真实感 vs 叙事权衡（真实性感觉）、时期片方法（Production Design 核心+音乐锚定年代）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Tandfonline Restoring Cultural Identity"
+    id: cite-1
+    title: "Restoring Cultural Identity"
+    author: "org:Tandfonline"
+  - resource: "cited:EWU The Reel Truth: Historical Accuracy"
+    id: cite-2
+    title: "The Reel Truth: Historical Accuracy"
+    author: "org:EWU"
+  - resource: "cited:PremiumBeat Filmmaker's Guide to Period Piece"
+    id: cite-3
+    title: "Filmmaker's Guide to Period Piece"
+    author: "org:PremiumBeat"
+  - resource: "cited:Film-History The Authenticity Feeling"
+    id: cite-4
+    title: "The Authenticity Feeling"
+    author: "org:Film-History"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/17503175.2025.2461907"
+    id: url-1
+    title: "tandfonline.com"
+  - resource: "https://dc.ewu.edu/cgi/viewcontent.cgi?article=1653&context=theses"
+    id: url-2
+    title: "dc.ewu.edu"
+  - resource: "https://www.premiumbeat.com/blog/filmmakers-guide-to-the-period-piece/"
+    id: url-3
+    title: "premiumbeat.com"
+  - resource: "https://film-history.org/approaches/authenticity-feeling"
+    id: url-4
+    title: "film-history.org"
+  - resource: "https://wellingtonfilms.nz/period-piece-authentic/"
+    id: url-5
+    title: "wellingtonfilms.nz"
+dx_id: "300"
+related:
+  - "203-character-era-consistency/character-era-consistency.md"
+  - "291-era-performance/era-performance.md"
+  - "287-genre-settings/genre-settings.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "222-production-design-unified/production-design-unified.md"
+---
+
 # 电影年代表演-场景-声音三锚（Era Triple Anchor — Acting, Setting & Sound Authenticity）
 
 > 本页为电影年代表演-场景-声音三锚：年代真实三通道（表演语域/场景细节/声音锚定）、真实感 vs 叙事权衡（真实性感觉）、时期片方法（Production Design 核心+音乐锚定年代）。知识本体来自 2026 时期片研究（Tandfonline/EWU Thesis/PremiumBeat/Film-History）。AI 应用面向 DirectorX：年代戏（衔接 203 时代、291 年代表演、300 对应、287 场景）。
@@ -77,3 +135,11 @@
 - PremiumBeat — Filmmaker's Guide to the Period Piece：https://www.premiumbeat.com/blog/filmmakers-guide-to-the-period-piece/
 - Film-History — The Authenticity Feeling：https://film-history.org/approaches/authenticity-feeling
 - Wellington Films — Can a Period Piece Ever Be Truly Authentic：https://wellingtonfilms.nz/period-piece-authentic/
+
+## 相关概念
+
+- [AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）](../203-character-era-consistency/character-era-consistency.md)
+- [电影年代表演（Era Performance — From Presentational to Method to Media-Aware）](../291-era-performance/era-performance.md)
+- [电影类型片场景惯例（Genre Settings — Horror House, Western Frontier & Sci-Fi Spaces）](../287-genre-settings/genre-settings.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影美术设计统一（Production Design — Unified Visual World & Art Department）](../222-production-design-unified/production-design-unified.md)

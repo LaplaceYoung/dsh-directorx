@@ -1,3 +1,64 @@
+---
+type: Reference
+title: "音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）"
+description: "AI 音频-视频协同的完整能力与工作流：原生音频生成（一次成片带声）、AI 配音/音色克隆、对口型（Lip-Sync）、音频驱动动画（Audio-Driven）、声音设计"
+tags:
+  - "production"
+  - "sound"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Bonega Unified Audio-Video Generation 2026"
+    id: cite-1
+    title: "Unified Audio-Video Generation 2026"
+    author: "org:Bonega"
+  - resource: "cited:fal Kling LipSync"
+    id: cite-2
+    title: "Kling LipSync"
+    author: "org:fal"
+  - resource: "cited:fal MuseTalk"
+    id: cite-3
+    title: "MuseTalk"
+    author: "org:fal"
+  - resource: "cited:HeyGen AI Lip Sync"
+    id: cite-4
+    title: "AI Lip Sync"
+    author: "org:HeyGen"
+  - resource: "cited:LTX Best Text to Video AI Generators 2026"
+    id: cite-5
+    title: "Best Text to Video AI Generators 2026"
+    author: "org:LTX"
+  - resource: "https://bonega.ai/en/blog/unified-audio-video-generation-2026"
+    id: url-1
+    title: "bonega.ai"
+  - resource: "https://fal.ai/models/fal-ai/kling-video/lipsync/audio-to-video"
+    id: url-2
+    title: "fal.ai"
+  - resource: "https://fal.ai/models/fal-ai/musetalk"
+    id: url-3
+    title: "fal.ai"
+  - resource: "https://www.heygen.com/tool/create-ai-lip-sync-videos"
+    id: url-4
+    title: "heygen.com"
+  - resource: "https://ltx.io/blog/best-text-to-video-ai"
+    id: url-5
+    title: "ltx.io"
+dx_id: "119"
+aliases:
+  - "audio-sync-gen"
+  - "music-generation-gen"
+related:
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+---
+
 # 音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）
 
 > 本页为 AI 音频-视频协同的完整能力与工作流：原生音频生成（一次成片带声）、AI 配音/音色克隆、对口型（Lip-Sync）、音频驱动动画（Audio-Driven）、声音设计。知识本体来自 2026 统一音视频生成趋势（Bonega）与对口型工具实践（fal Kling LipSync/MuseTalk/HeyGen）。AI 应用面向 DirectorX：音频策略（案例 4 旁白+环境音+BGM、案例 5 多语言配音）的执行层。
@@ -94,3 +155,8 @@ Audio: 雨声、远处车流、脚步水声（提示词直接声明声音）
 - fal — MuseTalk: Audio-Driven Lip-Sync AI：https://fal.ai/models/fal-ai/musetalk
 - HeyGen — Free AI Lip Sync Generator：https://www.heygen.com/tool/create-ai-lip-sync-videos
 - LTX — Best 6 Text To Video AI Generators (2026)：https://ltx.io/blog/best-text-to-video-ai
+
+## 相关概念
+
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)

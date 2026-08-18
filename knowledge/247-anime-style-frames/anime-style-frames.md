@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片动漫风格帧（Anime Style Frames — Cel Shading & Subgenre Steering）"
+description: "AI 图片动漫风格帧：赛璐璐着色（Cel Shading：硬边墨线/平面色块/两级阴影）、风格锁定（style lock 词汇）、子类型引导（少年/少女/青年：比例与表情）、镜头感提示"
+tags:
+  - "synthesis"
+  - "camera"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Vaiflux Anime Style Prompts That Actually Work"
+    id: cite-1
+    title: "Anime Style Prompts That Actually Work"
+    author: "org:Vaiflux"
+  - resource: "cited:SpacePrompts Anime Art Style Prompts"
+    id: cite-2
+    title: "Anime Art Style Prompts"
+    author: "org:SpacePrompts"
+  - resource: "cited:Anifusion Cel-Shading Anime Style"
+    id: cite-3
+    title: "Cel-Shading Anime Style"
+    author: "org:Anifusion"
+  - resource: "cited:GptImager Anime Style AI Prompts"
+    id: cite-4
+    title: "Anime Style AI Prompts"
+    author: "org:GptImager"
+  - resource: "https://www.vaiflux.com/prompts/anime-style-prompts-guide"
+    id: url-1
+    title: "vaiflux.com"
+  - resource: "https://www.spaceprompts.com/blog/anime-art-style-prompts-for-ai-image-generators"
+    id: url-2
+    title: "spaceprompts.com"
+  - resource: "https://anifusion.ai/style/cel-shading-anime-style-generator/"
+    id: url-3
+    title: "anifusion.ai"
+  - resource: "https://gptimager.com/styles/anime"
+    id: url-4
+    title: "gptimager.com"
+  - resource: "https://www.aiforart.com/anime/styles/md"
+    id: url-5
+    title: "aiforart.com"
+dx_id: "247"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "213-copyright-safe-prompting/copyright-safe-prompting.md"
+  - "231-shot-size-emotion/shot-size-emotion.md"
+---
+
 # AI 图片动漫风格帧（Anime Style Frames — Cel Shading & Subgenre Steering）
 
 > 本页为 AI 图片动漫风格帧：赛璐璐着色（Cel Shading：硬边墨线/平面色块/两级阴影）、风格锁定（style lock 词汇）、子类型引导（少年/少女/青年：比例与表情）、镜头感提示。知识本体来自 2026 动漫提示词指南（Vaiflux/SpacePrompts/Anifusion/GptImager）。AI 应用面向 DirectorX：动漫帧（衔接 224 风格体系、238 系列一致、247 对应、213 版权）。
@@ -87,3 +144,10 @@ two-tone shadow, top-left key light"
 - Anifusion — Cel-Shading Anime Style Generator：https://anifusion.ai/style/cel-shading-anime-style-generator/
 - GptImager — Anime Style AI Image Prompts for GPT Image 2：https://gptimager.com/styles/anime
 - AIforArt — Anime Styles Hub: Prompts, Models, Workflows：https://www.aiforart.com/anime/styles/md
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）](../213-copyright-safe-prompting/copyright-safe-prompting.md)
+- [电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）](../231-shot-size-emotion/shot-size-emotion.md)

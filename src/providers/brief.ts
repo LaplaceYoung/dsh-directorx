@@ -1,5 +1,6 @@
 import { CharacterStore } from '../characters.ts'
 import { composeProductionFlow, type ComposeFlow } from '../compose.ts'
+import { planPrompt, type PromptPlan } from '../prompt-plan.ts'
 
 /**
  * Intent understanding (意图分诊): a deterministic layer that turns a raw
@@ -45,10 +46,13 @@ export interface BriefOutput {
   suggestedFlow: string
   /** Recipe + tool sequence. The agent composes these tools; orchestrate is optional. */
   compose: ComposeFlow
+  /** Per-shot prompt orchestration. Follow before writing craft. */
+  plan: PromptPlan
 }
 
 const TYPE_RULES: Array<{ type: string; keywords: string[]; seconds: number }> = [
   { type: '口播/讲解', keywords: ['介绍', '讲解', '口播', '教程', '科普', '测评', '分享'], seconds: 45 },
+  { type: '预告/片花', keywords: ['预告片', '电影预告', '片花', 'trailer', '预告'], seconds: 40 },
   { type: '广告/宣传', keywords: ['广告', '产品', '带货', '宣传', '推广', '促销', '宣传片', '品牌'], seconds: 75 },
   { type: '改编/长剧', keywords: ['改编', '小说', '名著', '电视剧', '网文'], seconds: 1800 },
   { type: '拉片/复刻', keywords: ['拉片', '复刻', '对帧', '主体替换'], seconds: 45 },
@@ -71,6 +75,7 @@ const STYLE_HINTS: Record<string, string> = {
   '赛博朋克': 'cyberpunk', '赛博': 'cyberpunk', '黑色电影': 'noir', 'noir': 'noir', '吉卜力': 'ghibli',
   '韦斯安德森': 'wes-anderson', '纪录片': 'documentary', '广告': 'commercial', '复古': 'retro-80s',
   '恐怖': 'horror', '电影感': 'cinematic', '写实': 'cinematic',
+  '日漫': 'anime', '二次元': 'anime', '热血': 'shonen', '赛璐璐': 'cel',
 }
 
 function secondsFrom(request: string): number | undefined {
@@ -88,17 +93,25 @@ function materialKind(path: string): string {
   return 'other'
 }
 
-export async function brief(input: BriefInput): Promise<BriefOutput> {
-  const request = input.request.trim()
-  // Score every rule by keyword hits; strongest intent wins.
+export function classifyRequestType(request: string): { type: string; seconds: number; confidence: 'high' | 'medium' | 'low' } {
   const scored = TYPE_RULES
     .map(rule => ({ rule, hits: rule.keywords.filter(keyword => request.includes(keyword)).length }))
     .filter(entry => entry.hits > 0)
     .sort((a, b) => b.hits - a.hits)
-  const matchedType = scored[0]?.rule
-  const type = matchedType?.type ?? '通用短片'
+  const matched = scored[0]?.rule
+  return {
+    type: matched?.type ?? '通用短片',
+    seconds: matched?.seconds ?? 30,
+    confidence: matched !== undefined ? 'high' : 'low',
+  }
+}
+
+export async function brief(input: BriefInput): Promise<BriefOutput> {
+  const request = input.request.trim()
+  const classified = classifyRequestType(request)
+  const type = classified.type
   const explicitSeconds = secondsFrom(request)
-  const targetSeconds = explicitSeconds ?? matchedType?.seconds ?? 30
+  const targetSeconds = explicitSeconds ?? classified.seconds
 
   const platform = PLATFORM_RULES.find(rule => rule.keywords.some(keyword => request.includes(keyword)))
   const aspectRatio = platform?.aspect ?? '16:9'
@@ -137,6 +150,7 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
   if (type === '广告/宣传') suggestedFlow = 'promo-video：调研基准 → 脚本确认 → 分镜 → propose 占位 → 用户执行'
   if (type === '改编/长剧') suggestedFlow = 'novel-adaptation：读原作 → 问改编幅度 → 角色/大纲/美术/剧本门禁 → 单元占位'
   if (type === '拉片/复刻') suggestedFlow = 'remake-subject：拉片 → 锁摄影换主体 → propose 占位 → 用户确认'
+  if (type === '预告/片花') suggestedFlow = 'trailer：钩子-世界-升级-片名，硬切拼成片'
 
   // 标题变体：钩子公式库（数字悬念/反常识/利益点），运营方法论规则 70-71。
   const topic = request.replace(/[帮我做要搞|，。！？\s]/g, '').slice(0, 24)
@@ -150,20 +164,22 @@ export async function brief(input: BriefInput): Promise<BriefOutput> {
   const coverPrompt = topic === '' ? null : `短视频封面：主题「${topic}」大字标题居中，${aspectRatio} 竖幅构图，风格 ${styleHints.length > 0 ? styleHints.join('、') : '干净高对比'}，标题文字区域留白，主体清晰，无杂乱背景`
 
   const compose = composeProductionFlow({ type, request, materials: input.materials })
-  const nextActions = [...compose.nextActions]
-  if (characters.length === 0 && (type === '剧情/短剧' || type === '分镜/成片' || type === 'MV/音乐')) {
+  const plan = planPrompt({ intent: request })
+  const nextActions = [`directorx_prompt_plan / 稿：${plan.level} ${plan.strategyHint}`, ...compose.nextActions]
+  if (characters.length === 0 && (type === '剧情/短剧' || type === '分镜/成片' || type === 'MV/音乐' || type === '预告/片花')) {
     nextActions.splice(1, 0, '用 directorx_character_register 注册主体锚点（多镜头一致性前提）')
   }
 
   return {
     nextActions,
     compose,
+    plan,
     titles,
     coverPrompt,
     platformCard,
     brief: {
       type,
-      typeConfidence: matchedType !== undefined ? 'high' : 'low',
+      typeConfidence: classified.confidence,
       platform: platform?.platform ?? '未指定',
       aspectRatio,
       targetSeconds,

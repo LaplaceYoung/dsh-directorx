@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影杂交-沉浸-预期总设计（Hybrid-Immersion-Expectation — Unified Suspense & Experience）"
+description: "电影杂交-沉浸-预期总设计：时空沉浸×叙事沉浸（双沉浸维持动量）、电影/游戏策略融合（跨媒介线索）、悬念技术（等待意外）、节奏/共识/主动角色（观众参与）"
+tags:
+  - "synthesis"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Integration of Film and Game"
+    id: cite-1
+    title: "Integration of Film and Game"
+    author: "org:PMC"
+  - resource: "cited:OUP Beyond Film: Experiential Cinema"
+    id: cite-2
+    title: "Beyond Film: Experiential Cinema"
+    author: "org:OUP"
+  - resource: "cited:USP A Construção do Gênero Suspense"
+    id: cite-3
+    title: "A Construção do Gênero Suspense"
+    author: "org:USP"
+  - resource: "cited:UM Filmic Immersion"
+    id: cite-4
+    title: "Filmic Immersion"
+    author: "org:UM"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11986995/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://academic.oup.com/book/39101/chapter/338495665"
+    id: url-2
+    title: "academic.oup.com"
+  - resource: "https://teses.usp.br/teses/disponiveis/8/8139/tde-07102011-144235/publico/2011_OdairJoseMoreiradaSilva.pdf"
+    id: url-3
+    title: "teses.usp.br"
+  - resource: "https://www.um.edu.mt/library/oar/bitstream/123456789/2718/4/14MAENG004.pdf"
+    id: url-4
+    title: "um.edu.mt"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886"
+    id: url-5
+    title: "tandfonline.com"
+dx_id: "338"
+related:
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "304-expectation-management/expectation-management.md"
+  - "268-suspense-theory/suspense-theory.md"
+  - "322-hybrid-audience-experience/hybrid-audience-experience.md"
+  - "167-interactive-branching/interactive-branching.md"
+---
+
 # 电影杂交-沉浸-预期总设计（Hybrid-Immersion-Expectation — Unified Suspense & Experience）
 
 > 本页为电影杂交-沉浸-预期总设计：时空沉浸×叙事沉浸（双沉浸维持动量）、电影/游戏策略融合（跨媒介线索）、悬念技术（等待意外）、节奏/共识/主动角色（观众参与）。知识本体来自 2026 总设计（PMC/OUP/USP 悬念论文）。AI 应用面向 DirectorX：总体验（衔接 323 沉浸、338 对应、304 预期、268 悬念）。
@@ -76,3 +133,11 @@
 - USP — A Construção do Gênero Suspense no Cinema：https://teses.usp.br/teses/disponiveis/8/8139/tde-07102011-144235/publico/2011_OdairJoseMoreiradaSilva.pdf
 - UM — Filmic Immersion: An Analysis of Technique：https://www.um.edu.mt/library/oar/bitstream/123456789/2718/4/14MAENG004.pdf
 - Tandfonline — Immersive Storytelling Experiences: A Design Methodology：https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886
+
+## 相关概念
+
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）](../304-expectation-management/expectation-management.md)
+- [电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）](../268-suspense-theory/suspense-theory.md)
+- [电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）](../322-hybrid-audience-experience/hybrid-audience-experience.md)
+- [AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）](../167-interactive-branching/interactive-branching.md)

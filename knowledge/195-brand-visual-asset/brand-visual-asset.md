@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）"
+description: "AI 视频的品牌视觉资产体系：品牌套件（Brand Kit：标识/色彩/字体/语调）机器可读化、品牌规则嵌入生成平台、人在回路审校（Human-in-the-Loop）、跨素材一致性规模化"
+tags:
+  - "consistency"
+  - "color"
+  - "continuity"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Figma AI Brand Guidelines Generator"
+    id: cite-1
+    title: "AI Brand Guidelines Generator"
+    author: "org:Figma"
+  - resource: "cited:LongStories Balancing AI Video and Brand Identity"
+    id: cite-2
+    title: "Balancing AI Video and Brand Identity"
+    author: "org:LongStories"
+  - resource: "cited:Market-IA AI Brand Kit 2026"
+    id: cite-3
+    title: "AI Brand Kit 2026"
+    author: "org:Market-IA"
+  - resource: "cited:VFXAI Create a Brand Kit with AI"
+    id: cite-4
+    title: "Create a Brand Kit with AI"
+    author: "org:VFXAI"
+  - resource: "https://www.figma.com/solutions/ai-brand-guideline-generator/"
+    id: url-1
+    title: "figma.com"
+  - resource: "https://longstories.ai/blog/balancing-ai-video-design-brand-identity"
+    id: url-2
+    title: "longstories.ai"
+  - resource: "https://www.market-ia.fr/en/blog/ai-brand-kit-visual-identity-scale-2026"
+    id: url-3
+    title: "market-ia.fr"
+  - resource: "https://www.vfxai.com/blog/how-to-create-a-brand-kit-with-ai-in-2026"
+    id: url-4
+    title: "vfxai.com"
+  - resource: "https://www.mindstudio.ai/blog/ai-image-generation-brand-guidelines-design-systems"
+    id: url-5
+    title: "mindstudio.ai"
+dx_id: "195"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "152-ip-character-economy/ip-character-economy.md"
+  - "169-props-wardrobe/props-wardrobe.md"
+  - "41-ecommerce-assets/ecommerce-creative-factory.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）
 
 > 本页为 AI 视频的品牌视觉资产体系：品牌套件（Brand Kit：标识/色彩/字体/语调）机器可读化、品牌规则嵌入生成平台、人在回路审校（Human-in-the-Loop）、跨素材一致性规模化。知识本体来自 2026 品牌 AI 指南（Figma/LongStories/Market-IA/VFXAI）。AI 应用面向 DirectorX：品牌项目（衔接 126 风格、152 IP、169 服装、41 素材工厂）。
@@ -86,3 +144,11 @@
 - Market-IA — AI Brand Kit 2026: Scaling Visual Identity Consistently：https://www.market-ia.fr/en/blog/ai-brand-kit-visual-identity-scale-2026
 - VFXAI — How to Create a Brand Kit with AI in 2026：https://www.vfxai.com/blog/how-to-create-a-brand-kit-with-ai-in-2026
 - MindStudio — AI Image Generation for Brand Guidelines：https://www.mindstudio.ai/blog/ai-image-generation-brand-guidelines-design-systems
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 视频 IP 角色经济（IP Character Economy — Virtual Influencers & Franchise Monetization）](../152-ip-character-economy/ip-character-economy.md)
+- [AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）](../169-props-wardrobe/props-wardrobe.md)
+- [电商素材批量生成工厂（E-commerce Creative Factory）](../41-ecommerce-assets/ecommerce-creative-factory.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

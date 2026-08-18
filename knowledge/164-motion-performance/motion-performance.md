@@ -1,3 +1,53 @@
+---
+type: Reference
+title: "AI 动作与表演生成（Motion & Performance — Motion Transfer, Pose Control & Mocap-Less）"
+description: "AI 动作与表演生成体系：运动迁移（Motion Transfer，参考视频→角色）、姿态控制（Pose Control）、无动捕（Mocap-Less）动画、关键帧控制与多参考融合"
+tags:
+  - "consistency"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv SCAIL: Studio-Grade Character Animation"
+    id: cite-1
+    title: "SCAIL: Studio-Grade Character Animation"
+    author: "org:arXiv"
+  - resource: "cited:Kling AI Motion Control"
+    id: cite-2
+    title: "AI Motion Control"
+    author: "org:Kling"
+  - resource: "cited:DeepMotion Animate 3D"
+    id: cite-4
+    title: "Animate 3D"
+    author: "org:DeepMotion"
+  - resource: "https://arxiv.org/html/2512.05905v3"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://kling.ai/feature/ai-motion-control"
+    id: url-2
+    title: "kling.ai"
+  - resource: "https://www.topview.ai/motion-control"
+    id: url-3
+    title: "topview.ai"
+  - resource: "https://www.deepmotion.com/animate-3d"
+    id: url-4
+    title: "deepmotion.com"
+  - resource: "https://motioncontrolai.io/"
+    id: url-5
+    title: "motioncontrolai.io"
+dx_id: "164"
+related:
+  - "97-action-stunts/action-stunts.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 动作与表演生成（Motion & Performance — Motion Transfer, Pose Control & Mocap-Less）
 
 > 本页为 AI 动作与表演生成体系：运动迁移（Motion Transfer，参考视频→角色）、姿态控制（Pose Control）、无动捕（Mocap-Less）动画、关键帧控制与多参考融合。知识本体来自 2026 动作生成研究/工具（arXiv SCAIL/TopView/DeepMotion/Kling）。AI 应用面向 DirectorX：表演控制（衔接 97 动作编舞、132 表演情绪、117 一致性）。
@@ -81,3 +131,9 @@
 - TopView — AI Motion Control for Character Animation：https://www.topview.ai/motion-control
 - DeepMotion — Animate 3D: AI Motion Capture：https://www.deepmotion.com/animate-3d
 - Motion Control AI — Animate Characters from Any Video（Kling 3.0）：https://motioncontrolai.io/
+
+## 相关概念
+
+- [AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）](../97-action-stunts/action-stunts.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

@@ -1,3 +1,57 @@
+---
+type: Spec
+title: "视频内容矩阵与系列化（Content Matrix & Format Engineering）"
+description: "内容矩阵手册：主题/支柱/系列/格式四概念区分、格式工程九层架构、AI 时代格式=杠杆、栏目化运营（栏目>单条爆款）、矩阵分发最佳实践"
+tags:
+  - "foundation"
+  - "platform"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OverseerOS 格式工程"
+    id: cite-1
+    title: "OverseerOS 格式工程"
+  - resource: "cited:抖音分享平台栏目化运营"
+    id: cite-2
+    title: "抖音分享平台栏目化运营"
+  - resource: "cited:超级编导矩阵分发"
+    id: cite-3
+    title: "超级编导矩阵分发"
+  - resource: "cited:PostPreview 2026 系列化内容。"
+    id: cite-4
+    title: "PostPreview 2026 系列化内容。"
+  - resource: "https://www.overseeros.com/blog/youtube-format-engineering"
+    id: url-1
+    title: "overseeros.com"
+  - resource: "https://www.overseeros.com/blog/youtube-content-pillar-map"
+    id: url-2
+    title: "overseeros.com"
+  - resource: "https://postpreview.github.io/serialized-content-2026"
+    id: url-3
+    title: "postpreview.github.io"
+  - resource: "https://channel.farm/blog/how-to-use-multiple-branding-profiles-create-video-series-youtube"
+    id: url-4
+    title: "channel.farm"
+  - resource: "http://www.uni-cern.com/article/operation-content-operation-ai-20260611-84"
+    id: url-5
+    title: "uni-cern.com"
+  - resource: "https://superdir.cn/blog/matrix-distribution-best-practices"
+    id: url-6
+    title: "superdir.cn"
+dx_id: "58"
+related:
+  - "61-video-seo-visual/video-seo-visual.md"
+  - "68-platform-spec-matrix/platform-spec-matrix.md"
+  - "71-ecommerce-visual-integration/ecommerce-visual-integration.md"
+---
+
 # 视频内容矩阵与系列化（Content Matrix & Format Engineering）
 
 > 本页是 DirectorX 内容矩阵手册：主题/支柱/系列/格式四概念区分、格式工程九层架构、AI 时代格式=杠杆、栏目化运营（栏目>单条爆款）、矩阵分发最佳实践。与 16 平台增长 / 56 素材迭代 / 41 素材工厂衔接。
@@ -105,3 +159,9 @@
 - 超级编导: 短视频矩阵分发最佳实践——账号、内容与节奏 — https://superdir.cn/blog/matrix-distribution-best-practices
 - CSDN: 用 Seedance 2.0 搭建短视频内容矩阵——从选题、脚本到批量生成的工程化方法论 — https://blog.csdn.net/ledends/article/details/161775730
 - aistacknav: 一个人如何用 AI 批量生产短视频内容——完整流程拆解（2026） — https://aistacknav.com/ai-batch-short-video-workflow/
+
+## 相关概念
+
+- [视频 SEO 与搜索视觉优化（Video SEO & Searchable Visuals）](../61-video-seo-visual/video-seo-visual.md)
+- [多平台规格总表（Cross-Platform Video Spec Matrix）](../68-platform-spec-matrix/platform-spec-matrix.md)
+- [电商视觉全案整合（E-commerce Visual Integration）](../71-ecommerce-visual-integration/ecommerce-visual-integration.md)

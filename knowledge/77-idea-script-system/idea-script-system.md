@@ -1,3 +1,41 @@
+---
+type: Reference
+title: "视频创作灵感系统（Idea-to-Script Creative System）"
+description: "创作灵感系统手册：参考视频起步法（粘贴→分析→差异化概念）、灵感管线（选题→脚本→场景计划→视觉）、现场审批闸门（Backlot 模式）、概念-成本-可行性三件套、开源创作 Agent 生态、灵感库建设"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OpenMontage（开源 Agent 视频生产系统）"
+    id: cite-1
+    title: "OpenMontage（开源 Agent 视频生产系统）"
+  - resource: "cited:shortform-idea-engine"
+    id: cite-2
+    title: "shortform-idea-engine"
+  - resource: "cited:TrendCut-Studio"
+    id: cite-3
+    title: "TrendCut-Studio"
+  - resource: "cited:Hermes+Remotion 管线。"
+    id: cite-4
+    title: "Hermes+Remotion 管线。"
+  - resource: "https://dev.to/vivek_shetye/build-an-end-to-end-ai-video-production-pipeline-with-hermes-agent-and-remotion-183i"
+    id: url-1
+    title: "dev.to"
+dx_id: "77"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 视频创作灵感系统（Idea-to-Script Creative System）
 
 > 本页是 DirectorX 创作灵感系统手册：参考视频起步法（粘贴→分析→差异化概念）、灵感管线（选题→脚本→场景计划→视觉）、现场审批闸门（Backlot 模式）、概念-成本-可行性三件套、开源创作 Agent 生态、灵感库建设。与 58 内容矩阵 / 63 文案协同 / 66 编剧衔接。
@@ -108,4 +146,10 @@
 - GitHub: tsensei/OpenReels — 
 - DEV Community: Build an End-to-End AI Video Production Pipeline with Hermes Agent and Remotion — https://dev.to/vivek_shetye/build-an-end-to-end-ai-video-production-pipeline-with-hermes-agent-and-remotion-183i
 - GitHub: renmengwen/MuseDock — 
-- GitHub: nanxingw/AutoViral — 
+- GitHub: nanxingw/AutoViral —
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

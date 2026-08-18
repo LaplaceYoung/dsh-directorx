@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影沉浸-预期-揭示三整合（Immersion-Expectation-Reveal — Unified Engagement Architecture）"
+description: "电影沉浸-预期-揭示三整合：游戏化电影（关卡式单元+奖励系统）、非线性多线索叙事（过去/现在/未来交织）、沉浸设计框架（叙事架构/具身交互/跨媒体空间）、编辑对叙事认知的影响（VR）"
+tags:
+  - "synthesis"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Integration of Film and Game"
+    id: cite-1
+    title: "Integration of Film and Game"
+    author: "org:PMC"
+  - resource: "cited:PMC Neural Impact of Editing in VR"
+    id: cite-2
+    title: "Neural Impact of Editing in VR"
+    author: "org:PMC"
+  - resource: "cited:HBR Why the Best Immersive Experiences Succeed"
+    id: cite-3
+    title: "Why the Best Immersive Experiences Succeed"
+    author: "org:HBR"
+  - resource: "cited:Tandfonline Immersive Storytelling Methodology"
+    id: cite-4
+    title: "Immersive Storytelling Methodology"
+    author: "org:Tandfonline"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11986995/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12425892/"
+    id: url-2
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed"
+    id: url-3
+    title: "hbr.org"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886"
+    id: url-4
+    title: "tandfonline.com"
+  - resource: "https://www.frontiersin.org/journals/sociology/articles/10.3389/fsoc.2025.1534556/full"
+    id: url-5
+    title: "frontiersin.org"
+dx_id: "316"
+related:
+  - "311-expectation-suspense-sensory/expectation-suspense-sensory.md"
+  - "167-interactive-branching/interactive-branching.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "245-narrative-time-space/narrative-time-space.md"
+  - "289-reveal-design/reveal-design.md"
+---
+
 # 电影沉浸-预期-揭示三整合（Immersion-Expectation-Reveal — Unified Engagement Architecture）
 
 > 本页为电影沉浸-预期-揭示三整合：游戏化电影（关卡式单元+奖励系统）、非线性多线索叙事（过去/现在/未来交织）、沉浸设计框架（叙事架构/具身交互/跨媒体空间）、编辑对叙事认知的影响（VR）。知识本体来自 2026 沉浸研究（PMC/Frontiers/HBR）。AI 应用面向 DirectorX：沉浸架构（衔接 311 预期悬念、316 对应、167 互动叙事、282 三整合）。
@@ -77,3 +133,11 @@
 - HBR — Why the Best Immersive Experiences Succeed：https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed
 - Tandfonline — Immersive Storytelling Experiences: A Design Methodology：https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886
 - Frontiers — Integration of Film and Game: Hollywood Gamification：https://www.frontiersin.org/journals/sociology/articles/10.3389/fsoc.2025.1534556/full
+
+## 相关概念
+
+- [电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）](../311-expectation-suspense-sensory/expectation-suspense-sensory.md)
+- [AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）](../167-interactive-branching/interactive-branching.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）](../245-narrative-time-space/narrative-time-space.md)
+- [电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）](../289-reveal-design/reveal-design.md)

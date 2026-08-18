@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影叙事结构符号学（Narrative Structure Semiotics — Greimas Actantial & Propp Functions）"
+description: "电影叙事结构符号学：格雷马斯行动元模型（Actantial Model：主体/客体/发送者/接收者/帮助者/反对者）、普罗普功能学（Propp Morphology：叙事功能目录）、结构分析在电影的应用"
+tags:
+  - "synthesis"
+  - "model"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Actantial Model"
+    id: cite-1
+    title: "Actantial Model"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Actant"
+    id: cite-2
+    title: "Actant"
+    author: "org:Wikipedia"
+  - resource: "cited:Atlantis Greimas' Narrative Structure in Turning Red"
+    id: cite-3
+    title: "Greimas' Narrative Structure in Turning Red"
+    author: "org:Atlantis"
+  - resource: "cited:DOAJ Propp vs Greimas Comparison"
+    id: cite-4
+    title: "Propp vs Greimas Comparison"
+    author: "org:DOAJ"
+  - resource: "https://en.wikipedia.org/wiki/Actantial_model"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Actant"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://www.atlantis-press.com/article/125985126.pdf"
+    id: url-3
+    title: "atlantis-press.com"
+  - resource: "https://doaj.org/article/9f0fc248558649c39575afa0a657d14d"
+    id: url-4
+    title: "doaj.org"
+  - resource: "https://repository.uinjkt.ac.id/dspace/bitstream/123456789/466/1/102956-MUHAMMAD%20RIF"
+    id: url-5
+    title: "repository.uinjkt.ac.id"
+dx_id: "253"
+related:
+  - "150-narrative-structure/narrative-structure.md"
+  - "245-narrative-time-space/narrative-time-space.md"
+  - "100-feature-structure/feature-structure.md"
+  - "239-montage-theory/montage-theory.md"
+---
+
 # 电影叙事结构符号学（Narrative Structure Semiotics — Greimas Actantial & Propp Functions）
 
 > 本页为电影叙事结构符号学：格雷马斯行动元模型（Actantial Model：主体/客体/发送者/接收者/帮助者/反对者）、普罗普功能学（Propp Morphology：叙事功能目录）、结构分析在电影的应用。知识本体来自 2026 结构符号学（Wikipedia/Atlantis Press）。AI 应用面向 DirectorX：叙事结构（衔接 150 叙事、245 时空、253 对应、100 长片结构）。
@@ -75,3 +131,10 @@
 - Atlantis Press — Greimas' Narrative Structure in Turning Red：https://www.atlantis-press.com/article/125985126.pdf
 - DOAJ — Comparative Analysis of Propp with Greimas：https://doaj.org/article/9f0fc248558649c39575afa0a657d14d
 - UINJKT — Actantial and Functional Schemes Analysis：https://repository.uinjkt.ac.id/dspace/bitstream/123456789/466/1/102956-MUHAMMAD%20RIF'AD%20KUSYAERI-FAH.PDF
+
+## 相关概念
+
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）](../245-narrative-time-space/narrative-time-space.md)
+- [长片剧本结构深化：术语详解 + AI 理解与实现（Feature Structure — Deep Terms & AI Implementation）](../100-feature-structure/feature-structure.md)
+- [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](../239-montage-theory/montage-theory.md)

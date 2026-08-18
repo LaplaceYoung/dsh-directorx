@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电商视觉全案整合（E-commerce Visual Integration）"
+description: "电商视觉全案手册：视觉=生产力（93% 决策数据）、平台规格差异、产品摄影基础（布光/构图/品类）、主图黄金法则（3 秒/AIDA/差异化+五类型）、详情页高转化结构、配色 60-30-10 与字体、视频 PDP（视频优先页面）、AI 全链路方案"
+tags:
+  - "production"
+  - "lighting"
+  - "platform"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:FocalFlow 电商视觉设计指南"
+    id: cite-1
+    title: "FocalFlow 电商视觉设计指南"
+  - resource: "cited:Online Store News 视频 PDP"
+    id: cite-2
+    title: "Online Store News 视频 PDP"
+  - resource: "cited:Rewarx 视觉一致性"
+    id: cite-3
+    title: "Rewarx 视觉一致性"
+  - resource: "cited:阿里云百炼 CLI 全链路方案。"
+    id: cite-4
+    title: "阿里云百炼 CLI 全链路方案。"
+  - resource: "https://focalflow.app/blog/ecommerce-visual-design-guide/"
+    id: url-1
+    title: "focalflow.app"
+  - resource: "https://onlinestorenews.com/video-first-product-pages-are-rewriting-conversion-rates-in-2026/"
+    id: url-2
+    title: "onlinestorenews.com"
+  - resource: "https://onlinestorenews.com/ai-driven-video-pdps-are-reshaping-online-retail-in-2026/"
+    id: url-3
+    title: "onlinestorenews.com"
+  - resource: "https://www.rewarx.com/blogs/visual-brand-consistency-ecommerce-edge"
+    id: url-4
+    title: "rewarx.com"
+  - resource: "https://videowise.com/blog/shopify-video-complete-guide"
+    id: url-5
+    title: "videowise.com"
+  - resource: "https://developer.aliyun.com/article/1746514"
+    id: url-6
+    title: "developer.aliyun.com"
+dx_id: "71"
+related:
+  - "58-content-matrix-series/content-matrix-series.md"
+  - "61-video-seo-visual/video-seo-visual.md"
+  - "68-platform-spec-matrix/platform-spec-matrix.md"
+---
+
 # 电商视觉全案整合（E-commerce Visual Integration）
 
 > 本页是 DirectorX 电商视觉全案手册：视觉=生产力（93% 决策数据）、平台规格差异、产品摄影基础（布光/构图/品类）、主图黄金法则（3 秒/AIDA/差异化+五类型）、详情页高转化结构、配色 60-30-10 与字体、视频 PDP（视频优先页面）、AI 全链路方案。与 41 素材工厂 / 38 广告视觉 / 51 色彩心理衔接。
@@ -108,3 +163,9 @@
 - 阿里云开发者社区: 百炼 CLI 电商视觉全链路方案——从白底主图到展示视频的 AI 生产力升级 — https://developer.aliyun.com/article/1746514
 - 有赞: 品牌电商视觉怎么搭？从调性到转化的完整方法 — https://www.youzan.com/cms/article/76942.html
 - 17VIS: 电商品牌视觉设计完全指南——从流量到留量的 12 个转化引擎 — https://www.17vis.com/ecommerce-brand-visual-design-complete-guide-12-conversion-engines/
+
+## 相关概念
+
+- [视频内容矩阵与系列化（Content Matrix & Format Engineering）](../58-content-matrix-series/content-matrix-series.md)
+- [视频 SEO 与搜索视觉优化（Video SEO & Searchable Visuals）](../61-video-seo-visual/video-seo-visual.md)
+- [多平台规格总表（Cross-Platform Video Spec Matrix）](../68-platform-spec-matrix/platform-spec-matrix.md)

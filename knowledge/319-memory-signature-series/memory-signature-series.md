@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片记忆签名系列（Memory Signature Series — Personal Style & Nostalgic Cohesion）"
+description: "AI 图片的记忆签名系列：单一风格元素（色板/光/情绪/构图参考集）、签名提示框架（常量锁定+只换主体/场景）、图转提示词提取（怀旧锚图→常量）、收藏集=一个卷"
+tags:
+  - "synthesis"
+  - "color"
+  - "prompt"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:GetImg Consistent Style 2026"
+    id: cite-1
+    title: "Consistent Style 2026"
+    author: "org:GetImg"
+  - resource: "cited:YouMind Image-to-Prompt Brand Consistency"
+    id: cite-2
+    title: "Image-to-Prompt Brand Consistency"
+    author: "org:YouMind"
+  - resource: "cited:LTX AI Image Trends 2026"
+    id: cite-3
+    title: "AI Image Trends 2026"
+    author: "org:LTX"
+  - resource: "cited:AIMagicX AI Brand Image Consistency"
+    id: cite-4
+    title: "AI Brand Image Consistency"
+    author: "org:AIMagicX"
+  - resource: "https://getimg.ai/blog/how-to-generate-images-in-consistent-brand-style-with-ai"
+    id: url-1
+    title: "getimg.ai"
+  - resource: "https://youmind.com/blog/image-to-prompt-brand-consistency"
+    id: url-2
+    title: "youmind.com"
+  - resource: "https://ltx.io/blog/ai-image-trends"
+    id: url-3
+    title: "ltx.io"
+  - resource: "https://www.aimagicx.com/blog/ai-brand-image-consistency-style-guide"
+    id: url-4
+    title: "aimagicx.com"
+  - resource: "https://www.webeducationservices.com/ai-images-branding-7-styles-that-change-your-brand"
+    id: url-5
+    title: "webeducationservices.com"
+dx_id: "319"
+related:
+  - "301-nostalgia-series/nostalgia-series.md"
+  - "299-signature-motif/signature-motif.md"
+  - "294-emotional-memory-image/emotional-memory-image.md"
+  - "290-signature-practice/signature-practice.md"
+---
+
 # AI 图片记忆签名系列（Memory Signature Series — Personal Style & Nostalgic Cohesion）
 
 > 本页为 AI 图片的记忆签名系列：单一风格元素（色板/光/情绪/构图参考集）、签名提示框架（常量锁定+只换主体/场景）、图转提示词提取（怀旧锚图→常量）、收藏集=一个卷。知识本体来自 2026 个人风格系列（GetImg/YouMind/LTX）。AI 应用面向 DirectorX：记忆品牌（衔接 301 怀旧系列、319 对应、306 母题签名、294 情绪记忆）。
@@ -77,3 +135,10 @@
 - LTX — AI Image Trends in 2026：https://ltx.io/blog/ai-image-trends
 - AIMagicX — How to Make Your Brand's AI Images Look Consistent：https://www.aimagicx.com/blog/ai-brand-image-consistency-style-guide
 - WebEducation — AI Images & Branding: 7 Styles：https://www.webeducationservices.com/ai-images-branding-7-styles-that-change-your-brand
+
+## 相关概念
+
+- [AI 图片情绪记忆系列（Nostalgia Series — Memory Sequence & Personal History）](../301-nostalgia-series/nostalgia-series.md)
+- [AI 图片签名母题应用（Signature Motif — One Anchor Across Every Image）](../299-signature-motif/signature-motif.md)
+- [AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）](../294-emotional-memory-image/emotional-memory-image.md)
+- [AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）](../290-signature-practice/signature-practice.md)

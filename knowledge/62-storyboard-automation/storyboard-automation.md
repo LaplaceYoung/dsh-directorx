@@ -1,3 +1,45 @@
+---
+type: Playbook
+title: "分镜图端到端自动化管线（Storyboard Automation Pipeline）"
+description: "分镜自动化手册：四 Agent 自主管线架构（剧本分析师/摄影师/美术指导/渲染引擎）、LangGraph 编排、输出契约（PNG+JSON 可复现）、开源模型选型、ComfyUI 工作流生态、端到端管线验收标准"
+tags:
+  - "production"
+  - "model"
+  - "storyboard"
+  - "style"
+  - "workflow"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Petra 开源管线（AMD/LangGraph）"
+    id: cite-1
+    title: "Petra 开源管线（AMD/LangGraph）"
+  - resource: "cited:ComfyUI storyboard 工作流"
+    id: cite-2
+    title: "ComfyUI storyboard 工作流"
+  - resource: "cited:BigBanana AI 导演"
+    id: cite-3
+    title: "BigBanana AI 导演"
+  - resource: "cited:ReelAgent。"
+    id: cite-4
+    title: "ReelAgent。"
+  - resource: "https://comfy.org/workflows/f4e29143100c-f4e29143100c/"
+    id: url-1
+    title: "comfy.org"
+dx_id: "62"
+related:
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "02-editing-transitions/editing-transitions.md"
+  - "35-animatic-practice/animatic-practice.md"
+---
+
 # 分镜图端到端自动化管线（Storyboard Automation Pipeline）
 
 > 本页是 DirectorX 分镜自动化手册：四 Agent 自主管线架构（剧本分析师/摄影师/美术指导/渲染引擎）、LangGraph 编排、输出契约（PNG+JSON 可复现）、开源模型选型、ComfyUI 工作流生态、端到端管线验收标准。与 48 短剧工厂 / 53 镜头表转换 / 40 分镜 SOP 衔接。
@@ -127,4 +169,10 @@ output/
 - GitHub: shuyu-labs/BigBanana-AI-Director — 
 - GitHub: chenpipi0807/ReelAgent — 
 - GitHub: xinjian0101/continuity-director — 
-- GitHub: Matticusnicholas/KupkaProd-Cinema-Pipeline — 
+- GitHub: Matticusnicholas/KupkaProd-Cinema-Pipeline —
+
+## 相关概念
+
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [剪辑与转场（Editing & Transitions）](../02-editing-transitions/editing-transitions.md)
+- [动态分镜实操（Animatic 制作实战）](../35-animatic-practice/animatic-practice.md)

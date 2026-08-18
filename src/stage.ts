@@ -5,7 +5,7 @@ import type { ConfirmQuestion } from './confirm.ts'
 
 export const STAGE_IDS = [
   'brief', 'research', 'forks', 'script', 'cast', 'storyboard',
-  'place', 'generate', 'assemble', 'qa', 'deliver',
+  'craft', 'place', 'generate', 'assemble', 'qa', 'deliver',
 ] as const
 
 export type StageId = (typeof STAGE_IDS)[number]
@@ -39,11 +39,22 @@ const LABELS: Record<StageId, string> = {
   script: '剧本/大纲',
   cast: '角色锚点',
   storyboard: '分镜',
+  craft: '提示词成稿',
   place: '占位签字',
   generate: '生成',
   assemble: '剪辑成片',
   qa: '质检',
   deliver: '交付',
+}
+
+function normalizeDoc(doc: ProductionStageDoc): ProductionStageDoc {
+  const entries = STAGE_IDS.map(id => {
+    const existing = doc.entries.find(item => item.id === id)
+    if (existing !== undefined) return { ...existing, label: LABELS[id] }
+    return { id, label: LABELS[id], status: 'pending' as const, artifacts: [] }
+  })
+  const current = STAGE_IDS.includes(doc.current) ? doc.current : 'brief'
+  return { ...doc, current, entries }
 }
 
 function emptyDoc(title = ''): ProductionStageDoc {
@@ -71,7 +82,7 @@ export class ProductionStageStore {
     try {
       const parsed = JSON.parse(await readFile(this.filePath(), 'utf8')) as ProductionStageDoc
       if (!Array.isArray(parsed.entries) || parsed.entries.length === 0) return emptyDoc(parsed.title)
-      return parsed
+      return normalizeDoc(parsed)
     } catch {
       return emptyDoc()
     }

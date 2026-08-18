@@ -1,4 +1,64 @@
-# 电影全整合落地（Full Integration in Practice — Framework to Prompt Conversion）
+---
+type: Method
+title: "电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）"
+description: "电影全整合落地：框架→提示词（CinemaWorld 三阶段）、总合成指针（四维度×三通道×端到端管线）、节拍映射与参考引导生成"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "workflow"
+  - "narrative"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CVPR Generative AI for Film Creation Survey"
+    id: cite-1
+    title: "Generative AI for Film Creation Survey"
+    author: "org:CVPR"
+  - resource: "cited:arXiv CinemaWorld: Generative AR with LLMs and 3D"
+    id: cite-2
+    title: "CinemaWorld: Generative AR with LLMs and 3D"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Bridging Cinematic Principles and Generative AI"
+    id: cite-3
+    title: "Bridging Cinematic Principles and Generative AI"
+    author: "org:arXiv"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2025W/CVEU/papers/Zhang_Generative_AI_for_Film_Creation_A_Survey_of_Recent_Advances_CVPRW_2025_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://arxiv.org/html/2603.08060v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2506.18899v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2504.08296v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://redfame.com/journal/index.php/smc/article/download/8095/7125"
+    id: url-5
+    title: "redfame.com"
+dx_id: "332"
+aliases:
+  - "367"
+  - "374"
+  - "ultimate-unified-design"
+  - "total-synthesis"
+related:
+  - "331-hybrid-full-integration/hybrid-full-integration.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "150-narrative-structure/narrative-structure.md"
+---
+
+# 电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）
 
 > 本页为电影全整合的落地实践：框架→提示词转换（CinemaWorld 三阶段：场景分析+受众语境+生成增强）、叙事节拍映射转化动作、场景级语义提取+时间戳线索、AR/VR 对齐。知识本体来自 2026 全整合落地（CVPR Survey/arXiv CinemaWorld）。AI 应用面向 DirectorX：框架落地（衔接 331 全整合、332 对应、121 编排、282 三整合）。
 > 来源：CVPR「Generative AI for Film Creation Survey」、arXiv「CinemaWorld: Generative AR with LLMs and 3D」、arXiv「Bridging Cinematic Principles and Generative AI」。
@@ -59,6 +119,18 @@
 
 **DirectorX 纪律**：框架管线化；节拍带目标；时间戳同步；参照引导。
 
+## 总合成指针（原 367 / 374）
+
+「终极统一 / 总合成」不另立规范，按层回到可执行篇：
+
+```
+四维度（节奏/视点/结构/体验）→ 358
+光 / 运动 / 声 → 341 / 01 / 144
+端到端管线 → 本篇三阶段 + 121 编排
+```
+
+AI 是工具还是「他者」只决定分工，不改变上述顺序。
+
 ## 术语表（中英对照）
 
 | 中文 | English | 说明 |
@@ -77,3 +149,11 @@
 - arXiv — Bridging Cinematic Principles and Generative AI（2506.18899）：https://arxiv.org/html/2506.18899v1
 - arXiv — Generative AI for Film Creation Survey（2504.08296）：https://arxiv.org/html/2504.08296v1
 - RedFame — Algorithms, Tools, and Future Trends：https://redfame.com/journal/index.php/smc/article/download/8095/7125
+
+## 相关概念
+
+- [电影杂交叙事-视听-体验全整合（Hybrid Full Integration — Narrative-AV-Experience Total Design）](../331-hybrid-full-integration/hybrid-full-integration.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)

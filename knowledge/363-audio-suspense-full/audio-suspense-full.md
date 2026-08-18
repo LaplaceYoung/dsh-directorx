@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影听觉悬念全整合（Audio-Suspense Full — Drone-Riser-Impact Architecture）"
+description: "电影听觉悬念全整合：低频音床+节奏元素（心跳/滴答）→ 渐强升级 → 冲击兑现 → 近静默释放；动态范围保持+同键防冲突；静默放大张力"
+tags:
+  - "synthesis"
+  - "sound"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Epidemic Suspense Sound Effects"
+    id: cite-1
+    title: "Suspense Sound Effects"
+    author: "org:Epidemic"
+  - resource: "cited:Requiem Sound Mixer as Architect"
+    id: cite-2
+    title: "Sound Mixer as Architect"
+    author: "org:Requiem"
+  - resource: "cited:Duende Editor's Layered Toolkit"
+    id: cite-3
+    title: "Editor's Layered Toolkit"
+    author: "org:Duende"
+  - resource: "cited:ShapingWaves Power of Atmospheres"
+    id: cite-4
+    title: "Power of Atmospheres"
+    author: "org:ShapingWaves"
+  - resource: "https://www.epidemicsound.com/filmmaking/suspense-sound-effects/"
+    id: url-1
+    title: "epidemicsound.com"
+  - resource: "https://www.requiemforadream.com/how-movies-use-sound-design-to-build-tension/"
+    id: url-2
+    title: "requiemforadream.com"
+  - resource: "https://duendesounds.com/creating-tension-with-sound-effects/"
+    id: url-3
+    title: "duendesounds.com"
+  - resource: "https://www.shapingwaves.com/soundscapes-atmospheres-in-film-and-game-audio/"
+    id: url-4
+    title: "shapingwaves.com"
+  - resource: "https://www.bluezone-corporation.com/blog/how-to-create-tension-with-sound-design"
+    id: url-5
+    title: "bluezone-corporation.com"
+dx_id: "363"
+related:
+  - "356-audio-tension-design/audio-tension-design.md"
+  - "219-film-sound-theory/film-sound-theory.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "144-sound-design/sound-design.md"
+---
+
 # 电影听觉悬念全整合（Audio-Suspense Full — Drone-Riser-Impact Architecture）
 
 > 本页为电影听觉悬念全整合：低频音床+节奏元素（心跳/滴答）→ 渐强升级 → 冲击兑现 → 近静默释放；动态范围保持+同键防冲突；静默放大张力。知识本体来自 2026 听觉悬念（Epidemic/Requiem/Duende）。AI 应用面向 DirectorX：悬念声架构（衔接 356 听觉张力、363 对应、260 静默、158 节奏）。
@@ -79,3 +135,10 @@
 - Duende — Build Tension with Sound: The Editor's Layered Toolkit：https://duendesounds.com/creating-tension-with-sound-effects/
 - ShapingWaves — The Power of Atmospheres：https://www.shapingwaves.com/soundscapes-atmospheres-in-film-and-game-audio/
 - Bluezone — How to Create Tension with Sound Design：https://www.bluezone-corporation.com/blog/how-to-create-tension-with-sound-design
+
+## 相关概念
+
+- [电影听觉张力设计（Audio Tension Design — Rhythm × Silence × Suspense）](../356-audio-tension-design/audio-tension-design.md)
+- [电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）](../219-film-sound-theory/film-sound-theory.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)

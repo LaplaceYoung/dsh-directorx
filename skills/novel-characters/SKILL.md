@@ -2,7 +2,7 @@
 name: novel-characters
 description: |
   从小说或短故事里拆出角色设定集：人物画像、形象提示词（英文）、音色提示词、
-  角色设定图构图提示词，产出 cast.json + Markdown + report.html。
+  角色设定图构图提示词，产出 cast.json + Markdown，用 directorx_bible 钉到画布评审。
   零依赖 Node 脚本做分块/归并/合成/校验/渲染，质量门是代码检查；设定图可选，
   走影棚生成工具（占位先行）。触发场景：拆小说角色、人物画像、角色卡、三视图设定、
   小说选角、character sheets from a novel。
@@ -37,7 +37,7 @@ metadata:
 
 `${CLAUDE_SKILL_DIR}` = 本文件所在目录。脚本 `${CLAUDE_SKILL_DIR}/scripts/novel-characters.mjs`，零依赖，`node` 直接跑。
 
-**运行环境**：Mossland 影棚。Step 1–7 / 9 / 10 全部是确定性脚本 + 模型读写，跟环境无关；只有 Step 8 出图走影棚的生成工具——见 `references/sheet.md`。设定图是**可选**环节，不出图只交提示词，其余产出照常。
+**运行环境**：DirectorX。Step 1–7 / 9 / 10 全部是确定性脚本 + 模型读写；只有 Step 8 出图走 `directorx_propose` / `directorx_generate_ready` / `directorx_generate_image`——见 `references/sheet.md`。设定图是**可选**环节，不出图只交提示词，其余产出照常。
 
 ### Step 0 — 确定报告语言
 
@@ -184,7 +184,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-characters.mjs validate <cast.json> <book
 读 `${CLAUDE_SKILL_DIR}/references/sheet.md`，照它的构图与质检要求做。出图走影棚生成工具，调用契约：
 
 - **预算先收敛**：这是整条管线里最贵的一步。先给用户出图计划（多少张、每张预算），用户嫌多就砍到 `protagonist` / `major` 或指定数量，确认后才排队
-- **试点先行**：先出 1 张主角的设定图给用户验收，通过后再把其余角色**全部占位**进 `mossland_prepare_generation`（每单元 `parameters.output_name = <slug>-sheet.png`），由用户在生成面板确认执行
+- **试点先行**：先出 1 张主角的设定图给用户验收，通过后再把其余角色**全部占位**进 `directorx_propose`，用户确认后再生成
 - **一个角色一个单元，绝不把多个角色拼进一张图**
 - 画风统一：把主角成图作为后续角色的 `reference_image_paths` 锚（第一张定基调，出得不好先返修它）
 - 成图落 `generated/` 后，`bash` 复制到 `<输出目录>/images/<slug>-sheet.png`（render 只认这里）；每张先 `view_image` 自查上面两条硬要求，不合格按单镜头返修规矩单独重排该单元
@@ -198,14 +198,11 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-characters.mjs validate <cast.json> <book
 ```bash
 cd <输出目录>
 node ${CLAUDE_SKILL_DIR}/scripts/novel-characters.mjs render <cast.json> --md   > <书名>-cast.md
-node ${CLAUDE_SKILL_DIR}/scripts/novel-characters.mjs render <cast.json> --html > report.html
 ```
 
-语言取 `cast.json` 里的 `lang`，要临时覆盖就加 `--lang <code>`。
+不要另出 HTML。`directorx_bible` `{ action: "pin", kind: "characters" }` 把名单和质量门钉到画布。语言取 `cast.json` 里的 `lang`。
 
-`render` 会自动去 `images/<slug>-sheet.png` 找图。所以**先出图再 render**。
-
-report.html 的样式约定见 `${CLAUDE_SKILL_DIR}/references/report-style.md`——要改样式先读它，别把它改回通用卡片墙。
+`render --md` 会提到 `images/<slug>-sheet.png`。所以**先出图再汇报**。
 
 最终落地：
 
@@ -213,7 +210,7 @@ report.html 的样式约定见 `${CLAUDE_SKILL_DIR}/references/report-style.md`�
 <输出目录>/
 ├── <书名>-cast.json
 ├── <书名>-cast.md
-├── report.html                    ← 双击就能开
+├── docs/characters-review.md
 └── images/
     └── <slug>-sheet.png           ← 出了设定图才有
 ```
@@ -227,8 +224,8 @@ report.html 的样式约定见 `${CLAUDE_SKILL_DIR}/references/report-style.md`�
 - 单次上限 24 块（净覆盖约 93 万字符），超了会明确报 `truncated`，不静默截断
 - 人类可读字段跟随 `--lang`（默认中文）；出图和 TTS 提示词**永远英文**，那些引擎吃英文最稳
 - 设定图最容易出的两个问题：**一张图里两个长相**、**为了塞细节把人物压扁**。拿到图先 `view_image` 扫一眼，见 `references/sheet.md`
-- 出图只走影棚生成工具（`mossland_prepare_generation` 占位、用户确认后执行）；不在后台偷偷直连任何外部出图服务
-- 想要能实时编辑、边跑边看的交互界面，那是另一个东西，不在这个 skill 里
+- 出图只走 DirectorX 生成闸（propose / ready / generate）；不在后台偷偷直连任何外部出图服务
+- 评审在画布和 DSH 会话里看，不另做交互网页
 
 ## 自测
 

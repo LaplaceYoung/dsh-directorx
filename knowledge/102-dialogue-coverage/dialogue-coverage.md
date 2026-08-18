@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "对话场景拍摄方案：真实技巧 + AI 生成应用（Dialogue Scene Coverage — Film Craft & AI Application）"
+description: "对话场景手册：以真实电影对话场景的专业方法为知识本体——每个术语给出具体含义（它是什么、画面里长什么样、解决什么问题），并给出 AI 如何理解与实现（提示词怎么写、生成时注意什么）"
+tags:
+  - "production"
+  - "prompt"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Decoupa 对话覆盖指南"
+    id: cite-1
+    title: "Decoupa 对话覆盖指南"
+  - resource: "cited:Adobe 正反打"
+    id: cite-2
+    title: "Adobe 正反打"
+  - resource: "cited:影视工业网正反打全指南"
+    id: cite-3
+    title: "影视工业网正反打全指南"
+  - resource: "cited:Neil Oseman 正反打构图。"
+    id: cite-4
+    title: "Neil Oseman 正反打构图。"
+  - resource: "https://decoupa.film/blog/dialogue-scene-coverage"
+    id: url-1
+    title: "decoupa.film"
+  - resource: "https://www.adobe.com/creativecloud/video/production/cinematography/camera-shots-and-angles/reverse-shot.html"
+    id: url-2
+    title: "adobe.com"
+  - resource: "https://www.sohu.com/a/168950949_286786"
+    id: url-3
+    title: "sohu.com"
+  - resource: "https://cinehello.com/stream/86228/"
+    id: url-4
+    title: "cinehello.com"
+  - resource: "https://neiloseman.com/composing-a-shot-reverse/"
+    id: url-5
+    title: "neiloseman.com"
+  - resource: "https://seikan.app/blog/how-to-shoot-dialogue-scenes"
+    id: url-6
+    title: "seikan.app"
+dx_id: "102"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "37-genre-horror-suspense/horror-suspense.md"
+---
+
 # 对话场景拍摄方案：真实技巧 + AI 生成应用（Dialogue Scene Coverage — Film Craft & AI Application）
 
 > 本页是 DirectorX 对话场景手册：以真实电影对话场景的专业方法为知识本体——每个术语给出具体含义（它是什么、画面里长什么样、解决什么问题），并给出 AI 如何理解与实现（提示词怎么写、生成时注意什么）。面向 AI 生成制作。
@@ -120,3 +172,9 @@
 - Neil Oseman: Composing a Shot-Reverse — https://neiloseman.com/composing-a-shot-reverse/
 - Seikan: How to Shoot Dialogue Scenes — Coverage, Blocking, and Flow — https://seikan.app/blog/how-to-shoot-dialogue-scenes
 - Filmmaker Genius: Filming Dialogue Coverage & the 180° Rule — https://filmmakergenius.com/academy/shot-list-filmmaking/filming-dialogue-coverage
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [恐怖/悬疑视觉语言（Horror & Suspense Visual Language）](../37-genre-horror-suspense/horror-suspense.md)

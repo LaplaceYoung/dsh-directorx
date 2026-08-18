@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "单兵与手机制作（Solo & Mobile Filmmaking）"
+description: "单兵作战知识库：单兵纪录片流程、最小器材清单、手机电影拍摄技巧、无人机航拍、时间与项目管理"
+tags:
+  - "foundation"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Documentary Film Academy 单兵纪录片指南"
+    id: cite-1
+    title: "Documentary Film Academy 单兵纪录片指南"
+  - resource: "cited:PetaPixel 手机视频指南（索引）"
+    id: cite-2
+    title: "PetaPixel 手机视频指南（索引）"
+  - resource: "cited:ABJ 无人机航拍指南"
+    id: cite-3
+    title: "ABJ 无人机航拍指南"
+  - resource: "cited:行业单兵经验。"
+    id: cite-4
+    title: "行业单兵经验。"
+  - resource: "https://www.docfilmacademy.com/blog/solo-documentary-filmmaking-a-step-by-step-guide"
+    id: url-1
+    title: "docfilmacademy.com"
+  - resource: "https://petapixel.com/2024/11/02/everything-you-need-to-make-great-videos-with-an-iphone/"
+    id: url-2
+    title: "petapixel.com"
+  - resource: "https://pixflow.net/blog/mobile-filmmaking-2026/"
+    id: url-3
+    title: "pixflow.net"
+  - resource: "https://thepostflow.com/production/cameras/run-and-gun-documentary-kit/"
+    id: url-4
+    title: "thepostflow.com"
+  - resource: "https://abjacademy.global/drone-blog/drone-videography-techniques-for-cinematic-framing-and-composition/"
+    id: url-5
+    title: "abjacademy.global"
+  - resource: "https://petapixel.com/2023/09/16/why-drone-nd-filters-are-especially-important-for-aerial-photos-and-videos/"
+    id: url-6
+    title: "petapixel.com"
+dx_id: "30"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 单兵与手机制作（Solo & Mobile Filmmaking）
 
 > 本页是 DirectorX 单兵作战知识库：单兵纪录片流程、最小器材清单、手机电影拍摄技巧、无人机航拍、时间与项目管理。每个概念含参数、清单与工作流。
@@ -142,3 +195,9 @@
 - ABJ Academy: Drone Videography Techniques — https://abjacademy.global/drone-blog/drone-videography-techniques-for-cinematic-framing-and-composition/
 - PetaPixel: Why Drone ND Filters are Especially Important — https://petapixel.com/2023/09/16/why-drone-nd-filters-are-especially-important-for-aerial-photos-and-videos/
 - UAVMODEL: Cinematic FPV Guide — https://blog.uavmodel.com/cinematic-fpv-guide-camera-settings-nd-filters-stabilization-and-shot-composition/
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

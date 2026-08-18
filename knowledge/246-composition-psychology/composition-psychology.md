@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）"
+description: "AI 图片的摄影构图心理学：眼动研究（视线路径/注视时间）、引导线认知（Leading Lines 引导注意）、格式塔属性（视觉复杂度/美感）、构图-注视一致性"
+tags:
+  - "synthesis"
+  - "continuity"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Leading Line Composition and Visual Cognition"
+    id: cite-1
+    title: "Leading Line Composition and Visual Cognition"
+    author: "org:PMC"
+  - resource: "cited:PMC Gestalt Properties in Photography"
+    id: cite-2
+    title: "Gestalt Properties in Photography"
+    author: "org:PMC"
+  - resource: "cited:PMC Role of Composition in Viewing"
+    id: cite-3
+    title: "Role of Composition in Viewing"
+    author: "org:PMC"
+  - resource: "cited:SAGE How Images Draw the Eye"
+    id: cite-4
+    title: "How Images Draw the Eye"
+    author: "org:SAGE"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11763225/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10644408/"
+    id: url-2
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7963460/"
+    id: url-3
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://journals.sagepub.com/doi/10.1177/0276237417693564"
+    id: url-4
+    title: "journals.sagepub.com"
+  - resource: "https://bop.unibe.ch/JEMR/article/download/9027/12555"
+    id: url-5
+    title: "bop.unibe.ch"
+dx_id: "246"
+related:
+  - "216-composition-rules-deep/composition-rules-deep.md"
+  - "210-golden-ratio-composition/golden-ratio-composition.md"
+  - "01-camera-language/camera-language.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+---
+
 # AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）
 
 > 本页为 AI 图片的摄影构图心理学：眼动研究（视线路径/注视时间）、引导线认知（Leading Lines 引导注意）、格式塔属性（视觉复杂度/美感）、构图-注视一致性。知识本体来自 2026 眼动研究（PMC 多篇）。AI 应用面向 DirectorX：构图设计（衔接 216 构图法则、210 黄金比例、246 对应、197 运镜心理）。
@@ -80,3 +137,10 @@
 - PMC — The Role Composition Plays in Viewing：https://pmc.ncbi.nlm.nih.gov/articles/PMC7963460/
 - SAGE — How Images Draw the Eye: Eye-Tracking Study of Composition：https://journals.sagepub.com/doi/10.1177/0276237417693564
 - JEMR — Eye Tracking Study of Gestalt Theory Application：https://bop.unibe.ch/JEMR/article/download/9027/12555
+
+## 相关概念
+
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)
+- [AI 黄金比例构图（Golden Ratio Composition — Phi Grid & Cinematic Balance）](../210-golden-ratio-composition/golden-ratio-composition.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)

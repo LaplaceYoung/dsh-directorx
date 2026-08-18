@@ -1,3 +1,60 @@
+---
+type: Playbook
+title: "宣传片 / TVC 制作全流程（Commercial & TVC Production Pipeline — Terms & Workflow）"
+description: "本页以真实广告制作行业的标准流程为知识本体：从创意简报（Creative Brief）到母带交付（Master Delivery）的工业化管线"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Assemble The Ultimate Guide to TV Commercial Production"
+    id: cite-1
+    title: "The Ultimate Guide to TV Commercial Production"
+    author: "org:Assemble"
+  - resource: "cited:上海艺虎 TVC 拍摄流程（八大阶段）"
+    id: cite-2
+    title: "TVC 拍摄流程（八大阶段）"
+    author: "org:上海艺虎"
+  - resource: "cited:乐晨文化 TVC 广告片制作流程"
+    id: cite-3
+    title: "TVC 广告片制作流程"
+    author: "org:乐晨文化"
+  - resource: "cited:Wolves The Different Stages of a TVC"
+    id: cite-4
+    title: "The Different Stages of a TVC"
+    author: "org:Wolves"
+  - resource: "cited:Slideshare TVC Production Process"
+    id: cite-5
+    title: "TVC Production Process"
+    author: "org:Slideshare"
+  - resource: "https://www.onassemble.com/blog/the-ultimate-guide-to-tv-commercial-production"
+    id: url-1
+    title: "onassemble.com"
+  - resource: "https://www.yihuvideo.com/article/a203b2a1.html"
+    id: url-2
+    title: "yihuvideo.com"
+  - resource: "https://www.lechenad.com/news/771.html"
+    id: url-3
+    title: "lechenad.com"
+  - resource: "https://www.wolves.co.za/the-different-stages-of-a-tvc-a-comprehensive-overview/"
+    id: url-4
+    title: "wolves.co.za"
+  - resource: "https://www.slideshare.net/slideshow/tvc-production-process-36274624/36274624"
+    id: url-5
+    title: "slideshare.net"
+dx_id: "105"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 宣传片 / TVC 制作全流程（Commercial & TVC Production Pipeline — Terms & Workflow）
 
 > 本页以真实广告制作行业的标准流程为知识本体：从创意简报（Creative Brief）到母带交付（Master Delivery）的工业化管线。AI 应用面向 DirectorX：把每一阶段的真实产出物与检查点映射到 AI 工作流（提问、调研、素材、脚本确认、分镜、关键帧、生成、审片、交付）。
@@ -141,3 +198,9 @@ PPM（Pre-Production Meeting）是**客户、代理、制作三方**在开机前
 - 乐晨（上海）文化传媒 — TVC 广告片制作流程：https://www.lechenad.com/news/771.html
 - Wolves — The Different Stages of a TVC：https://www.wolves.co.za/the-different-stages-of-a-tvc-a-comprehensive-overview/
 - Slideshare — TVC Production Process（brief → ideas/storyboard → production → media）：https://www.slideshare.net/slideshow/tvc-production-process-36274624/36274624
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

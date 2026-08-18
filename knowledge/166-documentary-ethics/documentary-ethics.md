@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）"
+description: "AI 纪录片伦理的深化体系：真实性（Truthfulness）、透明度（AI 使用披露）、同意（Consent）、验证责任（Verification）、编辑部问责（Editorial Accountability）"
+tags:
+  - "consistency"
+  - "editing"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:UNESCO Press Councils Updating Ethical Standards"
+    id: cite-1
+    title: "Press Councils Updating Ethical Standards"
+    author: "org:UNESCO"
+  - resource: "cited:路透研究院 How Will AI Reshape News in 2026"
+    id: cite-2
+    title: "How Will AI Reshape News in 2026"
+    author: "org:路透研究院"
+  - resource: "cited:UTS Gen AI and Journalism: Common Principles"
+    id: cite-3
+    title: "Gen AI and Journalism: Common Principles"
+    author: "org:UTS"
+  - resource: "cited:Talkhouse AI Redefining Documentary"
+    id: cite-4
+    title: "AI Redefining Documentary"
+    author: "org:Talkhouse"
+  - resource: "https://www.unesco.org/en/articles/press-councils-frontline-updating-ethical-standards-journalism-ai-age-south-east-europe"
+    id: url-1
+    title: "unesco.org"
+  - resource: "https://reutersinstitute.politics.ox.ac.uk/news/how-will-ai-reshape-news-2026-forecasts-17-experts-around-world"
+    id: url-2
+    title: "reutersinstitute.politics.ox.ac.uk"
+  - resource: "https://www.uts.edu.au/contentassets/6834071656d444529921cbb8ef8b4a9a/gen-ai-and-journalism_towards-common-principles_7-aug.pdf"
+    id: url-3
+    title: "uts.edu.au"
+  - resource: "https://talkhouse.com/integrity-vs-innovation-how-ai-is-redefining-documentary-filmmaking"
+    id: url-4
+    title: "talkhouse.com"
+  - resource: "https://unesdoc.unesco.org/ark:/48223/pf0000391214"
+    id: url-5
+    title: "unesdoc.unesco.org"
+dx_id: "166"
+related:
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "72-ai-content-compliance/ai-content-compliance.md"
+  - "80-knowledge-base-guide/knowledge-base-guide.md"
+---
+
 # AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）
 
 > 本页为 AI 纪录片伦理的深化体系：真实性（Truthfulness）、透明度（AI 使用披露）、同意（Consent）、验证责任（Verification）、编辑部问责（Editorial Accountability）。知识本体来自 2026 新闻/纪录片伦理标准（UNESCO/路透研究院/UTS/Communication&Society）。AI 应用面向 DirectorX：纪实项目（衔接 139 纪录画面、145 合规、72 内容政策）。
@@ -83,3 +138,10 @@
 - UTS — Gen AI and Journalism: Toward Common Principles：https://www.uts.edu.au/contentassets/6834071656d444529921cbb8ef8b4a9a/gen-ai-and-journalism_towards-common-principles_7-aug.pdf
 - Talkhouse — Integrity vs. Innovation: How AI Is Redefining Documentary Filmmaking：https://talkhouse.com/integrity-vs-innovation-how-ai-is-redefining-documentary-filmmaking
 - UNESCO — AI and the Future of Journalism: Issue Brief：https://unesdoc.unesco.org/ark:/48223/pf0000391214
+
+## 相关概念
+
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)
+- [知识库使用手册（Knowledge Base Agent Guide）](../80-knowledge-base-guide/knowledge-base-guide.md)

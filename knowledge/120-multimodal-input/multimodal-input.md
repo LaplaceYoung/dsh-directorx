@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "多模态输入到视频（Multimodal Input to Video — Image / Text / Audio / Reference Combinations）"
+description: "多模态输入的完整组合能力：参考图（I2V）、文本（T2V）、参考视频（R2V）、音频驱动（A2V）、以及组合输入（图+文+音频）——以及参考视频转绘、视频编辑类输入"
+tags:
+  - "production"
+  - "sound"
+  - "i2v"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CVPR 2026 UniAVGen"
+    id: cite-1
+    title: "UniAVGen"
+    author: "org:CVPR-2026"
+  - resource: "cited:arXiv UniVideo"
+    id: cite-2
+    title: "UniVideo"
+    author: "org:arXiv"
+  - resource: "cited:Comfy MiniMax H3 T2V/I2V/R2V"
+    id: cite-3
+    title: "MiniMax H3 T2V/I2V/R2V"
+    author: "org:Comfy"
+  - resource: "cited:Scenario Kling O1 Family"
+    id: cite-4
+    title: "Kling O1 Family"
+    author: "org:Scenario"
+  - resource: "cited:Videomaker Gemini Omni"
+    id: cite-5
+    title: "Gemini Omni"
+    author: "org:Videomaker"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Zhang_UniAVGen_Unified_Audio_and_Video_Generation_with_Asymmetric_Cross-Modal_Interactions_CVPR_2026_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://arxiv.org/html/2510.08377v4"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://docs.comfy.org/tutorials/video/minimax/minimax-h3"
+    id: url-3
+    title: "docs.comfy.org"
+  - resource: "https://help.scenario.com/articles/3906786894-kling-o1-family-the-essentials"
+    id: url-4
+    title: "help.scenario.com"
+  - resource: "https://www.videomaker.com/how-to/editing/workflow/googles-new-gemini-omni-generative-ai-could-revolutionize-video-creation/"
+    id: url-5
+    title: "videomaker.com"
+dx_id: "120"
+related:
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+  - "05-short-video/short-video-techniques.md"
+  - "06-audio-sound/audio-sound-design.md"
+---
+
 # 多模态输入到视频（Multimodal Input to Video — Image / Text / Audio / Reference Combinations）
 
 > 本页为多模态输入的完整组合能力：参考图（I2V）、文本（T2V）、参考视频（R2V）、音频驱动（A2V）、以及组合输入（图+文+音频）——以及参考视频转绘、视频编辑类输入。知识本体来自 2026 统一多模态框架（UniAVGen/UniVideo）与模型实践（Kling O1/MiniMax H3）。AI 应用面向 DirectorX：输入组合决策矩阵（案例 4 图片叙事、案例 8/9 参考视频切片）。
@@ -88,3 +147,9 @@
 - Comfy — MiniMax H3: T2V, I2V, and R2V Video Workflows：https://docs.comfy.org/tutorials/video/minimax/minimax-h3
 - Scenario — Kling O1 Family: Unified Multimodal Video Model：https://help.scenario.com/articles/3906786894-kling-o1-family-the-essentials
 - Videomaker — Gemini Omni Generative AI：https://www.videomaker.com/how-to/editing/workflow/googles-new-gemini-omni-generative-ai-could-revolutionize-video-creation/
+
+## 相关概念
+
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [音频制作与声音设计（Audio & Sound Design）](../06-audio-sound/audio-sound-design.md)

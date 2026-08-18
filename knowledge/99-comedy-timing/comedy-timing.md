@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "喜剧节奏：术语详解 + AI 理解与实现（Comedy Timing — Deep Terms & AI Implementation）"
+description: "喜剧节奏手册（深化版）：以真实情景喜剧与喜剧电影的专业方法为知识本体（多机位体系/反应镜头/双人机位/剪辑节奏/三拍子），**每个术语详解其具体内容**（画面/节奏/现场怎么发生），并给出 **AI 如何理解与实现**（为什么喜剧对生成模型难、提示词模板、生成后检查）"
+tags:
+  - "production"
+  - "camera"
+  - "editing"
+  - "prompt"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:NYFA 情景喜剧进化"
+    id: cite-1
+    title: "NYFA 情景喜剧进化"
+  - resource: "cited:Ken Levine 情景喜剧导演"
+    id: cite-2
+    title: "Ken Levine 情景喜剧导演"
+  - resource: "cited:影视工业网双人对话调度"
+    id: cite-3
+    title: "影视工业网双人对话调度"
+  - resource: "cited:喜剧剪辑手法研究（反应镜头/快速因果并置）。"
+    id: cite-4
+    title: "喜剧剪辑手法研究（反应镜头/快速因果并置）。"
+  - resource: "https://www.nyfa.edu/student-resources/evolution-sitcom-part-2/"
+    id: url-1
+    title: "nyfa.edu"
+  - resource: "http://kenlevine.blogspot.com/2014/03/directing-sitcoms.html"
+    id: url-2
+    title: "kenlevine.blogspot.com"
+  - resource: "https://cinehello.com/stream/153008"
+    id: url-3
+    title: "cinehello.com"
+  - resource: "https://www.wsp-publishing.com/rc-pub/front/front-article/download/67482239/lowqualitypdf/剪辑手法在喜剧电影中的应用探析.pdf"
+    id: url-4
+    title: "wsp-publishing.com"
+  - resource: "https://beverlyboy.com/film-technology/studio-stage-secrets-mastering-multi-cam-sitcom-composition/"
+    id: url-5
+    title: "beverlyboy.com"
+  - resource: "https://en.wikipedia.org/wiki/Multiple-camera_setup"
+    id: url-6
+    title: "en.wikipedia.org"
+dx_id: "99"
+related:
+  - "53-shotlist-to-prompt/shotlist-to-prompt.md"
+  - "73-ai-prompt-quickref/ai-prompt-quickref.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+---
+
 # 喜剧节奏：术语详解 + AI 理解与实现（Comedy Timing — Deep Terms & AI Implementation）
 
 > 本页是 DirectorX 喜剧节奏手册（深化版）：以真实情景喜剧与喜剧电影的专业方法为知识本体（多机位体系/反应镜头/双人机位/剪辑节奏/三拍子），**每个术语详解其具体内容**（画面/节奏/现场怎么发生），并给出 **AI 如何理解与实现**（为什么喜剧对生成模型难、提示词模板、生成后检查）。面向 AI 生成制作。
@@ -162,3 +218,9 @@
 - Beverly Boy: Studio Stage Secrets — Multi-Cam Sitcom Composition — https://beverlyboy.com/film-technology/studio-stage-secrets-mastering-multi-cam-sitcom-composition/
 - Wikipedia: Multiple-Camera Setup — https://en.wikipedia.org/wiki/Multiple-camera_setup
 - Wikipedia: Single-Camera Setup — https://en.wikipedia.org/wiki/Single-camera_setup
+
+## 相关概念
+
+- [镜头表→提示词转换器（Shot List → Prompt Translation）](../53-shotlist-to-prompt/shotlist-to-prompt.md)
+- [AI 视频模型提示词总表（Prompt Format Quick Reference）](../73-ai-prompt-quickref/ai-prompt-quickref.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)

@@ -49,9 +49,7 @@ roles, or failure diagnosis. Do not treat these as runtime capability checks.
    in Chinese, write the final prompt in Chinese unless they ask otherwise.
 6. Include visible change over time: subject action, camera behavior, lighting,
    material detail, atmosphere, and continuity locks.
-7. Use `references/prompt-patterns.md` when the prompt needs cinematic motion,
-   reference-aware wording, dialogue timing, or failure repair.
-8. Use `references/eval-cases.md` only when reviewing or testing this skill.
+7. Use `references/model-guide.md` for camera and reference wording.
 
 ## Output Contract
 

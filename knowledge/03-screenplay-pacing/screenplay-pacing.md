@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "剧本创作与叙事节奏（Screenwriting & Pacing）"
+description: "剧本知识库：三幕结构、英雄之旅、Save the Cat 节拍表、场景结构、对白技巧与节奏把控"
+tags:
+  - "foundation"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Reedsy Save the Cat 指南"
+    id: cite-1
+    title: "Reedsy Save the Cat 指南"
+  - resource: "cited:ScreenCraft 三幕结构指南"
+    id: cite-2
+    title: "ScreenCraft 三幕结构指南"
+  - resource: "cited:StudioBinder 结构系列"
+    id: cite-3
+    title: "StudioBinder 结构系列"
+  - resource: "cited:行业标准教材要点。"
+    id: cite-4
+    title: "行业标准教材要点。"
+  - resource: "https://reedsy.com/blog/guide/story-structure/save-the-cat-beat-sheet/"
+    id: url-1
+    title: "reedsy.com"
+  - resource: "https://savethecat.com/wp-content/uploads/2019/08/INSERT-4-STC_BeatSheet.pdf"
+    id: url-2
+    title: "savethecat.com"
+  - resource: "https://screencraft.org/blog/what-is-three-act-structure-and-how-do-you-use-it-in-screenwriting/"
+    id: url-3
+    title: "screencraft.org"
+  - resource: "https://www.studiobinder.com/blog/joseph-campbells-heros-journey/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.studiobinder.com/blog/save-the-cat-beat-sheet/"
+    id: url-5
+    title: "studiobinder.com"
+  - resource: "https://www.finaldraft.com/blog/dialogue-the-art-of-subtext"
+    id: url-6
+    title: "finaldraft.com"
+dx_id: "03"
+related:
+  - "12-genre-music-performance/music-video-performance.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "17-narrative-advanced/narrative-advanced.md"
+---
+
 # 剧本创作与叙事节奏（Screenwriting & Pacing）
 
 > 本页是 DirectorX 剧本知识库：三幕结构、英雄之旅、Save the Cat 节拍表、场景结构、对白技巧与节奏把控。每个概念含定义、页码定位、示例与 AI 生成应用。
@@ -213,3 +266,9 @@
 - StudioBinder: Save the Cat Beat Sheet — https://www.studiobinder.com/blog/save-the-cat-beat-sheet/
 - Final Draft: Dialogue: The Art of Subtext — https://www.finaldraft.com/blog/dialogue-the-art-of-subtext
 - BBC Writers Room: Scenes — https://www.bbc.co.uk/writers/resources/scriptwriting-essentials/6-scenes/
+
+## 相关概念
+
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [叙事进阶与多线结构（Advanced Narrative）](../17-narrative-advanced/narrative-advanced.md)

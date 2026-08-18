@@ -311,20 +311,37 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const typing = (event.target as HTMLElement | null)?.matches('input, textarea')
+      const target = event.target as HTMLElement | null
+      const typing = typeof target?.matches === 'function' && target.matches('input, textarea')
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
         event.preventDefault()
         if (event.shiftKey) redo()
         else undo()
         return
       }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault()
+        exportPng()
+        return
+      }
       if (typing) return
       if (event.key === 'Enter' && tool === 'crop') applyCrop()
       if (event.key === 'Enter' && textDraft !== undefined) commitText()
       if (event.key === 'Escape') {
-        setCrop(undefined)
-        setTextDraft(undefined)
+        event.preventDefault()
+        if (crop !== undefined || textDraft !== undefined) {
+          setCrop(undefined)
+          setTextDraft(undefined)
+          return
+        }
+        props.onClose()
+        return
       }
+      if (event.key === 'v' || event.key === 'V') setTool('move')
+      if (event.key === 'c' || event.key === 'C') setTool('crop')
+      if (event.key === 'b' || event.key === 'B') setTool('draw')
+      if (event.key === 't' || event.key === 'T') setTool('text')
+      if (event.key === 'a' || event.key === 'A') setTool('adjust')
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -337,7 +354,10 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
     <StudioShell
       title="图片编辑"
       filename={filename}
-      meta={size.width > 0 ? `${size.width}×${size.height}` : ''}
+      meta={[
+        size.width > 0 ? `${size.width}×${size.height}` : '',
+        `${Math.round(zoom * 100)}%`,
+      ].filter(part => part !== '').join(' · ')}
       error={error}
       saveLabel="保存到画布"
       saveDisabled={busy || workRef.current === null}
@@ -438,7 +458,7 @@ export function ImageStudio(props: ImageStudioProps): ReactNode {
             </>
           ) : null}
           {tool === 'move' ? (
-            <div style={{ fontSize: 12, color: dx.dim, lineHeight: 1.6 }}>滚轮缩放，拖拽平移。裁剪、画笔、文字和调节在左侧切换。</div>
+            <div style={{ fontSize: 12, color: dx.dim, lineHeight: 1.6 }}>滚轮缩放，拖拽平移。V 查看 · C 裁剪 · B 画笔 · T 文字 · A 调节。Esc 取消或返回画布。</div>
           ) : null}
         </>
       )}

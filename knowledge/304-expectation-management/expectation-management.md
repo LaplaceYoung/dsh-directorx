@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）"
+description: "电影类型片的观众预期管理：满足预期（舒适/识别）与策略性颠覆（惊奇/类型杂交/角色转变）的平衡、颠覆需先懂惯例、案例（《惊声尖叫》颠覆恐怖、《爱乐之城》满足音乐剧+重定义结局）"
+tags:
+  - "synthesis"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Audience Expectations"
+    id: cite-1
+    title: "Audience Expectations"
+    author: "org:Fiveable"
+  - resource: "cited:Fiveable Genre Expectations"
+    id: cite-2
+    title: "Genre Expectations"
+    author: "org:Fiveable"
+  - resource: "cited:NumberAnalytics Understanding Audience Expectations"
+    id: cite-3
+    title: "Understanding Audience Expectations"
+    author: "org:NumberAnalytics"
+  - resource: "cited:FlyRiver Genre Bending"
+    id: cite-4
+    title: "Genre Bending"
+    author: "org:FlyRiver"
+  - resource: "https://fiveable.me/storytelling-for-film-and-television/unit-12/audience-expectations/study-guide/TqIh31UVlT1ZowJ2"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://fiveable.me/the-craft-of-writing-film-focus/unit-5/genre-expectations/study-guide/hMrRvHWcfP49wuO0"
+    id: url-2
+    title: "fiveable.me"
+  - resource: "https://www.numberanalytics.com/blog/ultimate-guide-audience-expectations-genre-studies"
+    id: url-3
+    title: "numberanalytics.com"
+  - resource: "https://www.cinemafocus.eu/Studi%20sul%20cinema/ExpectationsEN.html"
+    id: url-4
+    title: "cinemafocus.eu"
+  - resource: "https://www.flyriver.com/g/subverted-expectations-of-genre"
+    id: url-5
+    title: "flyriver.com"
+dx_id: "304"
+related:
+  - "265-genre-visual-semiotics/genre-visual-semiotics.md"
+  - "278-genre-acting/genre-acting.md"
+  - "289-reveal-design/reveal-design.md"
+  - "287-genre-settings/genre-settings.md"
+---
+
 # 电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）
 
 > 本页为电影类型片的观众预期管理：满足预期（舒适/识别）与策略性颠覆（惊奇/类型杂交/角色转变）的平衡、颠覆需先懂惯例、案例（《惊声尖叫》颠覆恐怖、《爱乐之城》满足音乐剧+重定义结局）。知识本体来自 2026 预期管理（Fiveable/NumberAnalytics/CinemaFocus）。AI 应用面向 DirectorX：预期设计（衔接 265 类型、304 对应、296 杂交、289 揭示）。
@@ -78,3 +133,10 @@
 - NumberAnalytics — Understanding Audience Expectations：https://www.numberanalytics.com/blog/ultimate-guide-audience-expectations-genre-studies
 - CinemaFocus — Audience Expectations: How Viewers Interact：https://www.cinemafocus.eu/Studi%20sul%20cinema/ExpectationsEN.html
 - FlyRiver — Genre Bending: Subverting Audience Expectations：https://www.flyriver.com/g/subverted-expectations-of-genre
+
+## 相关概念
+
+- [电影类型片视觉符号（Genre Visual Semiotics — Iconography & Conventions）](../265-genre-visual-semiotics/genre-visual-semiotics.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）](../289-reveal-design/reveal-design.md)
+- [电影类型片场景惯例（Genre Settings — Horror House, Western Frontier & Sci-Fi Spaces）](../287-genre-settings/genre-settings.md)

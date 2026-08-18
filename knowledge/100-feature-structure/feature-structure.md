@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "长片剧本结构深化：术语详解 + AI 理解与实现（Feature Structure — Deep Terms & AI Implementation）"
+description: "长片结构手册（深化版）：八序列法（Frank Daniel）——**每个术语详解其具体内容**（每个序列里实际发生什么、时间长度、戏剧功能、真实片例），并给出 **AI 如何理解与实现**（LLM 大纲提示词模板、序列=生产批次、节拍锚点）"
+tags:
+  - "production"
+  - "prompt"
+  - "continuity"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Incipor 序列法"
+    id: cite-1
+    title: "Incipor 序列法"
+  - resource: "cited:FreeScreenwriter 序列方法"
+    id: cite-2
+    title: "FreeScreenwriter 序列方法"
+  - resource: "cited:Filmmaker Genius 序列结构"
+    id: cite-3
+    title: "Filmmaker Genius 序列结构"
+  - resource: "cited:悉德·菲尔德 电影剧本写作基础"
+    id: cite-4
+    title: "电影剧本写作基础"
+    author: "org:悉德·菲尔德"
+  - resource: "cited:古林诺 序列编剧法"
+    id: cite-5
+    title: "序列编剧法"
+    author: "org:古林诺"
+  - resource: "https://incipor.com/craft/screenplay-structure/"
+    id: url-1
+    title: "incipor.com"
+  - resource: "https://freescreenwriter.com/structures/sequence-method"
+    id: url-2
+    title: "freescreenwriter.com"
+  - resource: "https://filmmakergenius.com/academy/screenplay-act-structure/sequence-method-screenwriting"
+    id: url-3
+    title: "filmmakergenius.com"
+  - resource: "https://robynpaterson.com/wp-content/uploads/2017/12/8-sequences-.pdf"
+    id: url-4
+    title: "robynpaterson.com"
+  - resource: "https://site.douban.com/178720/widget/notes/14880098/note/319175105/"
+    id: url-5
+    title: "site.douban.com"
+dx_id: "100"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+---
+
 # 长片剧本结构深化：术语详解 + AI 理解与实现（Feature Structure — Deep Terms & AI Implementation）
 
 > 本页是 DirectorX 长片结构手册（深化版）：八序列法（Frank Daniel）——**每个术语详解其具体内容**（每个序列里实际发生什么、时间长度、戏剧功能、真实片例），并给出 **AI 如何理解与实现**（LLM 大纲提示词模板、序列=生产批次、节拍锚点）。与 03 结构 / 90 类型剧本 / 91 短片 / 101 AI 编剧衔接。
@@ -193,3 +249,9 @@
 - 豆瓣: 电影剧本写作基础（悉德·菲尔德全本） — https://site.douban.com/178720/widget/notes/14880098/note/319175105/
 - 搜狐: 适用的编剧操作方法《序列编剧法》（古林诺） — https://www.sohu.com/a/243714702_285386
 - Screenwriting Science: 19-Sequence Model — https://screenwritingscience.com/19-sequence-model/
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)

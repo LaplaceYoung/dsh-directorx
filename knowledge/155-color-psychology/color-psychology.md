@@ -1,3 +1,71 @@
+---
+type: Reference
+title: "AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）"
+description: "AI 视频的色彩心理学体系：色温情感地图（暖/冷/去饱和）、色彩转变叙事（角色弧/场景迁移）、高对比配色（蓝橙互补）、调色作为叙事工具"
+tags:
+  - "consistency"
+  - "color"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:StudioBinder How to Use Color in Film: 50+ Palettes"
+    id: cite-1
+    title: "How to Use Color in Film: 50+ Palettes"
+    author: "org:StudioBinder"
+  - resource: "cited:Pixflow Mastering Color Transitions"
+    id: cite-2
+    title: "Mastering Color Transitions"
+    author: "org:Pixflow"
+  - resource: "cited:Redshift Color Psychology in Film Production"
+    id: cite-3
+    title: "Color Psychology in Film Production"
+    author: "org:Redshift"
+  - resource: "cited:NoFilmSchool Decisive Film Color Palette"
+    id: cite-4
+    title: "Decisive Film Color Palette"
+    author: "org:NoFilmSchool"
+  - resource: "https://www.studiobinder.com/blog/how-to-use-color-in-film-50-examples-of-movie-color-palettes/"
+    id: url-1
+    title: "studiobinder.com"
+  - resource: "https://pixflow.net/blog/mastering-the-art-of-color-transitions-how-filmmakers-use-palettes-to-tell-stories/"
+    id: url-2
+    title: "pixflow.net"
+  - resource: "https://redshiftcreative.co/the-art-of-color-psychology-in-film-production/"
+    id: url-3
+    title: "redshiftcreative.co"
+  - resource: "https://nofilmschool.com/film-color-palette"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://pixflow.net/blog/how-filmmakers-use-color-psychology-to-transform-characters-and-stories/"
+    id: url-5
+    title: "pixflow.net"
+  - resource: "https://www.britannica.com/art/history-of-film/Introduction-of-color"
+    id: url-6
+    title: "britannica.com"
+dx_id: "155"
+aliases:
+  - "257"
+  - "259"
+  - "263"
+  - "272"
+  - "279"
+  - "344"
+  - "359"
+related:
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "141-color-grading/color-grading.md"
+  - "126-style-art-direction/style-art-direction.md"
+  - "150-narrative-structure/narrative-structure.md"
+---
+
 # AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）
 
 > 本页为 AI 视频的色彩心理学体系：色温情感地图（暖/冷/去饱和）、色彩转变叙事（角色弧/场景迁移）、高对比配色（蓝橙互补）、调色作为叙事工具。知识本体来自 2026 色彩心理学指南（StudioBinder/Pixflow/Redshift/NoFilmSchool）。AI 应用面向 DirectorX：视觉情绪设计（衔接 125 光线、141 调色、126 风格）。
@@ -237,3 +305,10 @@
 - Proxyle — The Best Prompts for Vintage and Retro Images：https://proxyle.com/blog/the-best-prompts-for-vintage-and-retro-images/
 - Adobe — What Is Cinematography：https://www.adobe.com/creativecloud/video/production/cinematography.html
 - StudioBinder — A Beginner's Guide to Cinematography Techniques：https://www.studiobinder.com/blog/cinematography-techniques-no-film-school/
+
+## 相关概念
+
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）](../141-color-grading/color-grading.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)

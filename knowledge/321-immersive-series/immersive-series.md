@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片沉浸系列设计（Immersive Series — World Building & Scene-Focused Consistency）"
+description: "AI 图片的沉浸系列设计：场景聚焦提示（精确定义场景保沉浸视觉）、持久 3D 世界（图片→可导航世界）、房间级故事系统（场景创建+图像生成+音频旁白）、全景环境（尺度+氛围）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Storycaster: Immersive Room-Based Storytelling"
+    id: cite-1
+    title: "Storycaster: Immersive Room-Based Storytelling"
+    author: "org:arXiv"
+  - resource: "cited:OpenArt Worlds: 3D Worlds from Images"
+    id: cite-2
+    title: "Worlds: 3D Worlds from Images"
+    author: "org:OpenArt"
+  - resource: "cited:Medium Creating Immersive Worlds with AI"
+    id: cite-3
+    title: "Creating Immersive Worlds with AI"
+    author: "org:Medium"
+  - resource: "cited:Mechanism Immersive Backdrops"
+    id: cite-4
+    title: "Immersive Backdrops"
+    author: "org:Mechanism"
+  - resource: "https://arxiv.org/html/2510.22857v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://openart.ai/feature/openart-worlds"
+    id: url-2
+    title: "openart.ai"
+  - resource: "https://medium.com/@david-ocean/creating-immersive-worlds-with-ai-the-power-of-scene-focused-dec77fd2fc0b"
+    id: url-3
+    title: "medium.com"
+  - resource: "https://www.mechanismdigital.com/insights"
+    id: url-4
+    title: "mechanismdigital.com"
+  - resource: "https://www.worldlabs.ai/labs"
+    id: url-5
+    title: "worldlabs.ai"
+dx_id: "321"
+related:
+  - "165-environment-generation/environment-generation.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "228-environment-concept-art/environment-concept-art.md"
+  - "160-spatial-3d-vr/spatial-3d-vr.md"
+  - "173-spatial-audio/spatial-audio.md"
+---
+
 # AI 图片沉浸系列设计（Immersive Series — World Building & Scene-Focused Consistency）
 
 > 本页为 AI 图片的沉浸系列设计：场景聚焦提示（精确定义场景保沉浸视觉）、持久 3D 世界（图片→可导航世界）、房间级故事系统（场景创建+图像生成+音频旁白）、全景环境（尺度+氛围）。知识本体来自 2026 沉浸世界（arXiv Storycaster/OpenArt Worlds/Medium）。AI 应用面向 DirectorX：沉浸图集（衔接 321 对应、165 环境、238 系列、228 场景概念）。
@@ -73,3 +130,11 @@
 - Medium — Creating Immersive Worlds with AI: Scene-Focused：https://medium.com/@david-ocean/creating-immersive-worlds-with-ai-the-power-of-scene-focused-dec77fd2fc0b
 - Mechanism — Immersive Backdrops & Interactive Spaces：https://www.mechanismdigital.com/insights
 - World Labs — Marble Labs（空间智能）：https://www.worldlabs.ai/labs
+
+## 相关概念
+
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 图片场景概念设计（Environment Concept Art — World Building & Key Art）](../228-environment-concept-art/environment-concept-art.md)
+- [AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）](../160-spatial-3d-vr/spatial-3d-vr.md)
+- [AI 音频空间定位（Spatial Audio — 3D Sound, Ambisonics & Visual-Cued Placement）](../173-spatial-audio/spatial-audio.md)

@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 动态图形与标题设计（Motion Graphics & Titles — Kinetic Typography & Lower Thirds）"
+description: "AI 动态图形与标题设计：动态文字排版（Kinetic Typography）、标题/字幕条（Lower Thirds）、AI 生成文字动画（提示词驱动）、模板库与 AE 分工"
+tags:
+  - "consistency"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MotionVid Kinetic Typography AI"
+    id: cite-1
+    title: "Kinetic Typography AI"
+    author: "org:MotionVid"
+  - resource: "cited:Envato Kinetic Text Titles"
+    id: cite-2
+    title: "Kinetic Text Titles"
+    author: "org:Envato"
+  - resource: "cited:ngram Kinetic Typography AI Video Maker"
+    id: cite-3
+    title: "Kinetic Typography AI Video Maker"
+    author: "org:ngram"
+  - resource: "cited:FlexClip AI Motion Graphic Generators"
+    id: cite-4
+    title: "AI Motion Graphic Generators"
+    author: "org:FlexClip"
+  - resource: "https://motionvid.ai/blog/kinetic-typography-ai"
+    id: url-1
+    title: "motionvid.ai"
+  - resource: "https://elements.envato.com/dynamic-titles-VFLKZA4"
+    id: url-2
+    title: "elements.envato.com"
+  - resource: "https://www.ngram.com/tools/kinetic-typography-ai-video-maker"
+    id: url-3
+    title: "ngram.com"
+  - resource: "https://elements.envato.com/typography-V5EHXKB"
+    id: url-4
+    title: "elements.envato.com"
+  - resource: "https://www.flexclip.com/features/ai-motion-graphics.html"
+    id: url-5
+    title: "flexclip.com"
+dx_id: "194"
+related:
+  - "21-motion-design/motion-design.md"
+  - "112-delivery-specs/delivery-specs.md"
+  - "27-caption-localization/caption-localization.md"
+  - "188-opening-hook/opening-hook.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 动态图形与标题设计（Motion Graphics & Titles — Kinetic Typography & Lower Thirds）
 
 > 本页为 AI 动态图形与标题设计：动态文字排版（Kinetic Typography）、标题/字幕条（Lower Thirds）、AI 生成文字动画（提示词驱动）、模板库与 AE 分工。知识本体来自 2026 动态图形指南（Envato/MotionVid/ngram）。AI 应用面向 DirectorX：成片包装（衔接 21 动画设计、112 交付、147→已并入 27 字幕、188 钩子首帧）。
@@ -84,3 +140,11 @@
 - ngram — Kinetic Typography AI Video Maker：https://www.ngram.com/tools/kinetic-typography-ai-video-maker
 - Envato — Dynamic Typography Titles and Lower Thirds Kit：https://elements.envato.com/typography-V5EHXKB
 - FlexClip — AI Motion Graphic Generators（模板化文字动画）：https://www.flexclip.com/features/ai-motion-graphics.html
+
+## 相关概念
+
+- [动画与动态设计（Motion Design & Animation）](../21-motion-design/motion-design.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

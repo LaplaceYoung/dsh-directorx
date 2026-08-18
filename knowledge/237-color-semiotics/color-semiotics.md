@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影色彩叙事符号学（Color Semiotics — Color as Signifier & Cultural Coding）"
+description: "电影色彩叙事符号学：色彩作为能指（Signifier）、文化符号差异（红色多义：愤怒/爱/警告/喜庆）、色彩与其他符号协同（物体/姿势/空间）、色彩符码分析"
+tags:
+  - "consistency"
+  - "color"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Symbolism and Cultural Significance of Color"
+    id: cite-1
+    title: "Symbolism and Cultural Significance of Color"
+    author: "org:Fiveable"
+  - resource: "cited:EAS Color Theory and Emotional Semiotics"
+    id: cite-2
+    title: "Color Theory and Emotional Semiotics"
+    author: "org:EAS"
+  - resource: "cited:C&EN Movie Symbolism in Technicolor"
+    id: cite-3
+    title: "Movie Symbolism in Technicolor"
+    author: "org:C&EN"
+  - resource: "cited:Dialnet La semiótica de color en el cine de autor"
+    id: cite-4
+    title: "La semiótica de color en el cine de autor"
+    author: "org:Dialnet"
+  - resource: "https://fiveable.me/film-aesthetics/unit-6/symbolism-cultural-significance-color-film/study-guide/Ck6kgKRCTjmwj1V6"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://easpublisher.com/media/features_articles/EASMB_13_138-145.pdf"
+    id: url-2
+    title: "easpublisher.com"
+  - resource: "https://cen.acs.org/articles/84/i7/Movie-Symbolism-Amazing-Technicolor.html"
+    id: url-3
+    title: "cen.acs.org"
+  - resource: "https://dialnet.unirioja.es/descarga/articulo/9752676.pdf"
+    id: url-4
+    title: "dialnet.unirioja.es"
+  - resource: "https://francis-press.com/uploads/papers/VY8grRcFkXjFepruxnej8uUNuZGomyrvyMNojwQD.pdf"
+    id: url-5
+    title: "francis-press.com"
+dx_id: "237"
+related:
+  - "155-color-psychology/color-psychology.md"
+  - "218-film-color-design/film-color-design.md"
+  - "206-cross-cultural-camera/cross-cultural-camera.md"
+  - "27-caption-localization/caption-localization.md"
+  - "55-global-localization-visual/global-localization-visual.md"
+---
+
 # 电影色彩叙事符号学（Color Semiotics — Color as Signifier & Cultural Coding）
 
 > 本页为电影色彩叙事符号学：色彩作为能指（Signifier）、文化符号差异（红色多义：愤怒/爱/警告/喜庆）、色彩与其他符号协同（物体/姿势/空间）、色彩符码分析。知识本体来自 2026 色彩符号学研究（Fiveable/EAS Publishers/Dialnet/Francis Press）。AI 应用面向 DirectorX：色彩语义（衔接 155 色彩心理、218 色彩设计、237 对应、206 跨文化）。
@@ -81,3 +138,11 @@
 - C&EN — Movie Symbolism in Amazing Technicolor：https://cen.acs.org/articles/84/i7/Movie-Symbolism-Amazing-Technicolor.html
 - Dialnet — La semiótica de color en el cine de autor：https://dialnet.unirioja.es/descarga/articulo/9752676.pdf
 - Francis Press — Visual Symbols and Cultural Symbolism in Film：https://francis-press.com/uploads/papers/VY8grRcFkXjFepruxnej8uUNuZGomyrvyMNojwQD.pdf
+
+## 相关概念
+
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [电影色彩设计（Film Color Design — Master Palette & Cross-Department Cohesion）](../218-film-color-design/film-color-design.md)
+- [AI 镜头语言跨文化差异（Cross-Cultural Camera Language — East/West Visual Grammar）](../206-cross-cultural-camera/cross-cultural-camera.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [多语言出海视觉本地化（Global Localization & Visual Adaptation）](../55-global-localization-visual/global-localization-visual.md)

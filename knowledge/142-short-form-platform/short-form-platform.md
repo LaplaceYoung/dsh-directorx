@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）"
+description: "AI 短视频的平台算法适配体系：微留存（Micro-Retention）科学、1-3 秒钩子堆叠（视觉触发+语言钩子+语境）、完播率信号、主版本 + 平台适配裁剪（TikTok/Reels/Shorts）"
+tags:
+  - "production"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:HypeNest TikTok Algorithm 2026: 7 Hooks for Retention"
+    id: cite-1
+    title: "TikTok Algorithm 2026: 7 Hooks for Retention"
+    author: "org:HypeNest"
+  - resource: "cited:Socialync TikTok Algorithm 2026: 7 Signals"
+    id: cite-2
+    title: "TikTok Algorithm 2026: 7 Signals"
+    author: "org:Socialync"
+  - resource: "cited:ReelsMaker Short-Form Video Strategy 2026"
+    id: cite-3
+    title: "Short-Form Video Strategy 2026"
+    author: "org:ReelsMaker"
+  - resource: "cited:TheViralApp Short-Form Video Trends 2026"
+    id: cite-4
+    title: "Short-Form Video Trends 2026"
+    author: "org:TheViralApp"
+  - resource: "https://hypenest.ai/blogs/tiktok-algorithm-2026-video-hooks-retention"
+    id: url-1
+    title: "hypenest.ai"
+  - resource: "https://www.socialync.io/blog/tiktok-algorithm-2026-what-works-now"
+    id: url-2
+    title: "socialync.io"
+  - resource: "https://reelsmakerai.com/short-form-video-strategy"
+    id: url-3
+    title: "reelsmakerai.com"
+  - resource: "https://theviralapp.com/blog/short-form-video-trends-2026-tiktok-reels-shorts/"
+    id: url-4
+    title: "theviralapp.com"
+  - resource: "https://kineclip.com/blog/short-form-video-trends-2026/"
+    id: url-5
+    title: "kineclip.com"
+dx_id: "142"
+related:
+  - "112-delivery-specs/delivery-specs.md"
+  - "127-edit-transition-rhythm/edit-transition-rhythm.md"
+  - "135-ad-creative-gen/ad-creative-gen.md"
+---
+
 # AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）
 
 > 本页为 AI 短视频的平台算法适配体系：微留存（Micro-Retention）科学、1-3 秒钩子堆叠（视觉触发+语言钩子+语境）、完播率信号、主版本 + 平台适配裁剪（TikTok/Reels/Shorts）。知识本体来自 2026 平台算法指南（HypeNest/Socialync/ReelsMaker/TheViralApp）。AI 应用面向 DirectorX：短视频交付优化（衔接 112 交付、127 节奏、135 广告）。
@@ -92,3 +146,9 @@
 - ReelsMaker — Short-Form Video Strategy 2026 — Reels, TikTok & Shorts Playbook：https://reelsmakerai.com/short-form-video-strategy
 - TheViralApp — Short-Form Video Trends 2026: TikTok, Reels & Shorts：https://theviralapp.com/blog/short-form-video-trends-2026-tiktok-reels-shorts/
 - Kineclip — Short-Form Video Trends 2026：https://kineclip.com/blog/short-form-video-trends-2026/
+
+## 相关概念
+
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)
+- [AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）](../127-edit-transition-rhythm/edit-transition-rhythm.md)
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)

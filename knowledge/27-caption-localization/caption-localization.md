@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "字幕与本地化交付（Captions & Localization）"
+description: "字幕本地化知识库：字幕时间规范（Netflix 标准）、字幕格式、阅读速度与断句、屏幕文字翻译（Forced Narrative）、视频本地化流程（字幕/配音/创译）、QC 与交付"
+tags:
+  - "foundation"
+  - "sound"
+  - "workflow"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Netflix Timed Text 时间指南"
+    id: cite-1
+    title: "Netflix Timed Text 时间指南"
+  - resource: "cited:W3C WAI 无障碍字幕"
+    id: cite-2
+    title: "W3C WAI 无障碍字幕"
+  - resource: "cited:广电总局 对外译制规范"
+    id: cite-3
+    title: "对外译制规范"
+    author: "org:广电总局"
+  - resource: "cited:行业本地化工作流。"
+    id: cite-4
+    title: "行业本地化工作流。"
+  - resource: "https://partnerhelp.netflixstudios.com/hc/en-us/articles/360051554394"
+    id: url-1
+    title: "partnerhelp.netflixstudios.com"
+  - resource: "https://partnerhelp.netflixstudios.com/hc/en-us/articles/215986007"
+    id: url-2
+    title: "partnerhelp.netflixstudios.com"
+  - resource: "https://www.w3.org/WAI/media/av/captions/"
+    id: url-3
+    title: "w3.org"
+  - resource: "https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API/Web_Video_Text_Tracks_Format"
+    id: url-4
+    title: "developer.mozilla.org"
+  - resource: "https://www.nrta.gov.cn/art/2022/9/29/art_3715_61974.html"
+    id: url-5
+    title: "nrta.gov.cn"
+  - resource: "https://mediamenderz.com/services/localization/"
+    id: url-6
+    title: "mediamenderz.com"
+dx_id: "27"
+aliases:
+  - "147"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md"
+  - "337-total-world-design/total-world-design.md"
+---
+
 # 字幕与本地化交付（Captions & Localization）
 
 > 本页是 DirectorX 字幕本地化知识库：字幕时间规范（Netflix 标准）、字幕格式、阅读速度与断句、屏幕文字翻译（Forced Narrative）、视频本地化流程（字幕/配音/创译）、QC 与交付。每个概念含参数与检查清单。**已合并 147（AI 本地化流程/配音/品牌声/成本对比）**——2026-08 去重整理。
@@ -168,3 +226,9 @@
 - 广电总局: GY/T 359—2022 广播电视和网络视听节目对外译制规范 — https://www.nrta.gov.cn/art/2022/9/29/art_3715_61974.html
 - Media Menderz: End-to-End Localization（Dubbing/Subs/AD/QC） — https://mediamenderz.com/services/localization/
 - SUBTLE: Recommended Quality Criteria for Subtitling — https://subtle-subtitlers.org.uk/wp-content/uploads/2023/01/SUBTLE-Recommended-Quality-Criteria-for-Subtitling.pdf
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）](../172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md)
+- [AI 图片全整合世界设计（Total World Design — Image + Narrative + Audio Unified Series）](../337-total-world-design/total-world-design.md)

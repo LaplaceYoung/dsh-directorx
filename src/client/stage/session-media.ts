@@ -21,8 +21,10 @@ export function mediaKindOf(path: string, mime?: string, toolName?: string): Ses
   if (mime !== undefined && mime.startsWith('image/')) return 'image'
   if (VIDEO_EXT.test(path)) return 'video'
   if (IMAGE_EXT.test(path)) return 'image'
-  if (toolName === 'directorx_generate_video') return 'video'
-  if (toolName === 'directorx_generate_image' || toolName === 'directorx_extract_frames' || toolName === 'directorx_studio') {
+  if (toolName === 'directorx_generate_video' || toolName === 'directorx_edit' || toolName === 'directorx_video_process' || toolName === 'directorx_timeline' || toolName === 'directorx_smart_cut' || toolName === 'directorx_video_concat') {
+    return 'video'
+  }
+  if (toolName === 'directorx_generate_image' || toolName === 'directorx_extract_frames' || toolName === 'directorx_studio' || toolName === 'directorx_image_edit') {
     return 'image'
   }
   return undefined

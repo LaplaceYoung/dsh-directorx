@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "多语言出海视觉本地化（Global Localization & Visual Adaptation）"
+description: "出海本地化手册：翻译≠本地化、字幕/配音/画外文字三轨决策、文化视觉适配清单（符号/颜色/人物/宗教/文字方向）、AI 本地化流水线（音轨分离→翻译→多语种合成）、短剧出海工作流（NarratorAI 四 Agent 架构）"
+tags:
+  - "foundation"
+  - "sound"
+  - "workflow"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:XTM 2026 最佳实践"
+    id: cite-1
+    title: "XTM 2026 最佳实践"
+  - resource: "cited:Vozo 7 步"
+    id: cite-2
+    title: "Vozo 7 步"
+  - resource: "cited:火山引擎 NarratorAI"
+    id: cite-3
+    title: "火山引擎 NarratorAI"
+  - resource: "cited:550W 短剧出海"
+    id: cite-4
+    title: "550W 短剧出海"
+  - resource: "cited:TheAI 學院 AI 本地化流程。"
+    id: cite-5
+    title: "TheAI 學院 AI 本地化流程。"
+  - resource: "https://xtm.ai/blog/video-localisation"
+    id: url-1
+    title: "xtm.ai"
+  - resource: "https://www.vozo.ai/zh/blogs/video-localization/localize-marketing-videos-international-campaigns"
+    id: url-2
+    title: "vozo.ai"
+  - resource: "https://developer.volcengine.com/articles/7633723675350417444"
+    id: url-3
+    title: "developer.volcengine.com"
+  - resource: "https://developer.cloud.tencent.com/article/2698223"
+    id: url-4
+    title: "developer.cloud.tencent.com"
+  - resource: "https://www.550wai.cn/blog/ai-short-drama-overseas-distribution.html"
+    id: url-5
+    title: "550wai.cn"
+dx_id: "55"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "27-caption-localization/caption-localization.md"
+---
+
 # 多语言出海视觉本地化（Global Localization & Visual Adaptation）
 
 > 本页是 DirectorX 出海本地化手册：翻译≠本地化、字幕/配音/画外文字三轨决策、文化视觉适配清单（符号/颜色/人物/宗教/文字方向）、AI 本地化流水线（音轨分离→翻译→多语种合成）、短剧出海工作流（NarratorAI 四 Agent 架构）。与 27 字幕本地化 / 42 图文转视频 / 48 短剧工厂衔接。
@@ -100,3 +155,9 @@
 - TheAI 學院: 一支影片變十國語言——AI 影片在地化完整流程（字幕、配音到文化調整） — https://www.theai.tw/guide/ai-video-localization-guide
 - AIR Media-Tech: Going Global in 2026 — The Blueprint for a Localized Channel Strategy — https://air.io/en/audience-growth/going-global-in-2026-the-blueprint-for-building-a-localized-channel-strategy
 - 3Play Media: The Complete Guide to YouTube Dubbing — https://www.3playmedia.com/blog/youtube-dubbing-guide/
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)

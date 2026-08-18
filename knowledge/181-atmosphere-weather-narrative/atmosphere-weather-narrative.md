@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）"
+description: "AI 视频的氛围与天气叙事：天气作为情绪语言（雨=忧郁/雾=神秘/雪=纯净/风暴=冲突）、氛围提示词（天气+光线+节奏）、天气叙事结构"
+tags:
+  - "consistency"
+  - "prompt"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Zsky AI Weather & Atmosphere Prompts"
+    id: cite-1
+    title: "AI Weather & Atmosphere Prompts"
+    author: "org:Zsky"
+  - resource: "cited:ReelMind Atmospheric AI Video Effects"
+    id: cite-2
+    title: "Atmospheric AI Video Effects"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind Smart Weather Effects"
+    id: cite-3
+    title: "Smart Weather Effects"
+    author: "org:ReelMind"
+  - resource: "https://zsky.ai/blog/ai-weather-and-atmosphere-prompts"
+    id: url-1
+    title: "zsky.ai"
+  - resource: "https://reelmind.ai/blog/i-wish-it-would-rain-down-atmospheric-ai-video-effects"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/smart-weather-effects-ai-generated-atmospheric-elements-for-enhanced-mood"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/raining-video-for-editing-ai-creates-atmospheric-scenes"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://zsky.ai/blog/ai-weather-atmosphere-prompts"
+    id: url-5
+    title: "zsky.ai"
+dx_id: "181"
+related:
+  - "155-color-psychology/color-psychology.md"
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "128-vfx-effects-types/vfx-effects-types.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）
 
 > 本页为 AI 视频的氛围与天气叙事：天气作为情绪语言（雨=忧郁/雾=神秘/雪=纯净/风暴=冲突）、氛围提示词（天气+光线+节奏）、天气叙事结构。知识本体来自 2026 天气氛围指南（ReelMind/Zsky）。AI 应用面向 DirectorX：情绪视觉（衔接 155 色彩心理、125 光线、128 天气特效、158 情绪曲线）。与 128 分工：本页为天气的情绪叙事语义，128 为天气/粒子/破坏特效的生成技术提示词。
@@ -84,3 +136,10 @@
 - ReelMind — Smart Weather Effects: AI-Generated Atmospheric Elements：https://reelmind.ai/blog/smart-weather-effects-ai-generated-atmospheric-elements-for-enhanced-mood
 - ReelMind — Raining Video for Editing: AI Creates Atmospheric Scenes：https://reelmind.ai/blog/raining-video-for-editing-ai-creates-atmospheric-scenes
 - Zsky — 25+ AI Weather + Atmosphere Prompts：https://zsky.ai/blog/ai-weather-atmosphere-prompts
+
+## 相关概念
+
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 特效类型生成深化（VFX Types — Weather, Particles, Magic & Destruction Prompts）](../128-vfx-effects-types/vfx-effects-types.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "叙事进阶与多线结构（Advanced Narrative）"
+description: "叙事进阶知识库：Linda Aronson 六种并行叙事模型、非线性叙事、视点与不可靠叙事者、戏剧反讽、剧集与短剧的叙事惯例"
+tags:
+  - "foundation"
+  - "model"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Linda Aronson 并行叙事理论"
+    id: cite-1
+    title: "Linda Aronson 并行叙事理论"
+  - resource: "cited:Wikipedia Unreliable narrator"
+    id: cite-2
+    title: "Wikipedia Unreliable narrator"
+  - resource: "cited:WGF 剧集格式基础"
+    id: cite-3
+    title: "WGF 剧集格式基础"
+  - resource: "cited:红果短剧编剧教程要点。"
+    id: cite-4
+    title: "红果短剧编剧教程要点。"
+  - resource: "https://www.lindaaronson.com/articles/which-type-of-parallel-narrative-structure-suits-my-story"
+    id: url-1
+    title: "lindaaronson.com"
+  - resource: "https://www.lindaaronson.com/articles/characters-in-search-of-a-plot-in-ensemble-cast-films"
+    id: url-2
+    title: "lindaaronson.com"
+  - resource: "https://en.wikipedia.org/wiki/Unreliable_narrator"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://www.wgfoundation.org/blog/2021/11/17/serialized-drama"
+    id: url-4
+    title: "wgfoundation.org"
+  - resource: "https://www.juben.pro/a/1-1783.html"
+    id: url-5
+    title: "juben.pro"
+  - resource: "https://liberalarts.oregonstate.edu/wlf/what-unreliable-narrator"
+    id: url-6
+    title: "liberalarts.oregonstate.edu"
+dx_id: "17"
+related:
+  - "25-visualization-previz/visualization-previz.md"
+  - "62-storyboard-automation/storyboard-automation.md"
+  - "65-ai-camera-control-benchmark/ai-camera-control-benchmark.md"
+---
+
 # 叙事进阶与多线结构（Advanced Narrative）
 
 > 本页是 DirectorX 叙事进阶知识库：Linda Aronson 六种并行叙事模型、非线性叙事、视点与不可靠叙事者、戏剧反讽、剧集与短剧的叙事惯例。每个模型含定义、适配题材、代表作品与结构要点。
@@ -185,3 +239,9 @@
 - WGF: TV Format Fundamentals — Serialized Drama — https://www.wgfoundation.org/blog/2021/11/17/serialized-drama
 - 红果短剧官方《短剧编剧教程》：短剧节奏的设计密码 — https://www.juben.pro/a/1-1783.html
 - Oregon State: What is an Unreliable Narrator — https://liberalarts.oregonstate.edu/wlf/what-unreliable-narrator
+
+## 相关概念
+
+- [分镜与叙事可视化（Storyboarding & Visualization）](../25-visualization-previz/visualization-previz.md)
+- [分镜图端到端自动化管线（Storyboard Automation Pipeline）](../62-storyboard-automation/storyboard-automation.md)
+- [AI 运镜控制精度实测（Camera Control Precision Field Test）](../65-ai-camera-control-benchmark/ai-camera-control-benchmark.md)

@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）"
+description: "AI 纪录片与知识类视频的画面生成体系：档案影像（Archival）风格、情景再现（Reenactment）、历史/科学叙事、数据可视化画面、口播与专家采访"
+tags:
+  - "production"
+  - "sound"
+  - "style"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Vidwave AI Video for Historical Documentaries"
+    id: cite-1
+    title: "AI Video for Historical Documentaries"
+    author: "org:Vidwave"
+  - resource: "cited:Pixo How to Make AI History & Science Documentaries"
+    id: cite-2
+    title: "How to Make AI History & Science Documentaries"
+    author: "org:Pixo"
+  - resource: "cited:ReelMind Complete Guide to AI-Generated Historical Documentaries"
+    id: cite-3
+    title: "Complete Guide to AI-Generated Historical Documentaries"
+    author: "org:ReelMind"
+  - resource: "cited:Story-Video Reenactments without a Budget"
+    id: cite-4
+    title: "Reenactments without a Budget"
+    author: "org:Story-Video"
+  - resource: "https://vidwave.ai/ai-video-generation-for-creating-historical-documentaries"
+    id: url-1
+    title: "vidwave.ai"
+  - resource: "https://pixo.video/blog/ai-history-video"
+    id: url-2
+    title: "pixo.video"
+  - resource: "https://reelmind.ai/blog/the-complete-guide-to-ai-generated-historical-documentary-videos"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://story-video.com/blog/reimagining-history"
+    id: url-4
+    title: "story-video.com"
+  - resource: "https://www.mootion.com/use-cases/en/collection/best-ai-videos-for-documentary-style-interviews"
+    id: url-5
+    title: "mootion.com"
+dx_id: "139"
+related:
+  - "47-documentary-visual/documentary-visual.md"
+  - "95-interview-onset/interview-onset.md"
+  - "76-ai-enhancement/ai-enhancement.md"
+  - "72-ai-content-compliance/ai-content-compliance.md"
+  - "80-knowledge-base-guide/knowledge-base-guide.md"
+---
+
 # AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）
 
 > 本页为 AI 纪录片与知识类视频的画面生成体系：档案影像（Archival）风格、情景再现（Reenactment）、历史/科学叙事、数据可视化画面、口播与专家采访。知识本体来自 2026 纪录片 AI 指南（Vidwave/ReelMind/Pixo/Story-Video/Mootion）。AI 应用面向 DirectorX：纪录片/知识类项目（衔接 47 纪录片、95 口播、136 修复）。
@@ -84,3 +142,11 @@
 - ReelMind — The Complete Guide to AI-Generated Historical Documentary Videos：https://reelmind.ai/blog/the-complete-guide-to-ai-generated-historical-documentary-videos
 - Story-Video — Creating Documentary-Style Reenactments without a Budget：https://story-video.com/blog/reimagining-history
 - Mootion — Best AI Documentary Videos (Top 5) in 2026：https://www.mootion.com/use-cases/en/collection/best-ai-videos-for-documentary-style-interviews
+
+## 相关概念
+
+- [纪录片视觉语言（Documentary Visual Language）](../47-documentary-visual/documentary-visual.md)
+- [访谈口播实拍全流程（Interview & Talking-Head On-Set System）](../95-interview-onset/interview-onset.md)
+- [实拍素材 AI 增强（AI Video Enhancement & Restoration）](../76-ai-enhancement/ai-enhancement.md)
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)
+- [知识库使用手册（Knowledge Base Agent Guide）](../80-knowledge-base-guide/knowledge-base-guide.md)

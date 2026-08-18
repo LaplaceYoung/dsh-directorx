@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影预期-揭示-杂交三整合（Expectation-Reveal-Hybrid — Unified Narrative Strategy）"
+description: "电影预期-揭示-杂交三整合：统一主题串联多类型（保持调性一致）、反讽用俗套（元评论/对比类型元素）、强动机角色落地杂交（防混乱/承诺错位）、\"读者不拒绝杂交，拒绝破承诺\""
+tags:
+  - "synthesis"
+  - "character"
+  - "continuity"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Blending and Subverting Genres"
+    id: cite-1
+    title: "Blending and Subverting Genres"
+    author: "org:Fiveable"
+  - resource: "cited:Final Draft How to Make Genre-Bending Work"
+    id: cite-2
+    title: "How to Make Genre-Bending Work"
+    author: "org:Final-Draft"
+  - resource: "cited:PlotAbides Genre-Blending Done Right"
+    id: cite-3
+    title: "Genre-Blending Done Right"
+    author: "org:PlotAbides"
+  - resource: "cited:NumberAnalytics Mastering Hybrid Storytelling"
+    id: cite-4
+    title: "Mastering Hybrid Storytelling"
+    author: "org:NumberAnalytics"
+  - resource: "https://fiveable.me/introduction-to-screenwriting/unit-8/blending-subverting-genres/study-guide/UQKsBecWQzHQ7IAV"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://www.finaldraft.com/blog/how-to-make-genre-bending-work-in-your-screenplay"
+    id: url-2
+    title: "finaldraft.com"
+  - resource: "https://theplotabides.com/genre-blending-done-right/"
+    id: url-3
+    title: "theplotabides.com"
+  - resource: "https://www.numberanalytics.com/blog/mastering-hybrid-storytelling-screenwriting"
+    id: url-4
+    title: "numberanalytics.com"
+  - resource: "https://www.numberanalytics.com/blog/genre-theory-script-analysis"
+    id: url-5
+    title: "numberanalytics.com"
+dx_id: "307"
+related:
+  - "304-expectation-management/expectation-management.md"
+  - "278-genre-acting/genre-acting.md"
+  - "289-reveal-design/reveal-design.md"
+---
+
 # 电影预期-揭示-杂交三整合（Expectation-Reveal-Hybrid — Unified Narrative Strategy）
 
 > 本页为电影预期-揭示-杂交三整合：统一主题串联多类型（保持调性一致）、反讽用俗套（元评论/对比类型元素）、强动机角色落地杂交（防混乱/承诺错位）、"读者不拒绝杂交，拒绝破承诺"。知识本体来自 2026 杂交叙事（Fiveable/Final Draft/NumberAnalytics/PlotAbides）。AI 应用面向 DirectorX：叙事策略（衔接 304 预期、296 杂交、307 对应、289 揭示）。
@@ -76,3 +132,9 @@
 - PlotAbides — Genre-Blending Done Right：https://theplotabides.com/genre-blending-done-right/
 - NumberAnalytics — Mastering Hybrid Storytelling in Screenwriting：https://www.numberanalytics.com/blog/mastering-hybrid-storytelling-screenwriting
 - NumberAnalytics — Genre Theory: Elevating Script Analysis：https://www.numberanalytics.com/blog/genre-theory-script-analysis
+
+## 相关概念
+
+- [电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）](../304-expectation-management/expectation-management.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）](../289-reveal-design/reveal-design.md)

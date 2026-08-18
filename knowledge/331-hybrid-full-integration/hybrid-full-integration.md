@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影杂交叙事-视听-体验全整合（Hybrid Full Integration — Narrative-AV-Experience Total Design）"
+description: "电影杂交叙事-视听-体验全整合：游戏化/杂交影院（非线性/多线索/元宇宙叙事+沉浸视听）、多模态融合（音频/视觉/文本跨模态注意）、XR 加速整合、统一感官体验"
+tags:
+  - "synthesis"
+  - "sound"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Frontiers Integration of Film and Game"
+    id: cite-1
+    title: "Integration of Film and Game"
+    author: "org:Frontiers"
+  - resource: "cited:MDPI AVaTER: Cross-Modal Attention"
+    id: cite-2
+    title: "AVaTER: Cross-Modal Attention"
+    author: "org:MDPI"
+  - resource: "cited:MDPI Multimodal Data Fusion"
+    id: cite-3
+    title: "Multimodal Data Fusion"
+    author: "org:MDPI"
+  - resource: "cited:LinkedIn XR Transforms AV Storytelling"
+    id: cite-4
+    title: "XR Transforms AV Storytelling"
+    author: "org:LinkedIn"
+  - resource: "https://www.frontiersin.org/journals/sociology/articles/10.3389/fsoc.2025.1534556/full"
+    id: url-1
+    title: "frontiersin.org"
+  - resource: "https://www.mdpi.com/1424-8220/24/18/5862"
+    id: url-2
+    title: "mdpi.com"
+  - resource: "https://www.mdpi.com/1424-8220/23/5/2381"
+    id: url-3
+    title: "mdpi.com"
+  - resource: "https://www.linkedin.com/posts/jonascg_xrtrends-immersiveav-audiovisualproduction-activity-7363132569296470016-O1EN"
+    id: url-4
+    title: "linkedin.com"
+  - resource: "https://www.projectodyssey.ai/season-2-awards"
+    id: url-5
+    title: "projectodyssey.ai"
+dx_id: "331"
+related:
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "322-hybrid-audience-experience/hybrid-audience-experience.md"
+  - "267-film-synesthesia/film-synesthesia.md"
+  - "160-spatial-3d-vr/spatial-3d-vr.md"
+---
+
 # 电影杂交叙事-视听-体验全整合（Hybrid Full Integration — Narrative-AV-Experience Total Design）
 
 > 本页为电影杂交叙事-视听-体验全整合：游戏化/杂交影院（非线性/多线索/元宇宙叙事+沉浸视听）、多模态融合（音频/视觉/文本跨模态注意）、XR 加速整合、统一感官体验。知识本体来自 2026 全整合（Frontiers/MDPI/LinkedIn XR）。AI 应用面向 DirectorX：总设计（衔接 282 三整合、331 对应、323 沉浸、322 体验）。
@@ -78,3 +135,11 @@ XR（AR/VR/混合）把 AV 制作提升到新沉浸层级——**"沉浸上限�
 - MDPI — Multimodal Data Fusion: Comparative Analysis：https://www.mdpi.com/1424-8220/23/5/2381
 - LinkedIn — XR Transforms AV Storytelling with Immersive Experiences：https://www.linkedin.com/posts/jonascg_xrtrends-immersiveav-audiovisualproduction-activity-7363132569296470016-O1EN
 - Project Odyssey — Season 2 Awards（故事驱动）：https://www.projectodyssey.ai/season-2-awards
+
+## 相关概念
+
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）](../322-hybrid-audience-experience/hybrid-audience-experience.md)
+- [电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）](../267-film-synesthesia/film-synesthesia.md)
+- [AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）](../160-spatial-3d-vr/spatial-3d-vr.md)

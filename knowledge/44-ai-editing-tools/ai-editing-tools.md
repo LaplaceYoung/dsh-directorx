@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 剪辑与智能后期工具（AI Editing & Smart Post-Production）"
+description: "AI 后期工具手册：四大工具类别（切条/文本剪辑/生成/增强传统）、7 款实测评价与价格、选型决策、中文生态（剪映/通义万相可编辑视频）、AI 剪辑工作流纪律"
+tags:
+  - "foundation"
+  - "editing"
+  - "model"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:StackNova 7 款实测"
+    id: cite-1
+    title: "StackNova 7 款实测"
+  - resource: "cited:Buffer/IntelligentHQ 2026 横评"
+    id: cite-2
+    title: "Buffer/IntelligentHQ 2026 横评"
+  - resource: "cited:提效录/SimilarLabs 中文对比。"
+    id: cite-3
+    title: "提效录/SimilarLabs 中文对比。"
+  - resource: "https://stacknovahq.com/ai-tools-for-creators/best-ai-video-editing-tools-2026"
+    id: url-1
+    title: "stacknovahq.com"
+  - resource: "https://buffer.com/resources/ai-video-tools/"
+    id: url-2
+    title: "buffer.com"
+  - resource: "https://www.intelligenthq.com/best-ai-video-editing-tools-2026/"
+    id: url-3
+    title: "intelligenthq.com"
+  - resource: "https://cutfa.st/en/blog/ai-video-editor-comparison-cutfast-capcut-descript-opus-clip-2026"
+    id: url-4
+    title: "cutfa.st"
+  - resource: "https://www.tixiaolu.com/posts/ai-video-editor-comparison-2026/"
+    id: url-5
+    title: "tixiaolu.com"
+  - resource: "https://similarlabs.com/zh/blog/best-ai-video-editing-tools-2026"
+    id: url-6
+    title: "similarlabs.com"
+  - resource: "https://www.chooseai.net/news/3154/"
+    id: url-7
+    title: "chooseai.net"
+dx_id: "44"
+related:
+  - "15-editing-tools/editing-tools-workflow.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "25-visualization-previz/visualization-previz.md"
+---
+
 # AI 剪辑与智能后期工具（AI Editing & Smart Post-Production）
 
 > 本页是 DirectorX AI 后期工具手册：四大工具类别（切条/文本剪辑/生成/增强传统）、7 款实测评价与价格、选型决策、中文生态（剪映/通义万相可编辑视频）、AI 剪辑工作流纪律。
@@ -89,3 +144,9 @@
 - 提效录: AI 视频剪辑工具横评——剪映 vs CapCut vs Runway — https://www.tixiaolu.com/posts/ai-video-editor-comparison-2026/
 - SimilarLabs: 2026 年 15 款最佳 AI 视频编辑工具 — https://similarlabs.com/zh/blog/best-ai-video-editing-tools-2026
 - ChooseAI: 通义万相 Wan2.7-Video 发布——6 大创作能力让 AI 视频像文档一样可编辑 — https://www.chooseai.net/news/3154/
+
+## 相关概念
+
+- [剪辑工具与实操流程（Editing Tools & Workflow）](../15-editing-tools/editing-tools-workflow.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [分镜与叙事可视化（Storyboarding & Visualization）](../25-visualization-previz/visualization-previz.md)

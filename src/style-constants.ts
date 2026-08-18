@@ -54,3 +54,14 @@ export class ProjectStyleStore {
     return ''
   }
 }
+
+export function formatStyleBlock(style: StyleConstants | null | undefined): string {
+  if (style === undefined || style === null) return ''
+  return [
+    style.camera.trim() !== '' ? `机位：${style.camera.trim()}` : '',
+    style.palette.trim() !== '' ? `色板：${style.palette.trim()}` : '',
+    style.lighting.trim() !== '' ? `光：${style.lighting.trim()}` : '',
+    style.sceneAnchors.length > 0 ? `场景锚：${style.sceneAnchors.join('；')}` : '',
+    style.negativeBaseline.trim() !== '' ? `负面：${style.negativeBaseline.trim()}` : '',
+  ].filter(item => item !== '').join('\n')
+}

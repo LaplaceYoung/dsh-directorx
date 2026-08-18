@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "竖屏短剧实拍调度（Vertical Drama On-Set Scheduling）"
+description: "竖屏短剧调度手册：以真实短剧行业的工业化生产方法为知识本体——每个术语给出具体含义（它是什么、为什么、现场怎么执行），并给出 AI 如何理解与实现（AI 短剧管线的对应物）"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Axis AI Studios 7 天排期方法论与完整制作指南"
+    id: cite-1
+    title: "Axis AI Studios 7 天排期方法论与完整制作指南"
+  - resource: "cited:火山引擎 Seedance 短剧分镜指南"
+    id: cite-2
+    title: "火山引擎 Seedance 短剧分镜指南"
+  - resource: "cited:Filmustage 预算指南。"
+    id: cite-3
+    title: "Filmustage 预算指南。"
+  - resource: "https://www.axisaistudios.com/blog/how-to-schedule-a-vertical-drama-shoot-in-7-days-scene-batching-and-day-by-day-breakdown"
+    id: url-1
+    title: "axisaistudios.com"
+  - resource: "https://www.axisaistudios.com/blog/how-vertical-micro-dramas-are-produced-complete-2026-guide"
+    id: url-2
+    title: "axisaistudios.com"
+  - resource: "https://www.volcengine.com/article/41143"
+    id: url-3
+    title: "volcengine.com"
+  - resource: "https://filmustage.com/blog/how-to-produce-a-vertical-drama-on-a-budget/"
+    id: url-4
+    title: "filmustage.com"
+  - resource: "https://news.qq.com/rain/a/20260408A05U0B00"
+    id: url-5
+    title: "news.qq.com"
+  - resource: "https://www.character.app/blog/what-is-a-vertical-drama"
+    id: url-6
+    title: "character.app"
+  - resource: "https://vv.lmtw.com/mzs/content/detail/id/242101"
+    id: url-7
+    title: "vv.lmtw.com"
+dx_id: "104"
+aliases:
+  - "66"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 竖屏短剧实拍调度（Vertical Drama On-Set Scheduling）
 
 > 本页是 DirectorX 竖屏短剧调度手册：以真实短剧行业的工业化生产方法为知识本体——每个术语给出具体含义（它是什么、为什么、现场怎么执行），并给出 AI 如何理解与实现（AI 短剧管线的对应物）。面向 AI 生成制作。
@@ -232,3 +286,9 @@
 - 钛媒体: 一个小程序短剧编剧的自述——十天写部剧，充值能过亿 — https://www.tmtpost.com/6725063.html
 
 <!-- merged from: #66-vertical-drama-screenwriting -->
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

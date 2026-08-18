@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "摄影风格流派（Cinema Styles & Visual Language）"
+description: "风格流派知识库：黑色电影、法国新浪潮、真实电影/直接电影、韦斯·安德森对称美学、马利克自然光诗意、写实主义与风格化光谱"
+tags:
+  - "foundation"
+  - "style"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia French New Wave"
+    id: cite-1
+    title: "Wikipedia French New Wave"
+  - resource: "cited:Filmmakers Academy 黑色电影（索引）"
+    id: cite-2
+    title: "Filmmakers Academy 黑色电影（索引）"
+  - resource: "cited:Britannica Cinema verite"
+    id: cite-3
+    title: "Britannica Cinema verite"
+  - resource: "cited:StudioBinder 风格指南（索引）"
+    id: cite-4
+    title: "StudioBinder 风格指南（索引）"
+  - resource: "cited:行业视觉语言常识。"
+    id: cite-5
+    title: "行业视觉语言常识。"
+  - resource: "https://en.wikipedia.org/wiki/French_New_Wave"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://www.filmmakersacademy.com/glossary/film-noir/"
+    id: url-2
+    title: "filmmakersacademy.com"
+  - resource: "https://www.britannica.com/art/cinema-verite"
+    id: url-3
+    title: "britannica.com"
+  - resource: "https://theconversation.com/the-wes-anderson-recipe-a-detailed-guide-on-how-to-recreate-the-directors-aesthetic-206886"
+    id: url-4
+    title: "theconversation.com"
+  - resource: "https://www.moviemaker.com/slate-up-school-terrence-malick/"
+    id: url-5
+    title: "moviemaker.com"
+dx_id: "28"
+related:
+  - "09-lighting-color/lighting-color.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "36-color-luts/color-luts.md"
+---
+
 # 摄影风格流派（Cinema Styles & Visual Language）
 
 > 本页是 DirectorX 风格流派知识库：黑色电影、法国新浪潮、真实电影/直接电影、韦斯·安德森对称美学、马利克自然光诗意、写实主义与风格化光谱。每个流派含视觉特征、手法清单、代表作品与 AI 生成提示词。
@@ -159,3 +211,9 @@
 - MovieMaker: Five Filmmaking Tips from the School of Terrence Malick — https://www.moviemaker.com/slate-up-school-terrence-malick/
 - StudioBinder: What is French New Wave（索引） — https://www.studiobinder.com/blog/what-is-french-new-wave/
 - Library of Congress: New Wave 研究指南 — https://guides.loc.gov/french-and-francophone-film/movements-and-genres/new-wave
+
+## 相关概念
+
+- [灯光与色彩（Lighting & Color）](../09-lighting-color/lighting-color.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)

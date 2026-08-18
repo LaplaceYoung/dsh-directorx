@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）"
+description: "AI 场景与环境生成体系：单参考图一致性（一个参考→跨场景一致）、多图融合、首末帧锁定（环境连续性）、虚拟片场（Infinite Virtual Sets）、神经环境替换"
+tags:
+  - "consistency"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Runway Introducing Gen-4"
+    id: cite-1
+    title: "Introducing Gen-4"
+    author: "org:Runway"
+  - resource: "cited:ReelMind AI Scene Generation: Building Immersive Worlds"
+    id: cite-2
+    title: "AI Scene Generation: Building Immersive Worlds"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind Generative Backgrounds: Infinite Virtual Sets"
+    id: cite-3
+    title: "Generative Backgrounds: Infinite Virtual Sets"
+    author: "org:ReelMind"
+  - resource: "cited:AI Daily Shot AI Video Backgrounds Guide 2026"
+    id: cite-4
+    title: "AI Video Backgrounds Guide 2026"
+    author: "org:AI-Daily-Shot"
+  - resource: "https://runway.com/research/introducing-runway-gen-4"
+    id: url-1
+    title: "runway.com"
+  - resource: "https://reelmind.ai/blog/the-art-of-ai-scene-generation-building-immersive-worlds"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/generative-ai-backgrounds-2024-virtual-production--3b34e6"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://aidailyshot.com/blog/ai-video-backgrounds-complete-2026-pillar-guide-2"
+    id: url-4
+    title: "aidailyshot.com"
+  - resource: "https://reelmind.ai/blog/ai-powered-virtual-location-technology-digital-environments"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "165"
+related:
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "123-longform-consistency/longform-consistency.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）
 
 > 本页为 AI 场景与环境生成体系：单参考图一致性（一个参考→跨场景一致）、多图融合、首末帧锁定（环境连续性）、虚拟片场（Infinite Virtual Sets）、神经环境替换。知识本体来自 2026 场景生成指南（Runway Gen-4/ReelMind/AI Daily Shot）。AI 应用面向 DirectorX：环境设计（衔接 125 光线、139 环境、123 场景卡、163 混合制作）。
@@ -82,3 +138,11 @@
 - ReelMind — Generative Backgrounds: Infinite Virtual Sets：https://reelmind.ai/blog/generative-ai-backgrounds-2024-virtual-production--3b34e6
 - AI Daily Shot — AI Video Backgrounds Guide 2026：https://aidailyshot.com/blog/ai-video-backgrounds-complete-2026-pillar-guide-2
 - ReelMind — AI-Powered Virtual Location Technology：https://reelmind.ai/blog/ai-powered-virtual-location-technology-digital-environments
+
+## 相关概念
+
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

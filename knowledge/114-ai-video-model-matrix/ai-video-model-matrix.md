@@ -1,3 +1,66 @@
+---
+type: Spec
+title: "AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）"
+description: "2026 年主流 AI 视频模型的**能力边界总表**：文生/图生/多模态输入、原生音频、时长/分辨率、动作真实度、对口型、工作流控制、API 可用性——以及按生产用途的选型树"
+tags:
+  - "production"
+  - "sound"
+  - "model"
+  - "workflow"
+  - "i2v"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Pinggy Best Video Generation AI Models 2026"
+    id: cite-1
+    title: "Best Video Generation AI Models 2026"
+    author: "org:Pinggy"
+  - resource: "cited:TeamDay Best AI Video Models 2026"
+    id: cite-2
+    title: "Best AI Video Models 2026"
+    author: "org:TeamDay"
+  - resource: "cited:mStudio Best AI Video Generators 2026"
+    id: cite-3
+    title: "Best AI Video Generators 2026"
+    author: "org:mStudio"
+  - resource: "cited:Higgsfield 6 Best AI Video Generators 2026"
+    id: cite-4
+    title: "6 Best AI Video Generators 2026"
+    author: "org:Higgsfield"
+  - resource: "cited:Masonry Sora vs Runway vs Kling vs Veo"
+    id: cite-5
+    title: "Sora vs Runway vs Kling vs Veo"
+    author: "org:Masonry"
+  - resource: "https://pinggy.io/blog/best_video_generation_ai_models/"
+    id: url-1
+    title: "pinggy.io"
+  - resource: "https://www.teamday.ai/blog/best-ai-video-models-2026"
+    id: url-2
+    title: "teamday.ai"
+  - resource: "https://mstudio.ai/insights/best-ai-video-generator-2026"
+    id: url-3
+    title: "mstudio.ai"
+  - resource: "https://higgsfield.ai/blog/best-ai-video-generators-2026"
+    id: url-4
+    title: "higgsfield.ai"
+  - resource: "https://masonry.so/blog/best-ai-video-generator-2025-comparison"
+    id: url-5
+    title: "masonry.so"
+dx_id: "114"
+aliases:
+  - "52"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+---
+
 # AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）
 
 > 本页为 2026 年主流 AI 视频模型的**能力边界总表**：文生/图生/多模态输入、原生音频、时长/分辨率、动作真实度、对口型、工作流控制、API 可用性——以及按生产用途的选型树。知识本体来自多家 2026 实测对比（Pinggy/TeamDay/mStudio/Higgsfield/Masonry）。AI 应用面向 DirectorX：模型路由决策（案例 3/4/5 的模型选择依据，衔接 14）。与 14 分工：本页为能力矩阵、选型树与横评实测（选哪个、谁更强），14 为生成工作流与逐模型使用手册（怎么用）。
@@ -157,3 +220,8 @@
 - WaveSpeed: Seedance 2.0 vs Kling 3.0 vs Sora 2 vs Veo 3.1 — https://wavespeed.ai/blog/posts/seedance-2-0-vs-kling-3-0-sora-2-veo-3-1-video-generation-comparison-2026/
 
 <!-- merged from: #52-ai-video-model-benchmark -->
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)

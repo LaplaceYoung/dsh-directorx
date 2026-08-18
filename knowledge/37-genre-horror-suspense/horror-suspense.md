@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "恐怖/悬疑视觉语言（Horror & Suspense Visual Language）"
+description: "恐怖悬疑视觉手册：恐惧的摄影机制（灯光/色彩/构图/运动四支柱）、跳跃惊吓规则、心理惊悚与恐怖的分工、预算方案、AI 生成恐怖片的提示词应用"
+tags:
+  - "foundation"
+  - "lighting"
+  - "color"
+  - "prompt"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Tyler Williams DP"
+    id: cite-1
+    title: "Tyler Williams DP"
+  - resource: "cited:ASC（美国电影摄影师协会）"
+    id: cite-2
+    title: "ASC（美国电影摄影师协会）"
+  - resource: "cited:IndieWire 恐怖片摄影师访谈"
+    id: cite-3
+    title: "IndieWire 恐怖片摄影师访谈"
+  - resource: "cited:Filmmaker Magazine"
+    id: cite-4
+    title: "Filmmaker Magazine"
+  - resource: "cited:分镜世界。"
+    id: cite-5
+    title: "分镜世界。"
+  - resource: "https://www.tylerwilliamsdp.com/blog/the-cinematography-of-fear"
+    id: url-1
+    title: "tylerwilliamsdp.com"
+  - resource: "https://theasc.com/article/terror-through-lighting/"
+    id: url-2
+    title: "theasc.com"
+  - resource: "https://theasc.com/article/shot-craft-halloween-horrors-creating-visual-cues-to-foster-fright/"
+    id: url-3
+    title: "theasc.com"
+  - resource: "https://www.indiewire.com/features/interviews/three-cinematographers-break-down-technical-approach-horror-1235117039/"
+    id: url-4
+    title: "indiewire.com"
+  - resource: "https://filmmakermagazine.com/76622-so-you-want-to-make-a-horror-film-on-jump-scares-and-other-basics-of-fright/"
+    id: url-5
+    title: "filmmakermagazine.com"
+dx_id: "37"
+related:
+  - "223-product-photography-ai/product-photography-ai.md"
+  - "09-lighting-color/lighting-color.md"
+  - "84-lighting-setups/lighting-setups.md"
+---
+
 # 恐怖/悬疑视觉语言（Horror & Suspense Visual Language）
 
 > 本页是 DirectorX 恐怖悬疑视觉手册：恐惧的摄影机制（灯光/色彩/构图/运动四支柱）、跳跃惊吓规则、心理惊悚与恐怖的分工、预算方案、AI 生成恐怖片的提示词应用。
@@ -117,3 +171,9 @@
 - Definition Magazine: Technique: Horror — https://definitionmagazine.com/features/technique-horror/
 - 分镜世界: 悬疑与恐怖场景的分镜技巧 — https://storyboardworld.com/悬疑与恐怖场景的分镜技巧-2025年6月9日/
 - 幕后 Muhou: 《月光光心慌慌》摄影指导 Dean Cundey 分享 — https://muhou.net/document/210400.html
+
+## 相关概念
+
+- [AI 产品图生成（Product Photography — White Background, Studio & Marketplace Prompts）](../223-product-photography-ai/product-photography-ai.md)
+- [灯光与色彩（Lighting & Color）](../09-lighting-color/lighting-color.md)
+- [实拍布光专项（Practical Lighting Setups）](../84-lighting-setups/lighting-setups.md)

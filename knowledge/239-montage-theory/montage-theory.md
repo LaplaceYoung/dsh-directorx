@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）"
+description: "电影蒙太奇理论：苏联蒙太奇学派、库列肖夫效应（Kuleshov Effect：同镜头因相邻镜头而变义）、爱森斯坦理智蒙太奇（Intellectual Montage：冲突产生第三义）、蒙太奇类型"
+tags:
+  - "consistency"
+  - "camera"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Soviet Montage Theory"
+    id: cite-1
+    title: "Soviet Montage Theory"
+    author: "org:Wikipedia"
+  - resource: "cited:Scriptease How Kuleshov and Eisenstein Weaponized Editing"
+    id: cite-2
+    title: "How Kuleshov and Eisenstein Weaponized Editing"
+    author: "org:Scriptease"
+  - resource: "cited:Dyerbolical Montage Theory 101"
+    id: cite-3
+    title: "Montage Theory 101"
+    author: "org:Dyerbolical"
+  - resource: "cited:ClassicArtFilms Eisenstein's Intellectual Montage"
+    id: cite-4
+    title: "Eisenstein's Intellectual Montage"
+    author: "org:ClassicArtFilms"
+  - resource: "https://en.wikipedia.org/wiki/Soviet_montage_theory"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://scriptease.app/blog/soviet-montage-theory/"
+    id: url-2
+    title: "scriptease.app"
+  - resource: "https://dyerbolical.com/film-theory-101-montage-theory-from-eisenstein-to-modern-editing/"
+    id: url-3
+    title: "dyerbolical.com"
+  - resource: "https://www.classicartfilms.com/academicpapers/Soviet-Montage-Eisensteins-Theory-of-Intellectual-Montage.pdf"
+    id: url-4
+    title: "classicartfilms.com"
+  - resource: "https://www.scribd.com/presentation/443820376/Soviet-Montage-Cinema-pptx"
+    id: url-5
+    title: "scribd.com"
+dx_id: "239"
+related:
+  - "127-edit-transition-rhythm/edit-transition-rhythm.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # 电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）
 
 > 本页为电影蒙太奇理论：苏联蒙太奇学派、库列肖夫效应（Kuleshov Effect：同镜头因相邻镜头而变义）、爱森斯坦理智蒙太奇（Intellectual Montage：冲突产生第三义）、蒙太奇类型。知识本体来自 2026 蒙太奇理论（Wikipedia/Scriptease/Dyerbolical）。AI 应用面向 DirectorX：序列设计（衔接 127 剪辑、150 叙事、239 对应、158 情绪）。
@@ -85,3 +139,9 @@
 - Dyerbolical — Film Theory 101: Montage Theory：https://dyerbolical.com/film-theory-101-montage-theory-from-eisenstein-to-modern-editing/
 - ClassicArtFilms — Soviet Montage & Eisenstein's Intellectual Montage：https://www.classicartfilms.com/academicpapers/Soviet-Montage-Eisensteins-Theory-of-Intellectual-Montage.pdf
 - Scribd — Soviet Montage Cinema：https://www.scribd.com/presentation/443820376/Soviet-Montage-Cinema-pptx
+
+## 相关概念
+
+- [AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）](../127-edit-transition-rhythm/edit-transition-rhythm.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

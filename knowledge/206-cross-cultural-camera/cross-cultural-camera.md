@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 镜头语言跨文化差异（Cross-Cultural Camera Language — East/West Visual Grammar）"
+description: "AI 镜头语言的跨文化差异：东西方镜头语法对比（近景快剪 vs 远景长镜）、叙事侧重（个体 vs 集体）、声音节奏（外显 vs 克制）、国际风格谱系（宝莱坞/Nordic 极简）"
+tags:
+  - "consistency"
+  - "camera"
+  - "sound"
+  - "style"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:IJSSH Similarities and Differences between Eastern and Western Cinema"
+    id: cite-1
+    title: "Similarities and Differences between Eastern and Western Cinema"
+    author: "org:IJSSH"
+  - resource: "cited:KinoNews International Cinematography Styles"
+    id: cite-2
+    title: "International Cinematography Styles"
+    author: "org:KinoNews"
+  - resource: "cited:CIAC Concepts of Film Language and Style"
+    id: cite-3
+    title: "Concepts of Film Language and Style"
+    author: "org:CIAC"
+  - resource: "cited:ORCA Journey to the West"
+    id: cite-4
+    title: "Journey to the West"
+    author: "org:ORCA"
+  - resource: "https://www.ijssh.net/uploadfile/2025/IJSSH-V15N1-1236.pdf"
+    id: url-1
+    title: "ijssh.net"
+  - resource: "https://kinonews.pro/international-cinematography-styles-how-culture-shapes-film-visuals"
+    id: url-2
+    title: "kinonews.pro"
+  - resource: "https://publicacoes.ciac.pt/index.php/rotura/article/download/338/295/"
+    id: url-3
+    title: "publicacoes.ciac.pt"
+  - resource: "https://orca.cardiff.ac.uk/id/eprint/126145/1/2019chanhphd.pdf"
+    id: url-4
+    title: "orca.cardiff.ac.uk"
+  - resource: "https://www.linkedin.com/pulse/eastern-vs-western-film-industry-key-similarities-cultural-algaml-qbgif"
+    id: url-5
+    title: "linkedin.com"
+dx_id: "206"
+related:
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "198-aspect-ratio-storytelling/aspect-ratio-storytelling.md"
+  - "55-global-localization-visual/global-localization-visual.md"
+  - "27-caption-localization/caption-localization.md"
+  - "166-documentary-ethics/documentary-ethics.md"
+---
+
 # AI 镜头语言跨文化差异（Cross-Cultural Camera Language — East/West Visual Grammar）
 
 > 本页为 AI 镜头语言的跨文化差异：东西方镜头语法对比（近景快剪 vs 远景长镜）、叙事侧重（个体 vs 集体）、声音节奏（外显 vs 克制）、国际风格谱系（宝莱坞/Nordic 极简）。知识本体来自 2026 跨文化电影语言研究（IJSSH/CIAC/KinoNews）。AI 应用面向 DirectorX：出海内容（衔接 124 镜头语言、198 画幅、55 本地化、27 本地化、166 伦理）。
@@ -80,3 +139,11 @@
 - CIAC — The Concepts of Film Language and Style in Film Theory：https://publicacoes.ciac.pt/index.php/rotura/article/download/338/295/
 - ORCA — Journey to the West（中西方电影语言比较）：https://orca.cardiff.ac.uk/id/eprint/126145/1/2019chanhphd.pdf
 - LinkedIn — Eastern vs Western Film Industry：https://www.linkedin.com/pulse/eastern-vs-western-film-industry-key-similarities-cultural-algaml-qbgif
+
+## 相关概念
+
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [AI 画幅与比例叙事（Aspect Ratio Storytelling — Frame as Narrative Tool）](../198-aspect-ratio-storytelling/aspect-ratio-storytelling.md)
+- [多语言出海视觉本地化（Global Localization & Visual Adaptation）](../55-global-localization-visual/global-localization-visual.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）](../166-documentary-ethics/documentary-ethics.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影手持摄影美学（Handheld Aesthetics — Controlled Instability & Witness Perspective）"
+description: "电影手持摄影美学：受控不稳定（Controlled Instability：把观众\"放进场景\"）、有意晃动（自然运动传达即时/诚实）、技巧（轻晃/呼吸感/微修正/身体力学）、纪实见证视角（Witness Perspective）"
+tags:
+  - "synthesis"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Embodiment of the Cinematographer"
+    id: cite-1
+    title: "Embodiment of the Cinematographer"
+    author: "org:PMC"
+  - resource: "cited:CINED Handheld Camera Impact"
+    id: cite-2
+    title: "Handheld Camera Impact"
+    author: "org:CINED"
+  - resource: "cited:Beverlyboy Handheld Realism Wave"
+    id: cite-3
+    title: "Handheld Realism Wave"
+    author: "org:Beverlyboy"
+  - resource: "cited:Fiveable Handheld"
+    id: cite-4
+    title: "Handheld"
+    author: "org:Fiveable"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10352452/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://www.cined.com/handheld-camera-and-the-different-kinds-of-impact-it-creates-in-film/"
+    id: url-2
+    title: "cined.com"
+  - resource: "https://beverlyboy.com/film-technology/handheld-realism-wave-natural-motion-feels-more-honest/"
+    id: url-3
+    title: "beverlyboy.com"
+  - resource: "https://fiveable.me/introduction-to-film-theory/key-terms/handheld"
+    id: url-4
+    title: "fiveable.me"
+  - resource: "https://www.tasteray.com/articles/movie-handheld-camera-movies"
+    id: url-5
+    title: "tasteray.com"
+dx_id: "343"
+related:
+  - "133-motion-physics/motion-physics.md"
+  - "199-ugc-realism/ugc-realism.md"
+  - "01-camera-language/camera-language.md"
+---
+
 # 电影手持摄影美学（Handheld Aesthetics — Controlled Instability & Witness Perspective）
 
 > 本页为电影手持摄影美学：受控不稳定（Controlled Instability：把观众"放进场景"）、有意晃动（自然运动传达即时/诚实）、技巧（轻晃/呼吸感/微修正/身体力学）、纪实见证视角（Witness Perspective）。知识本体来自 2026 手持研究（PMC/CINED/Beverlyboy）。AI 应用面向 DirectorX：手持感（衔接 133 手持、343 对应、199 UGC、197 运镜心理）。
@@ -76,3 +130,9 @@
 - Beverlyboy — Handheld Realism Wave：https://beverlyboy.com/film-technology/handheld-realism-wave-natural-motion-feels-more-honest/
 - Fiveable — Handheld (Film Theory)：https://fiveable.me/introduction-to-film-theory/key-terms/handheld
 - Tasteray — Handheld Camera Movies：https://www.tasteray.com/articles/movie-handheld-camera-movies
+
+## 相关概念
+
+- [AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）](../133-motion-physics/motion-physics.md)
+- [AI 用户生成内容真实感（UGC Realism — Authentic Imperfection & Anti-Polish）](../199-ugc-realism/ugc-realism.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)

@@ -1,3 +1,65 @@
+---
+type: Method
+title: "AI 视频提示词模板库（Prompt Template Library — Scenario-Based Templates）"
+description: "AI 视频分场景提示词模板库：产品演示、口播讲解、广告、电影感叙事、社交媒体、房地产等场景的可复制模板，每个模板含变量位（可填空）与适用模型提示"
+tags:
+  - "production"
+  - "sound"
+  - "prompt"
+  - "model"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Renderforest 50+ Text-to-Video AI Prompt Examples"
+    id: cite-1
+    title: "50+ Text-to-Video AI Prompt Examples"
+    author: "org:Renderforest"
+  - resource: "cited:Synthesia 14 Free Video Script Templates"
+    id: cite-2
+    title: "14 Free Video Script Templates"
+    author: "org:Synthesia"
+  - resource: "cited:ZSky Best AI Video Generation Prompts 2026"
+    id: cite-3
+    title: "Best AI Video Generation Prompts 2026"
+    author: "org:ZSky"
+  - resource: "cited:Imagine 80+ AI Video Prompts"
+    id: cite-4
+    title: "80+ AI Video Prompts"
+    author: "org:Imagine"
+  - resource: "cited:ExplainX 20 Structured Templates"
+    id: cite-5
+    title: "20 Structured Templates"
+    author: "org:ExplainX"
+  - resource: "https://www.renderforest.com/blog/text-to-video-ai-prompt-examples"
+    id: url-1
+    title: "renderforest.com"
+  - resource: "https://www.synthesia.io/post/free-video-script-templates"
+    id: url-2
+    title: "synthesia.io"
+  - resource: "https://zsky.ai/blog/best-ai-video-prompts-2026"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://www.imagine.art/blogs/ai-video-prompts"
+    id: url-4
+    title: "imagine.art"
+  - resource: "https://explainx.ai/blog/top-ai-prompts-for-video-production"
+    id: url-5
+    title: "explainx.ai"
+dx_id: "130"
+related:
+  - "73-ai-prompt-quickref/ai-prompt-quickref.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+  - "122-quality-monetization/quality-monetization.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+---
+
 # AI 视频提示词模板库（Prompt Template Library — Scenario-Based Templates）
 
 > 本页为 AI 视频分场景提示词模板库：产品演示、口播讲解、广告、电影感叙事、社交媒体、房地产等场景的可复制模板，每个模板含变量位（可填空）与适用模型提示。知识本体来自 2026 提示词模板库（Renderforest/Synthesia/ZSky/Imagine/ExplainX）。AI 应用面向 DirectorX：常用场景的即用模板（衔接 73 提示词总表、115 六段式语法）。
@@ -101,3 +163,10 @@
 - ZSky — Best AI Video Generation Prompts for 2026：https://zsky.ai/blog/best-ai-video-prompts-2026
 - Imagine — 80+ AI Video Prompts Every Content Creator Should Try：https://www.imagine.art/blogs/ai-video-prompts
 - ExplainX — Top AI Prompts for Video: 20 Structured Templates：https://explainx.ai/blog/top-ai-prompts-for-video-production
+
+## 相关概念
+
+- [AI 视频模型提示词总表（Prompt Format Quick Reference）](../73-ai-prompt-quickref/ai-prompt-quickref.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)

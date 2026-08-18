@@ -308,19 +308,67 @@ function throwIfRejected(result: unknown, fallback: string): void {
 const SESSION_CHIPS = [
   {
     label: '检索导演知识',
-    text: '请用 directorx_knowledge_search 检索与当前画布相关的导演知识，必要时 directorx_knowledge_read 精读，再用 directorx_canvas_brief 对照分镜。不要生成媒体。',
+    text: '请用 directorx_skill_route 或 directorx_knowledge_search 检索与当前画布相关的导演知识。对 route.articles 和命中里的 id 做 directorx_knowledge_read，对命中里的 skills 做 directorx_skill_read。不要另起一套检索词，不要生成媒体。',
+  },
+  {
+    label: '检索导演技能',
+    text: '请用 directorx_skill_route 对当前画布或我的上一句做技能与工具路由，再 directorx_skill_read 列出的每个技能全文，按返回的 next 调用工具。不要只看目录摘要，不要生成。',
   },
   {
     label: '继续当前画布',
-    text: '请用 directorx_canvas_intents { claim: true } 领取待办。生成条里的字只是意图：先 knowledge_search/read 和 skill_search/read，必要时外部调研，再 directorx_prompt_craft，严格/协同再 propose/confirm，最后带 craftId 生成。不要把原句丢给 generate。',
+    text: '请用 directorx_canvas_intents { claim: true } 领取待办。生成条里的字只是意图：先 directorx_skill_route，再 skill_read 与 knowledge_read，必要时外部调研，再 directorx_prompt_craft，严格/协同再 propose/confirm，最后带 craftId 生成。不要把原句丢给 generate。',
   },
   {
     label: '整理当前分镜',
     text: '请用 directorx_canvas_shotlist 和 directorx_canvas_summary 整理当前画布分镜，必要时 directorx_brief。不要生成媒体。',
   },
   {
+    label: '画布工艺',
+    text: '请按当前选中节点做画布工艺：文本用 directorx_canvas_script 铺「本→首帧→视频」行；视频用 directorx_canvas_frames 抽帧上板，或 directorx_canvas_parse 一键解析成切点分镜稿；片段重做用 directorx_canvas_reshoot cut，中段生成后再 assemble。多选视频用 directorx_canvas_pack 硬切拼成片；多选图/视频用 directorx_canvas_sheet 出接触表；单张图用 directorx_canvas_split 宫格切开；多张图用 directorx_canvas_join 宫格拼回；2–4 路用 directorx_canvas_stack 分屏对照；硬字幕用 directorx_canvas_desub；续写用 directorx_canvas_extend 切出尾帧空卡；评审动图用 directorx_canvas_gif。然后再 directorx_canvas_autolink。切窗/解析/铺行/拼接/切开/拼回/分屏/去字/续写位/动图不要生成。',
+  },
+  {
     label: '打开编辑台',
     text: '请对当前选中的画布节点调用 directorx_studio。若我提到了色调或风格，按该描述调色后打开对应编辑工作台；否则只打开编辑台。调色后把新路径写回该节点。不要用生成模型重绘来完成调色。',
+  },
+  {
+    label: '精剪当前镜头',
+    text: '请对当前选中的画布节点先 directorx_edit_plan，再按路由调用对应确定性编辑工具（directorx_image_edit / directorx_video_process / directorx_edit / directorx_studio）。必须带 nodeId 回写路径。不要用生成模型重绘来裁切、旋转、调色或变速。做完后 extract_frames + view_image 质检。',
+  },
+  {
+    label: '质检当前成片',
+    text: '请对当前选中镜头 directorx_extract_frames 抽关键帧，directorx_view_image 对照提示词与连续性，必要时 directorx_qa。不要生成。',
+  },
+  {
+    label: '版权改写当前意图',
+    text: '请对当前画布意图或我刚写的句子 directorx_ip_scan。若 hits 非空：directorx_knowledge_read 213，按返回的 method/axes/keep 和项目记忆写细的属性描述（不要套固定成稿），再 directorx_ip_rewrite remember:true 验收并记入记忆。不要把 IP 专名送进 generate。',
+  },
+  {
+    label: '编排当前成片',
+    text: '请对当前画布或我的上一句先 directorx_brief 和 directorx_chengpian。按 compose 的路/稿/位：directorx_skill_route → directorx_prompt_plan → skill_read/knowledge_read → prompt_craft → generate_ready。成片角度只是写法，原句不是提示词。签字前不要 generate。过一阶段就 directorx_stage record。',
+  },
+  {
+    label: '保存本次为技能',
+    text: '请对刚完成的成片 directorx_skill_capture { action: "offer", present: true }。用提问卡问我是否保存为「xx」技能，禁止正文菜单。我同意后把阶段流程、directorx_note 里的修改意见、拒因和风格锁整理成 SKILL.md，再 action:save。不要写入插件自带 skills/。',
+  },
+  {
+    label: '保存本系列设定',
+    text: '请用 directorx_series harvest 收成当前角色锚、风格锁和镜头规则，再 action:save。这是系列包不是方法技能。不要生成媒体。',
+  },
+  {
+    label: '沿用系列包',
+    text: '请 directorx_series list，再 apply 我要继续的那一套。套用后不要重设计角色和画风。先 character_list / style_get 确认，再写下一镜。不要生成，除非我接着说开拍。',
+  },
+  {
+    label: '改当前镜头',
+    text: '请对当前选中节点 directorx_revise，change 用我刚说的那句或「按选中镜头的提示词收紧表情和动作」。记下 directorx_note。然后才 prompt_plan / craft / generate_ready。回写只改这个节点的 path。不要重做整板。',
+  },
+  {
+    label: '写场面控制表',
+    text: '请 directorx_blocking harvest，再 schema。用当前角色图、我给的开场和事件顺序写成场面控制表：台账、物件状态机、独立相机、参考角色。缺开场或顺序就 directorx_ask。写完 pin 钉到画布。不要生成。',
+  },
+  {
+    label: '评审改编文档',
+    text: '请用 directorx_bible detect 找当前项目的大纲/角色/美术/剧本/分镜 JSON，checkup 跑质量门，再 pin 把 Markdown 评审钉到画布。不要另出 HTML。分镜若在切，先 directorx_shot_vocab 再写这一格。',
   },
 ] as const
 
@@ -390,9 +438,9 @@ function SessionPanel(props: {
         {props.onNewSession !== undefined ? (
           <button
             type="button"
-            className="dx-hit"
+            className="dx-hit dx-session-new"
             disabled={props.starting === true}
-            style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', fontSize: 11 }}
+            style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', fontSize: 11, whiteSpace: 'nowrap' }}
             onClick={props.onNewSession}
             title="在这个工作区开一个新的 DSH 会话"
           >
@@ -400,7 +448,7 @@ function SessionPanel(props: {
           </button>
         ) : null}
         {props.onLeave !== undefined ? (
-          <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', gap: 5, fontSize: 11 }} onClick={props.onLeave} title="关闭画布，回到 DSH">
+          <button type="button" className="dx-hit dx-session-leave" style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', gap: 5, fontSize: 11, whiteSpace: 'nowrap' }} onClick={props.onLeave} title="关闭画布，回到 DSH">
             <IconLeave size={12} />回 DSH
           </button>
         ) : null}
@@ -816,7 +864,24 @@ const SESSION_CSS = `
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent);
+}
+.dx-session-chips::-webkit-scrollbar { display: none; }
+@media (max-width: 760px) {
+  [data-dx-session-panel] {
+    right: 10px !important;
+    left: 62px !important;
+    width: auto !important;
+    height: calc(100% - 76px) !important;
+    max-height: none !important;
+    bottom: 10px !important;
+  }
+  .dx-session-new { display: none !important; }
 }
 .dx-tool-line {
   display: flex;

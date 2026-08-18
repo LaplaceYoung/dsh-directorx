@@ -1,3 +1,68 @@
+---
+type: Reference
+title: "电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）"
+description: "电影类型片的表演惯例：类型-表演风格映射（恐怖=威胁/脆弱/惊吓校准、黑色=克制/道德模糊/精炼对白）、类型杂交的多域表演（快速切换调性）"
+tags:
+  - "synthesis"
+  - "character"
+  - "style"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia List of Horror Films of 2026"
+    id: cite-1
+    title: "List of Horror Films of 2026"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Film Genre"
+    id: cite-2
+    title: "Film Genre"
+    author: "org:Wikipedia"
+  - resource: "cited:LA Times Spider-Noir Review"
+    id: cite-3
+    title: "Spider-Noir Review"
+    author: "org:LA-Times"
+  - resource: "cited:RottenTomatoes 2026 Horror Preview"
+    id: cite-4
+    title: "2026 Horror Preview"
+    author: "org:RottenTomatoes"
+  - resource: "https://en.wikipedia.org/wiki/List_of_horror_films_of_2026"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Film_genre"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://www.latimes.com/entertainment-arts/tv/story/2026-05-20/nicolas-cage-lamorne-morris-helm-spider-noir-visual-spectacle"
+    id: url-3
+    title: "latimes.com"
+  - resource: "https://editorial.rottentomatoes.com/article/2026-horror-movie-preview/"
+    id: url-4
+    title: "editorial.rottentomatoes.com"
+  - resource: "https://en.wikipedia.org/wiki/Spider-Noir"
+    id: url-5
+    title: "en.wikipedia.org"
+  - resource: "https://splice.com/blog/music-production-elements-horror-themes/"
+    id: url-6
+    title: "splice.com"
+dx_id: "278"
+aliases:
+  - "296"
+  - "305"
+  - "314"
+  - "317"
+  - "318"
+  - "320"
+related:
+  - "244-acting-theory-deep/acting-theory-deep.md"
+  - "265-genre-visual-semiotics/genre-visual-semiotics.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+---
+
 # 电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）
 
 > 本页为电影类型片的表演惯例：类型-表演风格映射（恐怖=威胁/脆弱/惊吓校准、黑色=克制/道德模糊/精炼对白）、类型杂交的多域表演（快速切换调性）。知识本体来自 2026 类型表演（Wikipedia/LA Times）。AI 应用面向 DirectorX：类型表演（衔接 244 表演理论、265 类型符号、278 对应、69 表演控制）。
@@ -263,3 +328,9 @@
 <!-- merged from: #317-hybrid-genre-visuals -->
 <!-- merged from: #318-hybrid-acting-sound-scene -->
 <!-- merged from: #320-hybrid-score-sound -->
+
+## 相关概念
+
+- [电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）](../244-acting-theory-deep/acting-theory-deep.md)
+- [电影类型片视觉符号（Genre Visual Semiotics — Iconography & Conventions）](../265-genre-visual-semiotics/genre-visual-semiotics.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)

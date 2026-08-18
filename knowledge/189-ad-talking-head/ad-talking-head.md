@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 广告口播数字人专项（Ad Talking-Head — Spokesperson Avatars & Script-Driven CTA）"
+description: "AI 广告口播数字人专项：数字人代言（Spokesperson Avatar）、脚本驱动转化（脚本/证明/CTA 决定转化，数字人只是交付层）、多平台 A/B 测试、成本对比（真人 1000-10000$ vs AI 分钟级）"
+tags:
+  - "consistency"
+  - "sound"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:AdSturbo Best AI Spokesperson Tools 2026"
+    id: cite-1
+    title: "Best AI Spokesperson Tools 2026"
+    author: "org:AdSturbo"
+  - resource: "cited:Creatify AI Avatar Generator for Talking Ads"
+    id: cite-2
+    title: "AI Avatar Generator for Talking Ads"
+    author: "org:Creatify"
+  - resource: "cited:Zeely AI Avatar Video Ads"
+    id: cite-3
+    title: "AI Avatar Video Ads"
+    author: "org:Zeely"
+  - resource: "cited:Cometly AI Talking Avatar Ads Generators"
+    id: cite-4
+    title: "AI Talking Avatar Ads Generators"
+    author: "org:Cometly"
+  - resource: "https://adsturbo.ai/blog/best-ai-spokesperson-tools-2026"
+    id: url-1
+    title: "adsturbo.ai"
+  - resource: "https://creatify.ai/blog/ai-avatar-generator-create-talking-video-ads-in-2-minutes"
+    id: url-2
+    title: "creatify.ai"
+  - resource: "https://zeely.ai/blog/ai-avatar-video-ads/"
+    id: url-3
+    title: "zeely.ai"
+  - resource: "https://www.cometly.com/post/ai-talking-avatar-ads-generator"
+    id: url-4
+    title: "cometly.com"
+  - resource: "https://shhots.ai/blog/best-ai-avatar-solutions-for-ugc-product-ads/"
+    id: url-5
+    title: "shhots.ai"
+dx_id: "189"
+related:
+  - "137-digital-human/digital-human.md"
+  - "135-ad-creative-gen/ad-creative-gen.md"
+  - "188-opening-hook/opening-hook.md"
+  - "175-micro-expression/micro-expression.md"
+  - "152-ip-character-economy/ip-character-economy.md"
+---
+
 # AI 广告口播数字人专项（Ad Talking-Head — Spokesperson Avatars & Script-Driven CTA）
 
 > 本页为 AI 广告口播数字人专项：数字人代言（Spokesperson Avatar）、脚本驱动转化（脚本/证明/CTA 决定转化，数字人只是交付层）、多平台 A/B 测试、成本对比（真人 1000-10000$ vs AI 分钟级）。知识本体来自 2026 口播广告指南（Zeely/Creatify/Cometly/AdSturbo）。AI 应用面向 DirectorX：广告口播（衔接 137 数字人、135 广告创意、188 钩子、175 微表情）。
@@ -77,3 +134,11 @@
 - Zeely — AI Avatar Video Ads：https://zeely.ai/blog/ai-avatar-video-ads/
 - Cometly — 9 Best AI Talking Avatar Ads Generators 2026：https://www.cometly.com/post/ai-talking-avatar-ads-generator
 - Shhots — 11 Best AI Avatars for UGC Product Ads 2026：https://shhots.ai/blog/best-ai-avatar-solutions-for-ugc-product-ads/
+
+## 相关概念
+
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）](../175-micro-expression/micro-expression.md)
+- [AI 视频 IP 角色经济（IP Character Economy — Virtual Influencers & Franchise Monetization）](../152-ip-character-economy/ip-character-economy.md)

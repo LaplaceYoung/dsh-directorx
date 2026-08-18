@@ -1,3 +1,58 @@
+---
+type: Playbook
+title: "短剧出海全流程闭环（Drama Overseas Full-Loop Operations）"
+description: "短剧出海手册：市场格局（50-60 亿美元赛道）、平台选择与分成、利润模型（AI 降本 vs 投流吃利）、成本结构、案例账本、2026 合规元年（国内外新规）、资质清单、回款方式、区域隔离策略"
+tags:
+  - "production"
+  - "model"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:掘金短剧出海全链路调研报告（2026-07）"
+    id: cite-1
+    title: "掘金短剧出海全链路调研报告（2026-07）"
+  - resource: "cited:Sensor Tower 2026 报告"
+    id: cite-2
+    title: "Sensor Tower 2026 报告"
+  - resource: "cited:Variety ReelShort 数据。"
+    id: cite-3
+    title: "Variety ReelShort 数据。"
+  - resource: "https://juejin.cn/post/7662368465966678052"
+    id: url-1
+    title: "juejin.cn"
+  - resource: "https://sensortower.com/blog/state-of-short-drama-apps-2026-report"
+    id: url-2
+    title: "sensortower.com"
+  - resource: "https://variety.com/2026/tv/news/reelshort-1-billion-revenue-profit-2026-mpa-1236828885/"
+    id: url-3
+    title: "variety.com"
+  - resource: "https://www.36kr.com/p/3815737964667142"
+    id: url-4
+    title: "36kr.com"
+  - resource: "https://www.toutiao.com/article/7631510875970470427/"
+    id: url-5
+    title: "toutiao.com"
+  - resource: "https://cloud.tencent.com/developer/article/2676855"
+    id: url-6
+    title: "cloud.tencent.com"
+  - resource: "https://juejin.cn/post/7629175849439166500"
+    id: url-7
+    title: "juejin.cn"
+dx_id: "74"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "15-editing-tools/editing-tools-workflow.md"
+  - "25-visualization-previz/visualization-previz.md"
+---
+
 # 短剧出海全流程闭环（Drama Overseas Full-Loop Operations）
 
 > 本页是 DirectorX 短剧出海手册：市场格局（50-60 亿美元赛道）、平台选择与分成、利润模型（AI 降本 vs 投流吃利）、成本结构、案例账本、2026 合规元年（国内外新规）、资质清单、回款方式、区域隔离策略。与 55 本地化 / 64 投放复盘 / 72 合规衔接。
@@ -118,3 +173,9 @@
 - 腾讯云开发者社区: 短剧出海全攻略——如何用 AI 把一部 100 集短剧 48 小时翻译到 9 国语言？ — https://cloud.tencent.com/developer/article/2676855
 - 掘金: 一条中文短剧如何批量生成 4 个语言版本同步上线——出海工作流工程拆解 — https://juejin.cn/post/7629175849439166500
 - Deadline: ReelShort Founder Joey Jia On Next Steps For Microdrama — https://deadline.com/2026/06/microdrama-ai-reelshort-joey-jia-crazy-maple-studio-asia-1236958231/
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [剪辑工具与实操流程（Editing Tools & Workflow）](../15-editing-tools/editing-tools-workflow.md)
+- [分镜与叙事可视化（Storyboarding & Visualization）](../25-visualization-previz/visualization-previz.md)

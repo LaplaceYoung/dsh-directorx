@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影声音空间叙事（Sound Spatial Narrative — Off-Screen Sound & Perspective）"
+description: "电影声音空间叙事：画外声音（Off-Screen Sound）扩展世界、声音透视（Sound Perspective：响度/空间化/深度传达距离）、声音引导方位、声景叙事（衔接 219 声音理论的空间维度、173 空间音频技术、242 对应）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "narrative"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:NumberAnalytics Sound Perspective in Film"
+    id: cite-1
+    title: "Sound Perspective in Film"
+    author: "org:NumberAnalytics"
+  - resource: "cited:OpenALG Sound: Film Appreciation"
+    id: cite-2
+    title: "Sound: Film Appreciation"
+    author: "org:OpenALG"
+  - resource: "cited:U.OSU Sound's Contributions to Immersive Space"
+    id: cite-3
+    title: "Sound's Contributions to Immersive Space"
+    author: "org:U.OSU"
+  - resource: "cited:SAGE Seeing Films Through Sound"
+    id: cite-4
+    title: "Seeing Films Through Sound"
+    author: "org:SAGE"
+  - resource: "https://www.numberanalytics.com/blog/sound-perspective-in-film"
+    id: url-1
+    title: "numberanalytics.com"
+  - resource: "https://alg.manifoldapp.org/read/film-appreciation/section/fa330673-c6e5-4a63-9e35-eef1a299091b"
+    id: url-2
+    title: "alg.manifoldapp.org"
+  - resource: "https://u.osu.edu/english6778autumn2020/2020/09/22/examining-sounds-contributions-to-a-films-immersive-space/"
+    id: url-3
+    title: "u.osu.edu"
+  - resource: "https://journals.sagepub.com/doi/10.1177/0264619620935935"
+    id: url-4
+    title: "journals.sagepub.com"
+  - resource: "https://aaltodoc.aalto.fi/server/api/core/bitstreams/d2f803ca-2bc0-46a4-a0b4-4a440013c6c4/content"
+    id: url-5
+    title: "aaltodoc.aalto.fi"
+dx_id: "242"
+related:
+  - "219-film-sound-theory/film-sound-theory.md"
+  - "173-spatial-audio/spatial-audio.md"
+  - "144-sound-design/sound-design.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "239-montage-theory/montage-theory.md"
+---
+
 # 电影声音空间叙事（Sound Spatial Narrative — Off-Screen Sound & Perspective）
 
 > 本页为电影声音空间叙事：画外声音（Off-Screen Sound）扩展世界、声音透视（Sound Perspective：响度/空间化/深度传达距离）、声音引导方位、声景叙事（衔接 219 声音理论的空间维度、173 空间音频技术、242 对应）。
@@ -85,3 +143,11 @@
 - U.OSU — Examining Sound's Contributions to a Film's Immersive Space：https://u.osu.edu/english6778autumn2020/2020/09/22/examining-sounds-contributions-to-a-films-immersive-space/
 - SAGE — Seeing Films Through Sound（Spatial Audio for Accessibility）：https://journals.sagepub.com/doi/10.1177/0264619620935935
 - Aalto — An Ode to Listening: Sound Diegesis and Space Perception：https://aaltodoc.aalto.fi/server/api/core/bitstreams/d2f803ca-2bc0-46a4-a0b4-4a440013c6c4/content
+
+## 相关概念
+
+- [电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）](../219-film-sound-theory/film-sound-theory.md)
+- [AI 音频空间定位（Spatial Audio — 3D Sound, Ambisonics & Visual-Cued Placement）](../173-spatial-audio/spatial-audio.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](../239-montage-theory/montage-theory.md)

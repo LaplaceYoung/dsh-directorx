@@ -1,3 +1,68 @@
+---
+type: Method
+title: "AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）"
+description: "AI 视频/图片的版权安全提示词技巧：泛化（Genericization：描述属性而非命名风格/角色）、移除专有名词（艺术家名/角色名/作品名）、非 IP 锚定（艺术运动/历史时期/通用技法）、负向提示防角色复制（负向关键词：版权角色名+特征词）"
+tags:
+  - "consistency"
+  - "prompt"
+  - "character"
+  - "style"
+  - "copyright"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Safer Prompts: Reducing IP Risk in Visual Generative AI"
+    id: cite-1
+    title: "Safer Prompts: Reducing IP Risk in Visual Generative AI"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Fantastic Copyrighted Beasts and How (Not) to Generate"
+    id: cite-2
+    title: "Fantastic Copyrighted Beasts and How (Not) to Generate"
+    author: "org:arXiv"
+  - resource: "cited:Nature Copyright in AI Image Generation through Genericization"
+    id: cite-3
+    title: "Copyright in AI Image Generation through Genericization"
+    author: "org:Nature"
+  - resource: "cited:Alibaba Avoid Copyrighted Anime Character Silhouettes"
+    id: cite-4
+    title: "Avoid Copyrighted Anime Character Silhouettes"
+    author: "org:Alibaba"
+  - resource: "https://arxiv.org/html/2505.03338v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2406.14526v2"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://www.nature.com/articles/s41598-025-90827-1"
+    id: url-3
+    title: "nature.com"
+  - resource: "https://www.alibaba.com/product-insights/how-to-prompt-ai-image-generators-to-avoid-copyrighted-anime-character-silhouettes.html"
+    id: url-4
+    title: "alibaba.com"
+  - resource: "https://www.alibaba.com/product-insights/how-to-make-ai-art-prompts-that-avoid-copyright-traps-style-referencing-vs-direct-mimicry.html"
+    id: url-5
+    title: "alibaba.com"
+  - resource: "https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf"
+    id: url-6
+    title: "copyright.gov"
+dx_id: "213"
+aliases:
+  - "214"
+related:
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "72-ai-content-compliance/ai-content-compliance.md"
+  - "154-prompt-safety/prompt-safety.md"
+  - "191-documentary-material-compliance/documentary-material-compliance.md"
+  - "166-documentary-ethics/documentary-ethics.md"
+---
+
 # AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）
 
 > 本页为 AI 视频/图片的版权安全提示词技巧：泛化（Genericization：描述属性而非命名风格/角色）、移除专有名词（艺术家名/角色名/作品名）、非 IP 锚定（艺术运动/历史时期/通用技法）、负向提示防角色复制（负向关键词：版权角色名+特征词）。知识本体来自 2026 版权提示词研究（arXiv Safer Prompts/负向提示实验/Nature 泛化研究）。AI 应用面向 DirectorX：合规生成（衔接 145 版权、72 合规、154 安全、191 清权、166 伦理）。
@@ -37,7 +102,15 @@
 安全版："hand-drawn animation style, soft pastel colors, whimsical forest
 creatures, detailed backgrounds, nature theme, 1980s anime aesthetic"
 负向版：+ negative "Totoro, Ghibli, copyrighted character"
+
+高风险：「蜘蛛侠在楼宇间摆荡」
+安全版：不要套固定替换句。按角色轴结合本句情境写细——
+  原型/体型、服装材质与色块（不要复刻经典套装剪影）、抽象标志物、
+  以及必须保留的动作与场景（「在楼宇间摆荡」）。
+负向版：+ negative "Spider-Man, Marvel, copyrighted character"
 ```
+
+画布对 IP 专名画红色波浪线，并把改写交给 DSH。工程只检出 + 方法轴 + 负向词 + 项目记忆；成稿由 agent 按当前镜头写。`directorx_ip_scan` 返回方法与记忆，`directorx_ip_rewrite` 验收后记入本项目记忆。论文口径：只改写不够，生成时仍应带负向排除（arXiv 2406.14526）。
 
 ### 视频场景的版权规避
 
@@ -60,7 +133,10 @@ creatures, detailed backgrounds, nature theme, 1980s anime aesthetic"
 合规生成（衔接 72/145/154）：
 
 ```text
-创意意图 → 泛化改写（属性化/去专名）
+创意意图 → directorx_ip_scan（检出 + 方法轴 + 项目记忆）
+  → knowledge_read 213
+  → 按当前镜头写细改写（泛化/去专名/保留情境）
+  → directorx_ip_rewrite（验收 + 记入记忆）
   → 负向提示（版权名+特征）
   → 生成 → 相似度检查（129 评测）
   → 平台合规复核（145）→ 交付
@@ -171,3 +247,11 @@ vs "Sherlock Holmes"（具体角色：高风险）
 - DWT — Character Copyright Protection in the Age of Generative AI：https://www.dwt.com/insights/2026/04/character-copyright-protection-generative-ai
 
 <!-- merged from: #214-copyright-safe-prompting-advanced -->
+
+## 相关概念
+
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)
+- [AI 视频提示词安全防护（Prompt Safety — Injection, Jailbreak & Layered Guardrails）](../154-prompt-safety/prompt-safety.md)
+- [AI 纪录片素材合规矩阵（Documentary Clearance — Rights Layers & License Tracking）](../191-documentary-material-compliance/documentary-material-compliance.md)
+- [AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）](../166-documentary-ethics/documentary-ethics.md)

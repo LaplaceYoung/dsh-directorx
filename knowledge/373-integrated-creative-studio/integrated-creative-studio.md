@@ -1,3 +1,64 @@
+---
+type: Method
+title: "AI 图片集成创作工作室（Integrated Creative Studio — Orchestrated Prompts-to-Assets）"
+description: "AI 图片的集成创作工作室：集成创意 AI 工作室（编排提示→资产跨图/视频/音频）、多步管线+协作+治理（创建/审批/交付）、团队选型（适配现有工作流+API 自动化）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "prompt"
+  - "model"
+  - "workflow"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Monday 13 Best AI Image Generators"
+    id: cite-1
+    title: "13 Best AI Image Generators"
+    author: "org:Monday"
+  - resource: "cited:Adobe Firefly Creative Agent"
+    id: cite-2
+    title: "Firefly Creative Agent"
+    author: "org:Adobe"
+  - resource: "cited:Meta Muse Image"
+    id: cite-3
+    title: "Muse Image"
+    author: "org:Meta"
+  - resource: "cited:Adobe Firefly All-In-One Studio"
+    id: cite-4
+    title: "Firefly All-In-One Studio"
+    author: "org:Adobe"
+  - resource: "https://monday.com/blog/ai-agents/best-ai-for-image-generation/"
+    id: url-1
+    title: "monday.com"
+  - resource: "https://news.adobe.com/news/2026/04/adobe-new-creative-agent"
+    id: url-2
+    title: "news.adobe.com"
+  - resource: "https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai/"
+    id: url-3
+    title: "about.fb.com"
+  - resource: "https://news.adobe.com/news/2025/10/adobe-max-2025-firefly"
+    id: url-4
+    title: "news.adobe.com"
+  - resource: "https://blog.adobe.com/en/publish/2026/03/19/adobe-firefly-expands-video-image-creation-with-new-ai-capabilities-custom-models"
+    id: url-5
+    title: "blog.adobe.com"
+dx_id: "373"
+related:
+  - "366-full-flow-engagement/full-flow-engagement.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "290-signature-practice/signature-practice.md"
+  - "332-full-integration-practice/full-integration-practice.md"
+  - "157-team-collaboration/team-collaboration.md"
+---
+
 # AI 图片集成创作工作室（Integrated Creative Studio — Orchestrated Prompts-to-Assets）
 
 > 本页为 AI 图片的集成创作工作室：集成创意 AI 工作室（编排提示→资产跨图/视频/音频）、多步管线+协作+治理（创建/审批/交付）、团队选型（适配现有工作流+API 自动化）。知识本体来自 2026 集成工作室（Monday/Adobe/Meta）。AI 应用面向 DirectorX：创作平台（衔接 373 对应、366 全流程、121 编排、290 指南）。
@@ -73,3 +134,11 @@ Firefly 创意代理：语言驱动多步工作流（跨 Creative Cloud）——
 - Meta — Introducing Muse Image：https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai/
 - Adobe — Firefly All-In-One Creative AI Studio：https://news.adobe.com/news/2025/10/adobe-max-2025-firefly
 - Adobe — Firefly Expands Video and Image Creation：https://blog.adobe.com/en/publish/2026/03/19/adobe-firefly-expands-video-image-creation-with-new-ai-capabilities-custom-models
+
+## 相关概念
+
+- [AI 图片全流程参与系统（Full-Flow Engagement — End-to-End Visual Storytelling）](../366-full-flow-engagement/full-flow-engagement.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 图片导演签名应用（Signature in Practice — Prompt Style Guide & Brand Visual Language）](../290-signature-practice/signature-practice.md)
+- [电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）](../332-full-integration-practice/full-integration-practice.md)
+- [AI 视频团队协作与版本管理（Team Collaboration — Review, Version Control & Approval Workflow）](../157-team-collaboration/team-collaboration.md)

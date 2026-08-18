@@ -1,3 +1,63 @@
+---
+type: Playbook
+title: "AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）"
+description: "AI 视频端到端生产的完整编排：多 Agent 管线（简报→脚本→分镜→生成→配音→组装→分发）、Agentic 规划（一个简报驱动全程）、迭代反馈环（初剪→精修→本地化→变体）"
+tags:
+  - "production"
+  - "sound"
+  - "storyboard"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX Best AI Video Workflow Guide & Tool Stack 2026"
+    id: cite-1
+    title: "Best AI Video Workflow Guide & Tool Stack 2026"
+    author: "org:LTX"
+  - resource: "cited:vivideo AI Video Workflow 2026"
+    id: cite-2
+    title: "AI Video Workflow 2026"
+    author: "org:vivideo"
+  - resource: "cited:Imagine How AI Agents Run the Pipeline"
+    id: cite-3
+    title: "How AI Agents Run the Pipeline"
+    author: "org:Imagine"
+  - resource: "cited:MindStudio AI Agent Workflow for Video"
+    id: cite-4
+    title: "AI Agent Workflow for Video"
+    author: "org:MindStudio"
+  - resource: "cited:ReelMind Multi-Agent Orchestration"
+    id: cite-5
+    title: "Multi-Agent Orchestration"
+    author: "org:ReelMind"
+  - resource: "https://ltx.io/blog/ai-video-workflow"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://vivideo.ai/blog/state-of-ai-video-creation-2026"
+    id: url-2
+    title: "vivideo.ai"
+  - resource: "https://www.imagine.art/blogs/agentic-ai-in-video-production"
+    id: url-3
+    title: "imagine.art"
+  - resource: "https://www.mindstudio.ai/blog/ai-agent-workflow-youtube-video-one-prompt"
+    id: url-4
+    title: "mindstudio.ai"
+  - resource: "https://reelmind.ai/blog/multi-agent-mastery-orchestrating-your-ai-video-production-workflow"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "121"
+related:
+  - "105-commercial-pipeline/commercial-pipeline.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+---
+
 # AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）
 
 > 本页为 AI 视频端到端生产的完整编排：多 Agent 管线（简报→脚本→分镜→生成→配音→组装→分发）、Agentic 规划（一个简报驱动全程）、迭代反馈环（初剪→精修→本地化→变体）。知识本体来自 2026 AI 视频工作流指南（LTX/vivideo/Imagine/MindStudio/ReelMind）。AI 应用面向 DirectorX：生产编排范式（衔接 105 TVC 管线、113 案例手册的确认型工作流）。
@@ -96,3 +156,8 @@ DirectorX 的编排范式（与 105 的八步生产循环对应）：
 - Imagine — How AI Agents Run the Pipeline in 2026：https://www.imagine.art/blogs/agentic-ai-in-video-production
 - MindStudio — How to Build an AI Agent Workflow That Generates Video：https://www.mindstudio.ai/blog/ai-agent-workflow-youtube-video-one-prompt
 - ReelMind — Multi-Agent Mastery: Orchestrating Your AI Video Production Workflow：https://reelmind.ai/blog/multi-agent-mastery-orchestrating-your-ai-video-production-workflow
+
+## 相关概念
+
+- [宣传片 / TVC 制作全流程（Commercial & TVC Production Pipeline — Terms & Workflow）](../105-commercial-pipeline/commercial-pipeline.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)

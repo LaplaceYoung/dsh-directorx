@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "音乐视频与表演（Music Video & Performance）"
+description: "音乐视频与表演知识库：MV 三大类型、AV 脚本、歌曲转视觉节拍、镜头前表演 vs 舞台表演、舞蹈与现场拍摄"
+tags:
+  - "foundation"
+  - "camera"
+  - "character"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Celtx MV 脚本指南"
+    id: cite-1
+    title: "Celtx MV 脚本指南"
+  - resource: "cited:Backstage 镜头前表演专家观点"
+    id: cite-2
+    title: "Backstage 镜头前表演专家观点"
+  - resource: "cited:Britannica 音乐视频词条"
+    id: cite-3
+    title: "Britannica 音乐视频词条"
+  - resource: "cited:行业舞蹈拍摄经验。"
+    id: cite-4
+    title: "行业舞蹈拍摄经验。"
+  - resource: "https://blog.celtx.com/how-to-write-music-video-script/"
+    id: url-1
+    title: "blog.celtx.com"
+  - resource: "https://www.backstage.com/magazine/article/adjusting-acting-technique-camera-vs-stage-4025/"
+    id: url-2
+    title: "backstage.com"
+  - resource: "https://www.britannica.com/art/music-video"
+    id: url-3
+    title: "britannica.com"
+  - resource: "https://www.diy-music-guide.com/articles/how-to-make-a-music-video-do-you-film-a-musical-performance"
+    id: url-4
+    title: "diy-music-guide.com"
+  - resource: "https://www.carvedculture.com/blogs/articles/10-types-of-music-videos-and-how-to-create-them"
+    id: url-5
+    title: "carvedculture.com"
+  - resource: "https://www.studiobinder.com/blog/how-to-film-and-edit-a-music-video/"
+    id: url-6
+    title: "studiobinder.com"
+dx_id: "12"
+related:
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+---
+
 # 音乐视频与表演（Music Video & Performance）
 
 > 本页是 DirectorX 音乐视频与表演知识库：MV 三大类型、AV 脚本、歌曲转视觉节拍、镜头前表演 vs 舞台表演、舞蹈与现场拍摄。每个概念含定义、模板与 AI 生成应用。
@@ -152,3 +206,9 @@ Backstage 专家核心观点（镜头前表演的规则）：
 - DIY Music Guide: Performative vs Narrative Concept — https://www.diy-music-guide.com/articles/how-to-make-a-music-video-do-you-film-a-musical-performance
 - Carved Culture: 10 Types of Music Videos — https://www.carvedculture.com/blogs/articles/10-types-of-music-videos-and-how-to-create-them
 - StudioBinder: How to Film and Edit a Music Video（索引） — https://www.studiobinder.com/blog/how-to-film-and-edit-a-music-video/
+
+## 相关概念
+
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)

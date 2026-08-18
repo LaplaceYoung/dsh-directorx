@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影杂交类型配乐（Hybrid Scoring — Orchestral + Electronic in One Sound）"
+description: "电影杂交类型配乐：管弦+电子混合（一个统一声音）、纹理优先（Texture-First）+管弦分层、情绪与规模塑造、杂交地平线（小提琴旋律×颗粒失真合成垫）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Paul J Arnold Hybrid Horizons"
+    id: cite-1
+    title: "Hybrid Horizons"
+    author: "org:Paul-J-Arnold"
+  - resource: "cited:Kaspar Noe Hybrid Orchestral Music"
+    id: cite-2
+    title: "Hybrid Orchestral Music"
+    author: "org:Kaspar-Noe"
+  - resource: "cited:Richard Dobeson Hybrid Sound"
+    id: cite-3
+    title: "Hybrid Sound"
+    author: "org:Richard-Dobeson"
+  - resource: "cited:Soundverse Fusion Music Trends 2026"
+    id: cite-4
+    title: "Fusion Music Trends 2026"
+    author: "org:Soundverse"
+  - resource: "https://www.pauljarnold.com/2026/07/13/hybrid-horizons-blending-cutting-edge-electronic-textures-with-sweeping-orchestral-film-scores/"
+    id: url-1
+    title: "pauljarnold.com"
+  - resource: "https://kasparnoe.com/journal/hybrid-orchestral-music-in-modern-film-scoring"
+    id: url-2
+    title: "kasparnoe.com"
+  - resource: "https://richarddobeson.com/hybrid-sound-blending-orchestral-and-electronic-for-film/"
+    id: url-3
+    title: "richarddobeson.com"
+  - resource: "https://www.soundverse.ai/blog/article/fusion-music-trends-blending-genres-with-ai-2354"
+    id: url-4
+    title: "soundverse.ai"
+  - resource: "https://en.wikipedia.org/wiki/Project_Hail_Mary_(soundtrack"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "309"
+related:
+  - "269-genre-scoring/genre-scoring.md"
+  - "144-sound-design/sound-design.md"
+---
+
 # 电影杂交类型配乐（Hybrid Scoring — Orchestral + Electronic in One Sound）
 
 > 本页为电影杂交类型配乐：管弦+电子混合（一个统一声音）、纹理优先（Texture-First）+管弦分层、情绪与规模塑造、杂交地平线（小提琴旋律×颗粒失真合成垫）。知识本体来自 2026 杂交配乐（Paul J Arnold/Kaspar Noe/Richard Dobeson）。AI 应用面向 DirectorX：杂交配乐（衔接 269 类型配乐、309 对应、302 杂交声音、229 配乐理论）。
@@ -81,3 +135,8 @@
 - Richard Dobeson — Hybrid Sound: Blending Orchestral and Electronic：https://richarddobeson.com/hybrid-sound-blending-orchestral-and-electronic-for-film/
 - Soundverse — Fusion Music Trends: Blending Genres with AI 2026：https://www.soundverse.ai/blog/article/fusion-music-trends-blending-genres-with-ai-2354
 - Wikipedia — Project Hail Mary (Soundtrack)：https://en.wikipedia.org/wiki/Project_Hail_Mary_(soundtrack)
+
+## 相关概念
+
+- [电影类型片音乐符号（Genre Scoring — Horror, Noir, Western & Sci-Fi Conventions）](../269-genre-scoring/genre-scoring.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)

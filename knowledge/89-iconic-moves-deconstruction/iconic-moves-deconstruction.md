@@ -1,3 +1,56 @@
+---
+type: Case
+title: "名场面运镜解剖（Iconic Camera Movement Deconstruction）"
+description: "名场面运镜手册：一镜到底（oner）谱系（Rope→数字时代）、隐藏剪辑技巧（mise-en-trickery）、1917 数字缝合细节、Blake 之死动机化运镜、长镜头四种解释+相对劳动等式、Goodfellas/Children of Men/Old Boy 案例"
+tags:
+  - "production"
+  - "camera"
+  - "editing"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Offscreen 1917 数字长镜头分析"
+    id: cite-1
+    title: "Offscreen 1917 数字长镜头分析"
+  - resource: "cited:No Film School Children of Men"
+    id: cite-2
+    title: "No Film School Children of Men"
+  - resource: "cited:Wikipedia Long Take"
+    id: cite-3
+    title: "Wikipedia Long Take"
+  - resource: "cited:Filmmakers Academy 1917。"
+    id: cite-4
+    title: "Filmmakers Academy 1917。"
+  - resource: "https://offscreen.com/view/1917-the-hard-work-of-the-digital-long-take"
+    id: url-1
+    title: "offscreen.com"
+  - resource: "https://nofilmschool.com/children-of-men-long-take"
+    id: url-2
+    title: "nofilmschool.com"
+  - resource: "https://en.wikipedia.org/wiki/Long_take"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/One-shot_film"
+    id: url-4
+    title: "en.wikipedia.org"
+  - resource: "https://www.filmmakersacademy.com/look-of-1917/"
+    id: url-5
+    title: "filmmakersacademy.com"
+  - resource: "https://fictionhorizon.com/films-that-filmed-entire-scenes-in-one-continuous-take/"
+    id: url-6
+    title: "fictionhorizon.com"
+dx_id: "89"
+related:
+  - "47-documentary-visual/documentary-visual.md"
+  - "99-comedy-timing/comedy-timing.md"
+  - "274-suspense-visual-language/suspense-visual-language.md"
+---
+
 # 名场面运镜解剖（Iconic Camera Movement Deconstruction）
 
 > 本页是 DirectorX 名场面运镜手册：一镜到底（oner）谱系（Rope→数字时代）、隐藏剪辑技巧（mise-en-trickery）、1917 数字缝合细节、Blake 之死动机化运镜、长镜头四种解释+相对劳动等式、Goodfellas/Children of Men/Old Boy 案例。与 83 拉片 / 85 实拍演练 / 49 运镜衔接。
@@ -95,3 +148,9 @@
 - Fiction Horizon: Films That Filmed Entire Scenes in One Continuous Take — https://fictionhorizon.com/films-that-filmed-entire-scenes-in-one-continuous-take/
 - 文汇报: 电影《1917》——数码时代的长镜头是重塑时空的魔术 — https://wenhui.whb.cn/zhuzhan/yingshi/20200827/368009.html
 - 豆瓣: 《1917》——对"一镜到底"手法的重新审视 — https://movie.douban.com/review/13323065/
+
+## 相关概念
+
+- [纪录片视觉语言（Documentary Visual Language）](../47-documentary-visual/documentary-visual.md)
+- [喜剧节奏：术语详解 + AI 理解与实现（Comedy Timing — Deep Terms & AI Implementation）](../99-comedy-timing/comedy-timing.md)
+- [电影悬念视听语言（Suspense Visual Language — Cinematography, Sound & Timing of Tension）](../274-suspense-visual-language/suspense-visual-language.md)

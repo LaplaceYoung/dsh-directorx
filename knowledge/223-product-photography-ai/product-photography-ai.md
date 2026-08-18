@@ -1,3 +1,64 @@
+---
+type: Method
+title: "AI 产品图生成（Product Photography — White Background, Studio & Marketplace Prompts）"
+description: "AI 产品图生成：白底主图（电商标准）、影棚布光（柔光箱）、精确色彩/干净边缘、1:1 画幅、限制词（无文字/水印/道具/人物）、多类型变体（白底/生活/平铺）"
+tags:
+  - "consistency"
+  - "lighting"
+  - "color"
+  - "prompt"
+  - "copyright"
+  - "i2v"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:SmartTrends White Studio Product Photography Prompt"
+    id: cite-1
+    title: "White Studio Product Photography Prompt"
+    author: "org:SmartTrends"
+  - resource: "cited:ZSky 30+ E-Commerce Product Photo Prompts"
+    id: cite-2
+    title: "30+ E-Commerce Product Photo Prompts"
+    author: "org:ZSky"
+  - resource: "cited:Scalio White Background Product Photography"
+    id: cite-3
+    title: "White Background Product Photography"
+    author: "org:Scalio"
+  - resource: "cited:Miraflow 15 Product Photo Studio Prompts"
+    id: cite-4
+    title: "15 Product Photo Studio Prompts"
+    author: "org:Miraflow"
+  - resource: "https://smarttrendsai.com/prompt-presets-archive/ai-product-photography-white-background/"
+    id: url-1
+    title: "smarttrendsai.com"
+  - resource: "https://zsky.ai/blog/ai-image-prompts-for-ecommerce"
+    id: url-2
+    title: "zsky.ai"
+  - resource: "https://scalio.app/prompts/white-background-product-photography/"
+    id: url-3
+    title: "scalio.app"
+  - resource: "https://miraflow.ai/blog/ai-prompts-product-photos-studio-shots-copy-paste"
+    id: url-4
+    title: "miraflow.ai"
+  - resource: "https://www.banana-prompts.net/ai-product-photo-prompt-for-white-background-ecommerce/"
+    id: url-5
+    title: "banana-prompts.net"
+dx_id: "223"
+related:
+  - "193-product-3d-showcase/product-3d-showcase.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "179-surface-material-consistency/surface-material-consistency.md"
+  - "199-ugc-realism/ugc-realism.md"
+---
+
 # AI 产品图生成（Product Photography — White Background, Studio & Marketplace Prompts）
 
 > 本页为 AI 产品图生成：白底主图（电商标准）、影棚布光（柔光箱）、精确色彩/干净边缘、1:1 画幅、限制词（无文字/水印/道具/人物）、多类型变体（白底/生活/平铺）。知识本体来自 2026 产品图提示词指南（SmartTrends/Scalio/ZSky/Miraflow）。AI 应用面向 DirectorX：电商图片（衔接 193 3D 展示、215 参数、179 材质、223 对应）。
@@ -82,3 +143,11 @@ commercial ecommerce style
 - Scalio — AI Prompts for White Background Product Photography：https://scalio.app/prompts/white-background-product-photography/
 - Miraflow — 15 AI Prompts for Product Photos That Look Like Studio Shots：https://miraflow.ai/blog/ai-prompts-product-photos-studio-shots-copy-paste
 - Banana Prompts — 20 AI Product Photo Prompts for White Background Ecommerce：https://www.banana-prompts.net/ai-product-photo-prompt-for-white-background-ecommerce/
+
+## 相关概念
+
+- [AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）](../193-product-3d-showcase/product-3d-showcase.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）](../179-surface-material-consistency/surface-material-consistency.md)
+- [AI 用户生成内容真实感（UGC Realism — Authentic Imperfection & Anti-Polish）](../199-ugc-realism/ugc-realism.md)

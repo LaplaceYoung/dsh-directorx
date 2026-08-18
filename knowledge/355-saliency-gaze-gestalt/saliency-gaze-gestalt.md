@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "AI 图片显著-视线-格式塔应用（Saliency-Gaze-Gestalt — Attention Control Framework）"
+description: "AI 图片的显著-视线-格式塔应用：显著模型（中心-环绕+特征整合）、GazeFusion 显著引导（扩散+注意先验）、格式塔注意整合（训练中融入认知注意）、交互显著设计（注意抑制）"
+tags:
+  - "synthesis"
+  - "model"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Improved Saliency Model"
+    id: cite-1
+    title: "Improved Saliency Model"
+    author: "org:PMC"
+  - resource: "cited:arXiv GazeFusion"
+    id: cite-2
+    title: "GazeFusion"
+    author: "org:arXiv"
+  - resource: "cited:Google Predictive Models of Human Attention"
+    id: cite-3
+    title: "Predictive Models of Human Attention"
+    author: "org:Google"
+  - resource: "cited:arXiv Redirect Visual Attention"
+    id: cite-4
+    title: "Redirect Visual Attention"
+    author: "org:arXiv"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10011177/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://arxiv.org/abs/2407.04191"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://research.google/blog/enabling-delightful-user-experiences-via-predictive-models-of-human-attention/"
+    id: url-3
+    title: "research.google"
+  - resource: "https://ar5iv.labs.arxiv.org/html/2008.05413"
+    id: url-4
+    title: "ar5iv.labs.arxiv.org"
+dx_id: "355"
+related:
+  - "346-composition-psych-applied/composition-psych-applied.md"
+  - "246-composition-psychology/composition-psychology.md"
+  - "271-composition-narrative-weight/composition-narrative-weight.md"
+---
+
 # AI 图片显著-视线-格式塔应用（Saliency-Gaze-Gestalt — Attention Control Framework）
 
 > 本页为 AI 图片的显著-视线-格式塔应用：显著模型（中心-环绕+特征整合）、GazeFusion 显著引导（扩散+注意先验）、格式塔注意整合（训练中融入认知注意）、交互显著设计（注意抑制）。知识本体来自 2026 注意框架（PMC/arXiv GazeFusion/Google）。AI 应用面向 DirectorX：注意框架（衔接 346 构图心理应用、355 对应、246 眼动、271 权重）。
@@ -77,3 +130,9 @@
 - Google — Predictive Models of Human Attention：https://research.google/blog/enabling-delightful-user-experiences-via-predictive-models-of-human-attention/
 - arXiv — Redirect Visual Attention（2008.05413）：https://ar5iv.labs.arxiv.org/html/2008.05413
 - NYU-ICL — Saliency-Guided Image Generation：
+
+## 相关概念
+
+- [AI 图片构图心理学应用（Composition Psychology Applied — GazeFusion & Saliency-Guided Design）](../346-composition-psych-applied/composition-psych-applied.md)
+- [AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）](../246-composition-psychology/composition-psychology.md)
+- [AI 图片构图叙事权重（Narrative Weight — Size, Scale & Visual Hierarchy）](../271-composition-narrative-weight/composition-narrative-weight.md)

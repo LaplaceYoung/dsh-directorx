@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片情绪记忆系列（Nostalgia Series — Memory Sequence & Personal History）"
+description: "AI 图片的情绪记忆系列：记忆序列（时间/主题章节：童年→里程碑→日常→转折）、统一视觉语言（色板/年代母题/渐进老化）、重复母题表记忆连续、尾声帧（当下自我+未来意向）"
+tags:
+  - "synthesis"
+  - "color"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind AI Nostalgia Videos"
+    id: cite-1
+    title: "AI Nostalgia Videos"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind Nostalgic AI Visuals"
+    id: cite-2
+    title: "Nostalgic AI Visuals"
+    author: "org:ReelMind"
+  - resource: "cited:LiveMemo Digital Nostalgia 2026"
+    id: cite-3
+    title: "Digital Nostalgia 2026"
+    author: "org:LiveMemo"
+  - resource: "cited:ReelMind Photo of Childhood"
+    id: cite-4
+    title: "Photo of Childhood"
+    author: "org:ReelMind"
+  - resource: "https://reelmind.ai/blog/wish-we-could-turn-back-time-ai-nostalgia-videos"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/wish-was-here-create-nostalgic-ai-visuals"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://livememo.app/blog/digital-nostalgia-how-ai-is-changing-family-memories-in-2026"
+    id: url-3
+    title: "livememo.app"
+  - resource: "https://reelmind.ai/blog/photo-of-childhood-ai-for-nostalgic-storytelling"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/i-wish-i-could-have-stayed-ai-generated-reflective-nostalgic-content"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "301"
+related:
+  - "294-emotional-memory-image/emotional-memory-image.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "297-motif-evolution/motif-evolution.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 图片情绪记忆系列（Nostalgia Series — Memory Sequence & Personal History）
 
 > 本页为 AI 图片的情绪记忆系列：记忆序列（时间/主题章节：童年→里程碑→日常→转折）、统一视觉语言（色板/年代母题/渐进老化）、重复母题表记忆连续、尾声帧（当下自我+未来意向）。知识本体来自 2026 怀旧系列（ReelMind/LiveMemo）。AI 应用面向 DirectorX：记忆图集（衔接 294 情绪记忆、301 对应、238 系列、297 母题）。
@@ -73,3 +130,10 @@
 - LiveMemo — Digital Nostalgia: AI Changing Family Memories 2026：https://livememo.app/blog/digital-nostalgia-how-ai-is-changing-family-memories-in-2026
 - ReelMind — Photo of Childhood: AI for Nostalgic Storytelling：https://reelmind.ai/blog/photo-of-childhood-ai-for-nostalgic-storytelling
 - ReelMind — Reflective & Nostalgic AI Content：https://reelmind.ai/blog/i-wish-i-could-have-stayed-ai-generated-reflective-nostalgic-content
+
+## 相关概念
+
+- [AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）](../294-emotional-memory-image/emotional-memory-image.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 图片母题演变（Motif Evolution — Establishment, Variation & Payoff）](../297-motif-evolution/motif-evolution.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

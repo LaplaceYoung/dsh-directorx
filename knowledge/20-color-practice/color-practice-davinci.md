@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "调色实操与 DaVinci 流程（Color Practice & DaVinci）"
+description: "调色实操知识库：DaVinci 节点结构五阶段流程、节点类型（串行/并行/图层）、多机位匹配调色、示波器读图、LUT 使用规范、HDR 交付"
+tags:
+  - "foundation"
+  - "color"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Juan Melara 节点结构与操作顺序"
+    id: cite-1
+    title: "Juan Melara 节点结构与操作顺序"
+  - resource: "cited:Blackmagic DaVinci Resolve Colorist Guide"
+    id: cite-2
+    title: "Blackmagic DaVinci Resolve Colorist Guide"
+  - resource: "cited:wolfcrow 多机位匹配"
+    id: cite-3
+    title: "wolfcrow 多机位匹配"
+  - resource: "cited:ITU-R BT.2408 HDR 实践。"
+    id: cite-4
+    title: "ITU-R BT.2408 HDR 实践。"
+  - resource: "https://juanmelara.com.au/blog/basic-resolve-node-structure-and-order-of-operations"
+    id: url-1
+    title: "juanmelara.com.au"
+  - resource: "https://documents.blackmagicdesign.com/UserManuals/DaVinci-Resolve-20-Colorist-Guide.pdf"
+    id: url-2
+    title: "documents.blackmagicdesign.com"
+  - resource: "https://blog.frame.io/2023/05/22/davinci-resolve-most-important-nodes-serial-parallel-outside/"
+    id: url-3
+    title: "blog.frame.io"
+  - resource: "https://mixinglight.com/color-grading-tutorials/color-grading-101-part-4-pats-davinci-node-tree-2024-edition/"
+    id: url-4
+    title: "mixinglight.com"
+  - resource: "https://wolfcrow.com/how-to-match-shots-from-two-or-more-cameras-for-color-and-exposure/"
+    id: url-5
+    title: "wolfcrow.com"
+  - resource: "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BT.2408-1-2018-PDF-E.pdf"
+    id: url-6
+    title: "itu.int"
+dx_id: "20"
+related:
+  - "36-color-luts/color-luts.md"
+  - "45-style-unification/style-unification.md"
+  - "51-color-psychology-brand/color-psychology-brand.md"
+---
+
 # 调色实操与 DaVinci 流程（Color Practice & DaVinci）
 
 > 本页是 DirectorX 调色实操知识库：DaVinci 节点结构五阶段流程、节点类型（串行/并行/图层）、多机位匹配调色、示波器读图、LUT 使用规范、HDR 交付。每个概念含顺序规范与参数。
@@ -175,3 +228,9 @@
 - wolfcrow: How to Match Shots from Two or More Cameras — https://wolfcrow.com/how-to-match-shots-from-two-or-more-cameras-for-color-and-exposure/
 - ITU-R BT.2408: Operational practices in HDR television production — https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BT.2408-1-2018-PDF-E.pdf
 - Videomaker: What are vectorscopes and why are they important — https://www.videomaker.com/how-to/editing/color-correction/what-are-vectorscopes-and-why-are-they-important/
+
+## 相关概念
+
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)
+- [色彩心理学与品牌视觉（Color Psychology & Brand Visuals）](../51-color-psychology-brand/color-psychology-brand.md)

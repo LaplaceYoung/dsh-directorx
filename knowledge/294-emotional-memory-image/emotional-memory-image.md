@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）"
+description: "AI 图片的情绪记忆：怀旧唤起（暖色/柔和光/颗粒/年代物）、记忆触发器（旧照片/雨窗/信件）、情绪记忆配方（Meta AI 提示）、年代线索（中期世纪）"
+tags:
+  - "synthesis"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Meta AI AI Photo Prompts: 10 Examples"
+    id: cite-1
+    title: "AI Photo Prompts: 10 Examples"
+    author: "org:Meta-AI"
+  - resource: "cited:Dreamina Old Memories Photo Prompt"
+    id: cite-2
+    title: "Old Memories Photo Prompt"
+    author: "org:Dreamina"
+  - resource: "cited:Media.io Emotional Memory Photos"
+    id: cite-3
+    title: "Emotional Memory Photos"
+    author: "org:Media.io"
+  - resource: "cited:GetPromptAtlas Nostalgic Mood"
+    id: cite-4
+    title: "Nostalgic Mood"
+    author: "org:GetPromptAtlas"
+  - resource: "https://ai.meta.com/learn/ai-creativity/prompts-for-ai-images-10-examples-and-tips-for-better-results/"
+    id: url-1
+    title: "ai.meta.com"
+  - resource: "https://dreamina.capcut.com/ai-image/old-memories-photo-prompt"
+    id: url-2
+    title: "dreamina.capcut.com"
+  - resource: "https://www.media.io/ai/explore/zone/moving-into-2026-with-your-memories-ai-prompt"
+    id: url-3
+    title: "media.io"
+  - resource: "https://www.getpromptatlas.com/keywords/nostalgic-mood"
+    id: url-4
+    title: "getpromptatlas.com"
+  - resource: "https://betterprompt.com/image/nostalgic"
+    id: url-5
+    title: "betterprompt.com"
+dx_id: "294"
+related:
+  - "250-image-mood-atmosphere/image-mood-atmosphere.md"
+  - "283-era-photography-styles/era-photography-styles.md"
+  - "155-color-psychology/color-psychology.md"
+  - "270-style-emotion-mapping/style-emotion-mapping.md"
+---
+
 # AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）
 
 > 本页为 AI 图片的情绪记忆：怀旧唤起（暖色/柔和光/颗粒/年代物）、记忆触发器（旧照片/雨窗/信件）、情绪记忆配方（Meta AI 提示）、年代线索（中期世纪）。知识本体来自 2026 情绪记忆提示词（Meta AI/Media.io/GetPromptAtlas）。AI 应用面向 DirectorX：怀旧图（衔接 250 氛围、294 对应、283 年代、155 色彩）。
@@ -83,3 +138,10 @@
 - Media.io — Emotional Memory Photos (2026)：https://www.media.io/ai/explore/zone/moving-into-2026-with-your-memories-ai-prompt
 - GetPromptAtlas — Nostalgic Mood Keyword：https://www.getpromptatlas.com/keywords/nostalgic-mood
 - BetterPrompt — AI Nostalgia: Crafting the Past：https://betterprompt.com/image/nostalgic
+
+## 相关概念
+
+- [AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）](../250-image-mood-atmosphere/image-mood-atmosphere.md)
+- [AI 图片年代摄影流派（Era Photography Styles — Daguerreotype, Wet Plate & Decade Looks）](../283-era-photography-styles/era-photography-styles.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 图片风格情绪映射库（Style-Emotion Mapping — EmoStyle & Affective Art）](../270-style-emotion-mapping/style-emotion-mapping.md)

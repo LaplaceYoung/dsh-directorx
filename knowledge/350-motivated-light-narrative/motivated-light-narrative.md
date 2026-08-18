@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影实拍光效-动机-叙事三整合（Motivated Light × Narrative — Unmotivated as Tool）"
+description: "电影实拍光效-动机-叙事三整合：动机化布光（光源真实：窗/灯/月光+色温一致）、实用光（画面内可信动机）、**非动机光作为叙事工具**（有意为之服务故事）"
+tags:
+  - "synthesis"
+  - "lighting"
+  - "continuity"
+  - "narrative"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:InVideo Cinematic Vocabulary for AI Prompts"
+    id: cite-1
+    title: "Cinematic Vocabulary for AI Prompts"
+    author: "org:InVideo"
+  - resource: "cited:CINED Unmotivated Light as Storytelling Tool"
+    id: cite-2
+    title: "Unmotivated Light as Storytelling Tool"
+    author: "org:CINED"
+  - resource: "cited:NoFilmSchool What Is Motivated Lighting"
+    id: cite-3
+    title: "What Is Motivated Lighting"
+    author: "org:NoFilmSchool"
+  - resource: "cited:StudioBinder Motivated Lighting"
+    id: cite-4
+    title: "Motivated Lighting"
+    author: "org:StudioBinder"
+  - resource: "https://invideo.io/faq/what-cinematic-vocabulary-terms-improve-ai-video-prompts/"
+    id: url-1
+    title: "invideo.io"
+  - resource: "https://www.cined.com/unmotivated-light-as-a-storytelling-tool-when-is-it-appropriate/"
+    id: url-2
+    title: "cined.com"
+  - resource: "https://nofilmschool.com/motivated-lighting"
+    id: url-3
+    title: "nofilmschool.com"
+  - resource: "https://www.studiobinder.com/blog/what-is-motivated-lighting-in-film/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.studysmarter.co.uk/explanations/media-studies/filmmaking/motivated-lighting/"
+    id: url-5
+    title: "studysmarter.co.uk"
+dx_id: "350"
+related:
+  - "341-practical-lighting-art/practical-lighting-art.md"
+  - "170-light-matching/light-matching.md"
+  - "155-color-psychology/color-psychology.md"
+  - "267-film-synesthesia/film-synesthesia.md"
+---
+
 # 电影实拍光效-动机-叙事三整合（Motivated Light × Narrative — Unmotivated as Tool）
 
 > 本页为电影实拍光效-动机-叙事三整合：动机化布光（光源真实：窗/灯/月光+色温一致）、实用光（画面内可信动机）、**非动机光作为叙事工具**（有意为之服务故事）。知识本体来自 2026 光效叙事（InVideo/CINED/NoFilmSchool）。AI 应用面向 DirectorX：光效统一（衔接 341 实拍光效、350 对应、170 光匹配、272 三通道）。
@@ -77,3 +135,10 @@
 - NoFilmSchool — What Is Motivated Lighting in Film：https://nofilmschool.com/motivated-lighting
 - StudioBinder — Motivated Lighting: Building a World with Light：https://www.studiobinder.com/blog/what-is-motivated-lighting-in-film/
 - StudySmarter — Motivated Lighting: Techniques & Analysis：https://www.studysmarter.co.uk/explanations/media-studies/filmmaking/motivated-lighting/
+
+## 相关概念
+
+- [电影实拍光效艺术（Practical Lighting — Motivated Sources & In-Frame Light）](../341-practical-lighting-art/practical-lighting-art.md)
+- [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）](../267-film-synesthesia/film-synesthesia.md)

@@ -5,6 +5,7 @@ import { isThinPrompt } from './prompt-craft.ts'
 import { wantsCharacterSheet } from './providers/sheet-prompt.ts'
 import { CharacterStore } from './characters.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
+import { buildIpBrief, ipIssueLine, scanIpRisk, type IpHit } from './ip-lexicon.ts'
 
 export type GenerateReadyKind = 'image' | 'video'
 export type GenerateStrategy =
@@ -90,6 +91,7 @@ export interface ReadyReport {
   next: string[]
   ask: ReadyAsk[]
   reason: string
+  ip?: IpHit[]
 }
 
 export interface GenerateReadyBrief {
@@ -362,7 +364,7 @@ function buildAsk(report: Omit<ReadyReport, 'ask' | 'next' | 'reason'> & { input
 function buildNext(report: ReadyReport): string[] {
   const next: string[] = []
   for (const item of report.missing) {
-    if (item.need === 'detailed-prompt') next.push('回到 directorx_prompt_craft，把景别/运镜/光/环境写进成稿')
+    if (item.need === 'detailed-prompt') next.push('directorx_prompt_plan，按六要素写细再 prompt_craft')
     if (item.need === 'character-sheet') {
       next.push('directorx_skill_read novel-characters')
       next.push('先 directorx_generate_ready strategy=character-sheet 再 generate_image 出设定表')
@@ -433,6 +435,18 @@ export function assessGenerateReady(input: AssessReadyInput): ReadyReport {
   }
   draft.ask = draft.verdict === 'blocked' ? buildAsk({ ...draft, input }) : []
   draft.next = buildNext(draft)
+  const promptIp = scanIpRisk(input.prompt)
+  const intentIp = promptIp.length > 0 ? promptIp : scanIpRisk(input.intent)
+  if (promptIp.length > 0) {
+    const brief = buildIpBrief(input.prompt)
+    draft.ip = promptIp
+    draft.verdict = 'blocked'
+    draft.next = brief.next
+    draft.reason = `成稿仍含 IP 专名，不能 ready。${promptIp.map(ipIssueLine).join(' ')}`
+  } else if (intentIp.length > 0) {
+    draft.ip = intentIp
+    draft.next = ['意图含 IP 专名：成稿须已改写。生成时带负向排除。', ...draft.next]
+  }
   return draft
 }
 

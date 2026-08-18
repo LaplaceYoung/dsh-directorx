@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）"
+description: "电影通感设计：通感电影（Synaesthetic Cinema）类型框架（五类）、色彩-声音对应（Chromesthesia）、视听对应影响观众体验、通感作为设计层"
+tags:
+  - "synthesis"
+  - "color"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Berghahn Synaesthetic Film Reconsidered"
+    id: cite-1
+    title: "Synaesthetic Film Reconsidered"
+    author: "org:Berghahn"
+  - resource: "cited:Wikipedia Synesthesia in Art"
+    id: cite-2
+    title: "Synesthesia in Art"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Synesthesia"
+    id: cite-3
+    title: "Synesthesia"
+    author: "org:Wikipedia"
+  - resource: "cited:Justice Synesthesia: The Color of Sound"
+    id: cite-4
+    title: "Synesthesia: The Color of Sound"
+    author: "org:Justice"
+  - resource: "https://www.berghahnbooks.com/downloads/OpenAccess/TaberhamLessons/TaberhamLessons_05.pdf"
+    id: url-1
+    title: "berghahnbooks.com"
+  - resource: "https://en.wikipedia.org/wiki/Synesthesia_in_art"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Synesthesia"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://www.thejustice.org/article/2024/09/synesthesia-the-color-of-sound"
+    id: url-4
+    title: "thejustice.org"
+  - resource: "https://filmschoolrejects.com/culture-warrior-synesthesia-at-the-movies-fb69ac2f44df/"
+    id: url-5
+    title: "filmschoolrejects.com"
+dx_id: "267"
+related:
+  - "144-sound-design/sound-design.md"
+  - "155-color-psychology/color-psychology.md"
+  - "219-film-sound-theory/film-sound-theory.md"
+---
+
 # 电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）
 
 > 本页为电影通感设计：通感电影（Synaesthetic Cinema）类型框架（五类）、色彩-声音对应（Chromesthesia）、视听对应影响观众体验、通感作为设计层。知识本体来自 2026 通感研究（Berghahn/Wikipedia/Justice）。AI 应用面向 DirectorX：感官设计（衔接 182 声画情绪、155 色彩、267 对应、219 声音）。
@@ -76,3 +131,9 @@
 - Wikipedia — Synesthesia：https://en.wikipedia.org/wiki/Synesthesia
 - The Justice — Synesthesia: The Color of Sound：https://www.thejustice.org/article/2024/09/synesthesia-the-color-of-sound
 - Film School Rejects — Culture Warrior: Synesthesia at the Movies：https://filmschoolrejects.com/culture-warrior-synesthesia-at-the-movies-fb69ac2f44df/
+
+## 相关概念
+
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）](../219-film-sound-theory/film-sound-theory.md)

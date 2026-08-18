@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片风格参考驱动（Style Reference Driven — StyleGallery & Semantic-Aware Transfer）"
+description: "AI 图片的风格参考驱动：风格参考图 → 风格迁移（StyleGallery 语义感知/跨注意+自适应归一化）、单变量控制（固定锚点改一个变量）、风格保真度、身份保持"
+tags:
+  - "consistency"
+  - "style"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv StyleGallery: Semantic-Aware Style Transfer (CVPR 2026)"
+    id: cite-1
+    title: "StyleGallery: Semantic-Aware Style Transfer (CVPR 2026)"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Style Transfer: A Decade Survey"
+    id: cite-2
+    title: "Style Transfer: A Decade Survey"
+    author: "org:arXiv"
+  - resource: "cited:Nature Semantic Guidance for Style Control"
+    id: cite-3
+    title: "Semantic Guidance for Style Control"
+    author: "org:Nature"
+  - resource: "cited:arXiv Training-Free Identity Preservation"
+    id: cite-4
+    title: "Training-Free Identity Preservation"
+    author: "org:arXiv"
+  - resource: "https://arxiv.org/html/2603.10354v2"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2506.19278v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://www.nature.com/articles/s41598-025-28715-x"
+    id: url-3
+    title: "nature.com"
+  - resource: "https://arxiv.org/html/2506.06802v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026/papers/Zhao_Style-GRPO_Semantic-Aware_Preference_Optimization_for_Image_Style_Transfer_Guided_by_CVPR_2026_paper.pdf"
+    id: url-5
+    title: "openaccess.thecvf.com"
+dx_id: "240"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "162-prompt-evaluation/prompt-evaluation.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 图片风格参考驱动（Style Reference Driven — StyleGallery & Semantic-Aware Transfer）
 
 > 本页为 AI 图片的风格参考驱动：风格参考图 → 风格迁移（StyleGallery 语义感知/跨注意+自适应归一化）、单变量控制（固定锚点改一个变量）、风格保真度、身份保持。知识本体来自 2026 风格迁移研究（StyleGallery CVPR 2026/Style Transfer Survey/Nature）。AI 应用面向 DirectorX：风格控制（衔接 126 风格、224 风格体系、240 对应、183 参考）。
@@ -76,3 +133,10 @@
 - Nature — Semantic Guidance for Precise Style Control in Diffusion（s41598-025-28715-x）：https://www.nature.com/articles/s41598-025-28715-x
 - arXiv — Training-Free Identity Preservation in Stylized Image Generation（2506.06802）：https://arxiv.org/html/2506.06802v1
 - CVPR 2026 — Style-GRPO: Semantic-Aware Preference Optimization：https://openaccess.thecvf.com/content/CVPR2026/papers/Zhao_Style-GRPO_Semantic-Aware_Preference_Optimization_for_Image_Style_Transfer_Guided_by_CVPR_2026_paper.pdf
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 提示词测试与评估（Prompt Evaluation — Systematic Iteration & Control Variables）](../162-prompt-evaluation/prompt-evaluation.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

@@ -2,9 +2,9 @@
 name: novel-script
 description: |
   给 AI 短剧写剧本：把 outline.json 的分集梗概落成结构化的场次 + 节拍流（动作节拍与台词行交替），
-  台词逐句带说话人与语气，时长逐集按语速确定性折算。产出 script.json + Markdown + 单页评审报告
-  （时长仪表 / 分集剧本 / 场次总表 / 按角色聚合的台词本——台词本直接对接 TTS 批量生成）。
-  剧本管戏，分镜管拍——本 skill 不分镜头、无镜号、不写生成提示词，那是影棚分镜阶段的活。
+  台词逐句带说话人与语气，时长逐集按语速确定性折算。产出 script.json + Markdown，
+  用 directorx_bible 钉到画布（时长 / 分集 / 台词本）。
+  剧本管戏，分镜管拍——本 skill 不分镜头、无镜号、不写生成提示词，那是分镜阶段的活。
   9 道质量门全部脚本确定性检查（每集时长 ±15%、单句 ≤35 字、说话人合法、钩子悬念落纸、
   每场至少一个动作节拍、爽点认领、角色/场景/光照/道具对账上游）。
   触发场景：写剧本、出剧本、台词、场次、写戏、screenplay。
@@ -103,13 +103,11 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-script.mjs validate <script.json> \
 cd <输出目录>
 node ${CLAUDE_SKILL_DIR}/scripts/novel-script.mjs render <剧名>-script.json --md \
   --outline <outline.json> --art <art.json> > <剧名>-script.md
-node ${CLAUDE_SKILL_DIR}/scripts/novel-script.mjs render <剧名>-script.json --html \
-  --outline <outline.json> --art <art.json> > script-report.html
 ```
 
-报告含：KPI 带（含台词占比）、时长仪表（每集条形打在目标区间带上，超欠标红）、分集剧本（一排两集，场次信息超过 300px 渐隐截断、点开展开）、场次总表、**台词本**（一排两个，按角色聚合、列表六行高可滚动、整组复制，直接对接 TTS 批量生成）、质量门面板、导出 JSON（下载的就是 script.json 原样）。
+不要另出 HTML。`directorx_bible pin kind:script` 把时长门、分集剧本和台词本钉到画布。
 
-汇报一句话说清：几集几场几句台词、预估总时长 vs 目标、哪几集贴着容差边、报告路径；没过的门明说。
+汇报一句话说清：几集几场几句台词、预估总时长 vs 目标、哪几集贴着容差边；没过的门明说。
 
 最终落地：
 
@@ -117,7 +115,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-script.mjs render <剧名>-script.json --
 <输出目录>/
 ├── <剧名>-script.json
 ├── <剧名>-script.md
-└── script-report.html             ← 双击就能开
+└── docs/script-review.md
 ```
 
 ## 四个 skill 的接力
@@ -133,7 +131,7 @@ seed 吃 outline.json；validate/render 的 `--outline` `--art` 负责对账和�
 
 ## 边界
 
-- 报告界面 v1 只有中文；台词语言跟剧走
+- 评审用 Markdown / 画布，不另出 HTML；台词语言跟剧走
 - 时长是**估算不是秒表**——容差 ±15% 就是为此留的；`params.charsPerSecond` 按配音语速可调
 - `VO` 是画外音统一记号，谁的心声写在 `delivery` 里；台词本里 VO 单独成组
 - 不设每集场次上限——AI 换景不要钱，换景次数只进 KPI 统计不设门

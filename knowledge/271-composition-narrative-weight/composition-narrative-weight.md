@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片构图叙事权重（Narrative Weight — Size, Scale & Visual Hierarchy）"
+description: "AI 图片的构图叙事权重：大小/尺度=重要性（Size as Significance）、视觉层级（主焦点/支撑/上下文）、光作为强调工具、权重引导情绪"
+tags:
+  - "synthesis"
+  - "narrative"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Figma What Is Visual Hierarchy"
+    id: cite-1
+    title: "What Is Visual Hierarchy"
+    author: "org:Figma"
+  - resource: "cited:IxDF Visual Hierarchy 2026"
+    id: cite-2
+    title: "Visual Hierarchy 2026"
+    author: "org:IxDF"
+  - resource: "cited:RMCAD Designing Visual Hierarchies"
+    id: cite-3
+    title: "Designing Visual Hierarchies"
+    author: "org:RMCAD"
+  - resource: "cited:Visme 12 Visual Hierarchy Principles"
+    id: cite-4
+    title: "12 Visual Hierarchy Principles"
+    author: "org:Visme"
+  - resource: "https://www.figma.com/resource-library/what-is-visual-hierarchy/"
+    id: url-1
+    title: "figma.com"
+  - resource: "https://ixdf.org/literature/topics/visual-hierarchy"
+    id: url-2
+    title: "ixdf.org"
+  - resource: "https://www.rmcad.edu/blog/designing-visual-hierarchies-guiding-the-viewers-eye-through-composition/"
+    id: url-3
+    title: "rmcad.edu"
+  - resource: "https://visme.co/blog/visual-hierarchy/"
+    id: url-4
+    title: "visme.co"
+  - resource: "https://imagestudio.com/editorial/post/composition-in-visual-storytelling-photography-a-pro-guide/"
+    id: url-5
+    title: "imagestudio.com"
+dx_id: "271"
+related:
+  - "216-composition-rules-deep/composition-rules-deep.md"
+  - "246-composition-psychology/composition-psychology.md"
+  - "192-negative-space/negative-space.md"
+  - "261-light-direction-emotion/light-direction-emotion.md"
+  - "236-chiaroscuro-light/chiaroscuro-light.md"
+---
+
 # AI 图片构图叙事权重（Narrative Weight — Size, Scale & Visual Hierarchy）
 
 > 本页为 AI 图片的构图叙事权重：大小/尺度=重要性（Size as Significance）、视觉层级（主焦点/支撑/上下文）、光作为强调工具、权重引导情绪。知识本体来自 2026 视觉层级指南（Figma/IxDF/RMCAD/Visme）。AI 应用面向 DirectorX：构图叙事（衔接 216 构图、271 对应、246 注意、192 负空间）。
@@ -82,3 +140,11 @@
 - RMCAD — Designing Visual Hierarchies：https://www.rmcad.edu/blog/designing-visual-hierarchies-guiding-the-viewers-eye-through-composition/
 - Visme — 12 Visual Hierarchy Principles：https://visme.co/blog/visual-hierarchy/
 - ImageStudio — Composition in Visual Storytelling Photography：https://imagestudio.com/editorial/post/composition-in-visual-storytelling-photography-a-pro-guide/
+
+## 相关概念
+
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)
+- [AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）](../246-composition-psychology/composition-psychology.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)
+- [AI 图片光影方向情绪库（Light Direction Emotion — Side, Top, Back & Under Light）](../261-light-direction-emotion/light-direction-emotion.md)
+- [AI 图片明暗对照叙事（Chiaroscuro — Dramatic Light-Shadow & Tenebrism）](../236-chiaroscuro-light/chiaroscuro-light.md)

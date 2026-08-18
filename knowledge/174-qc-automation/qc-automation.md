@@ -1,3 +1,60 @@
+---
+type: Playbook
+title: "AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）"
+description: "AI 成片质检自动化：缺陷自动检测（口型错位/手部变形/压缩伪影/色彩偏移/丢帧）、无参考质量评分（No-Reference VQA）、响度/字幕合规检查、QC 节点集成"
+tags:
+  - "consistency"
+  - "color"
+  - "workflow"
+  - "qa"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Twelve Labs AI Video QC: Catch Generation Defects (Pegasus)"
+    id: cite-1
+    title: "AI Video QC: Catch Generation Defects (Pegasus)"
+    author: "org:Twelve-Labs"
+  - resource: "cited:Promwad AI-QC: Automated Media Quality Control"
+    id: cite-2
+    title: "AI-QC: Automated Media Quality Control"
+    author: "org:Promwad"
+  - resource: "cited:Beverlyboy AI QC in Post-Production"
+    id: cite-3
+    title: "AI QC in Post-Production"
+    author: "org:Beverlyboy"
+  - resource: "cited:ReelMind Automated Video Quality Check"
+    id: cite-4
+    title: "Automated Video Quality Check"
+    author: "org:ReelMind"
+  - resource: "https://www.twelvelabs.io/blog/the-qc-node"
+    id: url-1
+    title: "twelvelabs.io"
+  - resource: "https://promwad.com/news/ai-qc-automated-media-quality-control"
+    id: url-2
+    title: "promwad.com"
+  - resource: "https://beverlyboy.com/film-technology/ai-qc-automated-quality-control-in-post/"
+    id: url-3
+    title: "beverlyboy.com"
+  - resource: "https://reelmind.ai/blog/automated-video-quality-check-ai-that-identifies-technical-issues"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://promwad.com/news/ai-qc-automated-quality-control-broadcasting-detecting-artifacts-loudness-subtitle-errors"
+    id: url-5
+    title: "promwad.com"
+dx_id: "174"
+related:
+  - "118-defect-repair/defect-repair.md"
+  - "129-eval-benchmark/eval-benchmark.md"
+  - "122-quality-monetization/quality-monetization.md"
+  - "138-params-tuning/params-tuning.md"
+---
+
 # AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）
 
 > 本页为 AI 成片质检自动化：缺陷自动检测（口型错位/手部变形/压缩伪影/色彩偏移/丢帧）、无参考质量评分（No-Reference VQA）、响度/字幕合规检查、QC 节点集成。知识本体来自 2026 AI-QC 指南（Twelve Labs/Beverlyboy/Promwad/ReelMind）。AI 应用面向 DirectorX：交付前质检（衔接 118 缺陷修复、129 评测、122 成本）。
@@ -85,3 +142,10 @@ VQA 评分挂钩生成批次质量 → 参数/模型调优决策（衔接 129 �
 - Beverlyboy — AI QC: Automated Quality Control in Post-Production：https://beverlyboy.com/film-technology/ai-qc-automated-quality-control-in-post/
 - ReelMind — Automated Video Quality Check: AI That Identifies Technical Issues：https://reelmind.ai/blog/automated-video-quality-check-ai-that-identifies-technical-issues
 - Promwad — AI-QC in Broadcasting: Artifacts, Loudness, Subtitles：https://promwad.com/news/ai-qc-automated-quality-control-broadcasting-detecting-artifacts-loudness-subtitle-errors
+
+## 相关概念
+
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)
+- [AI 视频评测与基准方法学（AI Video Evaluation — Benchmarks, Metrics & Human Eval）](../129-eval-benchmark/eval-benchmark.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)
+- [AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）](../138-params-tuning/params-tuning.md)

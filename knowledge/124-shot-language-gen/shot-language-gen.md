@@ -1,3 +1,63 @@
+---
+type: Method
+title: "AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）"
+description: "AI 视频镜头语言生成技巧库：镜头类型（景别）提示词、12+ 相机运动提示词（推/拉/摇/移/环绕/手持/航拍）、公式化结构（主体+动作+运动+光照+风格）、每镜 1-2 个运动的纪律"
+tags:
+  - "production"
+  - "camera"
+  - "prompt"
+  - "style"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Kling Guide to AI Camera Control"
+    id: cite-1
+    title: "Guide to AI Camera Control"
+    author: "org:Kling"
+  - resource: "cited:LetsEnhance 12 Essential Camera Movements for AI Video"
+    id: cite-2
+    title: "12 Essential Camera Movements for AI Video"
+    author: "org:LetsEnhance"
+  - resource: "cited:ATLabs 42 Cinematic Camera Movement Prompts"
+    id: cite-3
+    title: "42 Cinematic Camera Movement Prompts"
+    author: "org:ATLabs"
+  - resource: "cited:Seedance 2 Camera Movement Prompt Guide"
+    id: cite-4
+    title: "Camera Movement Prompt Guide"
+    author: "org:Seedance-2"
+  - resource: "cited:Media.io Camera Movement Prompts"
+    id: cite-5
+    title: "Camera Movement Prompts"
+    author: "org:Media.io"
+  - resource: "https://kling.ai/blog/ai-camera-control-movement-prompts-guide"
+    id: url-1
+    title: "kling.ai"
+  - resource: "https://letsenhance.io/blog/all/ai-video-camera-movements/"
+    id: url-2
+    title: "letsenhance.io"
+  - resource: "https://www.atlabs.ai/blog/make-better-ai-videos-42-cinematic-camera-movement-prompts"
+    id: url-3
+    title: "atlabs.ai"
+  - resource: "https://seedance2.so/blog/ai-video-camera-movement-prompt-guide"
+    id: url-4
+    title: "seedance2.so"
+  - resource: "https://www.media.io/ai/explore/zone/ai-video-camera-movement-prompts"
+    id: url-5
+    title: "media.io"
+dx_id: "124"
+related:
+  - "01-camera-language/camera-language.md"
+  - "109-shot-notation/shot-notation.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+---
+
 # AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）
 
 > 本页为 AI 视频镜头语言生成技巧库：镜头类型（景别）提示词、12+ 相机运动提示词（推/拉/摇/移/环绕/手持/航拍）、公式化结构（主体+动作+运动+光照+风格）、每镜 1-2 个运动的纪律。知识本体来自 2026 AI 相机控制指南（Kling/LetsEnhance/Media.io/ATLabs/Seedance）。AI 应用面向 DirectorX：逐镜提示词的镜头语言层（衔接 81 镜头语法、109 镜头表、115 六段式）。
@@ -103,3 +163,9 @@ Subject + Action + Movement + Lighting + Style
 - ATLabs — Make Better AI Videos: 42 Cinematic Camera Movement Prompts：https://www.atlabs.ai/blog/make-better-ai-videos-42-cinematic-camera-movement-prompts
 - Seedance 2 — Camera Movement Prompt Guide：https://seedance2.so/blog/ai-video-camera-movement-prompt-guide
 - Media.io — AI Video Camera Movement Prompts：https://www.media.io/ai/explore/zone/ai-video-camera-movement-prompts
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）](../109-shot-notation/shot-notation.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)

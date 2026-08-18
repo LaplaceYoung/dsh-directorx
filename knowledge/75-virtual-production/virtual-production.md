@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "虚拟制作与 LED 影棚（Virtual Production & LED Volumes）"
+description: "虚拟制作手册：ICVFX 方法论（内/外视锥）、LED 影棚设计（像素间距/摩尔纹对策/包围度）、硬件网络布局、摄影机跟踪三法、时码与 Genlock、实时合成与绿屏混合、色彩一致性、拍摄实操要点"
+tags:
+  - "production"
+  - "color"
+  - "continuity"
+  - "vfx"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Epic Games 官方 ICVFX 文档（UE 5.8）"
+    id: cite-1
+    title: "Epic Games 官方 ICVFX 文档（UE 5.8）"
+  - resource: "cited:Disguise LED 影棚指南"
+    id: cite-2
+    title: "Disguise LED 影棚指南"
+  - resource: "cited:尊正 LED 影棚操作指南"
+    id: cite-3
+    title: "尊正 LED 影棚操作指南"
+  - resource: "cited:fxguide StEM3。"
+    id: cite-4
+    title: "fxguide StEM3。"
+  - resource: "https://dev.epicgames.com/documentation/unreal-engine/in-camera-vfx-overview-in-unreal-engine?lang=en-US"
+    id: url-1
+    title: "dev.epicgames.com"
+  - resource: "https://www.disguise.one/cn/insights/e-book/ultimate-guide-led-volumes"
+    id: url-2
+    title: "disguise.one"
+  - resource: "https://zunzheng.com/news/archives/64840"
+    id: url-3
+    title: "zunzheng.com"
+  - resource: "https://zunzheng.com/news/archives/60298"
+    id: url-4
+    title: "zunzheng.com"
+  - resource: "https://www.fxguide.com/quicktakes/stem3-know-your-led-volume-before-you-shoot/"
+    id: url-5
+    title: "fxguide.com"
+  - resource: "https://www.infiled.com/blog/led-volume-setup-what-it-takes-to-build-a-virtual-production-stage/"
+    id: url-6
+    title: "infiled.com"
+dx_id: "75"
+related:
+  - "45-style-unification/style-unification.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "67-color-management/color-management.md"
+---
+
 # 虚拟制作与 LED 影棚（Virtual Production & LED Volumes）
 
 > 本页是 DirectorX 虚拟制作手册：ICVFX 方法论（内/外视锥）、LED 影棚设计（像素间距/摩尔纹对策/包围度）、硬件网络布局、摄影机跟踪三法、时码与 Genlock、实时合成与绿屏混合、色彩一致性、拍摄实操要点。与 26 合成 / 57 混合制作 / 67 色彩管理衔接。
@@ -117,3 +171,9 @@
 - InfiLED: LED Volume Setup for Virtual Production — https://www.infiled.com/blog/led-volume-setup-what-it-takes-to-build-a-virtual-production-stage/
 - 尊正资讯: 探讨 LED 虚拟影棚的布光问题 — https://zunzheng.com/news/archives/59228
 - Christie: 探索虚拟制作系统与工作流程 — https://www.christiedigital.cn/spotlight/exploring-virtual-production/
+
+## 相关概念
+
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [色彩管理全链路（Color Management Pipeline）](../67-color-management/color-management.md)

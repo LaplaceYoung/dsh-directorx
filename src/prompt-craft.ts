@@ -4,7 +4,13 @@ import { resolveOutputDir } from './support.ts'
 import { corpus } from './corpus.ts'
 import { skillIndex } from './skill-index.ts'
 import { ResearchLedger } from './research-ledger.ts'
+import { buildIpBrief } from './ip-lexicon.ts'
+import { commitIpRewrite, scanIpWithMemory } from './ip-memory.ts'
+import { routeSkills } from './skill-route.ts'
+import { planPrompt } from './prompt-plan.ts'
 import { buildShotPrompt, type ShotBuilderInput } from './providers/shot-builder.ts'
+import { clipH3Prompt } from './providers/h3-contract.ts'
+import { h3CraftLooksReady, normalizeH3Prompt } from './h3-prompt.ts'
 
 export interface PromptCraft {
   id: string
@@ -78,16 +84,26 @@ export async function craftPrompt(input: {
   const prompt = input.prompt.trim()
   if (intent === '') return { ok: false, refused: true, next: '先写清用户意图（画布生成条里的那句）' }
   if (input.knowledgeRefs.length === 0 || input.skillNames.length === 0) {
-    const [knowledge, skills] = await Promise.all([
-      corpus.search(intent, 5).catch(() => []),
-      skillIndex.search(intent, 5).catch(() => []),
-    ])
+    const routed = routeSkills(intent)
+    const plan = planPrompt({ intent, kind: input.kind })
+    let suggestedKnowledge = routed.articles.map(id => ({ id, title: `route:${id}` }))
+    let suggestedSkills = routed.skills.map(name => ({ name, snippet: 'route' }))
+    if (suggestedKnowledge.length === 0 || suggestedSkills.length === 0) {
+      const [knowledge, skills] = await Promise.all([
+        corpus.search(intent, 5).catch(() => []),
+        skillIndex.search(intent, 5).catch(() => []),
+      ])
+      suggestedKnowledge = [...suggestedKnowledge, ...knowledge.map(hit => ({ id: hit.id, title: hit.title }))]
+      suggestedSkills = [...suggestedSkills, ...skills.map(hit => ({ name: hit.name, snippet: hit.snippet }))]
+    }
     return {
       ok: false,
       refused: true,
-      next: '先 directorx_knowledge_search → directorx_knowledge_read，再 directorx_skill_search → directorx_skill_read，外部事实不够再上网。读完把 refs/names 传回来。',
-      suggestedKnowledge: knowledge.map(hit => ({ id: hit.id, title: hit.title })),
-      suggestedSkills: skills.map(hit => ({ name: hit.name, snippet: hit.snippet })),
+      next: '先 directorx_prompt_plan / skill_route，再 skill_read 列出的技能、knowledge_read 列出的文章 id。外部事实不够再上网。读完把 refs/names 传回来。',
+      suggestedKnowledge,
+      suggestedSkills,
+      route: routed,
+      plan,
     }
   }
 
@@ -118,14 +134,56 @@ export async function craftPrompt(input: {
   }
 
   const thin = isThinPrompt(intent, prompt)
-  if (thin !== undefined) return { ok: false, refused: true, next: thin }
+  if (thin !== undefined) {
+    const plan = planPrompt({ intent, kind: input.kind })
+    return { ok: false, refused: true, next: thin, plan }
+  }
 
   let assembled = prompt
   let negative: string | undefined
+  const h3Craft = input.kind === 'video' && input.skillNames.some(name => /minimax-h3|hailuo/i.test(name))
+  if (h3Craft) {
+    const gap = h3CraftLooksReady(assembled)
+    if (gap !== undefined) {
+      return { ok: false, refused: true, next: gap, plan: planPrompt({ intent, kind: input.kind }) }
+    }
+    assembled = clipH3Prompt(normalizeH3Prompt(assembled, {}).prompt).prompt
+  }
   if (input.shot !== undefined) {
-    const built = buildShotPrompt({ ...input.shot, subject: input.shot.subject || intent })
+    const intentBrief = buildIpBrief(intent)
+    const subject = intentBrief.dirty
+      ? (intentBrief.keep.join(' ').trim() || '主体')
+      : (input.shot.subject || intent)
+    const built = buildShotPrompt({ ...input.shot, subject })
     assembled = `${built.prompt}\n\n${prompt}`
     negative = built.negative
+  }
+
+  const scanned = await scanIpWithMemory(input.outputDir, assembled)
+  if (scanned.brief.dirty) {
+    return {
+      ok: false,
+      refused: true,
+      ip: scanned.brief,
+      memory: scanned.memory,
+      next: '成稿仍含 IP 专名。按 ip.agentPrompt 结合项目记忆写细，再 directorx_ip_rewrite 验收。不要套固定替换句。',
+    }
+  }
+
+  const intentScan = await scanIpWithMemory(input.outputDir, intent)
+  if (intentScan.brief.dirty) {
+    const cited = input.knowledgeRefs.some(ref => ref === '213' || ref.includes('213'))
+    if (!cited) {
+      return {
+        ok: false,
+        refused: true,
+        ip: intentScan.brief,
+        memory: intentScan.memory,
+        next: '意图含 IP 专名。先 directorx_knowledge_read 213，按方法改写成稿后再交。',
+      }
+    }
+    if (intentScan.brief.negativeLine !== '') negative = intentScan.brief.negativeLine
+    await commitIpRewrite(input.outputDir, { source: intent, rewrite: assembled, remember: true })
   }
 
   const craft: PromptCraft = {
@@ -147,6 +205,8 @@ export async function craftPrompt(input: {
     negative: craft.negative ?? null,
     knowledgeRefs: craft.knowledgeRefs,
     skillNames: craft.skillNames,
+    ipHits: intentScan.brief.hits.map(hit => hit.term),
+    ipRemembered: intentScan.brief.dirty,
     next: '严格/协同：directorx_propose 带 craftId；生成必须带同一个 craftId',
   }
 }
@@ -160,7 +220,7 @@ export async function requireCraft(
       ok: false,
       refused: true,
       reason: '生成必须先出调研成稿',
-      next: 'directorx_knowledge_search/read + directorx_skill_search/read（必要时外部调研）→ directorx_prompt_craft → 再 generate/propose。画布上的短句只是意图。',
+      next: 'directorx_skill_route → skill_read 列出的技能 + knowledge_search/read（必要时外部调研）→ directorx_prompt_craft → 再 generate/propose。画布上的短句只是意图。',
     }
   }
   const craft = await new PromptCraftStore(outputDir).get(craftId.trim())

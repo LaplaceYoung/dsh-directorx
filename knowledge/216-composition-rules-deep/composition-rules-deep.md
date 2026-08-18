@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）"
+description: "AI 图片的构图法则体系：三分法/对称/引导线/框架式/负空间/视觉层级、构图提示词显式化（\"rule of thirds\"直接写）、构图承载叙事"
+tags:
+  - "consistency"
+  - "prompt"
+  - "narrative"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ZSky 12 AI Image Composition Tips"
+    id: cite-1
+    title: "12 AI Image Composition Tips"
+    author: "org:ZSky"
+  - resource: "cited:Floniks Composition Rules in Prompts"
+    id: cite-2
+    title: "Composition Rules in Prompts"
+    author: "org:Floniks"
+  - resource: "cited:Gemini3Prompt AI Image Composition Techniques"
+    id: cite-3
+    title: "AI Image Composition Techniques"
+    author: "org:Gemini3Prompt"
+  - resource: "cited:PromptPiece Composition Rules for Story-Driven AI Images"
+    id: cite-4
+    title: "Composition Rules for Story-Driven AI Images"
+    author: "org:PromptPiece"
+  - resource: "https://zsky.ai/blog/ai-composition-tips"
+    id: url-1
+    title: "zsky.ai"
+  - resource: "https://floniks.com/learn/cinematography/composition-rules-in-prompts"
+    id: url-2
+    title: "floniks.com"
+  - resource: "https://gemini3prompt.com/articles/ai-image-composition-techniques/"
+    id: url-3
+    title: "gemini3prompt.com"
+  - resource: "https://promptpiece.com/posts/tech/composition-rules/"
+    id: url-4
+    title: "promptpiece.com"
+  - resource: "https://gemini3prompt.com/ko/articles/ai-image-composition-techniques/"
+    id: url-5
+    title: "gemini3prompt.com"
+dx_id: "216"
+related:
+  - "192-negative-space/negative-space.md"
+  - "210-golden-ratio-composition/golden-ratio-composition.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+---
+
 # AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）
 
 > 本页为 AI 图片的构图法则体系：三分法/对称/引导线/框架式/负空间/视觉层级、构图提示词显式化（"rule of thirds"直接写）、构图承载叙事。知识本体来自 2026 构图提示词指南（ZSky/Gemini3Prompt/Floniks/PromptPiece）。AI 应用面向 DirectorX：图片构图（衔接 192 负空间、210 黄金比例、215 参数、216 对应）。
@@ -86,3 +143,9 @@ visual hierarchy, rule of thirds composition"
 - Gemini3Prompt — AI Image Composition: Pro Framing Techniques：https://gemini3prompt.com/articles/ai-image-composition-techniques/
 - PromptPiece — Composition Rules for Strong, Story-Driven AI Images：https://promptpiece.com/posts/tech/composition-rules/
 - Gemini3Prompt — AI Image Composition Techniques（KO）：https://gemini3prompt.com/ko/articles/ai-image-composition-techniques/
+
+## 相关概念
+
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)
+- [AI 黄金比例构图（Golden Ratio Composition — Phi Grid & Cinematic Balance）](../210-golden-ratio-composition/golden-ratio-composition.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)

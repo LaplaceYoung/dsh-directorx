@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "AI 图片年代表演三锚应用（Era Portrait Anchors — Costume, Setting & Expression in Period Images）"
+description: "AI 图片的年代表演三锚应用：时代画像配方（年代+服饰+背景+光照+瑕疵/时代色/胶片效果）、摄影技术语言（主体/光/背景/镜头/情绪/风格）、跨场景光/阴影一致"
+tags:
+  - "synthesis"
+  - "camera"
+  - "character"
+  - "style"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind Vintage Portraits Prompts"
+    id: cite-1
+    title: "Vintage Portraits Prompts"
+    author: "org:ReelMind"
+  - resource: "cited:Promptomania Portrait Photography Prompts"
+    id: cite-2
+    title: "Portrait Photography Prompts"
+    author: "org:Promptomania"
+  - resource: "cited:God of Prompt Historical Portrait Face Transformation"
+    id: cite-3
+    title: "Historical Portrait Face Transformation"
+    author: "org:God-of-Prompt"
+  - resource: "cited:Vofy Photorealistic AI Portraits"
+    id: cite-4
+    title: "Photorealistic AI Portraits"
+    author: "org:Vofy"
+  - resource: "https://reelmind.ai/blog/ai-image-generation-the-best-prompts-for-creating-vintage-portraits"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://promptomania.com/prompts/portrait-prompts"
+    id: url-2
+    title: "promptomania.com"
+  - resource: "https://godofprompt.ai/prompt-library/transform-faces-into-historical-portraits"
+    id: url-3
+    title: "godofprompt.ai"
+  - resource: "https://www.vofy.art/blog/10-best-prompts-photorealistic-ai-portraits"
+    id: url-4
+    title: "vofy.art"
+  - resource: "https://zsky.ai/blog/ai-portrait-prompts"
+    id: url-5
+    title: "zsky.ai"
+dx_id: "308"
+related:
+  - "300-era-triple-anchor/era-triple-anchor.md"
+  - "291-era-performance/era-performance.md"
+  - "283-era-photography-styles/era-photography-styles.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+---
+
 # AI 图片年代表演三锚应用（Era Portrait Anchors — Costume, Setting & Expression in Period Images）
 
 > 本页为 AI 图片的年代表演三锚应用：时代画像配方（年代+服饰+背景+光照+瑕疵/时代色/胶片效果）、摄影技术语言（主体/光/背景/镜头/情绪/风格）、跨场景光/阴影一致。知识本体来自 2026 时代肖像（ReelMind/Promptomania/God of Prompt）。AI 应用面向 DirectorX：时代图（衔接 300 三锚、308 对应、291 年代表演、283 年代摄影）。
@@ -77,3 +137,11 @@
 - God of Prompt — Historical Portrait Face Transformation：https://godofprompt.ai/prompt-library/transform-faces-into-historical-portraits
 - Vofy — 10 Best Prompts for Photorealistic AI Portraits：https://www.vofy.art/blog/10-best-prompts-photorealistic-ai-portraits
 - ZSky — 40 AI Portrait Prompts：https://zsky.ai/blog/ai-portrait-prompts
+
+## 相关概念
+
+- [电影年代表演-场景-声音三锚（Era Triple Anchor — Acting, Setting & Sound Authenticity）](../300-era-triple-anchor/era-triple-anchor.md)
+- [电影年代表演（Era Performance — From Presentational to Method to Media-Aware）](../291-era-performance/era-performance.md)
+- [AI 图片年代摄影流派（Era Photography Styles — Daguerreotype, Wet Plate & Decade Looks）](../283-era-photography-styles/era-photography-styles.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)

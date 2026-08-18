@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）"
+description: "AI 多镜头连续性物理：180° 轴线规则、视线匹配（Eyeline Match）、屏幕方向（Screen Direction）、正反打空间逻辑（Shot-Reverse-Shot）、主镜头锚点（Master Shot Anchor）"
+tags:
+  - "consistency"
+  - "camera"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Hailuo Shot-Reverse-Shot Spatial Logic"
+    id: cite-1
+    title: "Shot-Reverse-Shot Spatial Logic"
+    author: "org:Hailuo"
+  - resource: "cited:Adobe Continuity Editing in Film"
+    id: cite-2
+    title: "Continuity Editing in Film"
+    author: "org:Adobe"
+  - resource: "cited:Filmmakers Academy 180-Degree Rule / Eyeline Match"
+    id: cite-3
+    title: "180-Degree Rule / Eyeline Match"
+    author: "org:Filmmakers-Academy"
+  - resource: "cited:Wikipedia 180-Degree Rule"
+    id: cite-4
+    title: "180-Degree Rule"
+    author: "org:Wikipedia"
+  - resource: "https://hailuoai.video/pages/knowledge/director-guide-shot-reverse-shot-spatial-logic"
+    id: url-1
+    title: "hailuoai.video"
+  - resource: "https://www.adobe.com/creativecloud/video/hub/ideas/what-is-continuity-editing-in-film.html"
+    id: url-2
+    title: "adobe.com"
+  - resource: "https://www.filmmakersacademy.com/glossary/180-degree-rule/"
+    id: url-3
+    title: "filmmakersacademy.com"
+  - resource: "https://www.filmmakersacademy.com/glossary/eyeline-match/"
+    id: url-4
+    title: "filmmakersacademy.com"
+  - resource: "https://en.wikipedia.org/wiki/180-degree_rule"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "171"
+related:
+  - "31-ai-audio/ai-audio.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "123-longform-consistency/longform-consistency.md"
+---
+
 # AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）
 
 > 本页为 AI 多镜头连续性物理：180° 轴线规则、视线匹配（Eyeline Match）、屏幕方向（Screen Direction）、正反打空间逻辑（Shot-Reverse-Shot）、主镜头锚点（Master Shot Anchor）。知识本体来自 2026 连续性指南（Adobe/Hailuo/Filmmakers Academy/M Studio）。AI 应用面向 DirectorX：多镜头生成（衔接 31 正反打、117 一致性、123 场景卡）。
@@ -83,3 +138,9 @@
 - Filmmakers Academy — 180-Degree Rule：https://www.filmmakersacademy.com/glossary/180-degree-rule/
 - Filmmakers Academy — Eyeline Match：https://www.filmmakersacademy.com/glossary/eyeline-match/
 - Wikipedia — 180-Degree Rule：https://en.wikipedia.org/wiki/180-degree_rule
+
+## 相关概念
+
+- [AI 音频专项（AI Audio: Voice, Music & Restoration）](../31-ai-audio/ai-audio.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)

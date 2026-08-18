@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 视频剧本格式规范（Screenplay Format — Industry Standards as AI Input）"
+description: "AI 视频的剧本格式规范：行业标准格式（场头/动作/对白/转场）、Courier 12pt 与页数规则（1 页≈1 分钟）、格式作为 AI 生成的结构化输入"
+tags:
+  - "consistency"
+  - "editing"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Plotwell How to Format a Screenplay 2026"
+    id: cite-1
+    title: "How to Format a Screenplay 2026"
+    author: "org:Plotwell"
+  - resource: "cited:ScreenWeaver Screenplay Format: The Complete Guide 2026"
+    id: cite-2
+    title: "Screenplay Format: The Complete Guide 2026"
+    author: "org:ScreenWeaver"
+  - resource: "cited:QuoteUnquote Standard Screenplay Format"
+    id: cite-3
+    title: "Standard Screenplay Format"
+    author: "org:QuoteUnquote"
+  - resource: "cited:Laper Professional AI Screenplay Editor"
+    id: cite-4
+    title: "Professional AI Screenplay Editor"
+    author: "org:Laper"
+  - resource: "https://plotwell.co/blog/how-to-format-screenplay"
+    id: url-1
+    title: "plotwell.co"
+  - resource: "https://www.screenweaver.ai/blog/screenplay-formatting-guide-2026"
+    id: url-2
+    title: "screenweaver.ai"
+  - resource: "https://blog.quoteunquoteapps.com/standard-screenplay-format-the-writers-guide/"
+    id: url-3
+    title: "blog.quoteunquoteapps.com"
+  - resource: "https://laper.ai/blog/2025-11-12-professional-ai-screenplay-editor-industry-standards/"
+    id: url-4
+    title: "laper.ai"
+  - resource: "https://www.blockreeldao.com/blog/the-complete-screenwriting-guide-2026-structure-format-ai-tools-industry-standards"
+    id: url-5
+    title: "blockreeldao.com"
+dx_id: "159"
+related:
+  - "103-analysis-notes/analysis-notes.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "109-shot-notation/shot-notation.md"
+---
+
 # AI 视频剧本格式规范（Screenplay Format — Industry Standards as AI Input）
 
 > 本页为 AI 视频的剧本格式规范：行业标准格式（场头/动作/对白/转场）、Courier 12pt 与页数规则（1 页≈1 分钟）、格式作为 AI 生成的结构化输入。知识本体来自 2026 剧本格式指南（Plotwell/ScreenWeaver/QuoteUnquote/Laper）。AI 应用面向 DirectorX：剧本阶段（衔接 103 剧本写作、150 叙事、143 短剧）。
@@ -86,3 +142,10 @@ AI 编辑器保持行业标准（格式合规 → 提交/生产可用），同�
 - QuoteUnquote — Standard Screenplay Format: The Complete Writer's Guide：https://blog.quoteunquoteapps.com/standard-screenplay-format-the-writers-guide/
 - Laper — Professional AI Screenplay Editor: Industry Standards：https://laper.ai/blog/2025-11-12-professional-ai-screenplay-editor-industry-standards/
 - BlockReelDAO — The Complete Screenwriting Guide 2026：https://www.blockreeldao.com/blog/the-complete-screenwriting-guide-2026-structure-format-ai-tools-industry-standards
+
+## 相关概念
+
+- [拉片笔记系统（Film Analysis Notes System）](../103-analysis-notes/analysis-notes.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）](../109-shot-notation/shot-notation.md)

@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "特效与合成基础（VFX & Compositing）"
+description: "特效合成知识库：绿幕拍摄与抠像全流程、VFX 流水线各阶段、抠像关键参数（溢出/边缘/头发）、合成纪律与版本管理、AI 抠像工作流"
+tags:
+  - "foundation"
+  - "workflow"
+  - "vfx"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Floniks 绿幕抠像工作流"
+    id: cite-1
+    title: "Floniks 绿幕抠像工作流"
+  - resource: "cited:CADA VFX 流水线指南"
+    id: cite-2
+    title: "CADA VFX 流水线指南"
+  - resource: "cited:Frame.io VFX 工作流最佳实践"
+    id: cite-3
+    title: "Frame.io VFX 工作流最佳实践"
+  - resource: "cited:Nuke/达芬奇官方文档要点。"
+    id: cite-4
+    title: "Nuke/达芬奇官方文档要点。"
+  - resource: "https://floniks.com/learn/workflows/green-screen-keying-workflow"
+    id: url-1
+    title: "floniks.com"
+  - resource: "https://cada-edu.com/guides/visual-effects-pipeline-guide-to-vfx-process"
+    id: url-2
+    title: "cada-edu.com"
+  - resource: "https://blog.frame.io/2020/02/17/vfx-workflow-best-practices/"
+    id: url-3
+    title: "blog.frame.io"
+  - resource: "https://learn.foundry.com/nuke/content/comp_environment/keying_with_keylight/basic_keying.html"
+    id: url-4
+    title: "learn.foundry.com"
+  - resource: "https://www.videomaker.com/how-to/shooting/green-screen/6-steps-to-pulling-a-good-key-green-screen-post-production/"
+    id: url-5
+    title: "videomaker.com"
+  - resource: "https://www.adobe.com/creativecloud/video/discover/how-to-use-green-screen.html"
+    id: url-6
+    title: "adobe.com"
+dx_id: "26"
+related:
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "55-global-localization-visual/global-localization-visual.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+---
+
 # 特效与合成基础（VFX & Compositing）
 
 > 本页是 DirectorX 特效合成知识库：绿幕拍摄与抠像全流程、VFX 流水线各阶段、抠像关键参数（溢出/边缘/头发）、合成纪律与版本管理、AI 抠像工作流。每个概念含参数与检查清单。
@@ -156,3 +209,9 @@ VFX（Visual Effects）流水线是一条**保护下一阶段免受猜测与返�
 - Foundry Nuke 官方文档: Basic Keying — https://learn.foundry.com/nuke/content/comp_environment/keying_with_keylight/basic_keying.html
 - Videomaker: 6 Steps to Pulling a Good Key — https://www.videomaker.com/how-to/shooting/green-screen/6-steps-to-pulling-a-good-key-green-screen-post-production/
 - Adobe: How to use a green screen — https://www.adobe.com/creativecloud/video/discover/how-to-use-green-screen.html
+
+## 相关概念
+
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [多语言出海视觉本地化（Global Localization & Visual Adaptation）](../55-global-localization-visual/global-localization-visual.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)

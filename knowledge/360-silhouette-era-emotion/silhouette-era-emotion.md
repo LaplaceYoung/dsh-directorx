@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 图片剪影-年代-情绪三融合（Silhouette-Era-Emotion — Vintage Dramatic Fusion）"
+description: "AI 图片的剪影-年代-情绪三融合：戏剧剪影×年代氛围（暖复古调/霓虹雾/粉彩复古）、轮廓清晰+最少面部细节、日落背光/百叶窗影/双重曝光变体、复古海报框"
+tags:
+  - "synthesis"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe AI Image Prompt Examples"
+    id: cite-1
+    title: "AI Image Prompt Examples"
+    author: "org:Adobe"
+  - resource: "cited:HelpingPrompt Powerful Silhouette Images"
+    id: cite-2
+    title: "Powerful Silhouette Images"
+    author: "org:HelpingPrompt"
+  - resource: "cited:Media.io Gemini Silhouette Prompts"
+    id: cite-3
+    title: "Gemini Silhouette Prompts"
+    author: "org:Media.io"
+  - resource: "cited:PromptPlum Silhouette Prompts 2026"
+    id: cite-4
+    title: "Silhouette Prompts 2026"
+    author: "org:PromptPlum"
+  - resource: "https://www.adobe.com/products/firefly/ai-generated-examples/image-prompts.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://helpingprompt.in/create-powerful-silhouette-images-using-ai-prompts/"
+    id: url-2
+    title: "helpingprompt.in"
+  - resource: "https://www.media.io/ai-prompts/gemini-ai-silhouette-photo-prompts.html"
+    id: url-3
+    title: "media.io"
+  - resource: "https://promptplum.com/library/silhouette/"
+    id: url-4
+    title: "promptplum.com"
+  - resource: "https://pixu.ai/pixu/rf_stock_prompts/-/dramatic%20silhouettes"
+    id: url-5
+    title: "pixu.ai"
+dx_id: "360"
+aliases:
+  - "369"
+  - "silhouette-engagement-fusion"
+related:
+  - "351-silhouette-atmosphere-fusion/silhouette-atmosphere-fusion.md"
+  - "155-color-psychology/color-psychology.md"
+  - "294-emotional-memory-image/emotional-memory-image.md"
+  - "192-negative-space/negative-space.md"
+---
+
 # AI 图片剪影-年代-情绪三融合（Silhouette-Era-Emotion — Vintage Dramatic Fusion）
 
 > 本页为 AI 图片的剪影-年代-情绪三融合：戏剧剪影×年代氛围（暖复古调/霓虹雾/粉彩复古）、轮廓清晰+最少面部细节、日落背光/百叶窗影/双重曝光变体、复古海报框。知识本体来自 2026 剪影融合（Adobe Firefly/HelpingPrompt/Media.io）。AI 应用面向 DirectorX：剪影融合（衔接 351 剪影融合、360 对应、344 纹理年代、294 情绪记忆）。
@@ -58,6 +117,10 @@
 
 **DirectorX 纪律**：轮廓清晰；年代氛围融合；少面部细节；单变体克制。
 
+## 参与与平台（原 369）
+
+四融合里的「互动选择 / 多平台」不在本篇展开：变体选择见 364，品牌/海报跨场景见 195。本篇只锁剪影可读 × 年代情绪。
+
 ## 术语表（中英对照）
 
 | 中文 | English | 说明 |
@@ -76,3 +139,10 @@
 - Media.io — Gemini AI Silhouette Photo Prompts：https://www.media.io/ai-prompts/gemini-ai-silhouette-photo-prompts.html
 - PromptPlum — Silhouette AI Photo Editing Prompts 2026：https://promptplum.com/library/silhouette/
 - Pixu — Dramatic Silhouettes Prompts：https://pixu.ai/pixu/rf_stock_prompts/-/dramatic%20silhouettes
+
+## 相关概念
+
+- [AI 图片剪影-逆光-氛围三融合（Silhouette-Backlight-Atmosphere — Cinematic Fusion Prompts）](../351-silhouette-atmosphere-fusion/silhouette-atmosphere-fusion.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）](../294-emotional-memory-image/emotional-memory-image.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)

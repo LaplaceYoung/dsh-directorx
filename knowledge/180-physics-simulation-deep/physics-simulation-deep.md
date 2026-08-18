@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 物理模拟深化（Physics Simulation — Hair, Cloth, Fluid & Physics-Informed Diffusion）"
+description: "AI 视频物理模拟深化：发丝级头发动力学、神经布料模拟、流体物理、物理信息扩散框架（Physics-Informed Diffusion 桥接模拟器与视频模型）"
+tags:
+  - "consistency"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv ControlHair: Physics Simulator + Video Diffusion"
+    id: cite-1
+    title: "ControlHair: Physics Simulator + Video Diffusion"
+    author: "org:arXiv"
+  - resource: "cited:arXiv HairWeaver"
+    id: cite-2
+    title: "HairWeaver"
+    author: "org:arXiv"
+  - resource: "cited:OpenReview 3DPhysVideo"
+    id: cite-3
+    title: "3DPhysVideo"
+    author: "org:OpenReview"
+  - resource: "cited:ReelMind Generative Fabric Simulation"
+    id: cite-4
+    title: "Generative Fabric Simulation"
+    author: "org:ReelMind"
+  - resource: "https://arxiv.org/html/2509.21541v3"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2602.11117v2"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://openreview.net/forum?id=8TgzLrWgrk"
+    id: url-3
+    title: "openreview.net"
+  - resource: "https://reelmind.ai/blog/generative-fabric-simulation-ai-for-realistic-clothing-movement"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/next-level-ai-video-hair-simulation-realistic-strand-movement-and-physics"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "180"
+related:
+  - "133-motion-physics/motion-physics.md"
+  - "179-surface-material-consistency/surface-material-consistency.md"
+  - "97-action-stunts/action-stunts.md"
+  - "118-defect-repair/defect-repair.md"
+  - "174-qc-automation/qc-automation.md"
+---
+
 # AI 物理模拟深化（Physics Simulation — Hair, Cloth, Fluid & Physics-Informed Diffusion）
 
 > 本页为 AI 视频物理模拟深化：发丝级头发动力学、神经布料模拟、流体物理、物理信息扩散框架（Physics-Informed Diffusion 桥接模拟器与视频模型）。知识本体来自 2026 物理模拟研究（ControlHair/HairWeaver/3DPhysVideo/ReelMind）。AI 应用面向 DirectorX：动态真实感（衔接 133 物理一致性、179 材质、97 动作）。与 133/177 分工：本页为物体物理模拟（发/布/流体），133 为相机运动物理（惯性/轨迹），177 为曝光物理（快门/模糊）。
@@ -86,3 +142,11 @@
 - OpenReview — 3DPhysVideo: 3D Scene Reconstruction and Physical Dynamics：https://openreview.net/forum?id=8TgzLrWgrk
 - ReelMind — Generative Fabric Simulation: AI for Realistic Clothing：https://reelmind.ai/blog/generative-fabric-simulation-ai-for-realistic-clothing-movement
 - ReelMind — Next-Level AI Video Hair Simulation：https://reelmind.ai/blog/next-level-ai-video-hair-simulation-realistic-strand-movement-and-physics
+
+## 相关概念
+
+- [AI 运镜物理一致性（Camera Physics — Inertia, Trajectory & Handheld Realism）](../133-motion-physics/motion-physics.md)
+- [AI 材质表面一致性（Material Consistency — Skin, Fabric, Metal & Light-Material Physics）](../179-surface-material-consistency/surface-material-consistency.md)
+- [AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）](../97-action-stunts/action-stunts.md)
+- [生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）](../118-defect-repair/defect-repair.md)
+- [AI 成片质检自动化（QC Automation — Artifact Detection & Review Pipeline）](../174-qc-automation/qc-automation.md)

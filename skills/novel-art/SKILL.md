@@ -2,9 +2,9 @@
 name: novel-art
 description: |
   给 AI 短剧出美术设定集（场景 + 叙事道具）：一致性锚点、光照时段变体、空景提示词、
-  道具状态变体/尺度参照/白底无手提示词。产出 art.json + Markdown + 单页评审报告。
+  道具状态变体/尺度参照/白底无手提示词。产出 art.json + Markdown，用 directorx_bible 钉到画布评审。
   为 AI 生成而设计——交付的是让场景道具跨集长一样的一致性方案；11 道质量门全部脚本检查。
-  有 outline.json 就用 seed 预填场景清单；设定图可选，走影棚生成工具（占位先行）。
+  有 outline.json 就用 seed 预填场景清单；设定图可选，走 DirectorX 生成闸（占位先行）。
   触发场景：场景设定、美术设定、环境设定集、道具设定、场景一致性、scene bible。
 allowed-tools:
   - Read
@@ -99,7 +99,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-art.mjs validate <art.json> --cast <cast.
 
 场景和道具各一张 16:9 设定图，版面都是**主视角大图 + 底部和右侧的 L 形细节边框**。场景：标准取景 + 第一个光照状态，细节格是锚点特写。道具：白底三四分之一主视角（主状态），细节格是锚点特写 + 其他状态 + 侧面。读 `${CLAUDE_SKILL_DIR}/references/sheet.md` 照构图与质检要求做。出图走影棚生成工具，调用契约：
 
-- **预算先收敛 + 试点先行**：先出 1 张主场景设定图给用户验收，通过后其余场景/道具**全部占位**进 `mossland_prepare_generation`，用户在生成面板确认执行
+- **预算先收敛 + 试点先行**：先出 1 张主场景设定图给用户验收，通过后其余场景/道具**全部占位**进 `directorx_propose`，用户确认后再生成
 - **全图无人**；道具图另加**无手**、**纯白背景**，出现人影或手就重生成
 - **变体场景拿母场景成图当参考图**（写进该单元的 `reference_image_paths`）——变体机制的意义就在这
 - 一个场景/道具一个单元绝不批量；单个失败跳过不阻断，单镜返修
@@ -110,12 +110,11 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-art.mjs validate <art.json> --cast <cast.
 ```bash
 cd <输出目录>
 node ${CLAUDE_SKILL_DIR}/scripts/novel-art.mjs render <剧名>-art.json --md   > <剧名>-art.md
-node ${CLAUDE_SKILL_DIR}/scripts/novel-art.mjs render <剧名>-art.json --html > art-report.html
 ```
 
-`render` 自动去 `images/<slug>-sheet.png` 找图（场景和道具都找），**先出图再 render**。报告含：KPI 带、场景清单、场景设定卡、道具清单、道具设定卡（锚点核对表 / 状态变体 / 提示词包全带复制按钮）、质量门面板、导出 JSON（下载的就是 art.json 原样）。
+不要另出 HTML。`directorx_bible pin kind:art` 把质量门和场景/道具清单钉到画布。
 
-汇报一句话说清：几个场景（主场景/变体各几）、几件道具、锚点总数、出图数、报告路径；没过的门和没出的图明说。
+汇报一句话说清：几个场景、几件道具、锚点总数、出图数；没过的门明说。
 
 最终落地：
 
@@ -123,7 +122,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-art.mjs render <剧名>-art.json --html >
 <输出目录>/
 ├── <剧名>-art.json
 ├── <剧名>-art.md
-├── art-report.html                ← 双击就能开
+├── docs/art-review.md
 └── images/
     └── <slug>-sheet.png           ← 出了设定图才有
 ```
@@ -140,9 +139,9 @@ seed 吃 outline.json（场景部分；道具表大纲里没有，模型从原�
 
 ## 边界
 
-- 报告界面 v1 只有中文；出图提示词永远英文
+- 评审用 Markdown / 画布，不另出 HTML；出图提示词永远英文
 - 画风要跟角色 skill 同档，别一半写实一半动画
-- 出图只走影棚生成工具（占位先行、用户确认后执行），不在后台偷偷直连任何外部出图服务
+- 出图只走 DirectorX 生成闸（propose / ready / generate）
 - 场景数量不设硬上限——上限在 novel-outline 的主场景门那里管；这里管的是每个资产的质量
 - 道具只收叙事道具，3–8 件为宜——每多一件就多一份跨集一致性维护
 

@@ -238,7 +238,7 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       '- 生成失败不重试第三次：记录错误，让质检阶段给出降级路径。',
       '- 编排只负责流程；付费生成前四道闸门（规格/内容/成本/权利）由生成执行员按 playbook 确认。',
       '- 风格锁定用 directorx_style（知识库实文注入提示词），镜头语言/景别运镜同源；不臆造风格。',
-      '- 组装优先确定性：directorx_video_process（统一规格）+ directorx_video_concat（xfade 成片），产物路径写回画布。',
+      '- 组装优先确定性：directorx_edit_plan 路由后 directorx_image_edit / directorx_video_process / directorx_edit + directorx_video_concat（xfade 成片），产物路径写回画布。',
       '',
       '## 画布镜像（必须）',
       '',

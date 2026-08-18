@@ -14,15 +14,18 @@ import { buildShotPrompt, buildShotSequence, gateShotSequence } from './provider
 import { ProjectStyleStore } from './style-constants.ts'
 import { TermStore } from './terms.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
-import { CanvasIntentStore, formatDshCanvasPrompt } from './canvas-intent.ts'
+import { CanvasIntentStore, formatDshCanvasPromptForProject } from './canvas-intent.ts'
 import { orchestrateProduction } from './orchestrate/run.ts'
 import { formatCanvasShotlist } from './shotlist.ts'
 import { confirmProduction } from './confirm.ts'
 import { DirectorxEditLedger } from './edits.ts'
+import { planEdit } from './edit-plan.ts'
+import { commitBoundMedia, resolveBoundMedia } from './media-bind.ts'
 import { DirectorxTaskLedger } from './tasks.ts'
 import { runAudio } from './providers/audio.ts'
 import { extractFrames, probeMedia } from './providers/ffmpeg.ts'
 import { runImage } from './providers/image.ts'
+import { imageProcess, parseRotate } from './providers/image-process.ts'
 import { runTranscribe } from './providers/transcribe.ts'
 import { runVideo } from './providers/video.ts'
 import { runVision } from './providers/vision.ts'
@@ -35,11 +38,14 @@ import { audioSync, cleanSpeechText, clipRank, editsToScenes, estimateSpeech, pa
 import { videoUnderstand } from './providers/video-understand.ts'
 import { ProposalStore } from './proposals.ts'
 import { CharacterStore } from './characters.ts'
-import { losslessJsonObject, resolveMediaPath } from './support.ts'
-import { applyGrade, inferMediaKind, listGradeLabels, resolveGradeLook } from './providers/grade.ts'
+import { losslessJsonObject } from './support.ts'
+import { commitIpRewrite, scanIpWithMemory } from './ip-memory.ts'
+import { applyGrade, listGradeLabels, resolveGradeLook } from './providers/grade.ts'
 import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
 import { ResearchLedger } from './research-ledger.ts'
 import { craftPrompt, requireCraft } from './prompt-craft.ts'
+import { planPrompt } from './prompt-plan.ts'
+import { planProduction } from './production-flow.ts'
 import {
   assessGenerateReady, commitGenerateReady, loadReadySnapshot, mergeReadyBind, parseStrategy, requireReady,
 } from './generate-ready.ts'
@@ -47,7 +53,17 @@ import { StudioTicketStore } from './studio-intent.ts'
 import { runInProject, sessionProjectRoot } from './project.ts'
 import { normalizeAskQuestions, presentAsk } from './ask.ts'
 import { ProductionStageStore, parseStageId } from './stage.ts'
+import { deliverCapture, extraSkillRoots, runSkillCapture } from './skill-capture.ts'
 import { defaultSkillRoot, skillIndex } from './skill-index.ts'
+import { NoteStore } from './notes.ts'
+import { routeSkills, toolsForSkill } from './skill-route.ts'
+import { articlesForSkill, skillsForArticle } from './craft-map.ts'
+import { runBible } from './bible.ts'
+import { checkShotVocab, listShotVocab, showShotVocab } from './shot-vocab.ts'
+import { runCanvasCraft } from './canvas-craft.ts'
+import { runSeries } from './series.ts'
+import { planRevise } from './revise.ts'
+import { runBlocking } from './blocking.ts'
 
 import {
   adapterCapabilities,
@@ -124,14 +140,51 @@ async function generationGate(
       inBudget: true,
       proposal,
     })
-    return { ...auth, ready: ready.brief }
+    const scanned = await scanIpWithMemory(settings.outputDir, auth.prompt)
+    if (scanned.brief.dirty) {
+      return {
+        generate: false as const,
+        prompt: auth.prompt,
+        reason: '成稿仍含 IP 专名',
+        authorized: false,
+        refused: true,
+        ip: scanned.brief,
+        memory: scanned.memory,
+        next: scanned.brief.next,
+      }
+    }
+    const intentScan = await scanIpWithMemory(settings.outputDir, crafted.craft.intent)
+    const extras = [...intentScan.brief.exclude, ...intentScan.memory.flatMap(entry => entry.exclude)]
+    return {
+      ...auth,
+      ready: ready.brief,
+      ip: intentScan.brief,
+      memory: intentScan.memory,
+      negativeExtra: intentScan.brief.dirty || extras.length > 0
+        ? [crafted.craft.negative, intentScan.brief.negativeLine].filter(part => part !== undefined && part !== '').join(', ')
+        : (crafted.craft.negative ?? ''),
+    }
   }
-  return resolveGenerateAuthorization({
+  const auth = resolveGenerateAuthorization({
     mode: settings.initiative,
     prompt: crafted.craft.prompt,
     inBudget: true,
     proposal,
   })
+  const scanned = await scanIpWithMemory(settings.outputDir, auth.prompt)
+  if (scanned.brief.dirty) {
+    return {
+      generate: false as const,
+      prompt: auth.prompt,
+      reason: '成稿仍含 IP 专名',
+      authorized: false,
+      refused: true,
+      ip: scanned.brief,
+      memory: scanned.memory,
+      next: scanned.brief.next,
+    }
+  }
+  return { ...auth, ip: scanned.brief, memory: scanned.memory, negativeExtra: crafted.craft.negative ?? '' }
 }
 
 function toolContext(settings: DirectorxSettings, capability: DirectorxSettings['vision'], signal: AbortSignal, adapter?: import('./providers/adapter-spec.ts').AdapterSpec) {
@@ -182,7 +235,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         prompt: { type: 'string', required: true, description: 'Text-to-image prompt. 角色设定写清半身基准+正侧背三视图同一人。Follow subject, action, environment, style, light, lens.' },
         size: { type: 'string', description: 'Size such as 1024x1024, 1536x1024, or 1024x1536. Optional; provider defaults apply.' },
         quality: { type: 'string', enum: ['auto', 'low', 'medium', 'high'], description: 'Quality hint for providers that support it.' },
-        reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (modelverse-tasks mode).' },
+        reference_image_paths: { type: 'array', items: { type: 'string' }, description: 'Optional local paths or URLs used as image references (edits / modelverse-tasks).' },
         characters: { type: 'array', items: { type: 'string' }, description: 'Optional registered character names (directorx_character_register); their reference images and descriptions are injected automatically.' },
         model: { type: 'string', description: 'Optional model id. Overrides Settings for this call; user-onboarded adapters are resolved from the project catalog.' },
         craftId: { type: 'string', required: true, description: 'directorx_prompt_craft 返回的 id。未调研成稿禁止生成。' },
@@ -209,7 +262,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           ? `风格常量：camera ${style.camera}；palette ${style.palette}；lighting ${style.lighting}${style.sceneAnchors.length > 0 ? `；场景锚点 ${style.sceneAnchors.join(' / ')}` : ''}`
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
-        const prompt = withCharacterSheetSpec(blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt)
+        const base = withCharacterSheetSpec(blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt)
+        const avoid = 'negativeExtra' in gate && typeof gate.negativeExtra === 'string' && gate.negativeExtra !== ''
+          ? `\n避免：${gate.negativeExtra}`
+          : ''
+        const prompt = `${base}${avoid}`
         return runImage(await generateContext(settings, 'image', signal, typeof args.model === 'string' ? args.model : undefined), prompt, {
           size: args.size,
           quality: args.quality,
@@ -264,7 +321,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           : ''
         const blocks = [characterCards.length > 0 ? `角色一致性锚点：${characterNote}` : '', styleNote].filter(block => block !== '')
         const prompt = blocks.length > 0 ? `${gate.prompt}\n\n${blocks.join('；')}` : gate.prompt
-        const negative = [typeof args.negative_prompt === 'string' ? args.negative_prompt : '', style?.negativeBaseline ?? ''].filter(part => part !== '').join(', ')
+        const negative = [
+          typeof args.negative_prompt === 'string' ? args.negative_prompt : '',
+          'negativeExtra' in gate && typeof gate.negativeExtra === 'string' ? gate.negativeExtra : '',
+          style?.negativeBaseline ?? '',
+        ].filter(part => part !== '').join(', ')
         return runVideo(await generateContext(settings, 'video', signal, typeof args.model === 'string' ? args.model : undefined), prompt, {
           seconds: args.seconds,
           size: args.size,
@@ -272,7 +333,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           resolution: settings.video.resolution,
           firstFramePath: bind.firstFrame,
           lastFramePath: bind.lastFrame,
-          referenceImagePaths: refs,
+          referenceImagePaths: bind.firstFrame || bind.lastFrame ? [] : refs,
           negativePrompt: negative !== '' ? negative : undefined,
         })
       },
@@ -324,11 +385,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_search',
-    description: 'Search the bundled DirectorX film/AI-video knowledge corpus (350+ Chinese craft articles). Ranks title/slug/group first, then body; expands craft synonyms (首尾帧/三视图/分镜…). Always search before claiming the corpus lacks a topic. Then directorx_knowledge_read.',
+    description: 'Search the bundled DirectorX OKF knowledge corpus (340+ Chinese craft articles). Hits include type, tags, description, and skills to directorx_skill_read. Always search before claiming the corpus lacks a topic. Then directorx_knowledge_read the id.',
     parameters: {
       query: { type: 'string', required: true, description: 'Search query, e.g. "图生视频 首尾帧 提示词" or "camera movement semantics".' },
       max_results: { type: 'number', description: 'Maximum results (default 8, max 20).' },
       group: { type: 'string', description: 'Optional inventory group: foundation / production / consistency / synthesis.' },
+      type: { type: 'string', description: 'Optional OKF type: Reference / Method / Playbook / Spec / Case.' },
+      tag: { type: 'string', description: 'Optional OKF tag, e.g. prompt, camera, i2v, continuity.' },
     },
     output: objectOutput(),
     timeoutMs: 30_000,
@@ -336,13 +399,23 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     async execute(args: any) {
       const maxResults = Math.min(20, Math.max(1, Math.round(args.max_results ?? 8)))
       const group = typeof args.group === 'string' ? args.group : undefined
-      return { query: args.query, group: group ?? null, results: await corpus.search(args.query, maxResults, { group }) }
+      const type = typeof args.type === 'string' ? args.type : undefined
+      const tag = typeof args.tag === 'string' ? args.tag : undefined
+      const results = (await corpus.search(args.query, maxResults, { group, type, tag })).map(hit => ({
+        ...hit,
+        skills: skillsForArticle(hit.id),
+        next: [
+          `directorx_knowledge_read ${hit.id}`,
+          ...skillsForArticle(hit.id).slice(0, 2).map(name => `directorx_skill_read ${name}`),
+        ],
+      }))
+      return { query: args.query, group: group ?? null, type: type ?? null, tag: tag ?? null, okf: '0.2', results, route: routeSkills(String(args.query ?? '')) }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_knowledge_read',
-    description: 'Read bundled knowledge article(s) by id/slug/number/path from directorx_knowledge_search. Pass refs[] to read several. Returns related ids to keep researching.',
+    description: 'Read bundled knowledge article(s) by id/slug/number/path from directorx_knowledge_search or directorx_skill_route.articles. Pass refs[] to read several. Returns related ids and the skills that cite each article.',
     parameters: {
       ref: { type: 'string', description: 'One article id/slug/path, e.g. "116".' },
       refs: { type: 'array', items: { type: 'string' }, description: 'Read up to 3 articles in one call.' },
@@ -364,15 +437,22 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         await ledger.record({ kind: 'knowledge', ref: article.article.id || ref })
       }
       const related = await corpus.related(refs[0] as string, 3).catch(() => [])
-      return { articles, related }
+      return {
+        articles: articles.map(item => ({
+          ...item,
+          skills: skillsForArticle(item.article.id),
+        })),
+        related: related.map(hit => ({ ...hit, skills: skillsForArticle(hit.id) })),
+      }
     },
   })))
 
   skillIndex.setRoot(defaultSkillRoot())
+  skillIndex.setExtraRoots(extraSkillRoots(settings.outputDir))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_skill_search',
-    description: 'Search bundled DirectorX skills (name, description, headings, reference files). Use before guessing a workflow. Then directorx_skill_read the full SKILL.md.',
+    description: 'Search DirectorX skills (bundled plus project/user skills saved after a production). Each hit includes tools to call after you directorx_skill_read the body. Use before guessing a workflow.',
     parameters: {
       query: { type: 'string', required: true, description: 'Craft term, e.g. "三视图 角色" or "seedance prompt".' },
       max_results: { type: 'number', description: 'Default 8, max 20.' },
@@ -382,13 +462,38 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     isConcurrencySafe: () => true,
     async execute(args: any) {
       const maxResults = Math.min(20, Math.max(1, Math.round(args.max_results ?? 8)))
-      return { query: args.query, results: await skillIndex.search(String(args.query), maxResults) }
+      const query = String(args.query ?? '')
+      const results = (await skillIndex.search(query, maxResults)).map(hit => ({
+        ...hit,
+        tools: toolsForSkill(hit.name),
+        articles: articlesForSkill(hit.name),
+        next: [
+          `directorx_skill_read ${hit.name}`,
+          ...articlesForSkill(hit.name).slice(0, 2).map(id => `directorx_knowledge_read ${id}`),
+          ...toolsForSkill(hit.name).slice(0, 2),
+        ],
+      }))
+      return { query, results, route: routeSkills(query) }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_skill_route',
+    description: '技能与知识路由（零成本）：点名该 read 的 skill、该 knowledge_read 的文章 id、应按序调用的工具。工艺请求先调这个，再按 next 读技能正文和文章，不要另起检索词。',
+    parameters: {
+      intent: { type: 'string', required: true, description: '用户原话或当前画布意图。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return routeSkills(String(args.intent ?? ''))
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_skill_read',
-    description: 'Read a bundled skill SKILL.md (or a references/*.md file). The DSH skill manifest is only a summary — read the body before executing that craft.',
+    description: 'Read a skill SKILL.md (bundled, or a project/user skill saved after a production). Returns articles[] to directorx_knowledge_read next. The DSH skill catalog is only a summary.',
     parameters: {
       name: { type: 'string', required: true, description: 'Skill name from directorx_skill_search, e.g. novel-characters.' },
       file: { type: 'string', description: 'Optional relative file inside the skill folder, e.g. references/sheet.md.' },
@@ -399,13 +504,179 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     async execute(args: any) {
       const body = await skillIndex.read(String(args.name), typeof args.file === 'string' ? args.file : undefined)
       await new ResearchLedger(settings.outputDir).record({ kind: 'skill', ref: body.name })
-      return body
+      const articles = articlesForSkill(body.name)
+      return {
+        ...body,
+        articles,
+        next: articles.slice(0, 3).map(id => `directorx_knowledge_read ${id}`),
+      }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_note',
+    description: '记下用户在本片里的修改意见（更暖、换运镜、不要这版）。成片结束后 directorx_skill_capture 会把这些意见写进新技能。改一次记一条，不要只留在对话里。',
+    parameters: {
+      text: { type: 'string', required: true, description: '用户原话或你归纳的一条改法。' },
+      source: { type: 'string', enum: ['user', 'ask', 'reject'], description: '默认 user。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    async execute(args: any) {
+      const note = await new NoteStore(settings.outputDir).append({
+        text: String(args.text ?? ''),
+        source: args.source === 'ask' || args.source === 'reject' ? args.source : 'user',
+      })
+      return { ok: true, note, next: ['继续改片；交片后 directorx_skill_capture'] }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_blocking',
+    description: '场面控制表：用角色图、开场和事件顺序收成单镜世界状态锁。harvest 收角色/参考；schema 给出章节、优先级和 T0…Tn 空台账；你写成 Markdown 后 pin 钉到画布。show 读已有表。不生成。多人连续/完全控制时先调它再 craft。',
+    parameters: {
+      action: { type: 'string', enum: ['harvest', 'schema', 'pin', 'show'], description: '默认：有 markdown 则 pin，有开场/顺序则 schema，否则 harvest。' },
+      start: { type: 'string', description: '开场状态：谁持物、朝哪边、相机在哪一侧。' },
+      beats: { type: 'string', description: '事件顺序，一行一步或用 → 连接。' },
+      durationSec: { type: 'number', description: '规划时长，4–60 秒。超出单段模型上限就按 Tn 切开，仍引用同一份表。' },
+      markdown: { type: 'string', description: 'pin：你写的场面控制表正文，必须含场面台账。' },
+      title: { type: 'string', description: 'pin 时的表名。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return runBlocking({
+        outputDir: settings.outputDir,
+        action: typeof args.action === 'string' ? args.action : undefined,
+        start: typeof args.start === 'string' ? args.start : undefined,
+        beats: typeof args.beats === 'string' ? args.beats : undefined,
+        durationSec: typeof args.durationSec === 'number' ? args.durationSec : undefined,
+        markdown: typeof args.markdown === 'string' ? args.markdown : undefined,
+        title: typeof args.title === 'string' ? args.title : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_revise',
+    description: '只改画布上这一镜：读该节点的成片、提示词、角色锚和当前系列包，写成改稿计划。不生成。随后仍走 prompt_craft → generate_ready → generate，回写只改这个节点的 path。用户说「表情再生动点」时先调它。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '画布图片或视频节点 id。' },
+      change: { type: 'string', required: true, description: '这一镜要改什么，例如「眼神更狠一点」。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return planRevise({
+        outputDir: settings.outputDir,
+        nodeId: String(args.nodeId ?? ''),
+        change: String(args.change ?? ''),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_series',
+    description: '系列包：把本片已锁的角色锚、风格锁、镜头规则收成可跨集调用的包。harvest 只收事实；save 写入项目和用户库；list/show 查阅；apply 注册角色并写入风格锁，不生成。方法流程仍走 directorx_skill_capture。',
+    parameters: {
+      action: { type: 'string', enum: ['harvest', 'save', 'list', 'show', 'apply'], description: '默认 harvest。' },
+      name: { type: 'string', description: 'show/apply/save 的包名（小写短横线）。' },
+      title: { type: 'string', description: '展示名，可中文。' },
+      logline: { type: 'string', description: '一句话系列设定。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 60_000,
+    async execute(args: any) {
+      return runSeries({
+        outputDir: settings.outputDir,
+        action: typeof args.action === 'string' ? args.action : undefined,
+        name: typeof args.name === 'string' ? args.name : undefined,
+        title: typeof args.title === 'string' ? args.title : undefined,
+        logline: typeof args.logline === 'string' ? args.logline : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_skill_capture',
+    description: '成片交付后把流程和用户修改意见收成新技能。offer 弹出提问卡「是否保存为 xx 技能」；用户同意后你写 SKILL.md 正文再 save。只写入项目/用户技能库，不覆盖插件自带 skills/。',
+    parameters: {
+      action: { type: 'string', enum: ['harvest', 'offer', 'save'], description: '默认 offer。harvest 只收事实；offer 出提问卡；save 写入技能。' },
+      present: { type: 'boolean', description: 'offer 时立刻弹出画布提问卡，不要只返回 JSON。' },
+      name: { type: 'string', description: 'save：小写英文短横线技能名。' },
+      title: { type: 'string', description: '展示名，可中文。' },
+      description: { type: 'string', description: 'SKILL.md description：做什么、何时触发。' },
+      body: { type: 'string', description: 'save：你写的 SKILL.md 正文（流程 + 修改纪律），不要交空壳。' },
+      answer: { type: 'string', description: '用户已经回答时传入原话。' },
+      replace: { type: 'boolean', description: '覆盖已存在的同名用户技能。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any, exec: any) {
+      const userInteraction = ctx.get('userInteraction') as {
+        ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+      } | undefined
+      if (args.present === true && userInteraction === undefined) {
+        throw new Error('directorx_skill_capture present 需要 DSH userInteraction（画布会话提问卡）')
+      }
+      const result = await runSkillCapture({
+        outputDir: settings.outputDir,
+        action: typeof args.action === 'string' ? args.action : undefined,
+        present: args.present === true,
+        name: typeof args.name === 'string' ? args.name : undefined,
+        title: typeof args.title === 'string' ? args.title : undefined,
+        description: typeof args.description === 'string' ? args.description : undefined,
+        body: typeof args.body === 'string' ? args.body : undefined,
+        answer: typeof args.answer === 'string' ? args.answer : undefined,
+        replace: args.replace === true,
+        ...(args.present === true && userInteraction !== undefined
+          ? { ask: request => userInteraction.ask(request), agent: exec.agent, signal: exec.signal }
+          : {}),
+      })
+      if (result.saved === true && typeof result.name === 'string' && typeof result.description === 'string') {
+        const dir = typeof result.paths === 'object' && Array.isArray(result.paths) ? String(result.paths[0] ?? '').replace(/\/SKILL\.md$/, '') : ''
+        const content = typeof args.body === 'string' ? args.body : ''
+        try {
+          ctx.skills.register({
+            name: result.name,
+            description: result.description,
+            content,
+            source: 'user',
+            provider: 'directorx',
+            ...(dir !== '' ? { resourceBase: { kind: 'directory', path: dir } } : {}),
+            invocation: { modelInvocable: true, userInvocable: true },
+          })
+        } catch {
+          // Already registered in this process — files on disk are enough.
+        }
+      }
+      return result
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_prompt_plan',
+    description: '提示词编排：按当前意图给出六要素缺口、视频物理链、模型技能、版权方法和 next。不写固定成稿。写细后再 directorx_prompt_craft。',
+    parameters: {
+      intent: { type: 'string', required: true, description: '用户原句 / 画布意图。' },
+      kind: { type: 'string', enum: ['image', 'video', 'audio'], description: '出图、出视频还是出声音。不传则按意图推断。' },
+      model: { type: 'string', description: '已选模型 id，用来点名 copilot 技能。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      return planPrompt({
+        intent: String(args.intent ?? ''),
+        kind: args.kind === 'image' || args.kind === 'video' || args.kind === 'audio' ? args.kind : undefined,
+        model: typeof args.model === 'string' ? args.model : undefined,
+      })
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_prompt_craft',
-    description: '把用户意图写成可生成的导演提示词。必须先 knowledge_read + skill_read（必要时外部调研），再把成稿和引用交来。画布短句不是提示词。返回 craftId，generate/propose 必带。',
+    description: '把用户意图写成可生成的导演提示词。先 directorx_prompt_plan。必须 knowledge_read + skill_read（必要时外部调研），再把成稿和引用交来。画布短句不是提示词。成稿仍含 IP 专名会拒绝。返回 craftId，generate/propose 必带。',
     parameters: {
       intent: { type: 'string', required: true, description: '用户原句 / 画布生成条意图。' },
       prompt: { type: 'string', required: true, description: '调研后的成稿：主体动作 + 景别运镜 + 环境光 + 风格焦段，正说，具体运动。' },
@@ -582,6 +853,18 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   // surface; generation and structure writes go through these tools.
   const canvas = new DirectorxCanvasStore(settings.outputDir)
   const intents = new CanvasIntentStore(settings.outputDir)
+  const editLedger = new DirectorxEditLedger(settings.outputDir)
+
+  const finishBound = async (bound: { nodeId?: string }, result: { path: string }, mediaType: string) => {
+    const commit = await commitBoundMedia({
+      canvas,
+      ledger: editLedger,
+      nodeId: bound.nodeId,
+      path: result.path,
+      mediaType,
+    })
+    return { nodeId: bound.nodeId, written: commit.written }
+  }
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_get',
@@ -1051,10 +1334,271 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
-    name: 'directorx_video_process',
-    description: 'Deterministic local video processing with ffmpeg: trim (start/end seconds), speed change (0.5-8x), resize (scale like 1280:720 or 16:9), volume adjust, mute, and fps normalization — all in one call. Free and exact; prefer over regenerating. Output lands in the output dir.',
+    name: 'directorx_canvas_script',
+    description: '把文本/剧本节点拆成「本→首帧→视频」分镜行铺上画布。认 Fountain 场次标题、镜头N、中文第N场。只写 idea 空卡，不生成媒体。同一剧本节点再调一次会复用已铺的行。',
     parameters: {
-      source: { type: 'string', required: true, description: 'Absolute path of the local video.' },
+      nodeId: { type: 'string', description: '已有文本节点 id。可与 text 二选一。' },
+      text: { type: 'string', description: '直接给剧本正文。没有 nodeId 时会先建一张文本卡。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'script',
+        ...(typeof args.nodeId === 'string' ? { nodeId: args.nodeId } : {}),
+        ...(typeof args.text === 'string' ? { text: args.text } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_frames',
+    description: '从已有成片的视频节点抽关键帧，铺成一组图片卡（抽帧上板）。用 ffmpeg，不写 generating，也不建 video→image 边（抽帧组本身就是出处）。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '视频节点 id，且 path 已有成片。' },
+      count: { type: 'number', description: '均匀抽帧数，默认 6，最多 12。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 120_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'frames',
+        nodeId: String(args.nodeId ?? ''),
+        ...(typeof args.count === 'number' ? { count: args.count } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_autolink',
+    description: '按角色库名字和卡片词令重叠，给现有节点补参考边（文本/设定图 → 镜头）。不新建节点，不生成。遵守画布连线矩阵：视频不能喂图片。',
+    parameters: {
+      nodeId: { type: 'string', description: '只连与这个节点相关的边。省略则扫整板。' },
+      nodeIds: { type: 'array', items: { type: 'string' }, description: '只连与这些节点相关的边。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'autolink',
+        ...(typeof args.nodeId === 'string' ? { nodeId: args.nodeId } : {}),
+        ...(Array.isArray(args.nodeIds) ? { nodeIds: args.nodeIds.map(String) } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_parse',
+    description: '一键解析成片：ffmpeg 切点检测（亮度差分）拆镜，把分镜稿文本卡和每镜代表帧铺上画布。不生成。describe:true 时用 vision 写每镜一句（未配置则只写时间窗）。同一视频再调一次会复用。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '已有成片路径的视频节点 id。' },
+      describe: { type: 'boolean', description: '为每镜调 vision 写一句可见内容。默认 false。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 1800_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'parse',
+        nodeId: String(args.nodeId ?? ''),
+        settings,
+        ...(args.describe === true ? { describe: true } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_reshoot',
+    description: '片段重做。cut：切掉头尾、抽出窗内首尾帧、铺中段 idea 卡（不生成）。中段生成回写 path 后 assemble：ffmpeg cut 拼接头+中+尾到「重做成片」卡。窗长 1–15 秒。UI 不得写 generating。',
+    parameters: {
+      action: { type: 'string', enum: ['cut', 'assemble'], description: '默认 cut。中段有成片后 assemble。' },
+      nodeId: { type: 'string', required: true, description: 'cut=源视频节点；assemble=重做中段或成片节点。' },
+      start: { type: 'number', description: 'cut：窗起点秒。' },
+      end: { type: 'number', description: 'cut：窗终点秒。' },
+      prompt: { type: 'string', description: 'cut：这一段要改成什么。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'reshoot',
+        nodeId: String(args.nodeId ?? ''),
+        phase: args.action === 'assemble' ? 'assemble' : 'cut',
+        ...(typeof args.start === 'number' ? { start: args.start } : {}),
+        ...(typeof args.end === 'number' ? { end: args.end } : {}),
+        ...(typeof args.prompt === 'string' ? { prompt: args.prompt } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_pack',
+    description: '把画布上已有成片的视频卡硬切拼成一条「成片」卡。默认按传入 id 顺序，否则按 shotIndex。ffmpeg 本地拼接，不生成。预告片/片花必须 cut，不要 fade。',
+    parameters: {
+      nodeIds: { type: 'array', items: { type: 'string' }, description: '要拼接的视频节点 id，按播放顺序。省略则取整板已成片视频。' },
+      transition: { type: 'string', enum: ['cut', 'fade'], description: '默认 cut。预告片只用 cut。' },
+      fadeSec: { type: 'number', description: '仅 fade：叠化秒数，默认 0.3。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'pack',
+        ...(Array.isArray(args.nodeIds) ? { nodeIds: args.nodeIds.map(String) } : {}),
+        ...(args.transition === 'fade' || args.transition === 'cut' ? { transition: args.transition } : {}),
+        ...(typeof args.fadeSec === 'number' ? { fadeSec: args.fadeSec } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_sheet',
+    description: '把选中的图/视频抽中点帧，拼成一张接触表图片卡钉在画布上。ffmpeg tile，不生成。',
+    parameters: {
+      nodeIds: { type: 'array', items: { type: 'string' }, description: '图或视频节点 id。省略则取整板有成片的图/视频。' },
+      columns: { type: 'number', description: '列数，默认 min(4, 数量)，2–8。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'sheet',
+        ...(Array.isArray(args.nodeIds) ? { nodeIds: args.nodeIds.map(String) } : {}),
+        ...(typeof args.columns === 'number' ? { columns: args.columns } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_split',
+    description: '把一张有成片的图片按宫格切开，铺成一组独立图片卡。ffmpeg crop，不生成。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '图片节点 id，且 path 已有成片。' },
+      cols: { type: 'number', description: '列数，默认 3，2–5。' },
+      rows: { type: 'number', description: '行数，默认 3，1–5。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 120_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'split',
+        nodeId: String(args.nodeId ?? ''),
+        ...(typeof args.cols === 'number' ? { cols: args.cols } : {}),
+        ...(typeof args.rows === 'number' ? { rows: args.rows } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_join',
+    description: '把选中的成片图片按原图拼回一张带镜号的宫格大图，钉在画布上。ffmpeg tile，不生成。切开的逆操作，也用于分镜组交付。',
+    parameters: {
+      nodeIds: { type: 'array', items: { type: 'string' }, description: '图片节点 id，至少两张。' },
+      columns: { type: 'number', description: '列数，默认 min(4, 数量)，2–8。' },
+      numbered: { type: 'boolean', description: '角标镜号，默认 true。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'join',
+        ...(Array.isArray(args.nodeIds) ? { nodeIds: args.nodeIds.map(String) } : {}),
+        ...(typeof args.columns === 'number' ? { columns: args.columns } : {}),
+        ...(args.numbered === false ? { numbered: false } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_stack',
+    description: '把 2–4 张有成片的图/视频拼成分屏对照条，钉成一条视频卡。ffmpeg hstack/vstack，不生成。',
+    parameters: {
+      nodeIds: { type: 'array', items: { type: 'string' }, required: true, description: '图或视频节点 id，2–4 个。' },
+      layout: { type: 'string', enum: ['2x1', '1x2', '2x2'], description: '默认两路横排，四路用 2x2。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'stack',
+        ...(Array.isArray(args.nodeIds) ? { nodeIds: args.nodeIds.map(String) } : {}),
+        ...(args.layout === '2x1' || args.layout === '1x2' || args.layout === '2x2' ? { layout: args.layout } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_desub',
+    description: '去掉成片视频上的硬字幕或底栏字：裁掉或模糊一条边。ffmpeg crop/boxblur，不生成。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '有成片的视频节点 id。' },
+      method: { type: 'string', enum: ['crop', 'blur'], description: '默认 crop。blur 保留构图。' },
+      region: { type: 'string', description: 'bottom:15 / top:10 / left:8 / right:8，数字是百分比。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'desub',
+        nodeId: String(args.nodeId ?? ''),
+        ...(args.method === 'crop' || args.method === 'blur' ? { method: args.method } : {}),
+        ...(typeof args.region === 'string' ? { region: args.region } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_extend',
+    description: '从成片视频抽出尾帧，旁边铺一张续写空视频卡（idea）。不生成。接着走 craft/ready，回写续写卡 path。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '有成片的视频节点 id。' },
+      prompt: { type: 'string', description: '续写意图。省略则沿用原卡提示词。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 120_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'extend',
+        nodeId: String(args.nodeId ?? ''),
+        ...(typeof args.prompt === 'string' ? { prompt: args.prompt } : {}),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_canvas_gif',
+    description: '把成片视频导出为 GIF 图片卡钉在画布上，方便评审和分享。ffmpeg palette，不生成。',
+    parameters: {
+      nodeId: { type: 'string', required: true, description: '有成片的视频节点 id。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    async execute(args: any) {
+      return runCanvasCraft({
+        outputDir: settings.outputDir,
+        action: 'gif',
+        nodeId: String(args.nodeId ?? ''),
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_video_process',
+    description: '确定性本地视频处理（ffmpeg）：裁剪/变速/缩放/音量/静音/帧率/旋转/翻转/倒放/定格。可带 nodeId 回写画布。免费精确，禁止用生成模型代替。',
+    parameters: {
+      source: { type: 'string', description: '本地视频路径。可与 nodeId 二选一。' },
+      nodeId: { type: 'string', description: '画布节点 id。有则处理后回写 path。' },
       start: { type: 'number', description: 'Trim start (seconds).' },
       end: { type: 'number', description: 'Trim end (seconds).' },
       speed: { type: 'number', description: 'Playback speed multiplier (0.5-8).' },
@@ -1062,20 +1606,65 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       volume: { type: 'number', description: 'Audio volume multiplier (e.g. 0.9).' },
       mute: { type: 'boolean', description: 'Strip the audio track.' },
       fps: { type: 'number', description: 'Normalize to this frame rate.' },
+      crop: { type: 'string', description: '裁剪 w:h:x:y。' },
+      rotate: { type: 'number', enum: [90, 180, 270], description: '旋转角度。' },
+      hflip: { type: 'boolean', description: '水平翻转。' },
+      vflip: { type: 'boolean', description: '垂直翻转。' },
+      reverse: { type: 'boolean', description: '倒放。' },
+      freezeEnd: { type: 'number', description: '片尾定格秒数。' },
+      freezeStart: { type: 'number', description: '片头定格秒数。' },
+      grade: { type: 'string', description: '调色 look 名；不确定时改走 directorx_studio。' },
     },
     output: objectOutput(),
     timeoutMs: 600_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      return videoProcess({ ...args, outputDir: settings.outputDir })
+      const bound = await resolveBoundMedia({
+        canvas,
+        outputDir: settings.outputDir,
+        nodeId: args.nodeId,
+        path: args.source,
+        require: 'video',
+      })
+      const rotate = parseRotate(args.rotate)
+      const hasOp = typeof args.start === 'number' || typeof args.end === 'number' || typeof args.speed === 'number'
+        || typeof args.scale === 'string' || typeof args.volume === 'number' || args.mute === true
+        || typeof args.fps === 'number' || typeof args.crop === 'string' || rotate !== undefined
+        || args.hflip === true || args.vflip === true || args.reverse === true
+        || typeof args.freezeEnd === 'number' || typeof args.freezeStart === 'number'
+        || (typeof args.grade === 'string' && args.grade.trim() !== '')
+      if (!hasOp) throw new Error('没有可执行的视频操作（裁剪/变速/缩放/旋转/翻转/倒放/定格/调色）')
+      const processed = await videoProcess({
+        source: bound.path,
+        outputDir: settings.outputDir,
+        start: typeof args.start === 'number' ? args.start : undefined,
+        end: typeof args.end === 'number' ? args.end : undefined,
+        speed: typeof args.speed === 'number' ? args.speed : undefined,
+        scale: typeof args.scale === 'string' ? args.scale : undefined,
+        volume: typeof args.volume === 'number' ? args.volume : undefined,
+        mute: args.mute === true,
+        fps: typeof args.fps === 'number' ? args.fps : undefined,
+        crop: typeof args.crop === 'string' ? args.crop : undefined,
+        ...(rotate !== undefined ? { rotate } : {}),
+        hflip: args.hflip === true,
+        vflip: args.vflip === true,
+        reverse: args.reverse === true,
+        freezeEnd: typeof args.freezeEnd === 'number' ? args.freezeEnd : undefined,
+        freezeStart: typeof args.freezeStart === 'number' ? args.freezeStart : undefined,
+        ...(typeof args.grade === 'string' && args.grade.trim() !== ''
+          ? { grade: resolveGradeLook(args.grade) }
+          : {}),
+      })
+      return { ...processed, ...(await finishBound(bound, processed, processed.mimeType)) }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_video_concat',
-    description: 'Concatenate multiple local videos into one: normalizes size/fps/audio, then either hard cuts or xfade (cross-fade) transitions with audio acrossfade. Deterministic ffmpeg assembly for multi-shot deliverables. Output lands in the output dir.',
+    description: 'Concatenate multiple local videos into one: normalizes size/fps/audio, then either hard cuts or xfade (cross-fade) transitions with audio acrossfade. Deterministic ffmpeg assembly for multi-shot deliverables. 可带 nodeId 把成片路径写回画布。',
     parameters: {
       files: { type: 'array', items: { type: 'string' }, required: true, description: 'Absolute paths of 2+ local videos in order.' },
+      nodeId: { type: 'string', description: '画布节点 id。有则把成片 path 写回该节点。' },
       transition: { type: 'string', enum: ['fade', 'cut'], description: 'fade = xfade cross-fade (default); cut = hard cuts.' },
       fadeSec: { type: 'number', description: 'Cross-fade duration (default 0.5s).' },
       scale: { type: 'string', description: 'Common output size (default 1280:720).' },
@@ -1084,7 +1673,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     timeoutMs: 900_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      return videoConcat({ ...args, outputDir: settings.outputDir })
+      const rendered = await videoConcat({ ...args, outputDir: settings.outputDir })
+      const nodeId = typeof args.nodeId === 'string' && args.nodeId !== '' ? args.nodeId : undefined
+      return { ...rendered, ...(await finishBound({ nodeId }, rendered, rendered.mimeType)) }
     },
   })))
 
@@ -1226,7 +1817,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_preflight',
-    description: 'Pre-flight audit before paid generation: the four gates from directorx-playbook (规格/内容/成本/权利) checked deterministically — parameter completeness, six-element prompt lint, budget acknowledgment, and IP/persona/music rights flags. Returns per-gate pass/issues plus a verdict. Use before any batch generation.',
+    description: 'Pre-flight audit before paid generation: 规格/内容/成本/权利。权利闸扫描 IP 专名并返回改写方法 brief（不含固定成稿）。点名 IP 不要直接 generate，走 directorx_ip_scan → 改写 → directorx_ip_rewrite。',
     parameters: {
       prompt: { type: 'string', required: true, description: 'The generation prompt to audit.' },
       model: { type: 'string', description: 'Model key, if already chosen.' },
@@ -1241,6 +1832,51 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     timeoutMs: 30_000,
     async execute(args: any) {
       return preflight(args)
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_ip_scan',
+    description: '版权扫描：检出 IP/商标/作者名/真人名，返回论文方法轴、须保留的情境、负向排除和本项目记忆。不写固定替换句。检出后必须自己写细改写，再 directorx_ip_rewrite 验收。',
+    parameters: {
+      prompt: { type: 'string', required: true, description: '要检查的提示词或用户原句。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const scanned = await scanIpWithMemory(settings.outputDir, String(args.prompt ?? ''))
+      return {
+        dirty: scanned.brief.dirty,
+        hits: scanned.brief.hits,
+        keep: scanned.brief.keep,
+        method: scanned.brief.method,
+        knowledge: scanned.brief.knowledge,
+        exclude: scanned.brief.exclude,
+        negativeLine: scanned.brief.negativeLine,
+        memory: scanned.memory,
+        agentPrompt: scanned.brief.agentPrompt,
+        next: scanned.brief.next,
+      }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_ip_rewrite',
+    description: '实施版权改写验收：对照原句检查改写稿是否还含专名；通过则记入本项目记忆，供以后同类镜头调用。改写必须按 ip_scan 的方法轴结合当前情境自己写，禁止套固定句。',
+    parameters: {
+      source: { type: 'string', required: true, description: '用户原句 / 画布意图。' },
+      rewrite: { type: 'string', required: true, description: '按方法轴写好的属性描述成稿，不得再含 IP 专名。' },
+      remember: { type: 'boolean', description: '通过后写入项目记忆。默认 true。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    async execute(args: any) {
+      return commitIpRewrite(settings.outputDir, {
+        source: String(args.source ?? ''),
+        rewrite: String(args.rewrite ?? ''),
+        remember: args.remember !== false,
+      })
     },
   })))
 
@@ -1434,7 +2070,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_stage',
-    description: '成片阶段账本（outputDir/stage.json）：brief→research→forks→script→cast→storyboard→place→generate→assemble→qa→deliver。记录阶段性产物，过闸用提问卡。不要静默跳阶段。',
+    description: '成片阶段账本（outputDir/stage.json）：brief→research→forks→script→cast→storyboard→craft→place→generate→assemble→qa→deliver。记录阶段性产物，过闸用提问卡。deliver 时返回收成提问卡，接着 directorx_skill_capture。不要静默跳阶段。',
     parameters: {
       action: { type: 'string', enum: ['get', 'record', 'advance'], description: 'Default get.' },
       stage: { type: 'string', description: 'record/advance 的阶段 id。' },
@@ -1459,9 +2095,13 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       if (action === 'advance') {
         const to = parseStageId(args.stage)
         if (to === undefined) throw new Error('advance 需要合法 stage id')
-        return store.advance(to, args.skip === true ? 'skip' : 'done')
+        const doc = await store.advance(to, args.skip === true ? 'skip' : 'done')
+        if (doc.current === 'deliver') return { ...doc, ...(await deliverCapture(settings.outputDir)) }
+        return doc
       }
-      return store.get()
+      const doc = await store.get()
+      if (doc.current === 'deliver') return { ...doc, ...(await deliverCapture(settings.outputDir)) }
+      return doc
     },
   })))
 
@@ -1577,80 +2217,166 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     timeoutMs: 600_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      const canvas = new DirectorxCanvasStore(settings.outputDir)
-      const nodeId = typeof args.nodeId === 'string' && args.nodeId !== '' ? args.nodeId : ''
-      let path = typeof args.path === 'string' ? args.path.trim() : ''
-      let kind: 'image' | 'video' | undefined = args.kind === 'video' || args.kind === 'image' ? args.kind : undefined
-      if (nodeId !== '') {
-        const found = await canvas.getNode(nodeId)
-        if (found.kind !== 'node') throw new Error(`nodeId ${nodeId} 不是媒体节点`)
-        if (found.node.kind !== 'image' && found.node.kind !== 'video') throw new Error(`节点 ${nodeId} 不是图片/视频`)
-        if (path === '') path = found.node.path ?? ''
-        kind = kind ?? found.node.kind
-      }
-      if (path === '') throw new Error('需要 path 或带媒体的 nodeId')
-      const source = resolveMediaPath(settings.outputDir, path)
-      const mediaKind = kind ?? inferMediaKind(source)
+      const bound = await resolveBoundMedia({
+        canvas,
+        outputDir: settings.outputDir,
+        nodeId: args.nodeId,
+        path: args.path,
+        kind: args.kind,
+      })
       if (args.openOnly === true) {
-        const ticket = await new StudioTicketStore(settings.outputDir).write({ kind: mediaKind, path: source, ...(nodeId !== '' ? { nodeId } : {}) })
-        return { ok: true, openStudio: true, kind: mediaKind, path: source, nodeId: nodeId || undefined, ticket }
+        const ticket = await new StudioTicketStore(settings.outputDir).write({
+          kind: bound.kind,
+          path: bound.path,
+          ...(bound.nodeId !== undefined ? { nodeId: bound.nodeId } : {}),
+        })
+        return { ok: true, openStudio: true, kind: bound.kind, path: bound.path, nodeId: bound.nodeId, ticket }
       }
       const look = resolveGradeLook(String(args.prompt ?? ''))
-      const graded = await applyGrade({ source, look, outputDir: settings.outputDir, kind: mediaKind })
-      if (nodeId !== '') await canvas.update(nodeId, { path: graded.path })
+      const graded = await applyGrade({ source: bound.path, look, outputDir: settings.outputDir, kind: bound.kind })
+      const commit = await finishBound(bound, graded, bound.kind === 'video' ? 'video/mp4' : 'image/jpeg')
       const ticket = await new StudioTicketStore(settings.outputDir).write({
         kind: graded.kind,
         path: graded.path,
         look: graded.look,
-        ...(nodeId !== '' ? { nodeId } : {}),
+        ...(bound.nodeId !== undefined ? { nodeId: bound.nodeId } : {}),
       })
-      return { ok: true, openStudio: true, ...graded, nodeId: nodeId || undefined, ticket }
+      return { ok: true, openStudio: true, ...graded, ...commit, ticket }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_edit_plan',
+    description: '编辑路由（零成本）：根据人话意图判定该走 studio / image_edit / video_process / edit / timeline / smart_cut / concat / 质检，还是必须重新生成。不改文件。拿不准先调这个。',
+    parameters: {
+      intent: { type: 'string', required: true, description: '用户的编辑原话，如「顺时针转 90 度」「去掉开头 2 秒」「调成末日荒土」。' },
+      nodeId: { type: 'string', description: '当前画布节点。' },
+      path: { type: 'string', description: '本地媒体路径。' },
+      kind: { type: 'string', enum: ['image', 'video'], description: '覆盖自动判断。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 15_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      let kind: 'image' | 'video' | undefined = args.kind === 'video' || args.kind === 'image' ? args.kind : undefined
+      let path = typeof args.path === 'string' ? args.path : undefined
+      const nodeId = typeof args.nodeId === 'string' && args.nodeId !== '' ? args.nodeId : undefined
+      if (nodeId !== undefined && (kind === undefined || path === undefined)) {
+        const found = await canvas.getNode(nodeId)
+        if (found.kind === 'node' && (found.node.kind === 'image' || found.node.kind === 'video')) {
+          kind = kind ?? found.node.kind
+          if (path === undefined) path = found.node.path
+        }
+      }
+      return planEdit({ intent: String(args.intent ?? ''), kind, nodeId, path })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_image_edit',
+    description: '确定性图片编辑（ffmpeg）：旋转 90/180/270、水平/垂直翻转、裁切 w:h:x:y、缩放、明暗对比饱和、可选调色。可带 nodeId 回写画布。不要用生成模型完成这些操作。',
+    parameters: {
+      path: { type: 'string', description: '本地图片路径。可与 nodeId 二选一。' },
+      nodeId: { type: 'string', description: '画布节点 id。有则回写 path。' },
+      rotate: { type: 'number', enum: [90, 180, 270], description: '旋转角度。' },
+      hflip: { type: 'boolean', description: '水平翻转。' },
+      vflip: { type: 'boolean', description: '垂直翻转。' },
+      crop: { type: 'string', description: '裁剪 w:h:x:y。' },
+      scale: { type: 'string', description: '缩放，如 1280:720。' },
+      brightness: { type: 'number', description: '亮度 -1..1，0 为不变。' },
+      contrast: { type: 'number', description: '对比度 0..3，1 为不变。' },
+      saturate: { type: 'number', description: '饱和度 0..3，1 为不变。' },
+      look: { type: 'string', description: '调色 look；复杂色板优先 directorx_studio。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 180_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const bound = await resolveBoundMedia({
+        canvas,
+        outputDir: settings.outputDir,
+        nodeId: args.nodeId,
+        path: args.path,
+        require: 'image',
+      })
+      const rotate = parseRotate(args.rotate)
+      const edited = await imageProcess({
+        source: bound.path,
+        outputDir: settings.outputDir,
+        ...(rotate !== undefined ? { rotate } : {}),
+        hflip: args.hflip === true,
+        vflip: args.vflip === true,
+        crop: typeof args.crop === 'string' ? args.crop : undefined,
+        scale: typeof args.scale === 'string' ? args.scale : undefined,
+        brightness: typeof args.brightness === 'number' ? args.brightness : undefined,
+        contrast: typeof args.contrast === 'number' ? args.contrast : undefined,
+        saturate: typeof args.saturate === 'number' ? args.saturate : undefined,
+        ...(typeof args.look === 'string' && args.look.trim() !== ''
+          ? { grade: resolveGradeLook(args.look) }
+          : {}),
+      })
+      return { ...edited, ...(await finishBound(bound, edited, edited.mimeType)) }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_edit',
-    description: '意图驱动剪辑：把自然语言剪辑指令（「去掉开头 2 秒」「只保留 3 到 10 秒」「5-8 秒放慢 2 倍」「整个倒放」）解析成确定性时间轴并渲染成片。多条指令按顺序应用（cut list 语义）。改指令=重渲染，零 API 成本。',
+    description: '意图驱动剪辑：把自然语言剪辑指令（「去掉开头 2 秒」「只保留 3 到 10 秒」「5-8 秒放慢 2 倍」「整个倒放」）解析成确定性时间轴并渲染成片。可带 nodeId 回写画布。改指令=重渲染，零 API 成本。',
     parameters: {
-      video: { type: 'string', required: true, description: 'Absolute path of the source video.' },
+      video: { type: 'string', description: '源视频路径。可与 nodeId 二选一。' },
+      nodeId: { type: 'string', description: '画布节点 id。有则把成片 path 写回该节点。' },
       edits: { type: 'array', items: { type: 'string' }, required: true, description: 'Natural-language edit instructions (or one string split by punctuation).' },
     },
     output: objectOutput(),
     timeoutMs: 1800_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      const source = String(args.video)
-      // Tolerate array or single-string edit payloads (schema-first, but
-      // the harness may deliver either shape).
+      const bound = await resolveBoundMedia({
+        canvas,
+        outputDir: settings.outputDir,
+        nodeId: args.nodeId,
+        path: args.video,
+        require: 'video',
+      })
       const raw = Array.isArray(args.edits) ? args.edits.map(String) : typeof args.edits === 'string' && args.edits !== '' ? [args.edits] : []
       const instructions = raw.length === 1 ? raw[0].split(/[；;。]+/).map((piece: string) => piece.trim()).filter((piece: string) => piece !== '') : raw
-      const probe = probeMedia(source)
+      const probe = probeMedia(bound.path)
       const commands = parseEditInstructions(instructions, probe.durationSec)
-      const scenes = editsToScenes(commands, probe.durationSec).map(scene => ({ ...scene, source }))
+      const scenes = editsToScenes(commands, probe.durationSec).map(scene => ({ ...scene, source: bound.path }))
       if (commands.length === 0) throw new Error('没有解析出可执行的剪辑指令（支持：去掉开头/结尾 N 秒、只保留 X 到 Y 秒、X-Y 秒变速 Z 倍、整个倒放）')
       if (scenes.length === 0) throw new Error(`剪辑窗口被裁剪为空（源时长 ${probe.durationSec}s，裁剪量超过可保留范围）——调整指令或换更长的素材`)
       const rendered = await renderTimeline({ scenes }, settings.outputDir)
-      return { commands, timeline: scenes, path: rendered.path, steps: rendered.steps, probe: rendered.probe }
+      return {
+        commands,
+        timeline: scenes,
+        path: rendered.path,
+        steps: rendered.steps,
+        probe: rendered.probe,
+        ...(await finishBound(bound, rendered, 'video/mp4')),
+      }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_timeline',
-    description: 'Render a timeline JSON into a finished cut (OTIO-inspired subset — the editing agent\'s central format): scenes with per-scene trims, cross-fade/hard-cut concat, optional audio mixing with ducking, and subtitle muxing. Deterministic and re-renderable: change the plan, re-render, never re-generate. timeline = { scenes: [{source, trim?, transition?}], subtitle?, audio? [{path, volume?, duckUnder?}], scale? }.',
+    description: 'Render a timeline JSON into a finished cut (OTIO-inspired subset — the editing agent\'s central format): scenes with per-scene trims, cross-fade/hard-cut concat, optional audio mixing with ducking, and subtitle muxing. Deterministic and re-renderable: change the plan, re-render, never re-generate. 可带 nodeId 回写画布。 timeline = { scenes: [{source, trim?, transition?}], subtitle?, audio? [{path, volume?, duckUnder?}], scale? }.',
     parameters: {
       timeline: { type: 'object', additionalProperties: true, required: true, description: 'Timeline spec: scenes array + optional subtitle srt path, audio tracks, scale.' },
+      nodeId: { type: 'string', description: '画布节点 id。有则把成片 path 写回该节点。' },
     },
     output: objectOutput(),
     timeoutMs: 1800_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
       const timeline = (args.timeline ?? {}) as { scenes?: unknown[]; subtitle?: string; audio?: unknown[]; scale?: string }
-      return renderTimeline({
+      const rendered = await renderTimeline({
         scenes: Array.isArray(timeline.scenes) ? timeline.scenes as never[] : [],
         subtitle: timeline.subtitle,
         audio: Array.isArray(timeline.audio) ? timeline.audio as never[] : undefined,
         scale: timeline.scale,
       }, settings.outputDir)
+      const nodeId = typeof args.nodeId === 'string' && args.nodeId !== '' ? args.nodeId : undefined
+      return { ...rendered, ...(await finishBound({ nodeId }, rendered, 'video/mp4')) }
     },
   })))
 
@@ -1696,7 +2422,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           : undefined
         return {
           intent,
-          prompt: formatDshCanvasPrompt(intent, { sourceLabel: source?.label }),
+          prompt: await formatDshCanvasPromptForProject(intent, {
+            sourceLabel: source?.label,
+            outputDir: settings.outputDir,
+          }),
           canvasTitle: doc.title ?? '',
           nodeCount: doc.nodes.length,
           summary: (await canvas.summary()).slice(0, 40),
@@ -1787,6 +2516,70 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_bible',
+    description: '改编五件套评审：读 outline/cast/art/script/storyboard JSON，跑脚本质量门，输出 Markdown。pin 把评审钉到画布文本卡，同时写入 outputDir/docs。不要另出 HTML。体检已有大纲也走 checkup。',
+    parameters: {
+      action: { type: 'string', enum: ['detect', 'checkup', 'render', 'pin'], description: '默认 detect。checkup 跑门；render 出 Markdown；pin 钉画布。' },
+      kind: { type: 'string', enum: ['outline', 'characters', 'art', 'script', 'storyboard'], description: '不传则用找到的第一份。' },
+      path: { type: 'string', description: '指定 JSON 路径。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 30_000,
+    async execute(args: any) {
+      return runBible({
+        outputDir: settings.outputDir,
+        action: typeof args.action === 'string' ? args.action : undefined,
+        kind: typeof args.kind === 'string' ? args.kind : undefined,
+        path: typeof args.path === 'string' ? args.path : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_shot_vocab',
+    description: '镜头语汇：配方卡回答这一刀怎么切，技法卡回答什么时候用、什么时候别用。list/show 给 DSH 写分镜；check 复核提示词是否带上必备短语。不是卡片墙，也不出 HTML。',
+    parameters: {
+      action: { type: 'string', enum: ['list', 'show', 'check'], description: '默认 list。' },
+      kind: { type: 'string', enum: ['recipe', 'technique'], description: 'list 时按族筛。' },
+      query: { type: 'string', description: 'list 检索词，如 正反打 / 手持。' },
+      id: { type: 'string', description: 'show / check 的卡片 id。' },
+      prompt: { type: 'string', description: 'check：分镜图或成稿提示词。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 10_000,
+    isConcurrencySafe: () => true,
+    async execute(args: any) {
+      const action = args.action === 'show' || args.action === 'check' ? args.action : 'list'
+      if (action === 'list') {
+        const cards = listShotVocab({
+          kind: args.kind === 'recipe' || args.kind === 'technique' ? args.kind : undefined,
+          query: typeof args.query === 'string' ? args.query : undefined,
+        })
+        return {
+          cards: cards.map(card => ({
+            id: card.id,
+            kind: card.kind,
+            category: card.category,
+            title: card.title,
+            never: card.never,
+            phrases: card.phrases,
+          })),
+          next: cards.slice(0, 3).map(card => `directorx_shot_vocab show ${card.id}`),
+        }
+      }
+      if (action === 'show') {
+        const card = showShotVocab(String(args.id ?? ''))
+        if (card === undefined) throw new Error('没有这张卡。先 list。')
+        return { ...card, next: [`directorx_knowledge_read ${card.knowledge[0] ?? '109'}`, '写这一格后再 directorx_shot_vocab check'] }
+      }
+      return checkShotVocab({
+        prompt: String(args.prompt ?? ''),
+        recipe: typeof args.id === 'string' ? args.id : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_storyboard',
     description: 'Storyboard duration planning (PenShot-inspired deterministic layer): allocates per-shot durations against model limits, clamps out-of-range values, fills unspecified shots toward the target, and checks continuity anchors (every shot must reference registered characters/scenes). Returns a generation-ready shot plan + issues.',
     parameters: {
@@ -1854,7 +2647,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_chengpian',
-    description: '成片 persona decision. Call before asking or generating. When confirm=true it also returns `ask` cards — pass them to directorx_ask (or set present:true to pause now). Pair with directorx_knowledge_search / directorx_skill_read / directorx_stage.',
+    description: '成片决策。先于提问/生成调用。返回 confirm/generate、角度 lenses（不是成稿）、prompt_plan 与 compose 流程 next。confirm=true 时带提问卡。',
     parameters: {
       event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
       prompt: { type: 'string', description: 'Generation task wording, or the exact chosen prompt.' },
@@ -1910,13 +2703,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
           signal: exec.signal,
         })).answers
       }
-      return { ...decision, enqueue, auth, ask, answers, next: ask.length > 0 && answers === undefined ? 'directorx_ask' : undefined }
+      const flow = planProduction({
+        request: String(args.prompt ?? ''),
+        materials: [],
+      })
+      const next = [
+        ...(ask.length > 0 && answers === undefined ? ['directorx_ask'] : []),
+        ...flow.next,
+      ]
+      return { ...decision, enqueue, auth, ask, answers, flow, next }
     },
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_brief',
-    description: 'Intent understanding (意图分诊): turns a raw user request + materials into a structured production brief — type, platform, duration, questions, suggestedFlow, and a compose map (recipe + stages + tools). Follow compose.nextActions yourself with existing tools. directorx_orchestrate is optional.',
+    description: '意图分诊：类型/平台/时长 + compose 阶段图（路/稿/位含 prompt_plan 与 craft/ready）。按 compose.nextActions 自己编排。directorx_orchestrate 可选。',
     parameters: {
       request: { type: 'string', required: true, description: 'The user\'s raw request text.' },
       materials: { type: 'array', items: { type: 'string' }, description: 'Optional local material paths (media files).' },
@@ -1930,9 +2731,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_smart_cut',
-    description: 'LLM 精剪（deterministic matcher）: the agent writes the narration script; this tool locates each sentence\'s best-matching subtitle cue (character-overlap scoring) in the source video and assembles the matched windows into a finished cut via the timeline pipeline. 智能成片 for 口播精剪/素材定位.',
+    description: 'LLM 精剪（deterministic matcher）: the agent writes the narration script; this tool locates each sentence\'s best-matching subtitle cue (character-overlap scoring) in the source video and assembles the matched windows into a finished cut via the timeline pipeline. 可带 nodeId 回写画布。',
     parameters: {
-      video: { type: 'string', required: true, description: 'Absolute path of the source video.' },
+      video: { type: 'string', description: '源视频路径。可与 nodeId 二选一。' },
+      nodeId: { type: 'string', description: '画布节点 id。有则把成片 path 写回该节点。' },
       srt: { type: 'string', required: true, description: 'Absolute path of the .srt transcript (directorx_transcribe_audio).' },
       script: { type: 'array', items: { type: 'string' }, required: true, description: 'Script sentences (or one full text, split by punctuation).' },
       pad: { type: 'number', description: 'Padding seconds around each matched cue (default 0.15).' },
@@ -1941,13 +2743,21 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     timeoutMs: 1800_000,
     isConcurrencySafe: () => true,
     async execute(args: any) {
-      return smartCut({
-        video: String(args.video),
+      const bound = await resolveBoundMedia({
+        canvas,
+        outputDir: settings.outputDir,
+        nodeId: args.nodeId,
+        path: args.video,
+        require: 'video',
+      })
+      const rendered = await smartCut({
+        video: bound.path,
         srt: String(args.srt),
         script: Array.isArray(args.script) ? args.script.map(String) : [],
         outputDir: settings.outputDir,
         pad: typeof args.pad === 'number' ? args.pad : undefined,
       })
+      return { ...rendered, ...(await finishBound(bound, rendered, 'video/mp4')) }
     },
   })))
 
@@ -2418,20 +3228,23 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     order: 117,
     text: [
       '## DirectorX media tools',
-      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (question cards). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. The user can inspect the board with `/directorx` without spending tokens.',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (question cards). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so the canvas session shows a question card: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',
+      '- Skill/knowledge routing: on a craft request, call `directorx_skill_route` first. Read every skill in `skills` and every article id in `articles` (`directorx_knowledge_read 116`, not a new search phrase). `skill_search` / `knowledge_search` hits also carry the other side (`articles` / `skills`). Do not invent a parallel path. 成片任务仍要 `directorx_chengpian`。',
+      '- Prompt orchestration: call `directorx_prompt_plan` before `directorx_prompt_craft`. It returns six-element gaps, the physics chain for video, the model copilot to read, and an IP method if names appear. Write the craft yourself. Do not send the canvas one-liner or a canned lens line to generate. MiniMax-H3 crafts follow `minimax-h3-prompt-copilot` handbook: name each reference\'s job, write a visible timeline, quote on-screen text, skip role:reference when first/last frames are set, default 1440p / 4–15s / ≤7000 characters. Other video models may reuse that shape.',
+      '- Copyright-safe prompts: if the user names an IP, do not send that name to generate and do not stamp a canned substitute. Call `directorx_ip_scan` (method axes + project memory), `directorx_knowledge_read` 213, write a situation-specific genericization (attributes, not identity), then `directorx_ip_rewrite` to validate and remember. Generate with the rewrite plus `negativeLine`. Cite Nature genericization + arXiv 2406.14526 (rewrite+negative). The canvas underlines those terms in red and hands the rewrite to you.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` (acts→groups, shots→nodes, 承接 edges) then `directorx_canvas_arrange`. Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
-      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, ask cards then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；转场要首尾帧。After a canvas intent, write results back with `directorx_canvas_update`.',
-      '- Edit / grade: 用户要调色、改色调、打开编辑台时，调用 `directorx_studio`（prompt + 当前画布 nodeId 或 path）。它会 ffmpeg 调色、回写节点，并打开图片/视频编辑工作台。剪辑仍用 `directorx_edit` / `directorx_video_process` / `directorx_timeline` / `directorx_smart_cut`。不要用生成模型重绘来完成调色。',
-      '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Base claims on tool results, never on promises.',
+      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` or `directorx_canvas_script` (文本拆成 本→首帧→视频 行) then `directorx_canvas_arrange`. 抽帧上板用 `directorx_canvas_frames`；成片一键解析用 `directorx_canvas_parse`；片段重做 `directorx_canvas_reshoot` cut → 生成中段 → assemble；多段成片硬切拼条用 `directorx_canvas_pack`（预告片禁止 fade）；接触表用 `directorx_canvas_sheet`；一张图宫格切开用 `directorx_canvas_split`；多张图宫格拼回用 `directorx_canvas_join`；分屏对照用 `directorx_canvas_stack`；硬字幕用 `directorx_canvas_desub`；续写位用 `directorx_canvas_extend`；评审动图用 `directorx_canvas_gif`；按引用连线用 `directorx_canvas_autolink`。Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
+      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, ask cards then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；转场要首尾帧。同一系列先 `directorx_series apply`。多人连续 / 单镜长拍 / 完全控制先 `directorx_blocking`（用户给角色图+开场+事件顺序，你写台账再 pin）。只改一镜先 `directorx_revise`，回写只改该节点 path。After a canvas intent, write results back with `directorx_canvas_update`.',
+      '- Edit (deterministic, never regenerate): 拿不准先 `directorx_edit_plan`。调色/打开编辑台 → `directorx_studio`（prompt + nodeId）。图片旋转/翻转/裁切/缩放/明暗 → `directorx_image_edit`。单段视频裁剪/变速/静音/倒放/定格 → `directorx_video_process`。多条人话剪辑 → `directorx_edit`。多镜组装 → `directorx_timeline` / `directorx_video_concat`。口播精剪 → 转写后再 `directorx_smart_cut`。这些工具都可带 nodeId，会回写 path、不改镜头标题。完成后 `directorx_extract_frames` + `directorx_view_image` 质检。craft/ready/proposal 只约束生成，不约束本地编辑。不要用生成模型重绘来完成调色、裁切、旋转或变速。',
+      '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Then `directorx_skill_capture` present the save-as-skill card. User revision notes belong in `directorx_note` as they happen. Adaptation reviews go through `directorx_bible` (Markdown on the canvas / in the DSH session), never a standalone HTML file. Base claims on tool results, never on promises.',
       '',
       '## DirectorX media tools',
       `Enabled capabilities: ${enabled.length === 0 ? 'none (open Settings → DirectorX to enable)' : enabled.join(', ')}.`,
       toolList.length > 0 ? `Available tools: ${toolList.join(', ')}.` : '',
       '',
-      '- Multi-unit work: `directorx_brief` then follow its `compose` stages — research (knowledge/skill, then external facts) → `directorx_propose` (prompt + recommended model + spec) → `directorx_canvas_shotlist` → `directorx_confirm` (DSH ask UI signs the board). Do not generate until the batch is confirmed. Recipes are prior art, not a job catalog. `directorx_orchestrate` is optional.',
-      '- Before media generation, `directorx_skill_search` / `directorx_skill_read` the matching skill body (manifest is only a summary) and `directorx_knowledge_search` / `directorx_knowledge_read` the corpus. Never claim the library lacks a topic without searching. For production requests, load `directorx-production-lead` first and triage simple vs complex. Record each stage artifact with `directorx_stage`.',
+      '- Multi-unit work: `directorx_brief` then follow `compose` 路/稿/位 — `directorx_skill_route` → `directorx_prompt_plan` + craft/ready per shot → `directorx_propose` + `directorx_canvas_shotlist` → `directorx_confirm`. Record `directorx_stage`. Do not generate until the batch is confirmed. Recipes are prior art. `directorx_orchestrate` is optional.',
+      '- Before media generation, `directorx_skill_route` then `directorx_skill_read` the matching skill body (manifest is only a summary) and `directorx_knowledge_search` / `directorx_knowledge_read` the corpus. Never claim the library lacks a topic without searching. For production requests, load `directorx-production-lead` first and triage simple vs complex. Record each stage artifact with `directorx_stage`.',
       '- Keep prompts positive and physical; lock subject, style, light, lens, and continuity in writing before calling generation tools. Use `directorx_style` to inject grounded style/camera-language craft from the corpus instead of inventing looks.',
       '- Treat provider responses as authoritative: inspect returned paths/URLs/status before claiming completion.',
       '- Long async tasks persist in the task ledger: after a timeout or interruption, recover them with `directorx_task_status` and stop them with `directorx_cancel_task`; never blindly re-submit.',

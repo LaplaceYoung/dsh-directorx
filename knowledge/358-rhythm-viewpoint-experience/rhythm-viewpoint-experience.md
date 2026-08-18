@@ -1,3 +1,65 @@
+---
+type: Reference
+title: "电影节奏-视点-体验整合（Rhythm-Viewpoint-Experience — Total Engagement Design）"
+description: "电影节奏-视点-体验整合：体验节奏（观众对节奏的感知）、叙事理论维度（幕结构/剪辑/取景/运动/声音影响参与）、节奏-时机-序列设计（观众卷入核心）、格式塔组织+神经时间（节奏参与的神经基础）"
+tags:
+  - "synthesis"
+  - "editing"
+  - "sound"
+  - "narrative"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OUP Rhythmic Phrasing in Narrative Film"
+    id: cite-1
+    title: "Rhythmic Phrasing in Narrative Film"
+    author: "org:OUP"
+  - resource: "cited:PMC Narrative Theory and Popular Movies"
+    id: cite-2
+    title: "Narrative Theory and Popular Movies"
+    author: "org:PMC"
+  - resource: "cited:IBM Finding the Beat"
+    id: cite-3
+    title: "Finding the Beat"
+    author: "org:IBM"
+  - resource: "cited:Unimi RITMEx"
+    id: cite-4
+    title: "RITMEx"
+    author: "org:Unimi"
+  - resource: "https://academic.oup.com/screen/article/66/4/475/8407479"
+    id: url-1
+    title: "academic.oup.com"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5133278/"
+    id: url-2
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://research.ibm.com/publications/finding-the-beat-an-analysis-of-the-rhythmic-elements-of-motion-pictures"
+    id: url-3
+    title: "research.ibm.com"
+  - resource: "https://riviste.unimi.it/index.php/cinemaetcie/article/download/17202/15813/54030"
+    id: url-4
+    title: "riviste.unimi.it"
+  - resource: "https://lwks.com/blog/rhythm-and-pace-crafting-the-tempo-of-film"
+    id: url-5
+    title: "lwks.com"
+dx_id: "358"
+aliases:
+  - "365"
+  - "rhythm-viewpoint-experience4"
+related:
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "327-audience-experience-design/audience-experience-design.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "234-narrative-viewpoint/narrative-viewpoint.md"
+---
+
 # 电影节奏-视点-体验整合（Rhythm-Viewpoint-Experience — Total Engagement Design）
 
 > 本页为电影节奏-视点-体验整合：体验节奏（观众对节奏的感知）、叙事理论维度（幕结构/剪辑/取景/运动/声音影响参与）、节奏-时机-序列设计（观众卷入核心）、格式塔组织+神经时间（节奏参与的神经基础）。知识本体来自 2026 参与设计（OUP/PMC/IBM）。AI 应用面向 DirectorX：总参与（衔接 349 三整合、358 对应、323 沉浸、327 体验）。
@@ -55,6 +117,10 @@
 
 **DirectorX 纪律**：节奏在人不在剪；五维度参与；视点对齐；卷入校验。
 
+## 结构作为第四钮（原 365）
+
+节奏 / 视点 / 体验之外若要加「结构」，用 150 的幕与节拍，不要另写四整合。三钮对齐后再映射节拍。
+
 ## 术语表（中英对照）
 
 | 中文 | English | 说明 |
@@ -73,3 +139,11 @@
 - IBM — Finding the Beat: Rhythmic Elements of Motion Pictures：https://research.ibm.com/publications/finding-the-beat-an-analysis-of-the-rhythmic-elements-of-motion-pictures
 - Unimi — RITMEx: Rhythm and the Neuroscience of Timing：https://riviste.unimi.it/index.php/cinemaetcie/article/download/17202/15813/54030
 - LWKS — Rhythm and Pace: Crafting the Tempo of Film：https://lwks.com/blog/rhythm-and-pace-crafting-the-tempo-of-film
+
+## 相关概念
+
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [电影观众体验设计（Audience Experience Design — AxD Five-Stage & Engagement Framework）](../327-audience-experience-design/audience-experience-design.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）](../234-narrative-viewpoint/narrative-viewpoint.md)

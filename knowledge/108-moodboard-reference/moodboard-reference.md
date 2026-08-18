@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）"
+description: "本页知识本体来自真实影视美术指导（Art Direction）实践：情绪板（Mood Board）作为前期视觉蓝图，锁定六个视觉决策面（基调/色彩/光照/构图/美术设计/节奏），并对齐导演、摄影指导、美术、服装等部门的共识"
+tags:
+  - "production"
+  - "color"
+  - "style"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX What is a Film Mood Board"
+    id: cite-1
+    title: "What is a Film Mood Board"
+    author: "org:LTX"
+  - resource: "cited:Milanote How to Make a Film Moodboard"
+    id: cite-2
+    title: "How to Make a Film Moodboard"
+    author: "org:Milanote"
+  - resource: "cited:NoFilmSchool Definitive Guide to Film Mood Board"
+    id: cite-3
+    title: "Definitive Guide to Film Mood Board"
+    author: "org:NoFilmSchool"
+  - resource: "cited:Scriptease Align Your Key Creatives"
+    id: cite-4
+    title: "Align Your Key Creatives"
+    author: "org:Scriptease"
+  - resource: "cited:Storyflow Create a Film Moodboard 2026"
+    id: cite-5
+    title: "Create a Film Moodboard 2026"
+    author: "org:Storyflow"
+  - resource: "https://ltx.io/glossary/film-mood-board"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://milanote.com/guide/film-moodboard"
+    id: url-2
+    title: "milanote.com"
+  - resource: "https://nofilmschool.com/film-mood-board"
+    id: url-3
+    title: "nofilmschool.com"
+  - resource: "https://scriptease.app/blog/film-mood-board/"
+    id: url-4
+    title: "scriptease.app"
+  - resource: "https://storyflow.so/blog/how-to-create-a-film-moodboard"
+    id: url-5
+    title: "storyflow.so"
+dx_id: "108"
+related:
+  - "09-lighting-color/lighting-color.md"
+  - "36-color-luts/color-luts.md"
+  - "45-style-unification/style-unification.md"
+---
+
 # 情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）
 
 > 本页知识本体来自真实影视美术指导（Art Direction）实践：情绪板（Mood Board）作为前期视觉蓝图，锁定六个视觉决策面（基调/色彩/光照/构图/美术设计/节奏），并对齐导演、摄影指导、美术、服装等部门的共识。AI 应用面向 DirectorX：情绪板 = AI 生成前的参考图集（案例 1「AI 选角」与案例 4「图片转短片」的参考锚体系）。
@@ -90,3 +149,9 @@
 - NoFilmSchool — The Definitive Guide to Creating a Film and TV Mood Board：https://nofilmschool.com/film-mood-board
 - Scriptease — How to Build a Film Mood Board That Aligns Your Key Creatives：https://scriptease.app/blog/film-mood-board/
 - Storyflow — How to Create a Film Moodboard (2026)：https://storyflow.so/blog/how-to-create-a-film-moodboard
+
+## 相关概念
+
+- [灯光与色彩（Lighting & Color）](../09-lighting-color/lighting-color.md)
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)

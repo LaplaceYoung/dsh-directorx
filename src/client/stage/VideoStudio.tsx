@@ -202,7 +202,19 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if ((event.target as HTMLElement | null)?.matches('input, textarea')) return
+      const target = event.target as HTMLElement | null
+      const typing = typeof target?.matches === 'function' && target.matches('input, textarea')
+      if (typing) return
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault()
+        void exportMp4()
+        return
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        props.onClose()
+        return
+      }
       if (event.key === ' ') {
         event.preventDefault()
         togglePlay()
@@ -379,7 +391,15 @@ export function VideoStudio(props: VideoStudioProps): ReactNode {
               <div style={{
                 position: 'absolute', top: 0, bottom: 0, left: `${(time / duration) * 100}%`,
                 width: 2, marginLeft: -1, background: '#f3f3f3', pointerEvents: 'none',
-              }} />
+                boxShadow: '0 0 0 1px rgba(0,0,0,.45)',
+              }}>
+                <span style={{
+                  position: 'absolute', top: 2, left: 6, padding: '1px 5px', borderRadius: 4,
+                  background: 'rgba(12,12,12,.82)', color: '#f3f3f3', fontSize: 10, whiteSpace: 'nowrap',
+                }}>
+                  {fmt(time)}
+                </span>
+              </div>
             ) : null}
           </div>
         </div>

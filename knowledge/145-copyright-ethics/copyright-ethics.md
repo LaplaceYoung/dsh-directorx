@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）"
+description: "AI 视频的版权与伦理合规体系：版权归属（谁拥有什么）、肖像/生物特征授权、AI 生成披露（透明度义务）、来源证明（机器可读标记/水印）、2026 监管时间线（EU AI Act Article 50）"
+tags:
+  - "production"
+  - "copyright"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Resemble Watermarking Generative AI 2026"
+    id: cite-1
+    title: "Watermarking Generative AI 2026"
+    author: "org:Resemble"
+  - resource: "cited:Reuters Copyright Office Deepfake Report"
+    id: cite-2
+    title: "Copyright Office Deepfake Report"
+    author: "org:Reuters"
+  - resource: "cited:TechPolicy EU AI Code of Practice Labeling"
+    id: cite-3
+    title: "EU AI Code of Practice Labeling"
+    author: "org:TechPolicy"
+  - resource: "cited:Legal500 Synthetic Media Legal Responses"
+    id: cite-4
+    title: "Synthetic Media Legal Responses"
+    author: "org:Legal500"
+  - resource: "https://www.resemble.ai/resources/generative-ai-watermarking-opportunities-challenges"
+    id: url-1
+    title: "resemble.ai"
+  - resource: "https://www.reuters.com/legal/legalindustry/report-deepfakes-what-copyright-office-found-what-comes-next-ai-regulation-2024-12-18/"
+    id: url-2
+    title: "reuters.com"
+  - resource: "https://www.techpolicy.press/what-the-eus-new-ai-code-of-practice-means-for-labeling-deepfakes/"
+    id: url-3
+    title: "techpolicy.press"
+  - resource: "https://www.legal500.com/developments/thought-leadership/synthetic-media-and-deepfakes-legal-responses-to-identity-dignity-and-truth-in-the-age-of-ai/"
+    id: url-4
+    title: "legal500.com"
+  - resource: "https://www.duckduckgoose.ai/blog/deepfake-regulation-2026-whats-changing"
+    id: url-5
+    title: "duckduckgoose.ai"
+dx_id: "145"
+related:
+  - "72-ai-content-compliance/ai-content-compliance.md"
+  - "137-digital-human/digital-human.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）
 
 > 本页为 AI 视频的版权与伦理合规体系：版权归属（谁拥有什么）、肖像/生物特征授权、AI 生成披露（透明度义务）、来源证明（机器可读标记/水印）、2026 监管时间线（EU AI Act Article 50）。知识本体来自 2026 监管分析（Reuters/Resemble/TechPolicy/legal500）。AI 应用面向 DirectorX：合规审查关卡（衔接 72 合规、137 数字人授权、139 再现标注）。
@@ -84,3 +139,10 @@ C2PA 机读标记嵌入元数据：谁生成、用什么模型、何时——**�
 - TechPolicy — What the EU's New AI Code of Practice Means for Labeling Deepfakes：https://www.techpolicy.press/what-the-eus-new-ai-code-of-practice-means-for-labeling-deepfakes/
 - Legal500 — Synthetic Media and Deepfakes: Legal Responses：https://www.legal500.com/developments/thought-leadership/synthetic-media-and-deepfakes-legal-responses-to-identity-dignity-and-truth-in-the-age-of-ai/
 - DuckDuckGoose — Deepfake Regulation 2026: What's Changing：https://www.duckduckgoose.ai/blog/deepfake-regulation-2026-whats-changing
+
+## 相关概念
+
+- [AI 内容合规实务（AI Content Compliance）](../72-ai-content-compliance/ai-content-compliance.md)
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

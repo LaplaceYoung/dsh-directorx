@@ -1,3 +1,28 @@
+---
+type: Reference
+title: "视觉术语图解（Visual Glossary with Diagrams）"
+description: "视觉术语示意图集：用 ASCII 结构图让图片/视频生成模型与人类读者\"一眼看懂\"关键视觉概念"
+tags:
+  - "foundation"
+  - "model"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+dx_id: "00"
+aliases:
+  - "cinematic-glossary-gen"
+related:
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "39-image-consistency/character-consistency.md"
+  - "266-cross-media-fusion/cross-media-fusion.md"
+---
+
 # 视觉术语图解（Visual Glossary with Diagrams）
 
 > 本页是 DirectorX 视觉术语示意图集：用 ASCII 结构图让图片/视频生成模型与人类读者"一眼看懂"关键视觉概念。每张图对应一个术语家族，配套可写入生成提示词的英文关键词。
@@ -298,3 +323,9 @@
  hard cut on every beat (120 BPM), upper third text overlay,
  bright high-key lighting, white background, clean commercial style"
 ```
+
+## 相关概念
+
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [AI 图片多媒介融合（Cross-Media Fusion — Photo, Illustration & 3D Blending）](../266-cross-media-fusion/cross-media-fusion.md)

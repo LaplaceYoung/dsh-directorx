@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）"
+description: "AI 视频的叙事结构深化：三幕结构（20/60/20）、英雄之旅节拍表（Hero's Journey Beat Sheet）、节拍到 AI 生成层的映射、模型选择策略（低成本铺陈/高成本关键节拍）"
+tags:
+  - "production"
+  - "model"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind Storytelling 3 Act Structure for AI"
+    id: cite-1
+    title: "Storytelling 3 Act Structure for AI"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind Storytelling Frameworks Toolbox for AI"
+    id: cite-2
+    title: "Storytelling Frameworks Toolbox for AI"
+    author: "org:ReelMind"
+  - resource: "cited:Seedance AI Video Storytelling 2026"
+    id: cite-3
+    title: "AI Video Storytelling 2026"
+    author: "org:Seedance"
+  - resource: "cited:ReelMind Story Arc for AI Prompting"
+    id: cite-4
+    title: "Story Arc for AI Prompting"
+    author: "org:ReelMind"
+  - resource: "https://reelmind.ai/blog/storytelling-3-act-structure-applying-classic-narrative-to-ai-video-scripts"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/storytelling-frameworks-essential-storytelling-toolbox-for-ai-creators"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://www.seedance.tv/blog/ai-video-storytelling-2026"
+    id: url-3
+    title: "seedance.tv"
+  - resource: "https://reelmind.ai/blog/the-story-arc-deconstructing-iconic-narratives-for-ai-prompting"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://yiha.ai/blog/storytelling-mechanics-deconstructing-narrative-structure-in-film"
+    id: url-5
+    title: "yiha.ai"
+dx_id: "150"
+related:
+  - "103-analysis-notes/analysis-notes.md"
+  - "123-longform-consistency/longform-consistency.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "97-action-stunts/action-stunts.md"
+  - "138-params-tuning/params-tuning.md"
+---
+
 # AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）
 
 > 本页为 AI 视频的叙事结构深化：三幕结构（20/60/20）、英雄之旅节拍表（Hero's Journey Beat Sheet）、节拍到 AI 生成层的映射、模型选择策略（低成本铺陈/高成本关键节拍）。知识本体来自 2026 叙事框架指南（ReelMind/Seedance/Yiha）。AI 应用面向 DirectorX：叙事项目脚本化（衔接 103 剧本写作、123 长视频、143 短剧、97 拉片）。
@@ -83,3 +140,11 @@
 - Seedance — AI Video Storytelling: How to Tell Compelling Stories with AI：https://www.seedance.tv/blog/ai-video-storytelling-2026
 - ReelMind — The Story Arc: Deconstructing Iconic Narratives for AI Prompting：https://reelmind.ai/blog/the-story-arc-deconstructing-iconic-narratives-for-ai-prompting
 - Yiha — Storytelling Mechanics: Narrative Structure in Film：https://yiha.ai/blog/storytelling-mechanics-deconstructing-narrative-structure-in-film
+
+## 相关概念
+
+- [拉片笔记系统（Film Analysis Notes System）](../103-analysis-notes/analysis-notes.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）](../97-action-stunts/action-stunts.md)
+- [AI 视频生成参数进阶（Parameters Tuning — Seed, CFG, Steps, Motion & Settings by Model）](../138-params-tuning/params-tuning.md)

@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片参与-六问-互动系列（Interactive Six-Questions — Choice-Driven Visual Series）"
+description: "AI 图片的参与-六问-互动系列：分支路径（多图/多视频资产）+选择驱动叙事（AI 生成随选择适配）、参与规划（分支点/跨分支角色一致/全路径测试）、实时输入共创"
+tags:
+  - "synthesis"
+  - "character"
+  - "continuity"
+  - "narrative"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Tandfonline Card-Based Story Writing"
+    id: cite-1
+    title: "Card-Based Story Writing"
+    author: "org:Tandfonline"
+  - resource: "cited:Patsnap AI Graphics for Interactive Storytelling"
+    id: cite-2
+    title: "AI Graphics for Interactive Storytelling"
+    author: "org:Patsnap"
+  - resource: "cited:ReelMind Interactive Storytelling"
+    id: cite-3
+    title: "Interactive Storytelling"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind Choices: Stories You Play"
+    id: cite-4
+    title: "Choices: Stories You Play"
+    author: "org:ReelMind"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/10447318.2026.2658245"
+    id: url-1
+    title: "tandfonline.com"
+  - resource: "https://eureka.patsnap.com/report-pioneering-ai-graphics-for-interactive-storytelling"
+    id: url-2
+    title: "eureka.patsnap.com"
+  - resource: "https://reelmind.ai/blog/interactive-storytelling-engaging-audiences-with-ai-driven-narratives"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/choices-stories-you-play-craft-interactive-ai-driven-narratives"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/interactive-video-storytelling-ai-for-engagement"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "364"
+related:
+  - "339-six-questions-images/six-questions-images.md"
+  - "167-interactive-branching/interactive-branching.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+---
+
 # AI 图片参与-六问-互动系列（Interactive Six-Questions — Choice-Driven Visual Series）
 
 > 本页为 AI 图片的参与-六问-互动系列：分支路径（多图/多视频资产）+选择驱动叙事（AI 生成随选择适配）、参与规划（分支点/跨分支角色一致/全路径测试）、实时输入共创。知识本体来自 2026 互动叙事（Tandfonline/Patsnap/ReelMind）。AI 应用面向 DirectorX：互动系列（衔接 339 六问、364 对应、167 分支、238 一致）。
@@ -73,3 +131,9 @@
 - ReelMind — Interactive Storytelling with AI-Driven Narratives：https://reelmind.ai/blog/interactive-storytelling-engaging-audiences-with-ai-driven-narratives
 - ReelMind — Choices: Stories You Play：https://reelmind.ai/blog/choices-stories-you-play-craft-interactive-ai-driven-narratives
 - ReelMind — Interactive Video Storytelling：https://reelmind.ai/blog/interactive-video-storytelling-ai-for-engagement
+
+## 相关概念
+
+- [AI 图片六问沉浸应用（Six Questions in Images — Engagement Prompts & Frame Progression）](../339-six-questions-images/six-questions-images.md)
+- [AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）](../167-interactive-branching/interactive-branching.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)

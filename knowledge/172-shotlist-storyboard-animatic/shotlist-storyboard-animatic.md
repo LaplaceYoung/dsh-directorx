@@ -1,3 +1,59 @@
+---
+type: Playbook
+title: "AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）"
+description: "AI 分镜全链路：剧本 → 场景拆解 → 镜头表（Shot List）→ 分镜帧（Storyboard）→ 动态分镜（Animatic 带时长/音频）→ 输出包"
+tags:
+  - "consistency"
+  - "camera"
+  - "sound"
+  - "storyboard"
+  - "workflow"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MockFlow Best AI Storyboard Generator Tools 2026"
+    id: cite-1
+    title: "Best AI Storyboard Generator Tools 2026"
+    author: "org:MockFlow"
+  - resource: "cited:M Studio Script to Storyboard"
+    id: cite-2
+    title: "Script to Storyboard"
+    author: "org:M-Studio"
+  - resource: "cited:StorylineForge AI Pre-Visualization 2026"
+    id: cite-4
+    title: "AI Pre-Visualization 2026"
+    author: "org:StorylineForge"
+  - resource: "https://mockflow.com/blog/best-ai-storyboard-generators"
+    id: url-1
+    title: "mockflow.com"
+  - resource: "https://mstudio.ai/features/ai-storyboard-generator"
+    id: url-2
+    title: "mstudio.ai"
+  - resource: "https://www.storyboarder.ai/"
+    id: url-3
+    title: "storyboarder.ai"
+  - resource: "https://storylineforge.com/blog/ai-pre-visualization-for-film-tools-and-workflows-in-2026/"
+    id: url-4
+    title: "storylineforge.com"
+  - resource: "https://www.drawstory.ai/previs-ai"
+    id: url-5
+    title: "drawstory.ai"
+dx_id: "172"
+related:
+  - "108-moodboard-reference/moodboard-reference.md"
+  - "151-game-cinematics/game-cinematics.md"
+  - "159-screenplay-format/screenplay-format.md"
+  - "122-quality-monetization/quality-monetization.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）
 
 > 本页为 AI 分镜全链路：剧本 → 场景拆解 → 镜头表（Shot List）→ 分镜帧（Storyboard）→ 动态分镜（Animatic 带时长/音频）→ 输出包。知识本体来自 2026 预可视化工具指南（MockFlow/M Studio/Storyboarder.ai/StorylineForge）。AI 应用面向 DirectorX：前期规划（衔接 108 关键帧、151 Animatic、159 剧本格式）。
@@ -84,3 +140,11 @@
 - Storyboarder.ai — AI Storyboard Generator: From Script to Storyboards：https://www.storyboarder.ai/
 - StorylineForge — AI Pre-Visualization for Film: Tools and Workflows 2026：https://storylineforge.com/blog/ai-pre-visualization-for-film-tools-and-workflows-in-2026/
 - Drawstory — Previs AI: Scripts to Storyboards & Shot Lists：https://www.drawstory.ai/previs-ai
+
+## 相关概念
+
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
+- [AI 游戏 CG 与过场动画（Game Cinematics — Cutscenes, Trailers & Animatic-First Workflow）](../151-game-cinematics/game-cinematics.md)
+- [AI 视频剧本格式规范（Screenplay Format — Industry Standards as AI Input）](../159-screenplay-format/screenplay-format.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

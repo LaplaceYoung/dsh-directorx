@@ -88,6 +88,7 @@ export type StageData = {
   lastError?: string
   count?: number
   characters?: string[]
+  continuityRules?: string[]
   onGenerate?: (id: string) => void
   onPatch?: (id: string, patch: Partial<StageData>) => void
   onAdoptTake?: (id: string) => void
@@ -153,6 +154,7 @@ export function toFlowNodes(doc: CanvasDoc): StageNode[] {
         ...(node.lastError !== undefined ? { lastError: node.lastError } : {}),
         ...(node.count !== undefined ? { count: node.count } : {}),
         ...(node.characters !== undefined && node.characters.length > 0 ? { characters: node.characters } : {}),
+        ...(node.continuityRules !== undefined && node.continuityRules.length > 0 ? { continuityRules: node.continuityRules } : {}),
       },
     }
   })
@@ -204,6 +206,7 @@ export function fromFlow(nodes: StageNode[], edges: Edge[], title: string, updat
         ...(node.data.lastError !== undefined ? { lastError: node.data.lastError } : {}),
         ...(node.data.count !== undefined ? { count: node.data.count } : {}),
         ...(node.data.characters !== undefined && node.data.characters.length > 0 ? { characters: node.data.characters } : {}),
+        ...(node.data.continuityRules !== undefined && node.data.continuityRules.length > 0 ? { continuityRules: node.data.continuityRules } : {}),
         ...(node.parentId !== undefined && node.parentId !== '' ? { parent: node.parentId } : {}),
         x: absolute.x,
         y: absolute.y,

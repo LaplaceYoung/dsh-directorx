@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片记忆-时间-情绪三融合（Memory-Time-Emotion — Life Story Timelines & Memory Narration）"
+description: "AI 图片的记忆-时间-情绪三融合：人生故事时间线（AI 自动结构：时间戳/主题章节）、记忆驱动多镜头叙事（情绪整合）、时间线情绪翻译（AI 把情绪转视觉+节奏结构）"
+tags:
+  - "synthesis"
+  - "camera"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:JMIR AI Life Story Structuring"
+    id: cite-1
+    title: "AI Life Story Structuring"
+    author: "org:JMIR"
+  - resource: "cited:arXiv StoryMem: Multi-shot Storytelling with Memory"
+    id: cite-2
+    title: "StoryMem: Multi-shot Storytelling with Memory"
+    author: "org:arXiv"
+  - resource: "cited:ReelMind Blast from the Past Script"
+    id: cite-3
+    title: "Blast from the Past Script"
+    author: "org:ReelMind"
+  - resource: "cited:JMIR Life Story Structuring for Reminiscence"
+    id: cite-4
+    title: "Life Story Structuring for Reminiscence"
+    author: "org:JMIR"
+  - resource: "https://aging.jmir.org/2026/1/e83122"
+    id: url-1
+    title: "aging.jmir.org"
+  - resource: "https://arxiv.org/html/2512.19539v1"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://reelmind.ai/blog/blast-from-the-past-script-nostalgic-narratives-with-ai"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://aging.jmir.org/2026/1/e83122/PDF"
+    id: url-4
+    title: "aging.jmir.org"
+  - resource: "https://arxiv.org/html/2411.04499v1"
+    id: url-5
+    title: "arxiv.org"
+dx_id: "312"
+related:
+  - "301-nostalgia-series/nostalgia-series.md"
+  - "285-series-time-passage/series-time-passage.md"
+  - "294-emotional-memory-image/emotional-memory-image.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 图片记忆-时间-情绪三融合（Memory-Time-Emotion — Life Story Timelines & Memory Narration）
 
 > 本页为 AI 图片的记忆-时间-情绪三融合：人生故事时间线（AI 自动结构：时间戳/主题章节）、记忆驱动多镜头叙事（情绪整合）、时间线情绪翻译（AI 把情绪转视觉+节奏结构）。知识本体来自 2026 记忆叙事（JMIR/arXiv StoryMem/ReelMind）。AI 应用面向 DirectorX：人生图集（衔接 301 怀旧系列、312 对应、285 时间流逝、294 情绪记忆）。
@@ -77,3 +135,11 @@ AI 转情绪为视觉 + 优化节奏结构（275 情绪弧）——**"情绪→�
 - ReelMind — Blast from the Past: Nostalgic Narratives with AI：https://reelmind.ai/blog/blast-from-the-past-script-nostalgic-narratives-with-ai
 - JMIR — Life Story Structuring PDF：https://aging.jmir.org/2026/1/e83122/PDF
 - arXiv — AI-Enhanced Interactive Story（2411.04499）：https://arxiv.org/html/2411.04499v1
+
+## 相关概念
+
+- [AI 图片情绪记忆系列（Nostalgia Series — Memory Sequence & Personal History）](../301-nostalgia-series/nostalgia-series.md)
+- [AI 图片系列时间流逝（Time Passage in Series — Seasons, Aging & Time-Lapse Storyboards）](../285-series-time-passage/series-time-passage.md)
+- [AI 图片情绪记忆（Emotional Memory — Nostalgia, Memory Triggers & Mood Evocation）](../294-emotional-memory-image/emotional-memory-image.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

@@ -1,3 +1,56 @@
+---
+type: Method
+title: "AI 图片摄影流派（Photography Genres — Street, Documentary, Fashion & Landscape Prompts）"
+description: "AI 图片的摄影流派：街拍（决定性瞬间/黑白高对比）、纪实（真实感/自然光）、时尚（编辑风/方向光）、风光（广角/黄金时刻/前景兴趣）、流派提示词配方（相机/镜头/光/情绪/后期）"
+tags:
+  - "synthesis"
+  - "camera"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe AI Image Prompt Examples"
+    id: cite-1
+    title: "AI Image Prompt Examples"
+    author: "org:Adobe"
+  - resource: "cited:ChatSmith 10 AI Photo Prompts Across Genres"
+    id: cite-2
+    title: "10 AI Photo Prompts Across Genres"
+    author: "org:ChatSmith"
+  - resource: "cited:Imagine.Art 80 AI Photography Prompts"
+    id: cite-3
+    title: "80 AI Photography Prompts"
+    author: "org:Imagine.Art"
+  - resource: "cited:OpenArt 50 Best AI Image Prompts"
+    id: cite-4
+    title: "50 Best AI Image Prompts"
+    author: "org:OpenArt"
+  - resource: "https://www.adobe.com/products/firefly/ai-generated-examples/image-prompts.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://chatsmith.io/blogs/prompt/ai-photo-prompts-00249"
+    id: url-2
+    title: "chatsmith.io"
+  - resource: "https://www.imagine.art/blogs/ai-photography-prompts"
+    id: url-3
+    title: "imagine.art"
+  - resource: "https://openart.ai/blog/best-ai-image-generator-prompts/"
+    id: url-4
+    title: "openart.ai"
+dx_id: "249"
+related:
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+  - "126-style-art-direction/style-art-direction.md"
+  - "216-composition-rules-deep/composition-rules-deep.md"
+---
+
 # AI 图片摄影流派（Photography Genres — Street, Documentary, Fashion & Landscape Prompts）
 
 > 本页为 AI 图片的摄影流派：街拍（决定性瞬间/黑白高对比）、纪实（真实感/自然光）、时尚（编辑风/方向光）、风光（广角/黄金时刻/前景兴趣）、流派提示词配方（相机/镜头/光/情绪/后期）。知识本体来自 2026 摄影流派指南（Adobe Firefly/ChatSmith/Imagine.Art）。AI 应用面向 DirectorX：图片风格（衔接 215 参数、224 风格、249 对应、224→已并入 216 构图）。
@@ -79,3 +132,9 @@
 - Imagine.Art — 80 AI Photography Prompts：https://www.imagine.art/blogs/ai-photography-prompts
 - OpenArt — 50 Best AI Image Generator Prompts：https://openart.ai/blog/best-ai-image-generator-prompts/
 - GitHub — Awesome-AI-Image-Prompts (1000+)：
+
+## 相关概念
+
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)

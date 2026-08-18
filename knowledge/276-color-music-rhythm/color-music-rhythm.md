@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影色彩-音乐-节奏通感（Color-Music-Rhythm — Visual-Auditory Rhythm & Synaesthetic Practice）"
+description: "电影色彩-音乐-节奏的通感应用：视觉听觉节奏（音画节奏一致/并行）、色彩的音乐性（色为音画节奏一部分）、视觉音乐（Film as Music）、同步设计"
+tags:
+  - "synthesis"
+  - "color"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OUP Film as Music"
+    id: cite-1
+    title: "Film as Music"
+    author: "org:OUP"
+  - resource: "cited:KCI Visual-Auditory Rhythms in Film"
+    id: cite-2
+    title: "Visual-Auditory Rhythms in Film"
+    author: "org:KCI"
+  - resource: "cited:Atlantis Cinematic Time - Musical Time"
+    id: cite-3
+    title: "Cinematic Time - Musical Time"
+    author: "org:Atlantis"
+  - resource: "cited:Lodewijk Muns Rhythm for Ears and Eyes"
+    id: cite-4
+    title: "Rhythm for Ears and Eyes"
+    author: "org:Lodewijk-Muns"
+  - resource: "https://academic.oup.com/cornell-scholarship-online/book/61116/chapter-abstract/532285772"
+    id: url-1
+    title: "academic.oup.com"
+  - resource: "https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001576339"
+    id: url-2
+    title: "kci.go.kr"
+  - resource: "https://www.atlantis-press.com/article/23778.pdf"
+    id: url-3
+    title: "atlantis-press.com"
+  - resource: "https://lodewijkmuns.nl/music/music-and-film/rhythm/"
+    id: url-4
+    title: "lodewijkmuns.nl"
+  - resource: "https://dspace.umh.es/bitstream/11000/27405/1/M%C3%BAsica%20y%20color%20en%20el%20cine_Cromo-filia_%20149-167%20(1"
+    id: url-5
+    title: "dspace.umh.es"
+dx_id: "276"
+related:
+  - "267-film-synesthesia/film-synesthesia.md"
+  - "144-sound-design/sound-design.md"
+  - "155-color-psychology/color-psychology.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "127-edit-transition-rhythm/edit-transition-rhythm.md"
+---
+
 # 电影色彩-音乐-节奏通感（Color-Music-Rhythm — Visual-Auditory Rhythm & Synaesthetic Practice）
 
 > 本页为电影色彩-音乐-节奏的通感应用：视觉听觉节奏（音画节奏一致/并行）、色彩的音乐性（色为音画节奏一部分）、视觉音乐（Film as Music）、同步设计。知识本体来自 2026 视听节奏研究（OUP/Atlantis/KCI/UNC）。AI 应用面向 DirectorX：通感落地（衔接 267 通感理论、182 声画、276 对应、155 色彩）。
@@ -78,3 +135,11 @@
 - Atlantis — Cinematic Time - Musical Time：https://www.atlantis-press.com/article/23778.pdf
 - Lodewijk Muns — Rhythm for the Ears and for the Eyes：https://lodewijkmuns.nl/music/music-and-film/rhythm/
 - UMH — Música y color en el cine：https://dspace.umh.es/bitstream/11000/27405/1/M%C3%BAsica%20y%20color%20en%20el%20cine_Cromo-filia_%20149-167%20(1)%20(1).pdf
+
+## 相关概念
+
+- [电影通感设计（Film Synesthesia — Color-Sound Correspondence & Sensory Design）](../267-film-synesthesia/film-synesthesia.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）](../127-edit-transition-rhythm/edit-transition-rhythm.md)

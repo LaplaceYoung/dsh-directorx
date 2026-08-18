@@ -1,3 +1,60 @@
+---
+type: Playbook
+title: "AI 图片全流程参与系统（Full-Flow Engagement — End-to-End Visual Storytelling）"
+description: "AI 图片的全流程参与系统：模块化端到端管线（场景规划→逐场景生成→旁白/音频→拼接）、一体化创意工作室（故事输入到成品）、多模态工具栈（图像生成器+视频/音频流+编排层）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "workflow"
+  - "image"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv VSG: Visual Storytelling Generation"
+    id: cite-1
+    title: "VSG: Visual Storytelling Generation"
+    author: "org:arXiv"
+  - resource: "cited:Dreamina AI Generators for Visual Storytelling"
+    id: cite-2
+    title: "AI Generators for Visual Storytelling"
+    author: "org:Dreamina"
+  - resource: "cited:LTX Open Foundation Models Studio"
+    id: cite-3
+    title: "Open Foundation Models Studio"
+    author: "org:LTX"
+  - resource: "cited:Imagine.Art Best AI Agents 2026"
+    id: cite-4
+    title: "Best AI Agents 2026"
+    author: "org:Imagine.Art"
+  - resource: "https://arxiv.org/html/2406.02748v2"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://dreamina.capcut.com/ai-image/most-recommended-ai-image-generators-visual-storytelling"
+    id: url-2
+    title: "dreamina.capcut.com"
+  - resource: "https://ltx.io/studio"
+    id: url-3
+    title: "ltx.io"
+  - resource: "https://www.imagine.art/blogs/best-ai-agents"
+    id: url-4
+    title: "imagine.art"
+  - resource: "https://medium.com/@vivek-karmarkar/how-we-built-an-ai-powered-visual-storytelling-pipeline-and-made-einstein-teach-at-hogwarts-d46fe31c370a"
+    id: url-5
+    title: "medium.com"
+dx_id: "366"
+related:
+  - "332-full-integration-practice/full-integration-practice.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "335-cross-modal-series/cross-modal-series.md"
+---
+
 # AI 图片全流程参与系统（Full-Flow Engagement — End-to-End Visual Storytelling）
 
 > 本页为 AI 图片的全流程参与系统：模块化端到端管线（场景规划→逐场景生成→旁白/音频→拼接）、一体化创意工作室（故事输入到成品）、多模态工具栈（图像生成器+视频/音频流+编排层）。知识本体来自 2026 全流程（arXiv VSG/Dreamina/LTX）。AI 应用面向 DirectorX：全流程（衔接 332 全整合落地、366 对应、121 编排、335 跨模态）。
@@ -75,3 +132,9 @@
 - LTX — Open Foundation Models Studio：https://ltx.io/studio
 - Imagine.Art — Best AI Agents 2026：https://www.imagine.art/blogs/best-ai-agents
 - Medium — AI-Powered Visual Storytelling Pipeline：https://medium.com/@vivek-karmarkar/how-we-built-an-ai-powered-visual-storytelling-pipeline-and-made-einstein-teach-at-hogwarts-d46fe31c370a
+
+## 相关概念
+
+- [电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）](../332-full-integration-practice/full-integration-practice.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 图片跨模态沉浸系列（Cross-Modal Immersive Series — Unified Multimodal Storytelling）](../335-cross-modal-series/cross-modal-series.md)

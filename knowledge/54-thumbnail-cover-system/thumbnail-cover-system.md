@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）"
+description: "缩略图/封面系统手册：可点击缩略图三要素、候选集生成、受控 A/B 变体（单变量原则）、环境+人脸反应合成构图、眯眼/灰度测试、系列模板（锁定+动态元素）、中文生态封面规格与批量工作流"
+tags:
+  - "foundation"
+  - "workflow"
+  - "vfx"
+  - "spec"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Floniks 缩略图生产手册"
+    id: cite-1
+    title: "Floniks 缩略图生产手册"
+  - resource: "cited:VidIQ 最佳实践"
+    id: cite-2
+    title: "VidIQ 最佳实践"
+  - resource: "cited:图叮/色彩韵中文封面指南"
+    id: cite-3
+    title: "图叮/色彩韵中文封面指南"
+  - resource: "cited:ComfyUI 小红书封面工作流。"
+    id: cite-4
+    title: "ComfyUI 小红书封面工作流。"
+  - resource: "https://floniks.com/learn/playbooks/youtube-thumbnail-playbook"
+    id: url-1
+    title: "floniks.com"
+  - resource: "https://vidiq.com/blog/post/youtube-thumbnail-design-tips/"
+    id: url-2
+    title: "vidiq.com"
+  - resource: "https://www.versely.studio/blog/ai-thumbnail-generator-click-worthy-youtube-thumbnails-2026"
+    id: url-3
+    title: "versely.studio"
+  - resource: "https://thumbapi.dev/blog/thumbnail-design-youtube-algorithm"
+    id: url-4
+    title: "thumbapi.dev"
+  - resource: "https://tudingai.cn/blog/202606/cover-template-ai-batch-free-bl-57287a/"
+    id: url-5
+    title: "tudingai.cn"
+  - resource: "https://www.secaiyun.com/docs/ai-video-thumbnail-generator-guide-2026-05-23.html"
+    id: url-6
+    title: "secaiyun.com"
+dx_id: "54"
+related:
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "55-global-localization-visual/global-localization-visual.md"
+---
+
 # AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）
 
 > 本页是 DirectorX 缩略图/封面系统手册：可点击缩略图三要素、候选集生成、受控 A/B 变体（单变量原则）、环境+人脸反应合成构图、眯眼/灰度测试、系列模板（锁定+动态元素）、中文生态封面规格与批量工作流。
@@ -113,3 +167,9 @@
 - 色彩韵设计: 短视频封面图怎么做才吸引人——2026 AI 辅助缩略图完全教程 — https://www.secaiyun.com/docs/ai-video-thumbnail-generator-guide-2026-05-23.html
 - aistacknav: ComfyUI 批量生成小红书封面图——高点击率爆款封面工作流 — https://aistacknav.com/comfyui-xiaohongshu-cover-workflow/
 - Nano Banana 2: 短视频封面与分镜工作流——抖音/B站/YouTube 一周视觉包 — https://nanobanana2.xin/zh-cn/blog/nanobanana2-short-video-cover-storyboard/
+
+## 相关概念
+
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [多语言出海视觉本地化（Global Localization & Visual Adaptation）](../55-global-localization-visual/global-localization-visual.md)

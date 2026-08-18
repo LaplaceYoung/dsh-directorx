@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影年代表演（Era Performance — From Presentational to Method to Media-Aware）"
+description: "电影年代表演：表演风格演变（1930s 舞台化→50s 方法派巅峰→60s+ 自然主义/媒介意识）、演变驱动（有声电影/方法派/观众预期）、年代表演提示词"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "character"
+  - "style"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Érudit Stage Actors and Modern Acting Methods"
+    id: cite-1
+    title: "Stage Actors and Modern Acting Methods"
+    author: "org:Érudit"
+  - resource: "cited:EBSCO Acting Styles"
+    id: cite-2
+    title: "Acting Styles"
+    author: "org:EBSCO"
+  - resource: "cited:NumberAnalytics Evolution of Acting Styles"
+    id: cite-3
+    title: "Evolution of Acting Styles"
+    author: "org:NumberAnalytics"
+  - resource: "cited:Scribd Evolution of Acting in the 20th Century"
+    id: cite-4
+    title: "Evolution of Acting in the 20th Century"
+    author: "org:Scribd"
+  - resource: "https://www.erudit.org/en/journals/cine/2014-v25-n1-cine01837/1030232ar/"
+    id: url-1
+    title: "erudit.org"
+  - resource: "https://www.ebsco.com/research-starters/arts-and-entertainment/acting-styles"
+    id: url-2
+    title: "ebsco.com"
+  - resource: "https://www.numberanalytics.com/blog/evolution-of-acting-styles"
+    id: url-3
+    title: "numberanalytics.com"
+  - resource: "https://www.scribd.com/document/899058685/Evolution-of-acting-in-the-20th-century"
+    id: url-4
+    title: "scribd.com"
+  - resource: "http://blog.colaborator.com/main/article/for-better-or-for-worse-how-acting-as-evolved-in-1930s-40s"
+    id: url-5
+    title: "blog.colaborator.com"
+dx_id: "291"
+related:
+  - "244-acting-theory-deep/acting-theory-deep.md"
+  - "203-character-era-consistency/character-era-consistency.md"
+  - "278-genre-acting/genre-acting.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+---
+
 # 电影年代表演（Era Performance — From Presentational to Method to Media-Aware）
 
 > 本页为电影年代表演：表演风格演变（1930s 舞台化→50s 方法派巅峰→60s+ 自然主义/媒介意识）、演变驱动（有声电影/方法派/观众预期）、年代表演提示词。知识本体来自 2026 表演史（Érudit/EBSCO/NumberAnalytics）。AI 应用面向 DirectorX：年代表演（衔接 244 表演理论、291 对应、203 时代、278 类型表演）。
@@ -78,3 +135,10 @@
 - NumberAnalytics — The Evolution of Acting Styles：https://www.numberanalytics.com/blog/evolution-of-acting-styles
 - Scribd — Evolution of Acting in the 20th Century：https://www.scribd.com/document/899058685/Evolution-of-acting-in-the-20th-century
 - Colaborator — How Acting Has Evolved Since the 1930s：http://blog.colaborator.com/main/article/for-better-or-for-worse-how-acting-as-evolved-in-1930s-40s
+
+## 相关概念
+
+- [电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）](../244-acting-theory-deep/acting-theory-deep.md)
+- [AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）](../203-character-era-consistency/character-era-consistency.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)

@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 产品故事化展示（Product Storytelling — Emotional Arc & Brand Narrative）"
+description: "AI 产品故事化展示：情绪弧结构（钩子→角色→结论）、品牌叙事生成（脚本/视觉/旁白自动化）、60 秒内社交短篇、品牌套件保视觉一致"
+tags:
+  - "consistency"
+  - "character"
+  - "continuity"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Invideo Create Brand Storytelling Videos Using AI"
+    id: cite-1
+    title: "Create Brand Storytelling Videos Using AI"
+    author: "org:Invideo"
+  - resource: "cited:Mootion AI Brand Storytelling Generator"
+    id: cite-2
+    title: "AI Brand Storytelling Generator"
+    author: "org:Mootion"
+  - resource: "cited:Leadde Brand Story Video That Builds Emotional"
+    id: cite-3
+    title: "Brand Story Video That Builds Emotional"
+    author: "org:Leadde"
+  - resource: "cited:AnimateAI AI Video Storytelling for Brands 2026"
+    id: cite-4
+    title: "AI Video Storytelling for Brands 2026"
+    author: "org:AnimateAI"
+  - resource: "https://invideo.io/blog/create-brand-storytelling-videos-with-ai/"
+    id: url-1
+    title: "invideo.io"
+  - resource: "https://www.mootion.com/use-cases/en/ai-brand-storytelling-generator"
+    id: url-2
+    title: "mootion.com"
+  - resource: "https://leadde.ai/blog/how-to-create-a-brand-story-video-with-ai"
+    id: url-3
+    title: "leadde.ai"
+  - resource: "https://animateai.pro/blog/what-is-the-best-ai-video-storytelling-for-brands"
+    id: url-4
+    title: "animateai.pro"
+  - resource: "https://www.reddit.com/r/UserExperienceDesign/comments/1ohg00v/how_are_you_building_brand_storytelling_videos/"
+    id: url-5
+    title: "reddit.com"
+dx_id: "202"
+related:
+  - "135-ad-creative-gen/ad-creative-gen.md"
+  - "188-opening-hook/opening-hook.md"
+  - "193-product-3d-showcase/product-3d-showcase.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+  - "150-narrative-structure/narrative-structure.md"
+---
+
 # AI 产品故事化展示（Product Storytelling — Emotional Arc & Brand Narrative）
 
 > 本页为 AI 产品故事化展示：情绪弧结构（钩子→角色→结论）、品牌叙事生成（脚本/视觉/旁白自动化）、60 秒内社交短篇、品牌套件保视觉一致。知识本体来自 2026 品牌叙事指南（Invideo/Mootion/Leadde/AnimateAI）。AI 应用面向 DirectorX：品牌内容（衔接 135 广告、188 钩子、193 产品、195 品牌资产、150 叙事）。
@@ -84,3 +142,11 @@
 - Leadde — How to Create a Brand Story Video (That Builds Emotional Connection)：https://leadde.ai/blog/how-to-create-a-brand-story-video-with-ai
 - AnimateAI — Best AI Video Storytelling Tools for Brands 2026：https://animateai.pro/blog/what-is-the-best-ai-video-storytelling-for-brands
 - Reddit — Building Brand Storytelling Videos with AI：https://www.reddit.com/r/UserExperienceDesign/comments/1ohg00v/how_are_you_building_brand_storytelling_videos/
+
+## 相关概念
+
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）](../193-product-3d-showcase/product-3d-showcase.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)

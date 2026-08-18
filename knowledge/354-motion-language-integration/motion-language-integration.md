@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影运动语言整合（Motion Language Integration — Motivation × Semantics × Psychology）"
+description: "电影运动语言整合：运动=具身沟通代理（塑造沉浸/叙事能动）、动/静影响参与与情绪（内容常覆盖形式线索）、统一运动语言（电影实践+AI 生成的语言工具：Auteur/MotionCanvas）"
+tags:
+  - "synthesis"
+  - "narrative"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:OUP The Moving Camera and Motor-Affective Arrangement"
+    id: cite-1
+    title: "The Moving Camera and Motor-Affective Arrangement"
+    author: "org:OUP"
+  - resource: "cited:PMC Embodiment of the Cinematographer"
+    id: cite-2
+    title: "Embodiment of the Cinematographer"
+    author: "org:PMC"
+  - resource: "cited:arXiv Auteur: Language-Driven Cinematographic Framing"
+    id: cite-3
+    title: "Auteur: Language-Driven Cinematographic Framing"
+    author: "org:arXiv"
+  - resource: "cited:arXiv MotionCanvas"
+    id: cite-4
+    title: "MotionCanvas"
+    author: "org:arXiv"
+  - resource: "https://academic.oup.com/book/41843/chapter/354637105"
+    id: url-1
+    title: "academic.oup.com"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10352452/"
+    id: url-2
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://arxiv.org/html/2606.01900v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2502.04299v1"
+    id: url-4
+    title: "arxiv.org"
+  - resource: "https://journals.publishing.umich.edu/fc/article/id/4730/"
+    id: url-5
+    title: "journals.publishing.umich.edu"
+dx_id: "354"
+related:
+  - "01-camera-language/camera-language.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "12-genre-music-performance/music-video-performance.md"
+---
+
 # 电影运动语言整合（Motion Language Integration — Motivation × Semantics × Psychology）
 
 > 本页为电影运动语言整合：运动=具身沟通代理（塑造沉浸/叙事能动）、动/静影响参与与情绪（内容常覆盖形式线索）、统一运动语言（电影实践+AI 生成的语言工具：Auteur/MotionCanvas）。知识本体来自 2026 运动整合（OUP/PMC/arXiv Auteur）。AI 应用面向 DirectorX：运动统一（衔接 241 动机、345 语义、354 对应、197 心理）。
@@ -72,3 +127,9 @@
 - arXiv — Auteur: Language-Driven Cinematographic Framing（2606.01900）：https://arxiv.org/html/2606.01900v1
 - arXiv — MotionCanvas: Cinematic Shot Design（2502.04299）：https://arxiv.org/html/2502.04299v1
 - Michigan — Camera Movement and the Necessity of Criticism：https://journals.publishing.umich.edu/fc/article/id/4730/
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)

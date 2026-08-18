@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片签名时间融合（Signature-Time Fusion — Adaptive Identity & Living Visual Systems）"
+description: "AI 图片的签名时间融合：自适应身份系统（Living Identity：替代静态风格指南）、实时演变资产（AI 驱动上下文适配）、动态 Logo/运动优先品牌、核心身份保持+演变"
+tags:
+  - "synthesis"
+  - "color"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:VibeVisuals Generative AI Reshaping Brand Identity 2026"
+    id: cite-1
+    title: "Generative AI Reshaping Brand Identity 2026"
+    author: "org:VibeVisuals"
+  - resource: "cited:SharedTeams AI-Powered Branding: Real-Time Evolution"
+    id: cite-2
+    title: "AI-Powered Branding: Real-Time Evolution"
+    author: "org:SharedTeams"
+  - resource: "cited:Cadigal Brand Identity in the AI Era"
+    id: cite-3
+    title: "Brand Identity in the AI Era"
+    author: "org:Cadigal"
+  - resource: "cited:Evalueserve AI-Powered Brand Design"
+    id: cite-4
+    title: "AI-Powered Brand Design"
+    author: "org:Evalueserve"
+  - resource: "https://www.vibevisuals.art/newsletters/generative-ai-brand-identity-2026"
+    id: url-1
+    title: "vibevisuals.art"
+  - resource: "https://sharedteams.com/articles/design/ai-powered-branding-visual-identities-evolve-real-time/"
+    id: url-2
+    title: "sharedteams.com"
+  - resource: "https://www.cadigaltech.com/blog/brand-identity-in-the-ai-era-2026"
+    id: url-3
+    title: "cadigaltech.com"
+  - resource: "https://www.evalueserve.com/blog/ai-powered-brand-design-building-the-future-of-visual-identity-at-scale/"
+    id: url-4
+    title: "evalueserve.com"
+  - resource: "https://reelmind.ai/blog/the-new-era-of-branding-ai-creates-memorable-visual-identities"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "315"
+related:
+  - "284-auteur-signature/auteur-signature.md"
+  - "299-signature-motif/signature-motif.md"
+  - "194-motion-graphic-title/motion-graphic-title.md"
+---
+
 # AI 图片签名时间融合（Signature-Time Fusion — Adaptive Identity & Living Visual Systems）
 
 > 本页为 AI 图片的签名时间融合：自适应身份系统（Living Identity：替代静态风格指南）、实时演变资产（AI 驱动上下文适配）、动态 Logo/运动优先品牌、核心身份保持+演变。知识本体来自 2026 自适应品牌（VibeVisuals/SharedTeams/Cadigal）。AI 应用面向 DirectorX：动态签名（衔接 284 签名、315 对应、310 跨格式、306 母题）。
@@ -76,3 +132,9 @@ AI 实时生成上下文适配资产（每平台/语境变体）——**演变�
 - Cadigal — Brand Identity in the AI Era 2026：https://www.cadigaltech.com/blog/brand-identity-in-the-ai-era-2026
 - Evalueserve — AI-Powered Brand Design：https://www.evalueserve.com/blog/ai-powered-brand-design-building-the-future-of-visual-identity-at-scale/
 - ReelMind — The New Era of Branding: Memorable Visual Identities：https://reelmind.ai/blog/the-new-era-of-branding-ai-creates-memorable-visual-identities
+
+## 相关概念
+
+- [电影导演风格签名（Auteur Signature — Visual Trademarks & Recurring Motifs）](../284-auteur-signature/auteur-signature.md)
+- [AI 图片签名母题应用（Signature Motif — One Anchor Across Every Image）](../299-signature-motif/signature-motif.md)
+- [AI 动态图形与标题设计（Motion Graphics & Titles — Kinetic Typography & Lower Thirds）](../194-motion-graphic-title/motion-graphic-title.md)

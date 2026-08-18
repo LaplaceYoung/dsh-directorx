@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）"
+description: "电影杂交类型的观众体验管理：清晰类型信号+深思杂交（防混淆）、调性旅程（编织多情绪：幽默/悬念/浪漫/恐怖+过渡线索）、预期管理（前期营销+片内伏笔：新颖×熟悉平衡）"
+tags:
+  - "synthesis"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Hybrid Genre"
+    id: cite-1
+    title: "Hybrid Genre"
+    author: "org:Wikipedia"
+  - resource: "cited:EyeOnFilms Benefits of Genre Blending"
+    id: cite-2
+    title: "Benefits of Genre Blending"
+    author: "org:EyeOnFilms"
+  - resource: "cited:Filmustage Impact on Audience Engagement"
+    id: cite-3
+    title: "Impact on Audience Engagement"
+    author: "org:Filmustage"
+  - resource: "cited:PBS The Unconventional Date Movie"
+    id: cite-4
+    title: "The Unconventional Date Movie"
+    author: "org:PBS"
+  - resource: "https://en.wikipedia.org/wiki/Hybrid_genre"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://eyeonfilms.org/exploring-the-magic-the-benefits-of-genre-blending-in-films/"
+    id: url-2
+    title: "eyeonfilms.org"
+  - resource: "https://filmustage.com/blog/unraveling-film-genres-impact-on-audience-engagement/"
+    id: url-3
+    title: "filmustage.com"
+  - resource: "https://www.pbs.org/video/the-unconventional-date-movie-sybnik/"
+    id: url-4
+    title: "pbs.org"
+  - resource: "https://ejournal.mdresearchcenter.id/index.php/ajmc/article/download/74/54"
+    id: url-5
+    title: "ejournal.mdresearchcenter.id"
+dx_id: "322"
+related:
+  - "304-expectation-management/expectation-management.md"
+  - "278-genre-acting/genre-acting.md"
+  - "307-expectation-reveal-hybrid/expectation-reveal-hybrid.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "289-reveal-design/reveal-design.md"
+---
+
 # 电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）
 
 > 本页为电影杂交类型的观众体验管理：清晰类型信号+深思杂交（防混淆）、调性旅程（编织多情绪：幽默/悬念/浪漫/恐怖+过渡线索）、预期管理（前期营销+片内伏笔：新颖×熟悉平衡）。知识本体来自 2026 杂交体验（Wikipedia/EyeOnFilms/Filmustage）。AI 应用面向 DirectorX：杂交体验（衔接 304 预期、322 对应、296 杂交、307 承诺）。
@@ -77,3 +132,11 @@
 - Filmustage — Unraveling Film Genres: Impact on Audience Engagement：https://filmustage.com/blog/unraveling-film-genres-impact-on-audience-engagement/
 - PBS — The Unconventional Date Movie（恐怖+浪漫杂交）：https://www.pbs.org/video/the-unconventional-date-movie-sybnik/
 - AJMC — Algorithmic Genre: Platform Logic & Cultural Hybridity：https://ejournal.mdresearchcenter.id/index.php/ajmc/article/download/74/54
+
+## 相关概念
+
+- [电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）](../304-expectation-management/expectation-management.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [电影预期-揭示-杂交三整合（Expectation-Reveal-Hybrid — Unified Narrative Strategy）](../307-expectation-reveal-hybrid/expectation-reveal-hybrid.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影悬念揭示设计（Reveal Design — Plant-Payoff, Gradual Revelation & Recontextualization）](../289-reveal-design/reveal-design.md)

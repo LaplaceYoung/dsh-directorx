@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）"
+description: "AI 视频生产的质量-成本-商业化总览：每成片分钟成本（Cost per Finished Minute）、接受件成本核算（Cost per Accepted Clip）、QC 纪律（质量门禁与批量校验）、AI-first 团队预算模型与 ROI"
+tags:
+  - "production"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX How Much Does AI Video Generation Cost 2026"
+    id: cite-1
+    title: "How Much Does AI Video Generation Cost 2026"
+    author: "org:LTX"
+  - resource: "cited:JoySpace Budget Breakdown 2026"
+    id: cite-2
+    title: "Budget Breakdown 2026"
+    author: "org:JoySpace"
+  - resource: "cited:MagicHour Video Production Costs 2026"
+    id: cite-3
+    title: "Video Production Costs 2026"
+    author: "org:MagicHour"
+  - resource: "cited:Genra Real Cost of AI Video vs Traditional"
+    id: cite-4
+    title: "Real Cost of AI Video vs Traditional"
+    author: "org:Genra"
+  - resource: "cited:DEV Calculated AI Video Cost 2026"
+    id: cite-5
+    title: "Calculated AI Video Cost 2026"
+    author: "org:DEV"
+  - resource: "https://ltx.io/blog/ai-video-generation-cost"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://joyspace.ai/budget-breakdown-ai-video-team-vs-traditional-2026"
+    id: url-2
+    title: "joyspace.ai"
+  - resource: "https://magichour.ai/blog/video-production-costs-traditional-vs-ai"
+    id: url-3
+    title: "magichour.ai"
+  - resource: "https://genra.ai/blog/ai-video-production-roi-cost-analysis"
+    id: url-4
+    title: "genra.ai"
+  - resource: "https://dev.to/torykovdya/everyones-generating-videos-i-calculated-what-ai-video-actually-costs-in-2026-37ag"
+    id: url-5
+    title: "dev.to"
+dx_id: "122"
+related:
+  - "00-visual-glossary/visual-diagrams.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "15-editing-tools/editing-tools-workflow.md"
+---
+
 # AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）
 
 > 本页为 AI 视频生产的质量-成本-商业化总览：每成片分钟成本（Cost per Finished Minute）、接受件成本核算（Cost per Accepted Clip）、QC 纪律（质量门禁与批量校验）、AI-first 团队预算模型与 ROI。知识本体来自 2026 成本分析（LTX/JoySpace/MagicHour/Genra）。AI 应用面向 DirectorX：批量生产（案例 5/6/7）的成本与质量双重管理。
@@ -97,3 +155,9 @@ AI-first 团队：高前期平台成本 + 低边际成本；ROI 模式 = 把节�
 - MagicHour — Video Production Costs in 2026: Traditional vs AI：https://magichour.ai/blog/video-production-costs-traditional-vs-ai
 - Genra — The Real Cost of AI Video vs Traditional Production：https://genra.ai/blog/ai-video-production-roi-cost-analysis
 - DEV — I Calculated What AI Video Actually Costs in 2026：https://dev.to/torykovdya/everyones-generating-videos-i-calculated-what-ai-video-actually-costs-in-2026-37ag
+
+## 相关概念
+
+- [视觉术语图解（Visual Glossary with Diagrams）](../00-visual-glossary/visual-diagrams.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [剪辑工具与实操流程（Editing Tools & Workflow）](../15-editing-tools/editing-tools-workflow.md)

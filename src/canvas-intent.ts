@@ -1,6 +1,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { resolveOutputDir } from './support.ts'
+import { buildIpBrief, type IpMemoryHint } from './ip-lexicon.ts'
+import { IpMemoryStore } from './ip-memory.ts'
+import { planPrompt } from './prompt-plan.ts'
 
 /**
  * DSH-owned canvas directives. The WebUI never mutates the storyboard for
@@ -32,17 +35,26 @@ interface IntentLedger { intents: CanvasIntent[] }
 const FILE = 'canvas-intents.json'
 const MAX = 100
 
-export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabel?: string } = {}): string {
+export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabel?: string; memory?: IpMemoryHint[] } = {}): string {
   const source = intent.sourceId !== undefined
     ? `${intent.sourceId}${extras.sourceLabel !== undefined && extras.sourceLabel !== '' ? `（${extras.sourceLabel}）` : ''}`
     : '（无，从空白开新节点）'
+  const ip = buildIpBrief(intent.prompt, { memory: extras.memory })
+  const plan = planPrompt({ intent: intent.prompt, kind: intent.kind, model: intent.model })
+  const memoryLine = (extras.memory ?? []).length > 0
+    ? `- 项目记忆：${extras.memory!.map(entry => `「${entry.terms[0] ?? ''}」曾写成「${entry.rewrite.slice(0, 80)}」`).join('；')}`
+    : ''
   return [
     '[DirectorX 画布指令]',
     '下面「意图」只是用户原句，不是生成提示词。禁止拿它直接 generate。',
-    '用 directorx_canvas_intents { claim: true } 领取本条。固定顺序：claim → directorx_knowledge_search/read → directorx_skill_search/read（必要时外部调研）→ directorx_prompt_craft（intent=原句，prompt=成稿）→ directorx_generate_ready（设定图/场景/关键帧/首尾帧/图生，缺参考先补）→ 严格/协同 directorx_propose+confirm → 带 craftId 和 readyId 再 directorx_canvas_continue / generate。不要让画布 UI 自己写 generating 节点。回写画布只改 path / shotStatus；不要用文件名覆盖镜头标题。',
+    '用 directorx_canvas_intents { claim: true } 领取本条。固定顺序：claim → directorx_skill_route → directorx_prompt_plan（六要素/物理链/模型技能，不要拿原句当稿）→ directorx_skill_read（列出的技能正文）→ directorx_knowledge_read（route.articles 的 id，不要另起检索词；必要时外部调研）→ 若版权检出则 directorx_ip_scan + knowledge_read 213 + 按方法写细改写 + directorx_ip_rewrite → directorx_prompt_craft（intent=原句，prompt=成稿）→ directorx_generate_ready（设定图/场景/关键帧/首尾帧/图生，缺参考先补）→ 严格/协同 directorx_propose+confirm → 带 craftId 和 readyId 再 directorx_canvas_continue / generate。不要让画布 UI 自己写 generating 节点。回写画布只改 path / shotStatus；不要用文件名覆盖镜头标题。',
     `- 意图 id: ${intent.id}`,
     `- 类型: ${intent.kind}`,
     `- 意图（未成稿）: ${intent.prompt}`,
+    ip.dirty
+      ? `- 版权：意图含「${ip.hits.map(hit => hit.term).join('、')}」。禁止套固定成稿。先 directorx_ip_scan（带回项目记忆），读知识 213，按 method/axes 结合 keep（${ip.keep.join(' / ') || '补动作场景光线'}）自己写细，再 directorx_ip_rewrite 验收并记入记忆。负向：${ip.negativeLine}`
+      : '',
+    memoryLine,
     `- 源节点: ${source}`,
     intent.selectedIds.length > 0 ? `- 当前选中: ${intent.selectedIds.join(', ')}` : '',
     intent.model !== undefined && intent.model !== '' ? `- 模型: ${intent.model}` : '',
@@ -53,8 +65,34 @@ export function formatDshCanvasPrompt(intent: CanvasIntent, extras: { sourceLabe
     intent.characters.length > 0
       ? `- 角色锚点: ${intent.characters.join(', ')}。生成工具必须传 characters 参数（directorx_character_list 已注册）。`
       : '',
+    ip.dirty ? ip.agentPrompt : '',
+    plan.agentPrompt,
+    /片段重做|重做中段/.test(intent.prompt)
+      ? '- 这是片段重做：生成只覆盖中段，回写该视频节点 path 后调用 directorx_canvas_reshoot { action: "assemble", nodeId: 中段id } 把头+中+尾拼回成片。'
+      : '',
+    /拼成片|硬切组装|预告片/.test(intent.prompt)
+      ? '- 这是成片组装：调用 directorx_canvas_pack，transition=cut。预告片禁止 fade。'
+      : '',
+    /镜改|再生动|改这一镜|只改这/.test(intent.prompt)
+      ? '- 这是单镜修改：先 directorx_revise { nodeId: 源节点 }，成稿只改这一处。回写该节点 path。整板其它镜不要重做。系列包已激活就沿用，不要让用户再报人设。'
+      : '',
+    /场面锁|场面控制|作战板|完全控制|多人连续|单镜长拍/.test(intent.prompt)
+      ? '- 这是场面控制：先 directorx_blocking harvest/schema。用户只给角色图、开场和事件顺序。你写台账和物件状态机，pin 后再 craft。不要直接 generate。'
+      : '',
+    /宫格拼回|分屏对照|去硬字|续写位|导出动图/.test(intent.prompt)
+      ? '- 这是画布工艺：拼回 directorx_canvas_join，分屏 directorx_canvas_stack，去字 directorx_canvas_desub，续写位 directorx_canvas_extend（不生成），动图 directorx_canvas_gif。都不要走 generate。'
+      : '',
     '做完后调用 directorx_canvas_intent_ack。',
   ].filter(Boolean).join('\n')
+}
+
+export async function formatDshCanvasPromptForProject(
+  intent: CanvasIntent,
+  extras: { sourceLabel?: string; outputDir: string },
+): Promise<string> {
+  const store = new IpMemoryStore(extras.outputDir)
+  const memory = store.asHints(await store.recall(intent.prompt))
+  return formatDshCanvasPrompt(intent, { sourceLabel: extras.sourceLabel, memory })
 }
 
 export class CanvasIntentStore {

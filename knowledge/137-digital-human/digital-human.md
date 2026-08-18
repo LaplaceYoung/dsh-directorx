@@ -1,3 +1,64 @@
+---
+type: Playbook
+title: "AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）"
+description: "AI 数字人（Digital Human/Avatar）的完整制作流程：形象选择/数字孪生、脚本与音色、音频对口型、表情与手势、渲染、多语言本地化"
+tags:
+  - "production"
+  - "sound"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Higgsfield Make Realistic AI Talking & LipSync Videos"
+    id: cite-1
+    title: "Make Realistic AI Talking & LipSync Videos"
+    author: "org:Higgsfield"
+  - resource: "cited:a16z AI Avatars Escape the Uncanny Valley"
+    id: cite-2
+    title: "AI Avatars Escape the Uncanny Valley"
+    author: "org:a16z"
+  - resource: "cited:LipSynthesis Digital Humans Guide"
+    id: cite-3
+    title: "Digital Humans Guide"
+    author: "org:LipSynthesis"
+  - resource: "cited:Creatify 17 Best AI Avatar Generators"
+    id: cite-4
+    title: "17 Best AI Avatar Generators"
+    author: "org:Creatify"
+  - resource: "cited:VideoAI AI Avatars Complete Guide 2026"
+    id: cite-5
+    title: "AI Avatars Complete Guide 2026"
+    author: "org:VideoAI"
+  - resource: "https://higgsfield.ai/blog/make-ai-lipsync-videos"
+    id: url-1
+    title: "higgsfield.ai"
+  - resource: "https://a16z.com/ai-avatars/"
+    id: url-2
+    title: "a16z.com"
+  - resource: "https://lipsynthesis.com/blog/category/how-tos-and-guides/view/digital-humans-ai-avatars-guide"
+    id: url-3
+    title: "lipsynthesis.com"
+  - resource: "https://creatify.ai/blog/best-ai-avatar-generators-and-tools"
+    id: url-4
+    title: "creatify.ai"
+  - resource: "https://videoai.me/blog/ai-avatars-complete-guide-2026"
+    id: url-5
+    title: "videoai.me"
+dx_id: "137"
+related:
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+  - "05-short-video/short-video-techniques.md"
+  - "06-audio-sound/audio-sound-design.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+---
+
 # AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）
 
 > 本页为 AI 数字人（Digital Human/Avatar）的完整制作流程：形象选择/数字孪生、脚本与音色、音频对口型、表情与手势、渲染、多语言本地化。知识本体来自 2026 数字人指南（Higgsfield/LipSynthesis/Creatify/a16z）。AI 应用面向 DirectorX：口播类项目（衔接 119 对口型、113 案例 5/6 数字人）。
@@ -87,3 +148,11 @@
 - LipSynthesis — What Are Digital Humans? AI Avatars Guide：https://lipsynthesis.com/blog/category/how-tos-and-guides/view/digital-humans-ai-avatars-guide
 - Creatify — 17 Best AI Avatar Generators We Tested for 2026：https://creatify.ai/blog/best-ai-avatar-generators-and-tools
 - VideoAI — AI Avatars Complete Guide 2026：https://videoai.me/blog/ai-avatars-complete-guide-2026
+
+## 相关概念
+
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [音频制作与声音设计（Audio & Sound Design）](../06-audio-sound/audio-sound-design.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)

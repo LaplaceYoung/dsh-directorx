@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片系列时间流逝（Time Passage in Series — Seasons, Aging & Time-Lapse Storyboards）"
+description: "AI 图片系列的时间流逝：同场景季节流转/角色老化（保身份改背景）、时间流逝故事板（6-8 帧：春→夏→秋→冬+老化）、多遍生成（身份→老化→季节→光照统一）"
+tags:
+  - "synthesis"
+  - "storyboard"
+  - "character"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:MagicShot Age Journey"
+    id: cite-1
+    title: "Age Journey"
+    author: "org:MagicShot"
+  - resource: "cited:AIPhotoGenerator Picture Age Progression with AI 2026"
+    id: cite-2
+    title: "Picture Age Progression with AI 2026"
+    author: "org:AIPhotoGenerator"
+  - resource: "cited:GenVR Aging Through Years"
+    id: cite-3
+    title: "Aging Through Years"
+    author: "org:GenVR"
+  - resource: "cited:Vivago Time-Lapse Season Transitions"
+    id: cite-4
+    title: "Time-Lapse Season Transitions"
+    author: "org:Vivago"
+  - resource: "https://magicshot.ai/ai-image-generator/age-journey"
+    id: url-1
+    title: "magicshot.ai"
+  - resource: "https://www.aiphotogenerator.net/blog/2026/04/picture-age-progression"
+    id: url-2
+    title: "aiphotogenerator.net"
+  - resource: "https://genvr.ai/models/image-templates/aging-through-years"
+    id: url-3
+    title: "genvr.ai"
+  - resource: "https://vivago.ai/effects/video/558f8474-bccc-4774-8ba8-d0ea357a4577"
+    id: url-4
+    title: "vivago.ai"
+  - resource: "https://kling.ai/"
+    id: url-5
+    title: "kling.ai"
+dx_id: "285"
+related:
+  - "245-narrative-time-space/narrative-time-space.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+  - "200-time-of-day-continuity/time-of-day-continuity.md"
+  - "262-texture-mood-series/texture-mood-series.md"
+---
+
 # AI 图片系列时间流逝（Time Passage in Series — Seasons, Aging & Time-Lapse Storyboards）
 
 > 本页为 AI 图片系列的时间流逝：同场景季节流转/角色老化（保身份改背景）、时间流逝故事板（6-8 帧：春→夏→秋→冬+老化）、多遍生成（身份→老化→季节→光照统一）。知识本体来自 2026 时间流逝指南（MagicShot/AIPhotoGenerator/GenVR）。AI 应用面向 DirectorX：时间图集（衔接 245 时间、285 对应、238 系列一致、200 时段）。
@@ -82,3 +139,10 @@
 - GenVR — Aging Through Years (2x3 Grid)：https://genvr.ai/models/image-templates/aging-through-years
 - Vivago — AI Time-Lapse Changing Seasons Animation：https://vivago.ai/effects/video/558f8474-bccc-4774-8ba8-d0ea357a4577
 - Kling — AI Video & Image Generator：https://kling.ai/
+
+## 相关概念
+
+- [电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）](../245-narrative-time-space/narrative-time-space.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)
+- [AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）](../200-time-of-day-continuity/time-of-day-continuity.md)
+- [AI 图片质感氛围系列（Texture Mood — Rust, Moss, Fabric & Tactile Quality）](../262-texture-mood-series/texture-mood-series.md)

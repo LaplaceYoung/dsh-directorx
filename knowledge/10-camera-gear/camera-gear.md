@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "摄影机与器材（Camera & Gear）"
+description: "器材知识库：传感器与机身选择、镜头体系、稳定设备、曝光三角、ND 滤镜与附件、器材术语"
+tags:
+  - "foundation"
+  - "camera"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Envato Tuts+ 稳定设备指南"
+    id: cite-1
+    title: "Envato Tuts+ 稳定设备指南"
+  - resource: "cited:PetaPixel 传感器对比"
+    id: cite-2
+    title: "PetaPixel 传感器对比"
+  - resource: "cited:Tools for Film 曝光三角（索引）"
+    id: cite-3
+    title: "Tools for Film 曝光三角（索引）"
+  - resource: "cited:行业选型常识。"
+    id: cite-4
+    title: "行业选型常识。"
+  - resource: "https://photography.tutsplus.com/articles/camera-stabilization-techniques-from-tripods-to-gimbals-and-drones--cms-108836"
+    id: url-1
+    title: "photography.tutsplus.com"
+  - resource: "https://petapixel.com/2020/05/22/sensor-size-comparison-mf-vs-full-frame-vs-aps-c-vs-micro-four-thirds/"
+    id: url-2
+    title: "petapixel.com"
+  - resource: "https://noamkroll.com/how-to-achieve-the-full-frame-look-when-shooting-on-mft-other-crop-sensors/"
+    id: url-3
+    title: "noamkroll.com"
+  - resource: "https://www.toolsforfilm.com/blog/exposure-triangle-for-cinematographers"
+    id: url-4
+    title: "toolsforfilm.com"
+  - resource: "https://www.cambridgeincolour.com/tutorials/camera-exposure.htm"
+    id: url-5
+    title: "cambridgeincolour.com"
+  - resource: "https://www.studiobinder.com/blog/camera-lens-buying-guide/"
+    id: url-6
+    title: "studiobinder.com"
+dx_id: "10"
+related:
+  - "01-camera-language/camera-language.md"
+  - "07-directing/directing-techniques.md"
+  - "12-genre-music-performance/music-video-performance.md"
+---
+
 # 摄影机与器材（Camera & Gear）
 
 > 本页是 DirectorX 器材知识库：传感器与机身选择、镜头体系、稳定设备、曝光三角、ND 滤镜与附件、器材术语。帮助"用合适的器材参数描述需求"与"按预算选型"。
@@ -187,3 +240,9 @@
 - Tools for Film: Exposure Triangle for Cinematographers（索引） — https://www.toolsforfilm.com/blog/exposure-triangle-for-cinematographers
 - Cambridge in Colour: Camera Exposure — https://www.cambridgeincolour.com/tutorials/camera-exposure.htm
 - StudioBinder: Camera Lens Buying Guide（索引） — https://www.studiobinder.com/blog/camera-lens-buying-guide/
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)

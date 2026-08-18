@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）"
+description: "电影叙事时空：故事时间/情节时间/屏幕时间三区分、时间装置（闪回/闪前/加速/重复）、时间操纵的节奏与记忆功能、叙事空间"
+tags:
+  - "synthesis"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Routledge Film Aesthetics: Space, Time and Film"
+    id: cite-1
+    title: "Film Aesthetics: Space, Time and Film"
+    author: "org:Routledge"
+  - resource: "cited:UMSL Time (Maltby)"
+    id: cite-2
+    title: "Time (Maltby)"
+    author: "org:UMSL"
+  - resource: "cited:Scribd Understanding Time in Film Narratives"
+    id: cite-3
+    title: "Understanding Time in Film Narratives"
+    author: "org:Scribd"
+  - resource: "cited:Flashcards Film Narrative Temporality"
+    id: cite-4
+    title: "Film Narrative Temporality"
+    author: "org:Flashcards"
+  - resource: "https://www.rep.routledge.com/articles/thematic/film-aesthetics-of/v-1/sections/space-time-and-film"
+    id: url-1
+    title: "rep.routledge.com"
+  - resource: "https://www.umsl.edu/~gradyf/film/maltby14.htm"
+    id: url-2
+    title: "umsl.edu"
+  - resource: "https://www.scribd.com/document/641852193/Time-in-Film-Narrative"
+    id: url-3
+    title: "scribd.com"
+  - resource: "https://www.scribd.com/document/327649000/Time-in-Film-Narrative"
+    id: url-4
+    title: "scribd.com"
+  - resource: "https://flashcards.world/flashcards/sets/b93bb50f-734c-4fd7-8efa-52db1d4e454c"
+    id: url-5
+    title: "flashcards.world"
+dx_id: "245"
+related:
+  - "150-narrative-structure/narrative-structure.md"
+  - "239-montage-theory/montage-theory.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "234-narrative-viewpoint/narrative-viewpoint.md"
+  - "198-aspect-ratio-storytelling/aspect-ratio-storytelling.md"
+---
+
 # 电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）
 
 > 本页为电影叙事时空：故事时间/情节时间/屏幕时间三区分、时间装置（闪回/闪前/加速/重复）、时间操纵的节奏与记忆功能、叙事空间。知识本体来自 2026 叙事时空理论（Routledge/UMSL/Scribd）。AI 应用面向 DirectorX：叙事结构（衔接 150 叙事、239 蒙太奇、245 对应、158 节奏）。
@@ -85,3 +141,11 @@
 - Scribd — Understanding Time in Film Narratives：https://www.scribd.com/document/641852193/Time-in-Film-Narrative
 - Scribd — Time in Film Narrative：https://www.scribd.com/document/327649000/Time-in-Film-Narrative
 - Flashcards World — Film Narrative Temporality：https://flashcards.world/flashcards/sets/b93bb50f-734c-4fd7-8efa-52db1d4e454c
+
+## 相关概念
+
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](../239-montage-theory/montage-theory.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）](../234-narrative-viewpoint/narrative-viewpoint.md)
+- [AI 画幅与比例叙事（Aspect Ratio Storytelling — Frame as Narrative Tool）](../198-aspect-ratio-storytelling/aspect-ratio-storytelling.md)

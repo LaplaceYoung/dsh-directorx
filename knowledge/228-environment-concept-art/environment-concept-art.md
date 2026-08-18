@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 图片场景概念设计（Environment Concept Art — World Building & Key Art）"
+description: "AI 图片场景概念设计：世界观建构（World Building）、场景关键帧（Environment Key Art）、提示词配方（情绪/光线先行 + 建筑风格 + 氛围层 + 细节层级）、场景一致性"
+tags:
+  - "consistency"
+  - "prompt"
+  - "style"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ZSky AI Concept Art for Games"
+    id: cite-1
+    title: "AI Concept Art for Games"
+    author: "org:ZSky"
+  - resource: "cited:AI Academy 30 ChatGPT Concept Art Prompts"
+    id: cite-2
+    title: "30 ChatGPT Concept Art Prompts"
+    author: "org:AI-Academy"
+  - resource: "cited:OpenArt Midjourney Concept Art Prompts"
+    id: cite-3
+    title: "Midjourney Concept Art Prompts"
+    author: "org:OpenArt"
+  - resource: "cited:ImagiStudio Concept Art Style"
+    id: cite-4
+    title: "Concept Art Style"
+    author: "org:ImagiStudio"
+  - resource: "https://zsky.ai/blog/ai-concept-art-for-games"
+    id: url-1
+    title: "zsky.ai"
+  - resource: "https://academy.techpresso.co/prompts/chatgpt-prompts-concept-art"
+    id: url-2
+    title: "academy.techpresso.co"
+  - resource: "https://openart.ai/blog/post/midjourney-prompts-for-concept-art"
+    id: url-3
+    title: "openart.ai"
+  - resource: "https://imagistudio.art/style/concept-art"
+    id: url-4
+    title: "imagistudio.art"
+  - resource: "https://morphic.com/resources/images/environment-concept-art-images"
+    id: url-5
+    title: "morphic.com"
+dx_id: "228"
+related:
+  - "165-environment-generation/environment-generation.md"
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "126-style-art-direction/style-art-direction.md"
+---
+
 # AI 图片场景概念设计（Environment Concept Art — World Building & Key Art）
 
 > 本页为 AI 图片场景概念设计：世界观建构（World Building）、场景关键帧（Environment Key Art）、提示词配方（情绪/光线先行 + 建筑风格 + 氛围层 + 细节层级）、场景一致性。知识本体来自 2026 概念艺术指南（ZSky/AI Academy/OpenArt/Morphic）。AI 应用面向 DirectorX：场景开发（衔接 165 环境、125 光线、181 氛围、228 对应）。
@@ -78,3 +137,11 @@
 - OpenArt — The Best 25 Midjourney Prompts for Concept Art：https://openart.ai/blog/post/midjourney-prompts-for-concept-art
 - ImagiStudio — Concept Art Style for AI Images：https://imagistudio.art/style/concept-art
 - Morphic — Environment Concept Art AI Images：https://morphic.com/resources/images/environment-concept-art-images
+
+## 相关概念
+
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)

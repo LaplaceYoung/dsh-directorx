@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）"
+description: "AI 角色时代一致性：时代锁定（Era Locking：服装/道具/场景的年代锚）、时代错位规避（Anachronism Avoidance）、多图融合保年代服装、跨镜年代检查"
+tags:
+  - "consistency"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ReelMind Historical Reenactment: Period-Accurate Videos"
+    id: cite-1
+    title: "Historical Reenactment: Period-Accurate Videos"
+    author: "org:ReelMind"
+  - resource: "cited:ReelMind AI-Generated Historical Clothing"
+    id: cite-2
+    title: "AI-Generated Historical Clothing"
+    author: "org:ReelMind"
+  - resource: "cited:Hailuo Historical Parody with AI Video"
+    id: cite-3
+    title: "Historical Parody with AI Video"
+    author: "org:Hailuo"
+  - resource: "cited:Neolemon Consistent Characters Guide"
+    id: cite-4
+    title: "Consistent Characters Guide"
+    author: "org:Neolemon"
+  - resource: "https://reelmind.ai/blog/historical-reenactment-ai-tools-for-creating-period-accurate-videos"
+    id: url-1
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/ai-generated-historical-clothing-visualize-period-costumes-on-video"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://hailuoai.video/pages/knowledge/historical-parody-ai-video-guide"
+    id: url-3
+    title: "hailuoai.video"
+  - resource: "https://www.neolemon.com/blog/how-to-create-consistent-characters-in-ai-videos-complete-guide/"
+    id: url-4
+    title: "neolemon.com"
+  - resource: "https://reelmind.ai/blog/ai-for-historical-reenactments-generate-period-accurate-visuals"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "203"
+related:
+  - "169-props-wardrobe/props-wardrobe.md"
+  - "165-environment-generation/environment-generation.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "200-time-of-day-continuity/time-of-day-continuity.md"
+---
+
 # AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）
 
 > 本页为 AI 角色时代一致性：时代锁定（Era Locking：服装/道具/场景的年代锚）、时代错位规避（Anachronism Avoidance）、多图融合保年代服装、跨镜年代检查。知识本体来自 2026 年代一致性指南（ReelMind/Hailuo/Neolemon）。AI 应用面向 DirectorX：年代戏（衔接 169 服装、165 环境、139 历史画面、117 一致性、200 时间）。
@@ -83,3 +140,11 @@
 - Hailuo — Anachronistic Artistry: Historical Parody with AI Video：https://hailuoai.video/pages/knowledge/historical-parody-ai-video-guide
 - Neolemon — How to Create Consistent Characters in AI Videos：https://www.neolemon.com/blog/how-to-create-consistent-characters-in-ai-videos-complete-guide/
 - ReelMind — AI for Historical Reenactments: Period-Accurate Visuals：https://reelmind.ai/blog/ai-for-historical-reenactments-generate-period-accurate-visuals
+
+## 相关概念
+
+- [AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）](../169-props-wardrobe/props-wardrobe.md)
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）](../200-time-of-day-continuity/time-of-day-continuity.md)

@@ -1,3 +1,60 @@
+---
+type: Spec
+title: "AI 纪录片素材合规矩阵（Documentary Clearance — Rights Layers & License Tracking）"
+description: "AI 纪录片的素材合规矩阵：权利分层（版权/肖像/商标/音乐/AI 条款）、许可类型（版权管理/免版税/编辑专用）、许可范围（地域/期限/媒体）、工作流追踪（负责人/状态/存档）、AI 使用记录"
+tags:
+  - "consistency"
+  - "copyright"
+  - "workflow"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:WIPO Rights Clearance Guide for Independent Filmmakers"
+    id: cite-1
+    title: "Rights Clearance Guide for Independent Filmmakers"
+    author: "org:WIPO"
+  - resource: "cited:Documentary.org Clearing Copyrighted Footage"
+    id: cite-2
+    title: "Clearing Copyrighted Footage"
+    author: "org:Documentary.org"
+  - resource: "cited:Stockfilm Archival Footage Licensing Handbook"
+    id: cite-3
+    title: "Archival Footage Licensing Handbook"
+    author: "org:Stockfilm"
+  - resource: "cited:Artofolio Clearance Pitfalls"
+    id: cite-4
+    title: "Clearance Pitfalls"
+    author: "org:Artofolio"
+  - resource: "https://www.wipo.int/web-publications/rights-clearance-a-guide-for-independent-filmmakers/en/"
+    id: url-1
+    title: "wipo.int"
+  - resource: "https://www.documentary.org/feature/raiding-lost-archives-wisely-and-legally-short-guide-clearing-copyrighted-footage"
+    id: url-2
+    title: "documentary.org"
+  - resource: "https://stockfilm.com/resources/archival-footage-licensing-handbook"
+    id: url-3
+    title: "stockfilm.com"
+  - resource: "https://www.artfolio.com/article/clearance-pitfalls-securing-archival-footage-rights-before-the-edit-begins"
+    id: url-4
+    title: "artfolio.com"
+  - resource: "https://academics.hamilton.edu/mediascholarship/sitePages/files/NITLE%20MIV/MHcopyright.pdf"
+    id: url-5
+    title: "academics.hamilton.edu"
+dx_id: "191"
+related:
+  - "145-copyright-ethics/copyright-ethics.md"
+  - "166-documentary-ethics/documentary-ethics.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "131-asset-management/asset-management.md"
+---
+
 # AI 纪录片素材合规矩阵（Documentary Clearance — Rights Layers & License Tracking）
 
 > 本页为 AI 纪录片的素材合规矩阵：权利分层（版权/肖像/商标/音乐/AI 条款）、许可类型（版权管理/免版税/编辑专用）、许可范围（地域/期限/媒体）、工作流追踪（负责人/状态/存档）、AI 使用记录。知识本体来自 2026 清权指南（WIPO/Documentary.org/Stockfilm）。AI 应用面向 DirectorX：纪实合规（衔接 145 版权伦理、166 纪录片伦理、139 纪录画面、131 资产来源）。
@@ -87,3 +144,10 @@
 - Stockfilm — Archival Footage Licensing Handbook：https://stockfilm.com/resources/archival-footage-licensing-handbook
 - Artofolio — Archival Footage Rights: Avoid Pitfalls：https://www.artfolio.com/article/clearance-pitfalls-securing-archival-footage-rights-before-the-edit-begins
 - Hamilton College — All Clear? A Producer's Guide to IP Clearances：https://academics.hamilton.edu/mediascholarship/sitePages/files/NITLE%20MIV/MHcopyright.pdf
+
+## 相关概念
+
+- [AI 视频版权与伦理合规（Copyright & Ethics — Deepfake, Likeness, Provenance & Disclosure）](../145-copyright-ethics/copyright-ethics.md)
+- [AI 纪录片伦理深化（Documentary Ethics — Truthfulness, Consent & Editorial Accountability）](../166-documentary-ethics/documentary-ethics.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)

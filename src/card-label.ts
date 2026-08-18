@@ -26,6 +26,12 @@ export function isAssetSlug(label?: string): boolean {
   return false
 }
 
+/** Storyboard shot mark, e.g. #03. */
+export function shotMark(shotIndex?: number): string {
+  if (shotIndex === undefined || !Number.isFinite(shotIndex)) return ''
+  return `#${String(Math.max(0, Math.floor(shotIndex))).padStart(2, '0')}`
+}
+
 /** Title shown on the card: keep human names, hide file slugs. */
 export function displayCardTitle(label?: string, prompt?: string, shotIndex?: number): string {
   const raw = (label ?? '').trim()

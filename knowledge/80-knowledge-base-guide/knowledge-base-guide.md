@@ -1,106 +1,150 @@
+---
+type: Playbook
+title: "知识库使用手册（Knowledge Base Agent Guide）"
+description: "DirectorX 知识库调用手册：OKF 检索（type/tag/group）、任务→规范文映射、基础篇优先于综合篇、旧编号重定向"
+tags:
+  - "production"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf"
+    id: cite-okf
+    title: "Open Knowledge Format v0.2"
+  - resource: "https://arxiv.org/html/2604.14572v3"
+    id: cite-corpus2skill
+    title: "Distilling Enterprise Knowledge into Navigable Agent Skills"
+  - resource: "https://arxiv.org/html/2605.05538v1"
+    id: cite-agenticrag
+    title: "AgenticRAG"
+dx_id: "80"
+aliases:
+  - "376"
+  - "385"
+  - "394"
+  - "navigable-knowledge"
+  - "skill-library-navigation"
+  - "knowledge-final-index"
+---
+
 # 知识库使用手册（Knowledge Base Agent Guide）
 
-> 本页是 DirectorX 知识库调用手册：检索策略（先图解/定位主题/术语回查）、十轮主题地图（80 篇全景导航）、制作任务→文档映射表、常用工作流模板（AI 短剧/广告/图文转视频）、知识库维护约定。供 Agent 与人类快速调用本库。
-> 来源：本库自身（80 篇文档 + 00 图解 + README/SKILL 导航）。
+> DirectorX 知识库调用手册。先检索再按 id 精读；工艺事实以基础篇为准，综合篇只作上下位延伸。
+> 来源：本库 OKF 包、Open Knowledge Format v0.2、arXiv Corpus2Skill / AgenticRAG。
 
 ## 概述
 
-**本知识库规模**：80 篇主题文档（10 轮调研）+ 00 图解集 + README 索引 + SKILL 导航——覆盖镜头语言到 AI 工业化生产的完整视频/图片制作知识。**使用方法比内容更重要**：正确检索 = 一次命中，乱翻 = 十次空转。
+本库是 OKF v0.2 知识包：**路径是概念身份**，编号是稳定别名。当前约 330 篇有效文章，另有合并后的旧编号重定向。正确用法是「任务 → search（可过滤）→ read id → 沿相关概念下钻」，不要无目标翻目录。
 
-## 检索策略（四步）
+## 检索四步
 
 ```
-① 先看图解：视觉术语"长什么样" → 00-visual-glossary/visual-diagrams.md（15 组 ASCII+SVG+提示词短语）
-② 定位主题：任务类型 → 下方映射表 → 对应 NN- 目录
-③ 术语回查：不确定的词 → 08-workflow-glossary（150 条字典）或对应文档术语表
-④ 多主题交叉：读对应文档后综合（例如"音乐驱动竖屏短剧"= 06+43+48）
+① 图解先行：视觉术语长什么样 → 00 视觉术语图解
+② 主题定位：下方映射表或 directorx_knowledge_search
+③ 规范精读：directorx_knowledge_read <id>，不要另起一套检索词
+④ 相关下钻：读返回的 related / 正文「相关概念」，旧编号会自动重定向
 ```
 
-## 十轮主题地图（80 篇全景）
+`directorx_knowledge_search` 可带：
 
-| 轮次 | 主题 | 覆盖 |
+- `group`：foundation / production / consistency / synthesis
+- `type`：Reference / Method / Playbook / Spec / Case
+- `tag`：prompt、camera、i2v、continuity、sound、workflow 等
+
+## 检索架构
+
+导航优于平面翻阅（Corpus2Skill / AgenticRAG）：
+
+```
+任务鸟瞰 → type/tag 分层 → 规范文 id → 按 id 取全文 → 溯源
+```
+
+纪律：
+
+- **走向而非搜**：有 id 就 read，不要用新短语再搜一遍。
+- **由粗到细**：先 description / 映射表，再读全文。
+- **基础篇优先**：350 以后的三融合 / 总合成 / 终索引是上下位延伸；镜头、提示词、一致性以 01 / 115 / 116 / 117 为准。
+- **旧编号是别名**：183 → 116，376 / 385 / 394 → 本手册。
+
+## 分层（四段）
+
+| 段 | group | 读法 |
 |---|---|---|
-| 第 1 轮（01-08） | 基础八篇 | 镜头语言/剪辑转场/剧本节奏/人物世界观/短视频/音视频/导演/全流程术语 |
-| 第 2 轮（09-16） | 进阶八篇 | 灯光色彩/摄影器材/广告宣传片/MV 表演/纪录片口播/AI 视频生成/剪辑工具/平台增长 |
-| 第 3 轮（17-24） | 深化八篇 | 叙事进阶/表演体系/直播/调色实操/动效/案例拆解/音频进阶/中国平台 |
-| 第 4 轮（25-32） | 专题八篇 | 分镜可视化/VFX 合成/字幕本地化/风格流派/商业带货/单兵手机/AI 音频/数据工具 |
-| 第 5 轮（33-40） | AI 生产专项 | 文生图提示词/视频模型手册/Animatic/调色 LUT/恐怖视觉/广告视觉/一致性/分镜生成 |
-| 第 6 轮（41-48） | 量产与视觉 | 电商素材工厂/图文转视频/竖屏语言/AI 剪辑/风格统一/场景设计/纪录片视觉/AI 短剧工厂 |
-| 第 7 轮（49-56） | 运镜用光数据 | 运镜调度/灯光混合光/色彩心理/模型横评/镜头表转换/缩略图/出海本地化/数据迭代 |
-| 第 8 轮（57-64） | 混合与工业化 | 真人 AI 混合/内容矩阵/直播联动/UGC 工业化/视频 SEO/分镜自动化/文案视觉协同/短剧复盘 |
-| 第 9 轮（65-72） | 控制编剧合规 | 运镜控制实测/短剧编剧/色彩管理/平台规格/AI 表演控制/表演指导/电商视觉/AI 合规 |
-| 第 10 轮（73-80） | 生产与系统 | 提示词总表/短剧出海/虚拟制作/素材增强/灵感系统/多模态协同/制作管理/本手册 |
+| 000–060 | foundation | 镜头、剪辑、剧本、灯光、流程术语 |
+| 061–150 | production | 模型矩阵、提示词、图生、质检、工作流 |
+| 151–240 | consistency | 风格、系列、连续性、声音理论 |
+| 241–394 | synthesis | 综合 / 融合篇；先回到它衔接的基础号 |
 
-## 制作任务 → 文档映射表（快速入口）
+## 任务 → 规范文
 
-| 任务 | 首选文档 | 次选 |
+| 任务 | 先读 | 再读 |
 |---|---|---|
-| 写 AI 视频提示词 | 73 提示词总表（四种格式） | 34 模型手册 / 65 运镜控制 |
-| 做分镜/分镜图 | 40 分镜生成 / 62 自动化管线 | 25 可视化 / 53 镜头表转换 |
-| 拍产品广告 | 38 广告视觉 / 71 电商全案 | 41 素材工厂 / 50 灯光进阶 |
-| 做短剧 | 48 短剧工厂 / 66 编剧方法论 | 64 投放复盘 / 74 出海 |
-| 调色/LUT | 36 调色 LUT / 67 色彩管理 | 20 DaVinci 实操 |
-| 竖屏内容 | 43 竖屏语言 / 63 文案协同 | 05 短视频 / 59 直播联动 |
-| 角色一致性 | 39 一致性控制 | 69 表演控制 / 34 模型手册 |
-| 出海/多语言 | 74 短剧出海 / 55 视觉本地化 | 72 合规 / 61 视频 SEO |
-| 素材迭代/投放 | 56 数据迭代 / 64 短剧复盘 | 60 UGC / 41 素材工厂 |
-| 后期/增强 | 44 AI 剪辑 / 76 素材增强 | 15 剪辑工具 / 79 制作管理 |
+| 写视频提示词 | 115 提示词工程 | 130 模板库 / 73 格式总表 |
+| 选模型 | 114 能力矩阵 | 14 生成工作流 |
+| 图生 / 首尾帧 | 116 图生深度控制 | 107 关键帧 / 39 图片一致性 |
+| 分镜 / 镜号 | 172 分镜全链路 | 25 可视化 / 53 镜头表 |
+| 角色 / 跨镜一致 | 117 一致性全体系 | 123 长视频一致 / 04 人物设定 |
+| 调色 / 色板 | 141 色彩分级 | 155 色彩心理 / 36 LUT |
+| 声音 / 口播 / 对口型 | 144 声音设计 | 119 声画协同 / 06 音频基础 |
+| 短剧 / 竖屏 | 48 短剧工厂 | 104 实拍调度 / 43 竖屏语言 |
+| 预告 / 片花 | 151 游戏 CG 与过场 | 205 预告海报 / 01 镜头语言 |
+| 成片质检 | 174 QC 自动化 | 118 缺陷修复 |
+| 版权 / 专名 | 213 版权安全提示词 | — |
+| 风格 / 美术 | 126 风格与艺术方向 | 01 镜头 / 09 灯光 |
+| 把框架写成可执行稿 | 332 全整合落地 | 121 端到端编排 |
+| 生产阶段怎么推进 | 383 生产工作流实用 | 08 全流程术语 |
 
-## 常用工作流模板（跨文档组装）
+## 常用组装
 
-### 模板 A：AI 短剧单集生产
-```
-66 编剧（卡点/黄金开场）→ 48 JSON 契约 → 62 分镜自动化
-→ 39 一致性 → 69 表演控制 → 73 时间轴提示词
-→ 34 逐镜选型 → 35 Animatic 测节奏 → 63 字幕 → 79 版本管理
-```
+### 连续镜头（图生）
 
-### 模板 B：品牌广告素材
-```
-45 Lookbook（五层外观）→ 38 产品镜头角度 → 50 混合光
-→ 71 电商全案 → 41 素材工厂批量 → 54 封面系统 → 56 数据迭代
-```
+`117 身份锁 → 116 首尾帧 → 115 六段式 → 174 抽帧质检`
 
-### 模板 C：图文转视频
-```
-42 三长度脚本 → 73 时间轴提示词 → 34 模型选型
-→ 43 竖屏安全区 → 63 钩子词 → 68 平台规格 → 61 视频 SEO
-```
+### 短剧单集
 
-## 知识库维护约定
+`104 卡点 → 48 视觉工厂 → 172 分镜 → 116 连续 → 119 声画`
 
-1. 每轮新增在 README 更新日志追加（日期+主题+要点）；
-2. SKILL 检索表同步新增条目；目录标题更新篇数；
-3. 新文档必须：中文撰写、术语中英对照、含「来源」URL 列表、无编造事实；
-4. 主题编号连续（NN-），图解目录保持 00 前缀；
-5. 优先级调整（如"音频降权"）在后续轮次选题时执行，已有文档不动。
+### 品牌广告
+
+`213 去专名 → 126 风格 → 141 调色 → 54 封面（若需要）`
+
+## 维护约定
+
+1. 新文章必须有 OKF 头（至少 `type`），并用 Markdown 链接连到相关概念。
+2. 编号不因改标题而重排；合并时写 `redirects.json` 与目标 `aliases`。
+3. `overlap-review` 只表示综合篇待复核，不能当删除依据。
+4. 模型 / 平台 / 法规看 `stale_after`。
+5. 改完跑 `npm run knowledge:audit`，再用 `npm run knowledge:check`。
 
 ## 常见错误
 
-1. 不看图解直接脑补术语：视觉概念理解偏差。
-2. 任务-文档错配：AI 合规问题查 64 复盘——定位错。
-3. 术语不查字典：歧义延续。
-4. 交叉任务只读一篇：单视角方案。
-5. 不更新索引：知识库失航。
-
-## 术语表（本手册专用）
-
-| 中文 | English | 一句话定义 |
+| 错误 | 后果 | 正确做法 |
 |---|---|---|
-| 知识库 | Knowledge Base | 80 篇主题文档集 |
-| 检索策略 | Retrieval Strategy | 四步定位法 |
-| 主题地图 | Topic Map | 十轮全景 |
-| 映射表 | Task Mapping | 任务→文档 |
-| 工作流模板 | Workflow Template | 跨文档组装 |
-| 更新日志 | Changelog | 轮次记录 |
-| 导航 SKILL | Navigation Skill | Agent 入口 |
-| 图解先行 | Diagram-First | 视觉概念优先 |
-| 术语回查 | Glossary Lookup | 字典兜底 |
-| 交叉综合 | Cross-Reading | 多文档组装 |
+| 不 search 就说库里没有 | 漏读 116 / 115 | 先 search 再断言 |
+| 用新短语代替 route.articles | 读到邻近综合篇 | 按返回的 id read |
+| 把 350+ 综合篇当工艺规范 | 空转「总合成」 | 回到衔接的基础号 |
+| 术语不查 00 / 08 | 景别 / 轴线用错 | 图解 + 术语表 |
+| 交叉任务只读一篇 | 单视角方案 | 映射表 2–3 篇 |
+
+## 术语表
+
+| 中文 | English | 说明 |
+|---|---|---|
+| 知识包 | Knowledge Bundle | 本目录下的 OKF 文档集 |
+| 概念身份 | Concept ID | 路径去掉 `.md` |
+| 规范文 | Canonical article | 重定向后的目标篇 |
+| 基础篇 | Base layer | 工艺事实来源 |
+| 综合篇 | Synthesis layer | 多轴融合 / 总设计 |
+| 渐进披露 | Progressive disclosure | 先索引后全文 |
+| 导航式检索 | Navigational retrieval | 按树走向，而非只向量搜 |
 
 ## 来源
 
-- 本库：`video-knowledge/README.md`（目录+更新日志）
-- 导航：`.dsh/skills/video-knowledge/SKILL.md`（检索策略）
-- 图解：`video-knowledge/00-visual-glossary/visual-diagrams.md`
-- 术语：`video-knowledge/08-workflow-glossary/production-workflow-glossary.md`
+- Open Knowledge Format v0.2：https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf
+- arXiv — Distilling Enterprise Knowledge into Navigable Agent Skills（2604.14572）：https://arxiv.org/html/2604.14572v3
+- arXiv — AgenticRAG（2605.05538）：https://arxiv.org/html/2605.05538v1
+- 本库：`knowledge/INDEX.md`、`knowledge/_meta/inventory.json`

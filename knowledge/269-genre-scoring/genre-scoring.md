@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影类型片音乐符号（Genre Scoring — Horror, Noir, Western & Sci-Fi Conventions）"
+description: "电影类型片的配乐惯例：类型-音乐特征映射（恐怖无调性/黑色爵士/科幻纹理/西部田园）、配器符号学、类型配乐设计"
+tags:
+  - "synthesis"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC A Computational Lens into Music Characterizing Genre"
+    id: cite-1
+    title: "A Computational Lens into Music Characterizing Genre"
+    author: "org:PMC"
+  - resource: "cited:Wikipedia Film Score"
+    id: cite-2
+    title: "Film Score"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Horror Film Score"
+    id: cite-3
+    title: "Horror Film Score"
+    author: "org:Wikipedia"
+  - resource: "cited:Stirling Film Music and Film Genre"
+    id: cite-4
+    title: "Film Music and Film Genre"
+    author: "org:Stirling"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8031455/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://en.wikipedia.org/wiki/Film_score"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Horror_film_score"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://dspace.stir.ac.uk/bitstream/1893/439/1/BrownriggM2003-14072008.pdf"
+    id: url-4
+    title: "dspace.stir.ac.uk"
+  - resource: "https://digitalcommons.csumb.edu/cgi/viewcontent.cgi?article=1812&context=caps_thes_all"
+    id: url-5
+    title: "digitalcommons.csumb.edu"
+dx_id: "269"
+related:
+  - "144-sound-design/sound-design.md"
+  - "265-genre-visual-semiotics/genre-visual-semiotics.md"
+  - "248-shot-language-semiotics/shot-language-semiotics.md"
+---
+
 # 电影类型片音乐符号（Genre Scoring — Horror, Noir, Western & Sci-Fi Conventions）
 
 > 本页为电影类型片的配乐惯例：类型-音乐特征映射（恐怖无调性/黑色爵士/科幻纹理/西部田园）、配器符号学、类型配乐设计。知识本体来自 2026 类型配乐研究（PMC/Wikipedia/Brownrigg）。AI 应用面向 DirectorX：类型配乐（衔接 229 配乐理论、265 类型符号、269 对应、182 声画情绪）。
@@ -76,3 +130,9 @@
 - Wikipedia — Horror Film Score：https://en.wikipedia.org/wiki/Horror_film_score
 - Stirling — Film Music and Film Genre：https://dspace.stir.ac.uk/bitstream/1893/439/1/BrownriggM2003-14072008.pdf
 - CSUMB — Murder Music: Horror Film Soundtracks：https://digitalcommons.csumb.edu/cgi/viewcontent.cgi?article=1812&context=caps_thes_all
+
+## 相关概念
+
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [电影类型片视觉符号（Genre Visual Semiotics — Iconography & Conventions）](../265-genre-visual-semiotics/genre-visual-semiotics.md)
+- [电影镜头语言符号学（Shot Language Semiotics — Metz, Denotation & Connotation）](../248-shot-language-semiotics/shot-language-semiotics.md)

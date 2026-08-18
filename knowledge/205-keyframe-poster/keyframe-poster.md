@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "AI 预告片海报与关键帧（Keyframe Poster — Promotional Still & Campaign Hero）"
+description: "AI 预告片海报与宣传关键帧：电影海报生成（主题/风格/构图）、宣传关键帧（Promo Still）、一图多形态（横版/竖版/流媒体/影展）、海报动效化（静态→预告片）"
+tags:
+  - "consistency"
+  - "style"
+  - "trailer"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe Firefly Movie Poster Generator"
+    id: cite-1
+    title: "Firefly Movie Poster Generator"
+    author: "org:Adobe"
+  - resource: "cited:GetIMG AI Movie Poster Generator"
+    id: cite-2
+    title: "AI Movie Poster Generator"
+    author: "org:GetIMG"
+  - resource: "cited:Venngage Cinematic Poster Generator"
+    id: cite-3
+    title: "Cinematic Poster Generator"
+    author: "org:Venngage"
+  - resource: "https://www.adobe.com/products/firefly/features/ai-art-generator/movie-poster-generator.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://getimg.ai/use-cases/ai-movie-poster-generator"
+    id: url-2
+    title: "getimg.ai"
+  - resource: "https://venngage.com/ai-tools/movie-poster-generator"
+    id: url-3
+    title: "venngage.com"
+  - resource: "https://creator.nightcafe.studio/trend/ai-movie-poster-generator"
+    id: url-4
+    title: "creator.nightcafe.studio"
+  - resource: "https://mew.design/create/ai-movie-poster-generator"
+    id: url-5
+    title: "mew.design"
+dx_id: "205"
+related:
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "188-opening-hook/opening-hook.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+  - "193-product-3d-showcase/product-3d-showcase.md"
+  - "207-one-shot-long-take/one-shot-long-take.md"
+---
+
 # AI 预告片海报与关键帧（Keyframe Poster — Promotional Still & Campaign Hero）
 
 > 本页为 AI 预告片海报与宣传关键帧：电影海报生成（主题/风格/构图）、宣传关键帧（Promo Still）、一图多形态（横版/竖版/流媒体/影展）、海报动效化（静态→预告片）。知识本体来自 2026 海报生成指南（Adobe Firefly/GetIMG/NightCafe/Venngage）。AI 应用面向 DirectorX：宣传物料（衔接 54 封面、188 钩子、195 品牌、205 对应）。
@@ -81,3 +134,11 @@ Logline → 情绪/焦点 → 多版生成
 - Venngage — Free AI Movie Poster Generator：https://venngage.com/ai-tools/movie-poster-generator
 - NightCafe — AI Movie Poster Generator：https://creator.nightcafe.studio/trend/ai-movie-poster-generator
 - Mew — AI Movie Poster Generator (Festival/Pitch Decks)：https://mew.design/create/ai-movie-poster-generator
+
+## 相关概念
+
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [AI 开场钩子设计（Opening Hook — Pattern Interrupt & 3-Second Payoff）](../188-opening-hook/opening-hook.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)
+- [AI 产品三维展示（Product 3D Showcase — Turntable, 360° Spin & Interactive Viz）](../193-product-3d-showcase/product-3d-showcase.md)
+- [AI 长镜头生成（One-Shot & Long Take — Segment Chaining with Hidden Joins）](../207-one-shot-long-take/one-shot-long-take.md)

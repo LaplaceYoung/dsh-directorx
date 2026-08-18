@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）"
+description: "AI 人物空间调度：屏幕地理（Screen Geography：左/中/右 + 前/中/后景 + 朝向 + 距离）、遮挡板（Blocking Board）先行、一镜一动作原则、构图叙事（连接/冲突/权力/孤立）"
+tags:
+  - "consistency"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Scenario Spatial Prompting for Video Generation"
+    id: cite-1
+    title: "Spatial Prompting for Video Generation"
+    author: "org:Scenario"
+  - resource: "cited:Episode Academy Character Placements"
+    id: cite-2
+    title: "Character Placements"
+    author: "org:Episode-Academy"
+  - resource: "cited:Runway Precise Motion Language"
+    id: cite-3
+    title: "Precise Motion Language"
+    author: "org:Runway"
+  - resource: "cited:CodeDesigns Character Consistency 2026"
+    id: cite-4
+    title: "Character Consistency 2026"
+    author: "org:CodeDesigns"
+  - resource: "https://help.scenario.com/articles/1360269978-spatial-prompting-for-videos-generation"
+    id: url-1
+    title: "help.scenario.com"
+  - resource: "https://sites.google.com/pocketgems.com/episode-academy/beginner/cinematic-directing/character-placements"
+    id: url-2
+    title: "sites.google.com"
+  - resource: "https://codedesigns.eu/ai-video-production-in-2026-character-consistency-finally-makes-it-usable/"
+    id: url-3
+    title: "codedesigns.eu"
+  - resource: "https://runway.com/resources/ai-video-prompting-guide"
+    id: url-4
+    title: "runway.com"
+  - resource: "https://pocketgems-support.helpshift.com/hc/en/10-episode-writer-s-portal/faq/252-basic-directing-on-screen-character-placement/"
+    id: url-5
+    title: "pocketgems-support.helpshift.com"
+dx_id: "187"
+related:
+  - "94-staging-master-scene/staging-master-scene.md"
+  - "171-continuity-physics/continuity-physics.md"
+  - "178-perspective-camera-height/perspective-camera-height.md"
+  - "186-multi-camera-same-scene/multi-camera-same-scene.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）
 
 > 本页为 AI 人物空间调度：屏幕地理（Screen Geography：左/中/右 + 前/中/后景 + 朝向 + 距离）、遮挡板（Blocking Board）先行、一镜一动作原则、构图叙事（连接/冲突/权力/孤立）。知识本体来自 2026 空间调度指南（Scenario/Veo 3.1 空间提示/Runway/Episode Academy）。AI 应用面向 DirectorX：调度设计（衔接 94 场景调度、171 连续性、178 机位、186 多机位）。
@@ -94,3 +150,11 @@
 - CodeDesigns — AI Video Production 2026: Character Consistency：https://codedesigns.eu/ai-video-production-in-2026-character-consistency-finally-makes-it-usable/
 - Runway — AI Video Prompting Guide（精确运动语言）：https://runway.com/resources/ai-video-prompting-guide
 - PocketGems — Basic Directing: On-Screen Character Placement：https://pocketgems-support.helpshift.com/hc/en/10-episode-writer-s-portal/faq/252-basic-directing-on-screen-character-placement/
+
+## 相关概念
+
+- [场景调度深化（Staging & Master Scene Craft）](../94-staging-master-scene/staging-master-scene.md)
+- [AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）](../171-continuity-physics/continuity-physics.md)
+- [AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）](../178-perspective-camera-height/perspective-camera-height.md)
+- [AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）](../186-multi-camera-same-scene/multi-camera-same-scene.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

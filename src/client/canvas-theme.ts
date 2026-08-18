@@ -6,8 +6,8 @@ import type { CSSProperties } from 'react'
  */
 export const dx = {
   black: '#070707',
-  field: 'radial-gradient(1100px 680px at 50% 36%, #141414 0%, #0a0a0a 52%, #050505 100%)',
-  chrome: 'rgba(18,18,18,.78)',
+  field: 'radial-gradient(980px 620px at 50% 32%, #161412 0%, #0c0b0a 48%, #060606 100%)',
+  chrome: 'rgba(18,17,16,.78)',
   ink: '#f4f4f4',
   mute: '#9a9a9a',
   dim: '#6a6a6a',
@@ -15,9 +15,9 @@ export const dx = {
   ghostStrong: 'rgba(255,255,255,.11)',
   hairline: 'rgba(255,255,255,.10)',
   hairlineStrong: 'rgba(255,255,255,.16)',
-  selected: 'rgba(255,255,255,.92)',
-  glow: '0 0 0 1px rgba(255,255,255,.88), 0 18px 40px rgba(0,0,0,.5)',
-  radiusCard: 18,
+  selected: 'rgba(255,244,228,.92)',
+  glow: '0 0 0 1px rgba(255,236,210,.55), 0 16px 36px rgba(0,0,0,.48)',
+  radiusCard: 16,
   radiusBtn: 10,
   radiusRail: 22,
   font: '"Inter", "SF Pro Text", "PingFang SC", system-ui, sans-serif',
@@ -41,9 +41,9 @@ export const dxZ = {
 } as const
 
 export const dxChrome: CSSProperties = {
-  background: 'rgba(16,16,16,.72)',
+  background: dx.chrome,
   border: `1px solid ${dx.hairline}`,
-  boxShadow: '0 22px 56px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.07)',
+  boxShadow: '0 22px 56px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,244,228,.06)',
   color: dx.ink,
   fontFamily: dx.font,
   backdropFilter: 'blur(22px) saturate(1.35)',

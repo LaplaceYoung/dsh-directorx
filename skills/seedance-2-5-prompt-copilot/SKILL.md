@@ -16,40 +16,11 @@ prompt, a complete timecoded audiovisual plan, and a selective review or repair
 loop. Cover specialist domains through references rather than separate public
 skills.
 
-## Mandatory Preflight Form
+## 分叉
 
-This is a hard authorization gate. On every invocation, the first substantive
-action must be `show_form` before research, routing, planning, prompt writing or
-rewriting, diagnosis, reference selection, editing, or generation. There are no
-clear-brief, direct-generation, quick-answer, or user-urgency exceptions.
+时长、多参考还是首尾帧、不可变锁，用 `directorx_ask` 一次问清。不要正文菜单，不要 `show_form`。
 
-Inspect the conversation, canvas, attachments, source media, and previous
-approved answers first. Then show a compact form in the user's language:
-
-1. **Brief confirmation** — required radio with
-   `Confirm and continue (Recommended)` first and `Needs changes` second.
-   Summarize the inferred goal, audience, destination, and deliverable.
-2. **Duration or scope** — required; confirm the exact video duration or exact
-   non-generation output scope.
-3. **Generation mode** — required radio with
-   `Multi-reference mode (Recommended)` first and
-   `First/last-frame mode` second. List every detected reference, its proposed
-   role, and any missing authority.
-4. **Acceptance and risk** — required; confirm the primary visible success test
-   and the highest-risk lock: identity, product/SKU, geometry, exact copy,
-   dialogue, rights, evidence, safety, localization, disclosure, or end state.
-
-Set `submit_label` to the localized equivalent of `Confirm and continue`.
-Always use `show_form`. Never substitute a plain-text questionnaire,
-`ask_question`, or `show_widget`. End the turn immediately after the form and
-wait. Only a real, non-skipped structured submission referencing that form
-authorizes the skill to continue. A skip, close, timeout, unrelated reply, or
-tool error is not approval. Reissue a shorter form when necessary. If
-`show_form` is unavailable, stop and report that required confirmation cannot be
-collected.
-
-Show a new form before continuing when the user changes the brief, duration,
-mode, references, locks, or acceptance criterion.
+多人连续、单镜长拍、物件交接：先 `directorx_blocking` 写场面台账，再按本技能写成稿。不要把事件顺序直接当成 Seedance 提示词。
 
 ## Default Multi-Reference Mode
 
@@ -73,8 +44,7 @@ not a claim about live reference count or compatibility.
 - `First/last-frame mode` is the explicit alternative. It uses two ordered image
   anchors for opening and terminal states. It is not a smaller multi-reference
   workflow.
-- Only a submitted form may switch the request from multi-reference mode to first/last-frame mode.
-  Never infer the switch from attachment count.
+- 只有用户在提问卡里选定，才能从多参考改成首尾帧。不要凭附件数量自行切换。
 
 For direct generation, preserve the approved mode, reference order, and prompt.
 Let the live runtime resolve the exact Seedance 2.5 request mode. If validation
@@ -102,7 +72,7 @@ another model. Do not expose internal commands or payloads to users.
 
 ## Workflow
 
-1. After form authorization, identify the primary acceptance family:
+1. After the ask card, identify the primary acceptance family:
    reference orchestration; first/last-frame; story/previs/performance;
    commercial/growth; knowledge/enterprise/localization; factual/regulated;
    spaces/mobility/travel; or local editing/repair.
@@ -111,7 +81,7 @@ another model. Do not expose internal commands or payloads to users.
 4. Choose one outcome, a causal event sequence, camera and cut grammar, audio
    hierarchy, and concrete ending state.
 5. Write a contiguous timeline covering the confirmed duration.
-6. Assemble the final prompt from `references/10-prompt-architecture.md`.
+6. Assemble the final prompt from `references/visual-elements.md` and the timeline shape below.
 7. Review reference influence, continuity, action order, audio, truth, rights,
    disclosure, and delivery format.
 8. Repair only the failed region, segment, or instruction; keep passed layers.
@@ -120,20 +90,9 @@ another model. Do not expose internal commands or payloads to users.
 
 | Need | Read |
 | --- | --- |
-| Capability and runtime boundary | `references/01-capabilities-and-boundaries.md` |
-| Large packs, R2V, storyboard, white/green model, conflicts | `references/02-reference-orchestration.md` |
-| Endpoint interpolation | `references/03-first-last-frame.md` |
-| Prompt structure, timecodes, camera, audio, copy | `references/10-prompt-architecture.md` |
-| Story, animatic, one-take, action, performance, game cinematic | `references/20-story-previs-performance.md` |
-| Ads, ecommerce, social, product, fashion, food | `references/30-commercial-growth.md` |
-| Explainers, training, digital humans, localization | `references/31-knowledge-enterprise-localization.md` |
-| Documentary, medical, science, wildlife, regulated claims | `references/32-factual-regulated.md` |
-| Architecture, property, automotive, routes, travel | `references/33-spaces-mobility-travel.md` |
-| Local edit, source edit, extension, diagnosis, retry | `references/40-local-editing-and-repair.md` |
-| Provenance and maintenance | `references/98-source-ledger.md` |
-| Forward tests | `references/99-eval-cases.md` |
+| 视觉元素、运镜、材质 | `references/visual-elements.md` |
 
-Read `references/00-index.md` when several families compete.
+H3 官方五种模式不要用本技能硬套。海螺 / MiniMax H3 走 `minimax-h3-prompt-copilot`。
 
 ## Timeline Control
 

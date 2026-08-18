@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "AI 音乐视频生成专项（Music Video Generation — Lyrics, Beat Sync & MV Workflow）"
+description: "AI 音乐视频（MV）生成的完整工作流：歌词可视化、节拍同步（Beat Mapping）、歌曲结构驱动（主歌/副歌/桥段）、对口型演唱、角色驱动 MV"
+tags:
+  - "production"
+  - "character"
+  - "workflow"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:DIYAI Best AI Music Video Generators 2026"
+    id: cite-1
+    title: "Best AI Music Video Generators 2026"
+    author: "org:DIYAI"
+  - resource: "cited:Neural Frames AI Music Video Generator"
+    id: cite-2
+    title: "AI Music Video Generator"
+    author: "org:Neural-Frames"
+  - resource: "cited:BeatViz"
+    id: cite-3
+    title: "BeatViz"
+  - resource: "cited:Stage&Cinema 8 Tools Compared"
+    id: cite-4
+    title: "8 Tools Compared"
+    author: "org:Stage&Cinema"
+  - resource: "cited:Robotics&Automation 10 Tools That Automate MV Creation"
+    id: cite-5
+    title: "10 Tools That Automate MV Creation"
+    author: "org:Robotics&Automation"
+  - resource: "https://diyai.io/ai-tools/video-generation/best-ai-music-video-generators/"
+    id: url-1
+    title: "diyai.io"
+  - resource: "https://www.neuralframes.com/ai-music-video-generator"
+    id: url-2
+    title: "neuralframes.com"
+  - resource: "https://beatviz.ai/"
+    id: url-3
+    title: "beatviz.ai"
+  - resource: "https://stageandcinema.com/2026/06/17/best-ai-music-video-generators/"
+    id: url-4
+    title: "stageandcinema.com"
+  - resource: "https://roboticsandautomationnews.com/2026/07/01/ai-music-video-generation-10-tools-that-automate-your-creative-workflow-in-2026/102946/"
+    id: url-5
+    title: "roboticsandautomationnews.com"
+dx_id: "134"
+related:
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "127-edit-transition-rhythm/edit-transition-rhythm.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+---
+
 # AI 音乐视频生成专项（Music Video Generation — Lyrics, Beat Sync & MV Workflow）
 
 > 本页为 AI 音乐视频（MV）生成的完整工作流：歌词可视化、节拍同步（Beat Mapping）、歌曲结构驱动（主歌/副歌/桥段）、对口型演唱、角色驱动 MV。知识本体来自 2026 MV 生成工具实测（DIYAI/Neural Frames/BeatViz/Stage&Cinema）。AI 应用面向 DirectorX：MV 项目（衔接 119 音频主时钟、127 节拍剪辑、48 短剧）。
@@ -83,3 +143,10 @@ MV 项目编排（衔接 119/127/121）：
 - BeatViz — AI Music Video Generator：https://beatviz.ai/
 - Stage&Cinema — Best AI Music Video Generators in 2026：https://stageandcinema.com/2026/06/17/best-ai-music-video-generators/
 - Robotics&Automation — AI Music Video Generation: 10 Tools：https://roboticsandautomationnews.com/2026/07/01/ai-music-video-generation-10-tools-that-automate-your-creative-workflow-in-2026/102946/
+
+## 相关概念
+
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）](../127-edit-transition-rhythm/edit-transition-rhythm.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)

@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "音频进阶与配乐（Audio Advanced & Scoring）"
+description: "音频进阶知识库：主导动机与配乐设计、侧链避让与频率冲突解决、总线处理、音乐授权体系、选曲策略"
+tags:
+  - "foundation"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Film Music Theory（主导动机）"
+    id: cite-1
+    title: "Film Music Theory（主导动机）"
+  - resource: "cited:Mastering The Mix（FUSER Delta 技巧）"
+    id: cite-2
+    title: "Mastering The Mix（FUSER Delta 技巧）"
+  - resource: "cited:iZotope 动态 EQ/总线文章"
+    id: cite-3
+    title: "iZotope 动态 EQ/总线文章"
+  - resource: "cited:Soundstripe 授权术语"
+    id: cite-4
+    title: "Soundstripe 授权术语"
+  - resource: "cited:Track Club 六类许可。"
+    id: cite-5
+    title: "Track Club 六类许可。"
+  - resource: "https://filmmusictheory.com/article/the-use-of-leitmotifs-in-film-scores/"
+    id: url-1
+    title: "filmmusictheory.com"
+  - resource: "https://www.masteringthemix.com/blogs/learn/the-fuser-delta-trick-sidechain-ducking-that-doesnt-pump"
+    id: url-2
+    title: "masteringthemix.com"
+  - resource: "https://www.izotope.com/en/learn/5-ways-to-use-dynamic-eq-with-sidechain"
+    id: url-3
+    title: "izotope.com"
+  - resource: "https://www.izotope.com/en/learn/tips-for-mix-bus-processing.html"
+    id: url-4
+    title: "izotope.com"
+  - resource: "https://www.masteringbox.com/learn/frequency-masking"
+    id: url-5
+    title: "masteringbox.com"
+dx_id: "23"
+related:
+  - "05-short-video/short-video-techniques.md"
+  - "06-audio-sound/audio-sound-design.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 音频进阶与配乐（Audio Advanced & Scoring）
 
 > 本页是 DirectorX 音频进阶知识库：主导动机与配乐设计、侧链避让与频率冲突解决、总线处理、音乐授权体系、选曲策略。每个概念含定义、参数与规范。
@@ -160,3 +213,9 @@
 - Soundstripe: Music Licensing Terms Decoded — https://www.soundstripe.com/blogs/music-licensing-terms-decoded
 - Track Club: The 6 Different Types of Music Licenses — https://www.trackclub.com/resources/types-of-music-licenses
 - Britannica: Leitmotif — https://www.britannica.com/art/leitmotif
+
+## 相关概念
+
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [音频制作与声音设计（Audio & Sound Design）](../06-audio-sound/audio-sound-design.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

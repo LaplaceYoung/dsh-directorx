@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "AI 游戏 CG 与过场动画（Game Cinematics — Cutscenes, Trailers & Animatic-First Workflow）"
+description: "AI 游戏 CG/过场/预告片的制作体系：Animatic 先行（脚本→动态分镜→迭代情绪/光照/节奏→定稿渲染）、预告片结构（钩子/世界建立/升级/CTA）、视线连续性（Eyeline Continuity）"
+tags:
+  - "consistency"
+  - "storyboard"
+  - "workflow"
+  - "continuity"
+  - "trailer"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:HappyHorseModel AI Video for Game Cinematics & Cutscenes"
+    id: cite-1
+    title: "AI Video for Game Cinematics & Cutscenes"
+    author: "org:HappyHorseModel"
+  - resource: "cited:Elser Create Game Trailer Videos with AI"
+    id: cite-2
+    title: "Create Game Trailer Videos with AI"
+    author: "org:Elser"
+  - resource: "cited:MagicHour AI Gaming Cinematics"
+    id: cite-3
+    title: "AI Gaming Cinematics"
+    author: "org:MagicHour"
+  - resource: "cited:AIconjured Best Cutscene & Cinematic Animation Tools"
+    id: cite-4
+    title: "Best Cutscene & Cinematic Animation Tools"
+    author: "org:AIconjured"
+  - resource: "https://happyhorsemodel.ai/en/articles/ai-video-for-gaming"
+    id: url-1
+    title: "happyhorsemodel.ai"
+  - resource: "https://www.elser.ai/blog/how-to-create-game-trailer-videos-with-ai-a-practical-workflow-for-indie-creators-in-2026"
+    id: url-2
+    title: "elser.ai"
+  - resource: "https://magichour.ai/use-cases/gaming-cinematics"
+    id: url-3
+    title: "magichour.ai"
+  - resource: "https://aiconjured.com/ai-game-dev-tools/cutscenes-animation/"
+    id: url-4
+    title: "aiconjured.com"
+  - resource: "https://www.mootion.com/use-cases/en/game-cinematic-creator-ai"
+    id: url-5
+    title: "mootion.com"
+dx_id: "151"
+related:
+  - "108-moodboard-reference/moodboard-reference.md"
+  - "150-narrative-structure/narrative-structure.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "141-color-grading/color-grading.md"
+  - "31-ai-audio/ai-audio.md"
+---
+
 # AI 游戏 CG 与过场动画（Game Cinematics — Cutscenes, Trailers & Animatic-First Workflow）
 
 > 本页为 AI 游戏 CG/过场/预告片的制作体系：Animatic 先行（脚本→动态分镜→迭代情绪/光照/节奏→定稿渲染）、预告片结构（钩子/世界建立/升级/CTA）、视线连续性（Eyeline Continuity）。知识本体来自 2026 游戏 CG 指南（HappyHorseModel/Elser/MagicHour/Mootion）。AI 应用面向 DirectorX：游戏类项目（衔接 108 关键帧动画、150 叙事、143 批量）。
@@ -84,3 +143,11 @@
 - MagicHour — AI Gaming Cinematics: Create Game Cutscenes & Trailers：https://magichour.ai/use-cases/gaming-cinematics
 - AIconjured — Best Cutscene & Cinematic Animation Tools：https://aiconjured.com/ai-game-dev-tools/cutscenes-animation/
 - Mootion — Game Cinematic Creator AI：https://www.mootion.com/use-cases/en/game-cinematic-creator-ai
+
+## 相关概念
+
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）](../141-color-grading/color-grading.md)
+- [AI 音频专项（AI Audio: Voice, Music & Restoration）](../31-ai-audio/ai-audio.md)

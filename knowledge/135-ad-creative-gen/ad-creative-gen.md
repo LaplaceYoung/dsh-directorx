@@ -1,3 +1,64 @@
+---
+type: Method
+title: "AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）"
+description: "AI 广告创意的生成方法论：简报驱动的四层生成（文案/视觉/视频/DCO）、创意方向（痛点/好奇/证明三类钩子）、批量变体与疲劳轮换、快速测试优化循环"
+tags:
+  - "production"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX How To Create Ads With AI 2026"
+    id: cite-1
+    title: "How To Create Ads With AI 2026"
+    author: "org:LTX"
+  - resource: "cited:AdLibrary AI-Driven Ad Creative Generation"
+    id: cite-2
+    title: "AI-Driven Ad Creative Generation"
+    author: "org:AdLibrary"
+  - resource: "cited:Hedra AI Generated Advertising"
+    id: cite-3
+    title: "AI Generated Advertising"
+    author: "org:Hedra"
+  - resource: "cited:Wevion AI Ad Creative Generation Workflow"
+    id: cite-4
+    title: "AI Ad Creative Generation Workflow"
+    author: "org:Wevion"
+  - resource: "cited:Social Media Examiner Ads and AI"
+    id: cite-5
+    title: "Ads and AI"
+    author: "org:Social-Media-Examiner"
+  - resource: "https://ltx.io/blog/how-to-create-ads-with-ai"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://adlibrary.com/posts/top-ai-driven-ad-creative-generation"
+    id: url-2
+    title: "adlibrary.com"
+  - resource: "https://www.hedra.com/blog/ai-generated-advertising"
+    id: url-3
+    title: "hedra.com"
+  - resource: "https://wevion.ai/en/blog/ai-ad-creative-generation-workflow/"
+    id: url-4
+    title: "wevion.ai"
+  - resource: "https://www.socialmediaexaminer.com/ads-and-ai-leveraging-ai-creative-in-2026/"
+    id: url-5
+    title: "socialmediaexaminer.com"
+dx_id: "135"
+aliases:
+  - "148"
+related:
+  - "105-commercial-pipeline/commercial-pipeline.md"
+  - "106-director-brief/director-brief.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "56-data-driven-iteration/data-driven-iteration.md"
+---
+
 # AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）
 
 > 本页为 AI 广告创意的生成方法论：简报驱动的四层生成（文案/视觉/视频/DCO）、创意方向（痛点/好奇/证明三类钩子）、批量变体与疲劳轮换、快速测试优化循环。知识本体来自 2026 广告 AI 指南（LTX/AdLibrary/Hedra/Wevion/Social Media Examiner）。AI 应用面向 DirectorX：广告项目（衔接 105 TVC、106 简报、113 案例 3 一句话广告）。
@@ -93,3 +154,11 @@
 - Hedra — AI Generated Advertising: Create and Scale AI Ads in 2026：https://www.hedra.com/blog/ai-generated-advertising
 - Wevion — AI Ad Creative Generation Workflow (Step-by-Step 2026)：https://wevion.ai/en/blog/ai-ad-creative-generation-workflow/
 - Social Media Examiner — Ads and AI: Leveraging AI Creative in 2026：https://www.socialmediaexaminer.com/ads-and-ai-leveraging-ai-creative-in-2026/
+
+## 相关概念
+
+- [宣传片 / TVC 制作全流程（Commercial & TVC Production Pipeline — Terms & Workflow）](../105-commercial-pipeline/commercial-pipeline.md)
+- [导演需求澄清与创意简报（Director Briefing & Creative Brief — Terms & Practice）](../106-director-brief/director-brief.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [素材数据驱动迭代（Data-Driven Creative Iteration）](../56-data-driven-iteration/data-driven-iteration.md)

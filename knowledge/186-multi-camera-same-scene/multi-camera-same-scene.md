@@ -1,3 +1,67 @@
+---
+type: Reference
+title: "AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）"
+description: "AI 多机位同场景生成：参考图锁定（全角度共享）、机位感知提示词（距离/镜头）、分镜网格规划（Coverage Grid）、虚拟多机位（Stable Virtual Camera）、3D 场景提示（3DScenePrompt）"
+tags:
+  - "consistency"
+  - "camera"
+  - "prompt"
+  - "storyboard"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Invideo How to Create Multi-Angle Shots"
+    id: cite-1
+    title: "How to Create Multi-Angle Shots"
+    author: "org:Invideo"
+  - resource: "cited:Sony 3DScenePrompt: Scene-Consistent Camera-Controllable Video"
+    id: cite-2
+    title: "3DScenePrompt: Scene-Consistent Camera-Controllable Video"
+    author: "org:Sony"
+  - resource: "cited:Stability AI Stable Virtual Camera"
+    id: cite-3
+    title: "Stable Virtual Camera"
+    author: "org:Stability-AI"
+  - resource: "cited:Sunra Multi-Camera AI Videos"
+    id: cite-4
+    title: "Multi-Camera AI Videos"
+    author: "org:Sunra"
+  - resource: "https://openaccess.thecvf.com/content/ICCV2025W/AISTORY/papers/Shin_Generating_Visually_Consistent_Images_for_Storytelling_via_Narrative_Graph_Prompting_ICCVW_2025_paper.pdf"
+    id: url-1
+    title: "openaccess.thecvf.com"
+  - resource: "https://dreamina.capcut.com/ai-image/most-recommended-ai-image-generators-visual-storytelling"
+    id: url-2
+    title: "dreamina.capcut.com"
+  - resource: "https://gudprompt.com/p/visual-storytelling-prompts-fo-32996113"
+    id: url-3
+    title: "gudprompt.com"
+  - resource: "https://www.smartaiedits.com/guides/scene-by-scene-prompting/"
+    id: url-4
+    title: "smartaiedits.com"
+  - resource: "https://promptolis.com/originals/ai-storyboard-comic-prompts-pack/"
+    id: url-5
+    title: "promptolis.com"
+  - resource: "https://variety.com/2026/tv/news/tokyo-miko-ninja-nippon-ai-human-creativity-blend-1236692030/"
+    id: url-6
+    title: "variety.com"
+dx_id: "186"
+aliases:
+  - "254"
+  - "326"
+related:
+  - "171-continuity-physics/continuity-physics.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "160-spatial-3d-vr/spatial-3d-vr.md"
+---
+
 # AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）
 
 > 本页为 AI 多机位同场景生成：参考图锁定（全角度共享）、机位感知提示词（距离/镜头）、分镜网格规划（Coverage Grid）、虚拟多机位（Stable Virtual Camera）、3D 场景提示（3DScenePrompt）。知识本体来自 2026 多机位指南（Invideo/Sunra/Sony/Stability AI）。AI 应用面向 DirectorX：覆盖拍摄（衔接 171 连续性、183 参考、40 分镜、48 多机位）。
@@ -179,3 +243,11 @@ Style Embedding Signature 跨模型保视觉保真（Nippon TV 案例）——**
 - Stability AI — Introducing Stable Virtual Camera：https://stability.ai/news-updates/introducing-stable-virtual-camera-multi-view-video-generation-with-3d-camera-control
 - Sunra — How to Create Multi-Camera AI Videos：https://sunra.ai/blog/ai-video-multi-camera-editing-guide
 - ReelMind — AI-Assisted Camera Angles: Virtual Multi-Cam Setup：https://reelmind.ai/blog/ai-assisted-camera-angles-virtual-multi-cam-setup-from-single-source
+
+## 相关概念
+
+- [AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）](../171-continuity-physics/continuity-physics.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）](../160-spatial-3d-vr/spatial-3d-vr.md)

@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）"
+description: "AI 道具/服装/造型的一致性管理：服装主参考（Master Wardrobe Reference）、配饰锁定、状态记录（Shot-State Records）、IP-Adapter 参考图、生成前定妆校验"
+tags:
+  - "consistency"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Frank Houbre Manage Costume Continuity Across AI Scenes"
+    id: cite-1
+    title: "Manage Costume Continuity Across AI Scenes"
+    author: "org:Frank-Houbre"
+  - resource: "cited:ArtArch Character Consistency: Clothing, Props & State"
+    id: cite-2
+    title: "Character Consistency: Clothing, Props & State"
+    author: "org:ArtArch"
+  - resource: "cited:CrePal Keep Characters Consistent (Runway Gen-4)"
+    id: cite-3
+    title: "Keep Characters Consistent (Runway Gen-4)"
+    author: "org:CrePal"
+  - resource: "cited:ReelMind AI-Generated Wardrobe Planning"
+    id: cite-4
+    title: "AI-Generated Wardrobe Planning"
+    author: "org:ReelMind"
+  - resource: "https://frankhoubre.com/en/blog/comment-gerer-continuite-costume-scenes-ia"
+    id: url-1
+    title: "frankhoubre.com"
+  - resource: "https://www.artarch.ai/blog/ai-video-character-consistency-clothing-props-state"
+    id: url-2
+    title: "artarch.ai"
+  - resource: "https://crepal.ai/blog/aivideo/how-to-keep-characters-consistent-in-ai-videos-2025/"
+    id: url-3
+    title: "crepal.ai"
+  - resource: "https://reelmind.ai/blog/scene-outfit-inspiration-ai-generated-wardrobe-planning"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://pixverse.ai/en/blog/ai-video-generator-with-character-consistency"
+    id: url-5
+    title: "pixverse.ai"
+dx_id: "169"
+related:
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "165-environment-generation/environment-generation.md"
+  - "97-action-stunts/action-stunts.md"
+  - "155-color-psychology/color-psychology.md"
+---
+
 # AI 道具服装造型一致性（Props & Wardrobe — Costume Continuity Across Scenes）
 
 > 本页为 AI 道具/服装/造型的一致性管理：服装主参考（Master Wardrobe Reference）、配饰锁定、状态记录（Shot-State Records）、IP-Adapter 参考图、生成前定妆校验。知识本体来自 2026 服装一致性指南（Frank Houbre/ArtArch/CrePal/ReelMind）。AI 应用面向 DirectorX：角色造型（衔接 117 一致性、165 环境、169 场景卡同源方法）。
@@ -79,3 +134,10 @@
 - CrePal — How to Keep Characters Consistent in AI Videos (Runway Gen-4)：https://crepal.ai/blog/aivideo/how-to-keep-characters-consistent-in-ai-videos-2025/
 - ReelMind — Scene Outfit Inspiration: AI-Generated Wardrobe Planning：https://reelmind.ai/blog/scene-outfit-inspiration-ai-generated-wardrobe-planning
 - PixVerse — How to Create Consistent Characters with AI Video：https://pixverse.ai/en/blog/ai-video-generator-with-character-consistency
+
+## 相关概念
+
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）](../97-action-stunts/action-stunts.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)

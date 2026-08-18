@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "电影演员调度与镜头互动（Actor-Camera Interaction — Blocking for the Lens & Performance Presence）"
+description: "电影演员调度与镜头互动：为镜头调度（Blocking for Camera vs Stage）、视线/走位映射机位（前景-中景-背景穿行）、镜头前表演（细微/可读情绪/连续性）、排练与检查"
+tags:
+  - "synthesis"
+  - "camera"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:BlockReel Camera Movement and Blocking"
+    id: cite-1
+    title: "Camera Movement and Blocking"
+    author: "org:BlockReel"
+  - resource: "cited:Jigreel Blocking for Camera vs Stage"
+    id: cite-2
+    title: "Blocking for Camera vs Stage"
+    author: "org:Jigreel"
+  - resource: "cited:Playground Art of Blocking and Staging"
+    id: cite-3
+    title: "Art of Blocking and Staging"
+    author: "org:Playground"
+  - resource: "cited:Scribd Camera Acting Theory"
+    id: cite-4
+    title: "Camera Acting Theory"
+    author: "org:Scribd"
+  - resource: "https://blockreeldao.com/blog/the-definitive-guide-to-camera-movement-and-blocking"
+    id: url-1
+    title: "blockreeldao.com"
+  - resource: "https://jigreelstudios.com/filmmaking-in-la-blocking-for-camera-vs-blocking-for-stage/"
+    id: url-2
+    title: "jigreelstudios.com"
+  - resource: "https://theplayground.com/the-art-of-blocking-and-staging-unleashing-your-creative-potential/"
+    id: url-3
+    title: "theplayground.com"
+  - resource: "https://www.scribd.com/document/957233724/Theory-Demo-Camera-Acting"
+    id: url-4
+    title: "scribd.com"
+  - resource: "https://rsisinternational.org/journals/ijriss/uploads/vol10-iss3-pg7128-7138-202604_pdf.pdf"
+    id: url-5
+    title: "rsisinternational.org"
+dx_id: "277"
+related:
+  - "187-blocking-staging/blocking-staging.md"
+  - "244-acting-theory-deep/acting-theory-deep.md"
+  - "171-continuity-physics/continuity-physics.md"
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "227-camera-coverage-theory/camera-coverage-theory.md"
+---
+
 # 电影演员调度与镜头互动（Actor-Camera Interaction — Blocking for the Lens & Performance Presence）
 
 > 本页为电影演员调度与镜头互动：为镜头调度（Blocking for Camera vs Stage）、视线/走位映射机位（前景-中景-背景穿行）、镜头前表演（细微/可读情绪/连续性）、排练与检查。知识本体来自 2026 镜头表演指南（BlockReel/Jigreel/Playground/RSIS）。AI 应用面向 DirectorX：表演调度（衔接 187 调度、244 表演理论、277 对应、171 连续性）。
@@ -80,3 +138,11 @@
 - The Playground — The Art of Blocking and Staging：https://theplayground.com/the-art-of-blocking-and-staging-unleashing-your-creative-potential/
 - Scribd — Camera Acting: Theory & Demo（Truth in Front of the Lens）：https://www.scribd.com/document/957233724/Theory-Demo-Camera-Acting
 - RSIS — Bridging Stage and Camera Performance：https://rsisinternational.org/journals/ijriss/uploads/vol10-iss3-pg7128-7138-202604_pdf.pdf
+
+## 相关概念
+
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)
+- [电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）](../244-acting-theory-deep/acting-theory-deep.md)
+- [AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）](../171-continuity-physics/continuity-physics.md)
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [电影机位调度理论（Camera Coverage Theory — Master Shot, Coverage & Triangle System）](../227-camera-coverage-theory/camera-coverage-theory.md)

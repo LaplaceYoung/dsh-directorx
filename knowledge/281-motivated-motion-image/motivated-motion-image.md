@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片镜头动机（Motivated Motion in Images — Implied Movement & Direction）"
+description: "AI 图片的镜头动机：单帧中的隐含运动（动作/方向/引导空间）、动机化构图（运动有因）、运动提示词（方向+节奏+模糊/景深暗示）"
+tags:
+  - "synthesis"
+  - "camera"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LetsEnhance 12 Essential Camera Movements for AI Video"
+    id: cite-1
+    title: "12 Essential Camera Movements for AI Video"
+    author: "org:LetsEnhance"
+  - resource: "cited:Civitai Intermediate Composition Tricks"
+    id: cite-2
+    title: "Intermediate Composition Tricks"
+    author: "org:Civitai"
+  - resource: "cited:Imagine.Art 50 AI Camera Movement Prompts"
+    id: cite-3
+    title: "50 AI Camera Movement Prompts"
+    author: "org:Imagine.Art"
+  - resource: "cited:AI-Inspo Image-to-Video Motion Prompts"
+    id: cite-4
+    title: "Image-to-Video Motion Prompts"
+    author: "org:AI-Inspo"
+  - resource: "https://letsenhance.io/blog/all/ai-video-camera-movements/"
+    id: url-1
+    title: "letsenhance.io"
+  - resource: "https://civitai.com/articles/16712/intermediate-composition-tricks-to-instantly-improve-ai-images-using-prompts"
+    id: url-2
+    title: "civitai.com"
+  - resource: "https://www.imagine.art/blogs/ai-camera-movement-prompts"
+    id: url-3
+    title: "imagine.art"
+  - resource: "https://www.ai-inspo.com/blogs/video/best-image-to-video-prompts-consistent-motion"
+    id: url-4
+    title: "ai-inspo.com"
+  - resource: "https://aiimagetovideo.pro/blog/camera-movements-prompt-for-ai-video/"
+    id: url-5
+    title: "aiimagetovideo.pro"
+dx_id: "281"
+related:
+  - "01-camera-language/camera-language.md"
+  - "177-motion-blur-shutter/motion-blur-shutter.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "192-negative-space/negative-space.md"
+---
+
 # AI 图片镜头动机（Motivated Motion in Images — Implied Movement & Direction）
 
 > 本页为 AI 图片的镜头动机：单帧中的隐含运动（动作/方向/引导空间）、动机化构图（运动有因）、运动提示词（方向+节奏+模糊/景深暗示）。知识本体来自 2026 运动提示词指南（LetsEnhance/Civitai/Imagine.Art）。AI 应用面向 DirectorX：图片动态（衔接 241 运动动机、281 对应、197 运镜心理、177 模糊）。
@@ -78,3 +135,10 @@
 - Imagine.Art — 50 AI Camera Movement Prompts：https://www.imagine.art/blogs/ai-camera-movement-prompts
 - AI-Inspo — Best Image-to-Video Prompts for Consistent Motion：https://www.ai-inspo.com/blogs/video/best-image-to-video-prompts-consistent-motion
 - AIImageToVideo — Camera Movement Prompts for AI Image to Video：https://aiimagetovideo.pro/blog/camera-movements-prompt-for-ai-video/
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 动态模糊与快门速度（Motion Blur & Shutter — 180° Rule in AI Generation）](../177-motion-blur-shutter/motion-blur-shutter.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)

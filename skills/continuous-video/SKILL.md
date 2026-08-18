@@ -9,6 +9,8 @@ tags: [video, continuity, first-last-frame, references, transitions]
 
 Build a sequence of short clips whose subject identity, scene geometry, motion direction, lighting, and emotional progression survive every seam.
 
+A single continuous take with a named roster and an object handoff (pass, swap, give) is not this skill's first step. Write a blocking sheet with `directorx_blocking` first, then split the sheet's ticks across clips.
+
 ## Mandatory reference contract
 
 1. Lock a subject/character reference image before generation.

@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "实拍素材 AI 增强（AI Video Enhancement & Restoration）"
+description: "素材增强手册：修复四大工作、模型家族（CNN/GAN/Diffusion）、帧一致性与幻觉风险、损伤→技术匹配表、保存优先六步工作流、AI vs 传统分工、可复现测试规范、老片修复中文生态"
+tags:
+  - "production"
+  - "model"
+  - "workflow"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:UniFab 2026 修复指南（VHS/胶片实测）"
+    id: cite-1
+    title: "UniFab 2026 修复指南（VHS/胶片实测）"
+  - resource: "cited:腾讯云老片修复方案"
+    id: cite-2
+    title: "腾讯云老片修复方案"
+  - resource: "cited:树莓技术库修复增强技术。"
+    id: cite-3
+    title: "树莓技术库修复增强技术。"
+  - resource: "https://unifab.ai/resource/video-restoration"
+    id: url-1
+    title: "unifab.ai"
+  - resource: "https://docs.topazlabs.com/video-ai/filters/enhancement"
+    id: url-2
+    title: "docs.topazlabs.com"
+  - resource: "https://developer.cloud.tencent.com/article/2679889"
+    id: url-3
+    title: "developer.cloud.tencent.com"
+  - resource: "https://developer.cloud.tencent.cn/article/2682447"
+    id: url-4
+    title: "developer.cloud.tencent.cn"
+  - resource: "https://www.volcengine.com/docs/6448/76272?lang=zh"
+    id: url-5
+    title: "volcengine.com"
+  - resource: "https://docs.szzxshumei.com/guide/digital-media-tech/14-restoration-and-enhancement-technologies"
+    id: url-6
+    title: "docs.szzxshumei.com"
+  - resource: "https://www.pfclean.com/post/remastering-archive-footage-for-redistribution-fidelity-not-fabrication"
+    id: url-7
+    title: "pfclean.com"
+dx_id: "76"
+aliases:
+  - "136"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "39-image-consistency/character-consistency.md"
+  - "45-style-unification/style-unification.md"
+---
+
 # 实拍素材 AI 增强（AI Video Enhancement & Restoration）
 
 > 本页是 DirectorX 素材增强手册：修复四大工作、模型家族（CNN/GAN/Diffusion）、帧一致性与幻觉风险、损伤→技术匹配表、保存优先六步工作流、AI vs 传统分工、可复现测试规范、老片修复中文生态。与 20 调色 / 44 后期工具 / 67 色彩管理衔接。**已合并 136（修复管线顺序/先降噪后超分/AI 素材增强回审）**——2026-08 去重整理。
@@ -115,3 +172,9 @@
 - GitHub: XianrenYty/OldVideoRepair_PaddleGAN（插帧+上色+超分） — 
 - 树莓技术库: 修复与增强技术 — https://docs.szzxshumei.com/guide/digital-media-tech/14-restoration-and-enhancement-technologies
 - PFClean: Remastering Archive Footage — Fidelity Not Fabrication — https://www.pfclean.com/post/remastering-archive-footage-for-redistribution-fidelity-not-fabrication
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 黄金比例构图（Golden Ratio Composition — Phi Grid & Cinematic Balance）"
+description: "AI 视频的黄金比例构图：黄金比例（1.618）与 Phi 网格（中央带按黄金比分割）、主体置于交点的电影感平衡、三分法的升级、刻意打破（传达混乱）"
+tags:
+  - "consistency"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:NumberAnalytics Golden Ratio in Film"
+    id: cite-1
+    title: "Golden Ratio in Film"
+    author: "org:NumberAnalytics"
+  - resource: "cited:FilmDaft What Is the Golden Ratio"
+    id: cite-2
+    title: "What Is the Golden Ratio"
+    author: "org:FilmDaft"
+  - resource: "cited:Purpose Studio Golden Ratio in Film & Photography"
+    id: cite-3
+    title: "Golden Ratio in Film & Photography"
+    author: "org:Purpose-Studio"
+  - resource: "cited:LinkedIn Rule of Thirds vs Golden Ratio vs Phi Grid"
+    id: cite-4
+    title: "Rule of Thirds vs Golden Ratio vs Phi Grid"
+    author: "org:LinkedIn"
+  - resource: "https://www.numberanalytics.com/blog/golden-ratio-in-film"
+    id: url-1
+    title: "numberanalytics.com"
+  - resource: "https://filmdaft.com/what-is-the-golden-ratio-definition/"
+    id: url-2
+    title: "filmdaft.com"
+  - resource: "https://www.purposestudios.in/post/exploring-the-golden-ratio-in-film-and-photography"
+    id: url-3
+    title: "purposestudios.in"
+  - resource: "https://www.linkedin.com/pulse/rule-thirds-vs-golden-ratio-phi-grid-game-cinematics-philip-roberts--9gqhf"
+    id: url-4
+    title: "linkedin.com"
+  - resource: "https://www.artistic.photo/compositions/phi-grid"
+    id: url-5
+    title: "artistic.photo"
+dx_id: "210"
+related:
+  - "178-perspective-camera-height/perspective-camera-height.md"
+  - "192-negative-space/negative-space.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # AI 黄金比例构图（Golden Ratio Composition — Phi Grid & Cinematic Balance）
 
 > 本页为 AI 视频的黄金比例构图：黄金比例（1.618）与 Phi 网格（中央带按黄金比分割）、主体置于交点的电影感平衡、三分法的升级、刻意打破（传达混乱）。知识本体来自 2026 构图指南（NumberAnalytics/FilmDaft/Purpose Studio/LinkedIn）。AI 应用面向 DirectorX：构图设计（衔接 178 机位、192 负空间、210 对应）。
@@ -76,3 +130,9 @@ subtle off-center balance, cinematic"
 - Purpose Studio — Exploring the Golden Ratio in Film and Photography：https://www.purposestudios.in/post/exploring-the-golden-ratio-in-film-and-photography
 - LinkedIn — Rule of Thirds vs Golden Ratio vs Phi Grid for Game Cinematics：https://www.linkedin.com/pulse/rule-thirds-vs-golden-ratio-phi-grid-game-cinematics-philip-roberts--9gqhf
 - Artistic Photo — Phi Grid Composition Guide：https://www.artistic.photo/compositions/phi-grid
+
+## 相关概念
+
+- [AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）](../178-perspective-camera-height/perspective-camera-height.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

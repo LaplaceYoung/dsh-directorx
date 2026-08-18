@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 音频空间定位（Spatial Audio — 3D Sound, Ambisonics & Visual-Cued Placement）"
+description: "AI 音频空间定位：3D 声音放置（视觉线索驱动）、Ambisonics 格式、双耳渲染（Binaural）、头部追踪、对象音频"
+tags:
+  - "consistency"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv ASAudio: Survey of Advanced Spatial Audio"
+    id: cite-1
+    title: "ASAudio: Survey of Advanced Spatial Audio"
+    author: "org:arXiv"
+  - resource: "cited:EurekAlert AI Adds Realistic 3D Sound to Ordinary Videos"
+    id: cite-2
+    title: "AI Adds Realistic 3D Sound to Ordinary Videos"
+    author: "org:EurekAlert"
+  - resource: "cited:Soundverse Spatial Audio Music Production 2026"
+    id: cite-3
+    title: "Spatial Audio Music Production 2026"
+    author: "org:Soundverse"
+  - resource: "cited:OpenAudio Spatial Audio"
+    id: cite-4
+    title: "Spatial Audio"
+    author: "org:OpenAudio"
+  - resource: "https://arxiv.org/html/2508.10924v2"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://www.eurekalert.org/news-releases/1115781"
+    id: url-2
+    title: "eurekalert.org"
+  - resource: "https://www.soundverse.ai/blog/article/spatial-audio-music-production-with-ai-tools-0811"
+    id: url-3
+    title: "soundverse.ai"
+  - resource: "https://openaudio.ai/spatial-audio"
+    id: url-4
+    title: "openaudio.ai"
+  - resource: "https://echoes.xyz/spatial-audio"
+    id: url-5
+    title: "echoes.xyz"
+dx_id: "173"
+related:
+  - "144-sound-design/sound-design.md"
+  - "160-spatial-3d-vr/spatial-3d-vr.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "03-screenplay-pacing/screenplay-pacing.md"
+---
+
 # AI 音频空间定位（Spatial Audio — 3D Sound, Ambisonics & Visual-Cued Placement）
 
 > 本页为 AI 音频空间定位：3D 声音放置（视觉线索驱动）、Ambisonics 格式、双耳渲染（Binaural）、头部追踪、对象音频。知识本体来自 2026 空间音频研究（ASAudio 综述/EurekAlert/Soundverse/OpenAudio）。AI 应用面向 DirectorX：沉浸声场（衔接 144 声音设计、160 空间视频、119 音画同步）。
@@ -79,3 +134,10 @@
 - Soundverse — Spatial Audio Music Production with AI Tools: The 2026 Revolution：https://www.soundverse.ai/blog/article/spatial-audio-music-production-with-ai-tools-0811
 - OpenAudio — AI Spatial Audio: 3D Sound, Binaural, Ambisonics：https://openaudio.ai/spatial-audio
 - Echoes — 3D Audio and Ambisonics：https://echoes.xyz/spatial-audio
+
+## 相关概念
+
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）](../160-spatial-3d-vr/spatial-3d-vr.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)

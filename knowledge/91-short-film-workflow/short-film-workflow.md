@@ -1,3 +1,53 @@
+---
+type: Playbook
+title: "短片全流程工作坊（Short Film End-to-End Workflow）"
+description: "短片全流程手册：三大 Kill Points（范围/脚本锁定/拍摄日混乱）、11 步规划流程、预算逐行清单（易忘线路）、一天拍摄压缩法、工具分工"
+tags:
+  - "production"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storyflow 2026 短片规划指南"
+    id: cite-1
+    title: "Storyflow 2026 短片规划指南"
+  - resource: "cited:StudioBinder 短片前期"
+    id: cite-2
+    title: "StudioBinder 短片前期"
+  - resource: "cited:机核七天拍短片。"
+    id: cite-3
+    title: "机核七天拍短片。"
+  - resource: "https://storyflow.so/blog/how-to-plan-a-short-film-from-idea-to-shoot"
+    id: url-1
+    title: "storyflow.so"
+  - resource: "https://www.studiobinder.com/blog/making-short-film-pre-production/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://www.gcores.com/articles/164948"
+    id: url-3
+    title: "gcores.com"
+  - resource: "https://www.shortfilmcentral.com/how-to-make-a-short-film-a-step-by-step-guide-for-beginners/"
+    id: url-4
+    title: "shortfilmcentral.com"
+  - resource: "https://www.imagine.art/blogs/how-to-make-a-short-film"
+    id: url-5
+    title: "imagine.art"
+  - resource: "https://storyflow.so/blog/what-is-a-beat-sheet-complete-guide"
+    id: url-6
+    title: "storyflow.so"
+dx_id: "91"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 短片全流程工作坊（Short Film End-to-End Workflow）
 
 > 本页是 DirectorX 短片全流程手册：三大 Kill Points（范围/脚本锁定/拍摄日混乱）、11 步规划流程、预算逐行清单（易忘线路）、一天拍摄压缩法、工具分工。与 79 项目管理 / 40 分镜 / 87 类型片衔接。
@@ -104,3 +154,9 @@
 - Short Film Central: How to Make a Short Film — Step-by-Step Guide for Beginners (2026) — https://www.shortfilmcentral.com/how-to-make-a-short-film-a-step-by-step-guide-for-beginners/
 - Imagine Art: How to Make a Short Film Scorsese Would Love — https://www.imagine.art/blogs/how-to-make-a-short-film
 - Storyflow: What is a Beat Sheet? The Complete Guide — https://storyflow.so/blog/what-is-a-beat-sheet-complete-guide
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

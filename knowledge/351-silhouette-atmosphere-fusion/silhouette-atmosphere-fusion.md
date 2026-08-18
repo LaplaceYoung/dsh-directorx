@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 图片剪影-逆光-氛围三融合（Silhouette-Backlight-Atmosphere — Cinematic Fusion Prompts）"
+description: "AI 图片的剪影-逆光-氛围三融合：剪影+背光（霓虹城/燃烧地平线/雨巷）、氛围混合（体积雾/青粉偏色/合成波）、高对比背景（剪影可读性）、情绪词配对（戏剧/神秘/史诗）"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "image"
+  - "vfx"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:HelpingPrompt Powerful Silhouette Images"
+    id: cite-1
+    title: "Powerful Silhouette Images"
+    author: "org:HelpingPrompt"
+  - resource: "cited:Media.io Gemini Silhouette Photo Prompts"
+    id: cite-2
+    title: "Gemini Silhouette Photo Prompts"
+    author: "org:Media.io"
+  - resource: "cited:Text2Img Lighting and Mood in AI Prompts"
+    id: cite-3
+    title: "Lighting and Mood in AI Prompts"
+    author: "org:Text2Img"
+  - resource: "cited:Pixu Backlight Silhouette"
+    id: cite-4
+    title: "Backlight Silhouette"
+    author: "org:Pixu"
+  - resource: "https://helpingprompt.in/create-powerful-silhouette-images-using-ai-prompts/"
+    id: url-1
+    title: "helpingprompt.in"
+  - resource: "https://www.media.io/ai-prompts/gemini-ai-silhouette-photo-prompts.html"
+    id: url-2
+    title: "media.io"
+  - resource: "https://www.text2img.pro/describe-lighting-and-mood-in-ai-prompts-2026-2/"
+    id: url-3
+    title: "text2img.pro"
+  - resource: "https://pixu.ai/pixu/rf_stock_prompts/-/backlight%20silhouette"
+    id: url-4
+    title: "pixu.ai"
+  - resource: "https://zsky.ai/blog/ai-dark-moody-prompts"
+    id: url-5
+    title: "zsky.ai"
+dx_id: "351"
+related:
+  - "342-light-shadow-narrative/light-shadow-narrative.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+  - "278-genre-acting/genre-acting.md"
+  - "192-negative-space/negative-space.md"
+---
+
 # AI 图片剪影-逆光-氛围三融合（Silhouette-Backlight-Atmosphere — Cinematic Fusion Prompts）
 
 > 本页为 AI 图片的剪影-逆光-氛围三融合：剪影+背光（霓虹城/燃烧地平线/雨巷）、氛围混合（体积雾/青粉偏色/合成波）、高对比背景（剪影可读性）、情绪词配对（戏剧/神秘/史诗）。知识本体来自 2026 剪影融合（HelpingPrompt/Media.io/Text2Img）。AI 应用面向 DirectorX：氛围剪影（衔接 342 光影叙事、351 对应、181 氛围、317 杂交）。
@@ -77,3 +135,10 @@
 - Text2Img — Describe Lighting and Mood in AI Prompts (2026)：https://www.text2img.pro/describe-lighting-and-mood-in-ai-prompts-2026-2/
 - Pixu — Backlight Silhouette Prompts：https://pixu.ai/pixu/rf_stock_prompts/-/backlight%20silhouette
 - ZSky — 12 AI Dark Moody Prompts：https://zsky.ai/blog/ai-dark-moody-prompts
+
+## 相关概念
+
+- [AI 图片光影叙事（Light-Shadow Narrative — Silhouette, Backlight & Shadow as Story）](../342-light-shadow-narrative/light-shadow-narrative.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)
+- [电影类型片表演惯例（Genre Acting — Horror Vulnerability, Noir Restraint & Cross-Genre Versatility）](../278-genre-acting/genre-acting.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)

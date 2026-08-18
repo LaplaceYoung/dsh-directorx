@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）"
+description: "电影预期-悬念-通感整合：未来导向预期（Expectation 是悬念/张力的来源）、非叙事音乐+叙事线索共同塑造、PAL-D 回路设计决策、主客观+生理信号测量迭代"
+tags:
+  - "synthesis"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Nature Building Blocks of Suspense"
+    id: cite-1
+    title: "Building Blocks of Suspense"
+    author: "org:Nature"
+  - resource: "cited:Tandfonline Immersive Storytelling Design Methodology"
+    id: cite-2
+    title: "Immersive Storytelling Design Methodology"
+    author: "org:Tandfonline"
+  - resource: "cited:Frontiers PAL-D"
+    id: cite-3
+    title: "PAL-D"
+    author: "org:Frontiers"
+  - resource: "cited:东京大学 沉浸认知过程"
+    id: cite-4
+    title: "沉浸认知过程"
+    author: "org:东京大学"
+  - resource: "https://www.nature.com/articles/s41599-022-01461-5"
+    id: url-1
+    title: "nature.com"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886"
+    id: url-2
+    title: "tandfonline.com"
+  - resource: "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2026.1760222/full"
+    id: url-3
+    title: "frontiersin.org"
+  - resource: "http://www.l.u-tokyo.ac.jp/~asano/papers/Zhang_Asano_2023_JapanesePsychologicalReview.pdf"
+    id: url-4
+    title: "l.u-tokyo.ac.jp"
+  - resource: "https://www.academia.edu/165582264/Suspense_Curiosity_and_Surprise_Towards_a_Comprehensive_Theory_of_Tension_in_Film"
+    id: url-5
+    title: "academia.edu"
+dx_id: "311"
+related:
+  - "293-suspense-synesthesia-integration/suspense-synesthesia-integration.md"
+  - "304-expectation-management/expectation-management.md"
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "268-suspense-theory/suspense-theory.md"
+  - "155-color-psychology/color-psychology.md"
+---
+
 # 电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）
 
 > 本页为电影预期-悬念-通感整合：未来导向预期（Expectation 是悬念/张力的来源）、非叙事音乐+叙事线索共同塑造、PAL-D 回路设计决策、主客观+生理信号测量迭代。知识本体来自 2026 沉浸研究（Nature/Tandfonline/Frontiers PAL-D）。AI 应用面向 DirectorX：沉浸设计（衔接 293 悬念通感、311 对应、304 预期、282 三整合）。
@@ -77,3 +133,11 @@
 - Frontiers — PAL-D: Predictive-Affective Loop for Directors：https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2026.1760222/full
 - 东京大学 — 物語映画への没入体験の認知プロセス：http://www.l.u-tokyo.ac.jp/~asano/papers/Zhang_Asano_2023_JapanesePsychologicalReview.pdf
 - Academia — Suspense, Curiosity, and Surprise：https://www.academia.edu/165582264/Suspense_Curiosity_and_Surprise_Towards_a_Comprehensive_Theory_of_Tension_in_Film
+
+## 相关概念
+
+- [电影叙事-悬念-通感三整合（Narrative-Suspense-Synesthesia — PAL-D & Unified Tension Design）](../293-suspense-synesthesia-integration/suspense-synesthesia-integration.md)
+- [电影类型片观众预期管理（Expectation Management — Fulfill, Subvert & Surprise）](../304-expectation-management/expectation-management.md)
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）](../268-suspense-theory/suspense-theory.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)

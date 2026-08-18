@@ -1,3 +1,69 @@
+---
+type: Method
+title: "视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）"
+description: "AI 视频提示词的完整语法体系：六段式结构（主体/动作/镜头/光照/环境/风格）、时间与节奏控制、负向提示词、时间一致性技巧、模型×语法适配"
+tags:
+  - "production"
+  - "camera"
+  - "prompt"
+  - "model"
+  - "style"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX AI Video Prompt Guide 2026"
+    id: cite-1
+    title: "AI Video Prompt Guide 2026"
+    author: "org:LTX"
+  - resource: "cited:Venice Complete Guide to AI Video Prompt Engineering"
+    id: cite-2
+    title: "Complete Guide to AI Video Prompt Engineering"
+    author: "org:Venice"
+  - resource: "cited:MinionArts Prompt Engineering for AI Video 2026"
+    id: cite-3
+    title: "Prompt Engineering for AI Video 2026"
+    author: "org:MinionArts"
+  - resource: "cited:AimagicX Advanced Guide 2026"
+    id: cite-4
+    title: "Advanced Guide 2026"
+    author: "org:AimagicX"
+  - resource: "cited:Prompting.Systems Temporal Consistency Prompts"
+    id: cite-5
+    title: "Temporal Consistency Prompts"
+    author: "org:Prompting.Systems"
+  - resource: "https://ltx.io/blog/ai-video-prompt-guide"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://venice.ai/blog/the-complete-guide-to-ai-video-prompt-engineering"
+    id: url-2
+    title: "venice.ai"
+  - resource: "https://www.minionarts.com/blogs/prompt-engineering-ai-video-generation-guide-2026"
+    id: url-3
+    title: "minionarts.com"
+  - resource: "https://www.aimagicx.com/blog/ai-video-prompt-engineering-advanced-guide-2026"
+    id: url-4
+    title: "aimagicx.com"
+  - resource: "https://prompting.systems/blog/prompts-for-maintaining-temporal-consistency-in-ai-video"
+    id: url-5
+    title: "prompting.systems"
+dx_id: "115"
+aliases:
+  - "prompt-quality-checklist"
+  - "prompt-troubleshooting"
+  - "prompt-optimization"
+related:
+  - "53-shotlist-to-prompt/shotlist-to-prompt.md"
+  - "73-ai-prompt-quickref/ai-prompt-quickref.md"
+  - "109-shot-notation/shot-notation.md"
+---
+
 # 视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）
 
 > 本页为 AI 视频提示词的完整语法体系：六段式结构（主体/动作/镜头/光照/环境/风格）、时间与节奏控制、负向提示词、时间一致性技巧、模型×语法适配。知识本体来自 2026 视频提示词工程指南（LTX/Venice/MinionArts/TrueFan/AimagicX）。AI 应用面向 DirectorX：逐镜提示词的标准骨架（衔接 53/73/109 镜头表）。
@@ -100,3 +166,9 @@ Negative: 变形、纹理漂移、换装、闪烁、镜头抖动
 - MinionArts — Prompt Engineering for AI Video: The Complete 2026 Guide：https://www.minionarts.com/blogs/prompt-engineering-ai-video-generation-guide-2026
 - AimagicX — AI Video Prompt Engineering: Advanced Guide 2026：https://www.aimagicx.com/blog/ai-video-prompt-engineering-advanced-guide-2026
 - Prompting.Systems — Prompts for Maintaining Temporal Consistency in AI Video：https://prompting.systems/blog/prompts-for-maintaining-temporal-consistency-in-ai-video
+
+## 相关概念
+
+- [镜头表→提示词转换器（Shot List → Prompt Translation）](../53-shotlist-to-prompt/shotlist-to-prompt.md)
+- [AI 视频模型提示词总表（Prompt Format Quick Reference）](../73-ai-prompt-quickref/ai-prompt-quickref.md)
+- [镜头描述与场记规范（Shot List & Continuity Notation — Terms & Practice）](../109-shot-notation/shot-notation.md)

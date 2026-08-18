@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）"
+description: "电影表演理论深化：斯坦尼体系（Stanislavski System：给定情境/目标/\"魔法如果\"）、方法派（Method Acting：情绪记忆）、迈斯纳（Meisner：真实生活在想象情境）、镜头前表演（相机/连续性/肢体表达）"
+tags:
+  - "synthesis"
+  - "camera"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Stanislavski's System"
+    id: cite-1
+    title: "Stanislavski's System"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Method Acting"
+    id: cite-2
+    title: "Method Acting"
+    author: "org:Wikipedia"
+  - resource: "cited:Wikipedia Meisner Technique"
+    id: cite-3
+    title: "Meisner Technique"
+    author: "org:Wikipedia"
+  - resource: "cited:TAIArts Stanislavski and Meisner in Film"
+    id: cite-4
+    title: "Stanislavski and Meisner in Film"
+    author: "org:TAIArts"
+  - resource: "https://en.wikipedia.org/wiki/Stanislavski"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Method_acting"
+    id: url-2
+    title: "en.wikipedia.org"
+  - resource: "https://en.wikipedia.org/wiki/Meisner_technique"
+    id: url-3
+    title: "en.wikipedia.org"
+  - resource: "https://taiarts.com/en/blog/Stanislavski-and-Meisner-acting-methods/"
+    id: url-4
+    title: "taiarts.com"
+  - resource: "https://en.wikipedia.org/wiki/List_of_acting_techniques"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "244"
+related:
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "175-micro-expression/micro-expression.md"
+  - "171-continuity-physics/continuity-physics.md"
+  - "234-narrative-viewpoint/narrative-viewpoint.md"
+---
+
 # 电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）
 
 > 本页为电影表演理论深化：斯坦尼体系（Stanislavski System：给定情境/目标/"魔法如果"）、方法派（Method Acting：情绪记忆）、迈斯纳（Meisner：真实生活在想象情境）、镜头前表演（相机/连续性/肢体表达）。知识本体来自 2026 表演理论（Wikipedia/TAIArts）。AI 应用面向 DirectorX：表演提示词理论（衔接 69 表演控制、132→已并入 69、175 微表情、244 对应）。
@@ -75,3 +132,10 @@
 - Wikipedia — Meisner Technique：https://en.wikipedia.org/wiki/Meisner_technique
 - TAIArts — Stanislavski and Meisner Acting Methods in Film：https://taiarts.com/en/blog/Stanislavski-and-Meisner-acting-methods/
 - Wikipedia — List of Acting Techniques：https://en.wikipedia.org/wiki/List_of_acting_techniques
+
+## 相关概念
+
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）](../175-micro-expression/micro-expression.md)
+- [AI 多镜头连续性物理（Continuity Physics — 180° Rule, Eyeline & Spatial Logic）](../171-continuity-physics/continuity-physics.md)
+- [电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）](../234-narrative-viewpoint/narrative-viewpoint.md)

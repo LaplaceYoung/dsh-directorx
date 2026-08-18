@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "AI 短剧投放复盘实战（Drama Paid-Media Review Ops）"
+description: "短剧投放复盘手册：赛道现实（10+ 分销团队抢量/素材黄金期 3 天）、当日爆量素材作战、三阶段投流（预热/爆发/长尾）、复盘四报表（素材/人效/项目/指标模板）、爆款内容基因、AI 短剧商业化账本"
+tags:
+  - "production"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:创量短剧投放指南"
+    id: cite-1
+    title: "创量短剧投放指南"
+  - resource: "cited:36 氪行业报告"
+    id: cite-2
+    title: "36 氪行业报告"
+  - resource: "cited:快手广告洞察"
+    id: cite-3
+    title: "快手广告洞察"
+  - resource: "cited:剧短短三阶段运营。"
+    id: cite-4
+    title: "剧短短三阶段运营。"
+  - resource: "https://www.mobgi.com/blog/mini-drama.html"
+    id: url-1
+    title: "mobgi.com"
+  - resource: "https://www.36kr.com/p/3924831083435650"
+    id: url-2
+    title: "36kr.com"
+  - resource: "https://m.21jingji.com/article/20260811/herald/cfd996ee509c13099f63f0fd799f8630.html"
+    id: url-3
+    title: "m.21jingji.com"
+  - resource: "https://36kr.com/p/3838601706440965"
+    id: url-4
+    title: "36kr.com"
+  - resource: "https://www.mobgi.com/blogs/short-drama15.html"
+    id: url-5
+    title: "mobgi.com"
+  - resource: "https://www.kuai-ad.com/zixun/11832.html"
+    id: url-6
+    title: "kuai-ad.com"
+dx_id: "64"
+related:
+  - "05-short-video/short-video-techniques.md"
+  - "16-platform-growth/platform-growth-analytics.md"
+  - "24-platform-china/china-platform-playbook.md"
+---
+
 # AI 短剧投放复盘实战（Drama Paid-Media Review Ops）
 
 > 本页是 DirectorX 短剧投放复盘手册：赛道现实（10+ 分销团队抢量/素材黄金期 3 天）、当日爆量素材作战、三阶段投流（预热/爆发/长尾）、复盘四报表（素材/人效/项目/指标模板）、爆款内容基因、AI 短剧商业化账本。与 56 素材迭代 / 48 短剧工厂 / 32 数据工具衔接。
@@ -98,3 +151,9 @@
 - 快手广告: 2026Q1 快手短剧/漫剧爆款内容基因 — https://www.kuai-ad.com/zixun/11832.html
 - 剧短短: 短剧投流的"时间密码"——预热、爆发与长尾的三阶段运营法则 — https://www.juduanduan.com/2026/0511/4807.shtml
 - XMP: 跑通 TikTok Minis 短剧增长新路径——广告管理提效 70% — https://xmp.mobvista.com/cn-blog/docs/tiktok-minis-drama-growth-stardusttv-ad-management-efficiency
+
+## 相关概念
+
+- [短视频制作技巧（Short-Form Video）](../05-short-video/short-video-techniques.md)
+- [平台运营与数据分析（Platform Growth & Analytics）](../16-platform-growth/platform-growth-analytics.md)
+- [中国平台专项运营（China Platform Playbook）](../24-platform-china/china-platform-playbook.md)

@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "光线叙事（Lighting as Narrative）"
+description: "光线叙事手册：光线的叙事职能（揭示/隐藏/隐喻/信息）、黑色电影灯光体系（低调/高反差/硬光/主光位/无辅光）、影子作为主要叙事元素、新黑色电影的色彩延伸、光线的时间与空间信息、叙事光线设计纪律"
+tags:
+  - "production"
+  - "lighting"
+  - "color"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Filmmakers Academy 黑色电影灯光"
+    id: cite-1
+    title: "Filmmakers Academy 黑色电影灯光"
+  - resource: "cited:澎湃光影叙事"
+    id: cite-2
+    title: "澎湃光影叙事"
+  - resource: "cited:NQI 灯光叙事角色"
+    id: cite-3
+    title: "NQI 灯光叙事角色"
+  - resource: "cited:Ohio State 灯光色彩。"
+    id: cite-4
+    title: "Ohio State 灯光色彩。"
+  - resource: "https://www.filmmakersacademy.com/blog-film-noir-lighting/"
+    id: url-1
+    title: "filmmakersacademy.com"
+  - resource: "https://www.thepaper.cn/newsDetail_forward_32845180"
+    id: url-2
+    title: "thepaper.cn"
+  - resource: "https://nqi.global/post/the-role-of-lighting-in-storytelling-through-film/"
+    id: url-3
+    title: "nqi.global"
+  - resource: "https://ohiostate.pressbooks.pub/introfilm/chapter/mise-en-scene-ii-lighting-color/"
+    id: url-4
+    title: "ohiostate.pressbooks.pub"
+  - resource: "https://www.blog.thefilmfund.co/unlocking-the-enigmatic-world-of-film-noir-lighting-shadows-mood-and-storytelling/"
+    id: url-5
+    title: "blog.thefilmfund.co"
+  - resource: "https://www.ijnrd.org/papers/IJNRD2506179.pdf"
+    id: url-6
+    title: "ijnrd.org"
+dx_id: "93"
+related:
+  - "65-ai-camera-control-benchmark/ai-camera-control-benchmark.md"
+  - "84-lighting-setups/lighting-setups.md"
+---
+
 # 光线叙事（Lighting as Narrative）
 
 > 本页是 DirectorX 光线叙事手册：光线的叙事职能（揭示/隐藏/隐喻/信息）、黑色电影灯光体系（低调/高反差/硬光/主光位/无辅光）、影子作为主要叙事元素、新黑色电影的色彩延伸、光线的时间与空间信息、叙事光线设计纪律。与 84 布光 / 37 恐怖 / 09 基础衔接。
@@ -91,3 +144,8 @@
 - IJNRD: How Lighting Affects Emotions in Films — https://www.ijnrd.org/papers/IJNRD2506179.pdf
 - 维普: 光线在电影叙事中的创造性表达 — http://dianda.cqvip.com/Qikan/Article/Detail?id=7106075923&from=Qikan_Article_Detail
 - CSDN: 电影光影设计类型与代表电影赏析 — https://blog.csdn.net/u011095039/article/details/152931259
+
+## 相关概念
+
+- [AI 运镜控制精度实测（Camera Control Precision Field Test）](../65-ai-camera-control-benchmark/ai-camera-control-benchmark.md)
+- [实拍布光专项（Practical Lighting Setups）](../84-lighting-setups/lighting-setups.md)

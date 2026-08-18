@@ -1,3 +1,57 @@
+---
+type: Playbook
+title: "色彩管理全链路（Color Management Pipeline）"
+description: "色彩管理手册：色彩管理三大目标、管线四要素（输入/工作/输出变换/显示）、价值三角、位深要求、六个阶段（前期/校准/现场/日报/VFX/调色与档案）、ACES/OCIO 体系"
+tags:
+  - "production"
+  - "color"
+  - "workflow"
+  - "vfx"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Netflix Partner Help Center（色彩管理官方指南）"
+    id: cite-1
+    title: "Netflix Partner Help Center（色彩管理官方指南）"
+  - resource: "cited:RED 色彩管理"
+    id: cite-2
+    title: "RED 色彩管理"
+  - resource: "cited:索尼摄像机一致性流程"
+    id: cite-3
+    title: "索尼摄像机一致性流程"
+  - resource: "cited:DaVinci ACES 指南。"
+    id: cite-4
+    title: "DaVinci ACES 指南。"
+  - resource: "https://partnerhelp.netflixstudios.com/hc/en-us/articles/360025502033-What-is-Color-Management"
+    id: url-1
+    title: "partnerhelp.netflixstudios.com"
+  - resource: "https://partnerhelp.netflixstudios.com/hc/en-us/articles/360002088888-Color-Managed-Workflow-in-Resolve-ACES"
+    id: url-2
+    title: "partnerhelp.netflixstudios.com"
+  - resource: "https://partnerhelp.netflixstudios.com/hc/en-us/articles/360002056848-Color-Managed-Workflow-in-Baselight"
+    id: url-3
+    title: "partnerhelp.netflixstudios.com"
+  - resource: "https://www.red.com/red-101/cinema-color-management"
+    id: url-4
+    title: "red.com"
+  - resource: "https://www.sonystyle.com.cn/professional/solution/news/news_260731_1.html"
+    id: url-5
+    title: "sonystyle.com.cn"
+  - resource: "https://cinehello.com/stream/immerse/151334"
+    id: url-6
+    title: "cinehello.com"
+dx_id: "67"
+related:
+  - "20-color-practice/color-practice-davinci.md"
+  - "26-vfx-compositing/vfx-compositing.md"
+  - "36-color-luts/color-luts.md"
+---
+
 # 色彩管理全链路（Color Management Pipeline）
 
 > 本页是 DirectorX 色彩管理手册：色彩管理三大目标、管线四要素（输入/工作/输出变换/显示）、价值三角、位深要求、六个阶段（前期/校准/现场/日报/VFX/调色与档案）、ACES/OCIO 体系。与 20 DaVinci / 36 LUT / 50 混合光衔接。
@@ -93,3 +147,9 @@
 - 影视工业网: 达芬奇色彩管理老出错？来对照这篇检查 — https://cinehello.com/stream/immerse/151334
 - 少数派: 一日一技——如何正确进行 vivo Log 的色彩空间转换 — https://sspai.com/post/108101
 - Apple: HDR and Wide Color Gamut in Final Cut Pro — https://www.apple.com.cn/final-cut-pro/docs/HDR_WideColor.pdf
+
+## 相关概念
+
+- [调色实操与 DaVinci 流程（Color Practice & DaVinci）](../20-color-practice/color-practice-davinci.md)
+- [特效与合成基础（VFX & Compositing）](../26-vfx-compositing/vfx-compositing.md)
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)

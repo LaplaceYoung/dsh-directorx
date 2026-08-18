@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片系列光影演变（Light Evolution in Series — Mood Progression via Lighting）"
+description: "AI 图片系列的光影演变：光随情绪演进（暖→冷/硬→软/运动光）、色温-对比信号弧线（黎明暖→正午中性→黄昏冷）、多光源渐变、连续性保持"
+tags:
+  - "synthesis"
+  - "lighting"
+  - "color"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Text2Img Master Lighting and Mood in AI Prompts"
+    id: cite-1
+    title: "Master Lighting and Mood in AI Prompts"
+    author: "org:Text2Img"
+  - resource: "cited:ReelMind The Art of AI Lighting"
+    id: cite-2
+    title: "The Art of AI Lighting"
+    author: "org:ReelMind"
+  - resource: "cited:GensGPT Lighting Mastery for AI Image"
+    id: cite-3
+    title: "Lighting Mastery for AI Image"
+    author: "org:GensGPT"
+  - resource: "cited:Armox Change the Lighting"
+    id: cite-4
+    title: "Change the Lighting"
+    author: "org:Armox"
+  - resource: "https://www.text2img.pro/master-lighting-and-mood-in-ai-image-prompts-2026/"
+    id: url-1
+    title: "text2img.pro"
+  - resource: "https://reelmind.ai/blog/the-art-of-ai-lighting-enhancing-visual-storytelling"
+    id: url-2
+    title: "reelmind.ai"
+  - resource: "https://www.gensgpt.com/blog/lighting-mastery-ai-image-generation-2026-guide"
+    id: url-3
+    title: "gensgpt.com"
+  - resource: "https://armox.ai/blog/change-the-lighting"
+    id: url-4
+    title: "armox.ai"
+  - resource: "https://www.text2img.pro/cinematic-ai-images-2026-10/"
+    id: url-5
+    title: "text2img.pro"
+dx_id: "292"
+related:
+  - "261-light-direction-emotion/light-direction-emotion.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "200-time-of-day-continuity/time-of-day-continuity.md"
+  - "238-image-series-consistency/image-series-consistency.md"
+---
+
 # AI 图片系列光影演变（Light Evolution in Series — Mood Progression via Lighting）
 
 > 本页为 AI 图片系列的光影演变：光随情绪演进（暖→冷/硬→软/运动光）、色温-对比信号弧线（黎明暖→正午中性→黄昏冷）、多光源渐变、连续性保持。知识本体来自 2026 光影提示词（Text2Img/ReelMind/GensGPT）。AI 应用面向 DirectorX：系列光影（衔接 261 光位、292 对应、275 情绪弧、200 时段）。
@@ -79,3 +137,10 @@
 - GensGPT — Lighting Mastery for AI Image Generation (2026)：https://www.gensgpt.com/blog/lighting-mastery-ai-image-generation-2026-guide
 - Armox — Change the Lighting: 3D Renders & Photos (2026)：https://armox.ai/blog/change-the-lighting
 - Text2Img — Cinematic Movie-Style Images with AI (2026)：https://www.text2img.pro/cinematic-ai-images-2026-10/
+
+## 相关概念
+
+- [AI 图片光影方向情绪库（Light Direction Emotion — Side, Top, Back & Under Light）](../261-light-direction-emotion/light-direction-emotion.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）](../200-time-of-day-continuity/time-of-day-continuity.md)
+- [AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）](../238-image-series-consistency/image-series-consistency.md)

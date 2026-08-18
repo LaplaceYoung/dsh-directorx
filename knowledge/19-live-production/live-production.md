@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "直播与实时制作（Live Production）"
+description: "直播知识库：直播制作岗位与流程、多机位切换逻辑、推流编码最佳设置（OBS 2026）、延迟类型、直播灯光与收音、直播电商 SOP"
+tags:
+  - "foundation"
+  - "lighting"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Dacast OBS 设置指南 2026"
+    id: cite-1
+    title: "Dacast OBS 设置指南 2026"
+  - resource: "cited:YouTube Live 编码规范"
+    id: cite-2
+    title: "YouTube Live 编码规范"
+  - resource: "cited:Videomaker 多机位指南（索引）"
+    id: cite-3
+    title: "Videomaker 多机位指南（索引）"
+  - resource: "cited:Godox 直播灯光方案"
+    id: cite-4
+    title: "Godox 直播灯光方案"
+  - resource: "cited:行业直播电商 SOP。"
+    id: cite-5
+    title: "行业直播电商 SOP。"
+  - resource: "https://www.dacast.com/blog/best-obs-studio-settings/"
+    id: url-1
+    title: "dacast.com"
+  - resource: "https://support.google.com/youtube/answer/2853702"
+    id: url-2
+    title: "support.google.com"
+  - resource: "https://obsproject.com/blog/streaming-with-x264"
+    id: url-3
+    title: "obsproject.com"
+  - resource: "https://www.videomaker.com/article/f5/10988-how-to-conduct-a-live-multi-camera-shoot/"
+    id: url-4
+    title: "videomaker.com"
+  - resource: "https://www.boxcast.com/blog/best-multi-cam-workflow-for-live-video-production"
+    id: url-5
+    title: "boxcast.com"
+dx_id: "19"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "50-lighting-advanced/lighting-advanced.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+---
+
 # 直播与实时制作（Live Production）
 
 > 本页是 DirectorX 直播知识库：直播制作岗位与流程、多机位切换逻辑、推流编码最佳设置（OBS 2026）、延迟类型、直播灯光与收音、直播电商 SOP。每个概念含参数与检查清单。
@@ -190,3 +244,9 @@
 - BoxCast: Best Multi-Cam Workflow（索引） — https://www.boxcast.com/blog/best-multi-cam-workflow-for-live-video-production
 - Godox: 抖音直播间灯光搭建方案 — https://www.godox.com.cn/solutions-live-streaming/2304.html
 - 腾讯云: 电商直播技术架构实战 — https://www.tencentcloud.com/techpedia/143779
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [灯光实操进阶与混合光（Advanced Lighting & Mixed-Light Balance）](../50-lighting-advanced/lighting-advanced.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)

@@ -1,3 +1,64 @@
+---
+type: Reference
+title: "AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）"
+description: "AI 图片系列一致性：角色 DNA（重复提示词核心）、主参考 + 角色表（多角度/表情）、帧链（上帧作下帧参考）、风格锁定（Style Lock）、分镜序列一致"
+tags:
+  - "consistency"
+  - "prompt"
+  - "storyboard"
+  - "character"
+  - "style"
+  - "continuity"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ArtSmart Same Character Across Multiple Images"
+    id: cite-1
+    title: "Same Character Across Multiple Images"
+    author: "org:ArtSmart"
+  - resource: "cited:MagicHour AI Image Generators for Character Consistency"
+    id: cite-2
+    title: "AI Image Generators for Character Consistency"
+    author: "org:MagicHour"
+  - resource: "cited:GetImg Consistent Characters with AI"
+    id: cite-3
+    title: "Consistent Characters with AI"
+    author: "org:GetImg"
+  - resource: "cited:MStudio Character Consistency in Storyboards"
+    id: cite-4
+    title: "Character Consistency in Storyboards"
+    author: "org:MStudio"
+  - resource: "https://artsmart.ai/blog/ai-character-consistency/"
+    id: url-1
+    title: "artsmart.ai"
+  - resource: "https://magichour.ai/blog/best-ai-image-generators-for-character-consistency"
+    id: url-2
+    title: "magichour.ai"
+  - resource: "https://getimg.ai/blog/how-to-create-consistent-characters-with-ai"
+    id: url-3
+    title: "getimg.ai"
+  - resource: "https://mstudio.ai/blog/storyboarding/ai-character-consistency-storyboards"
+    id: url-4
+    title: "mstudio.ai"
+  - resource: "https://miraflow.ai/blog/consistent-ai-characters-multiple-images-step-by-step"
+    id: url-5
+    title: "miraflow.ai"
+dx_id: "238"
+related:
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+  - "226-character-concept-design/character-concept-design.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md"
+---
+
 # AI 图片系列一致性（Image Series Consistency — Character DNA & Frame Chaining）
 
 > 本页为 AI 图片系列一致性：角色 DNA（重复提示词核心）、主参考 + 角色表（多角度/表情）、帧链（上帧作下帧参考）、风格锁定（Style Lock）、分镜序列一致。知识本体来自 2026 系列一致指南（ArtSmart/MagicHour/GetImg/MStudio）。AI 应用面向 DirectorX：多图系列（衔接 117 一致性、183 参考、226 设定图、238 对应）。
@@ -79,3 +140,11 @@
 - GetImg — How to Create Consistent Characters with AI：https://getimg.ai/blog/how-to-create-consistent-characters-with-ai
 - MStudio — AI Character Consistency in Storyboards：https://mstudio.ai/blog/storyboarding/ai-character-consistency-storyboards
 - Miraflow — Consistent AI Characters Across Multiple Images：https://miraflow.ai/blog/consistent-ai-characters-multiple-images-step-by-step
+
+## 相关概念
+
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)
+- [AI 图片角色概念设计（Character Concept Design — Sheets, Turnarounds & Silhouette）](../226-character-concept-design/character-concept-design.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [AI 分镜全链路（Previsualization Pipeline — Script → Shot List → Storyboard → Animatic）](../172-shotlist-storyboard-animatic/shotlist-storyboard-animatic.md)

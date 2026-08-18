@@ -4,6 +4,7 @@ import { IconClose, IconImage, IconPlus, IconSend, IconSpark, IconVideo } from '
 import {
   FRAME_ASPECTS, VIDEO_DURATIONS, modelsFor, type GenerateSpec,
 } from './workstation.ts'
+import { PromptIpField } from './ip-prompt.tsx'
 
 export interface NodeWorkstationProps {
   spec: GenerateSpec
@@ -185,12 +186,13 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
         </div>
       ) : null}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-        <textarea
-          ref={props.inputRef}
+        <PromptIpField
+          compact={compact}
+          inputRef={props.inputRef}
           value={props.spec.prompt}
           placeholder="这一镜的意图（DSH 会先检索再写成稿）"
           rows={2}
-          onChange={event => props.onChange({ ...props.spec, prompt: event.target.value })}
+          onChange={value => props.onChange({ ...props.spec, prompt: value })}
           onKeyDown={event => {
             if (event.key === 'Enter' && !event.shiftKey) {
               event.preventDefault()

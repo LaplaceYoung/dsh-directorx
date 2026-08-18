@@ -42,6 +42,7 @@ test('stage ledger advances and records artifacts', async () => {
     const store = new ProductionStageStore(dir)
     const first = await store.get()
     assert.equal(first.current, 'brief')
+    assert.ok(first.entries.some(item => item.id === 'craft'))
     assert.equal(first.gate.id, 'stage')
     await store.record({ kind: 'brief', note: '宣传片 15s' })
     const next = await store.advance('research')
@@ -57,9 +58,13 @@ test('skill index finds novel-characters and reads a reference', async () => {
   index.setRoot(join(root, 'skills'))
   const hits = await index.search('三视图 角色设定', 8)
   assert.ok(hits.some(hit => hit.name === 'novel-characters'))
+  const kling = await index.search('可灵提示词', 8)
+  assert.ok(kling.some(hit => hit.name === 'kling-prompt-copilot'))
   const body = await index.read('novel-characters')
   assert.match(body.content, /三视图|设定/)
   assert.ok(body.references.some(file => file.includes('sheet') || file.includes('schema')))
+  const capture = await index.search('收成技能 保存为', 8)
+  assert.ok(capture.some(hit => hit.name === 'directorx-skill-capture'))
 })
 
 test('knowledge search expands 首尾帧 and still hits 116', async () => {

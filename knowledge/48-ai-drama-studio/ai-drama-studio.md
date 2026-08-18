@@ -1,3 +1,63 @@
+---
+type: Playbook
+title: "AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）"
+description: "AI 短剧视觉工厂手册：六阶段工业化管线（剧本→分镜→画面→一致性→动态化→剪辑）、LLM 分镜 JSON 契约、角色一致性联合方案、竖屏短剧视觉纪律、工业化量产要点"
+tags:
+  - "foundation"
+  - "editing"
+  - "storyboard"
+  - "character"
+  - "workflow"
+  - "continuity"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:掘金 2026 工具链实战"
+    id: cite-1
+    title: "掘金 2026 工具链实战"
+  - resource: "cited:腾讯云工业化路径"
+    id: cite-2
+    title: "腾讯云工业化路径"
+  - resource: "cited:SegmentFault 3 小时流水线"
+    id: cite-3
+    title: "SegmentFault 3 小时流水线"
+  - resource: "cited:GitHub shortdrama-pipeline。"
+    id: cite-4
+    title: "GitHub shortdrama-pipeline。"
+  - resource: "https://juejin.cn/post/7633774915263447092"
+    id: url-1
+    title: "juejin.cn"
+  - resource: "https://cloud.tencent.cn/developer/article/2648989"
+    id: url-2
+    title: "cloud.tencent.cn"
+  - resource: "https://cloud.tencent.com/developer/article/2650312"
+    id: url-3
+    title: "cloud.tencent.com"
+  - resource: "https://segmentfault.com/a/1190000048051713"
+    id: url-4
+    title: "segmentfault.com"
+  - resource: "https://segmentfault.com/a/1190000048115381"
+    id: url-5
+    title: "segmentfault.com"
+  - resource: "https://aivid.video/blog/ai-microdrama-how-to-build-a-vertical-series-with-ai"
+    id: url-6
+    title: "aivid.video"
+dx_id: "48"
+aliases:
+  - "143"
+related:
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+  - "88-sound-image-on-set/sound-image-on-set.md"
+---
+
 # AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）
 
 > 本页是 DirectorX AI 短剧视觉工厂手册：六阶段工业化管线（剧本→分镜→画面→一致性→动态化→剪辑）、LLM 分镜 JSON 契约、角色一致性联合方案、竖屏短剧视觉纪律、工业化量产要点。与 34/39/40/43/44 深度衔接。**已合并 143（工业化生产体系/身份层/跨集锁定/产能实测）**——2026-08 去重整理。
@@ -148,3 +208,9 @@
 - GitHub: drasstry/shortdrama-pipeline — 
 - AIVid: AI Microdrama — Multi-Episode Vertical Series Guide — https://aivid.video/blog/ai-microdrama-how-to-build-a-vertical-series-with-ai
 - 塔猴: 从零复刻千万播放 AI 短剧——全流程工业化实操指南 — https://www.tahou.com/article/203075881836850181
+
+## 相关概念
+
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)
+- [拍摄端声画协同（Designing Picture for Sound）](../88-sound-image-on-set/sound-image-on-set.md)

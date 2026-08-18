@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "场景与对白写作实操（Scene & Dialogue Craft）"
+description: "剧本写作深化手册：潜台词=高级编剧的界定工具、四种注入潜台词的方法、潜台词强化主题、节拍级潜台词升级、对白三件事、自然主义对白、场景写作纪律"
+tags:
+  - "production"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Final Draft 潜台词大师课（Psycho/Rocky/White Lotus 案例）"
+    id: cite-1
+    title: "Final Draft 潜台词大师课（Psycho/Rocky/White Lotus 案例）"
+  - resource: "cited:No Film School 对白三件事"
+    id: cite-2
+    title: "No Film School 对白三件事"
+  - resource: "cited:Celtx 对白指南。"
+    id: cite-3
+    title: "Celtx 对白指南。"
+  - resource: "https://www.finaldraft.com/blog/mastering-subtext-in-screenwriting"
+    id: url-1
+    title: "finaldraft.com"
+  - resource: "https://nofilmschool.com/three-things-dialogue"
+    id: url-2
+    title: "nofilmschool.com"
+  - resource: "https://blog.celtx.com/what-is-dialogue/"
+    id: url-3
+    title: "blog.celtx.com"
+  - resource: "https://www.finaldraft.com/blog/dialogue-the-art-of-subtext"
+    id: url-4
+    title: "finaldraft.com"
+  - resource: "https://rivereditor.com/guides/how-to-write-authentic-dialogue-2026"
+    id: url-5
+    title: "rivereditor.com"
+  - resource: "https://www.screenweaver.ai/blog/writing-dialogue-subtext-vs-exposition"
+    id: url-6
+    title: "screenweaver.ai"
+  - resource: "https://laoyuanyingshi.com/how-to-avoid-writing-flat-dialogue"
+    id: url-7
+    title: "laoyuanyingshi.com"
+dx_id: "82"
+related:
+  - "03-screenplay-pacing/screenplay-pacing.md"
+  - "12-genre-music-performance/music-video-performance.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 场景与对白写作实操（Scene & Dialogue Craft）
 
 > 本页是 DirectorX 剧本写作深化手册：潜台词=高级编剧的界定工具、四种注入潜台词的方法、潜台词强化主题、节拍级潜台词升级、对白三件事、自然主义对白、场景写作纪律。与 03 结构 / 66 短剧编剧 / 70 表演衔接。
@@ -104,3 +156,9 @@
 - ScreenWeaver: How to Write Dialogue That Doesn't Sound Like Exposition — https://www.screenweaver.ai/blog/writing-dialogue-subtext-vs-exposition
 - 老袁的编剧室: 少说废话！如何避免写出平铺直叙的对话 — https://laoyuanyingshi.com/how-to-avoid-writing-flat-dialogue
 - Slima: 對話寫作 10 條黃金法則——讓角色開口說話 — https://slima.ai/zh-TW/resources/article/dialogue-golden-rules
+
+## 相关概念
+
+- [剧本创作与叙事节奏（Screenwriting & Pacing）](../03-screenplay-pacing/screenplay-pacing.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

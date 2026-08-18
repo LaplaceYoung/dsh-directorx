@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "数据工具与复盘自动化（Analytics Tools & Review Ops）"
+description: "数据运营知识库：视频数据工具生态（国内外）、KPI 看板设计、复盘自动化流程、数据驱动创作闭环"
+tags:
+  - "foundation"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Creator Analytics 工具对比（Moonb/Virlo/Vellum）"
+    id: cite-1
+    title: "Creator Analytics 工具对比（Moonb/Virlo/Vellum）"
+  - resource: "cited:蝉妈妈/新榜/巨量算数官方"
+    id: cite-2
+    title: "蝉妈妈/新榜/巨量算数官方"
+  - resource: "cited:YouTube Studio 官方文档（16 文档延续）。"
+    id: cite-3
+    title: "YouTube Studio 官方文档（16 文档延续）。"
+  - resource: "https://www.moonb.io/blog/best-tools-for-analyzing-video"
+    id: url-1
+    title: "moonb.io"
+  - resource: "https://virlo.ai/blog/best-tiktok-analytics-tools-creators-2026"
+    id: url-2
+    title: "virlo.ai"
+  - resource: "https://www.vellum.ai/blog/best-short-form-video-intelligence-tools"
+    id: url-3
+    title: "vellum.ai"
+  - resource: "https://www.chanmama.com/"
+    id: url-4
+    title: "chanmama.com"
+  - resource: "https://newrank.cn/"
+    id: url-5
+    title: "newrank.cn"
+  - resource: "https://trendinsight.oceanengine.com/"
+    id: url-6
+    title: "trendinsight.oceanengine.com"
+  - resource: "https://blog.youtube/creator-and-artist-stories/master-these-4-metrics/"
+    id: url-7
+    title: "blog.youtube"
+dx_id: "32"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 数据工具与复盘自动化（Analytics Tools & Review Ops）
 
 > 本页是 DirectorX 数据运营知识库：视频数据工具生态（国内外）、KPI 看板设计、复盘自动化流程、数据驱动创作闭环。每个概念含工具清单、指标表与操作流程。
@@ -151,3 +204,9 @@
 - 新榜（官方） — https://newrank.cn/
 - 巨量算数（官方） — https://trendinsight.oceanengine.com/
 - YouTube 官方: Master these 4 metrics — https://blog.youtube/creator-and-artist-stories/master-these-4-metrics/
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

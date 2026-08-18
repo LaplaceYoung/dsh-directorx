@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 视频行业趋势与前瞻（Industry Trends 2026 — Market, Workflow & Outlook）"
+description: "2026 年 AI 视频行业趋势总览：市场规模与增速、从\"创意工具\"到\"内容工厂\"的转变、内容供应链（Content Supply Chain）工作流、主要挑战（透明度/版权/质控）、前瞻方向"
+tags:
+  - "production"
+  - "copyright"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Renderforest AI Video Generation Trends 2026"
+    id: cite-1
+    title: "AI Video Generation Trends 2026"
+    author: "org:Renderforest"
+  - resource: "cited:Ecomobi AI Video Creation Trends 2026"
+    id: cite-2
+    title: "AI Video Creation Trends 2026"
+    author: "org:Ecomobi"
+  - resource: "cited:Vivideo State of AI Video Creation 2026 / AI Video Statistics"
+    id: cite-3
+    title: "State of AI Video Creation 2026 / AI Video Statistics"
+    author: "org:Vivideo"
+  - resource: "cited:ngram 50+ AI Video Statistics 2026"
+    id: cite-4
+    title: "50+ AI Video Statistics 2026"
+    author: "org:ngram"
+  - resource: "https://www.renderforest.com/blog/ai-video-generation-trends"
+    id: url-1
+    title: "renderforest.com"
+  - resource: "https://ecomobi.com/ai-video-creation-trends/"
+    id: url-2
+    title: "ecomobi.com"
+  - resource: "https://vivideo.ai/blog/state-of-ai-video-2026"
+    id: url-3
+    title: "vivideo.ai"
+  - resource: "https://vivideo.ai/blog/ai-video-statistics-2026"
+    id: url-4
+    title: "vivideo.ai"
+  - resource: "https://www.ngram.com/blog/ai-video-statistics-2026"
+    id: url-5
+    title: "ngram.com"
+dx_id: "140"
+related:
+  - "122-quality-monetization/quality-monetization.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "135-ad-creative-gen/ad-creative-gen.md"
+---
+
 # AI 视频行业趋势与前瞻（Industry Trends 2026 — Market, Workflow & Outlook）
 
 > 本页为 2026 年 AI 视频行业趋势总览：市场规模与增速、从"创意工具"到"内容工厂"的转变、内容供应链（Content Supply Chain）工作流、主要挑战（透明度/版权/质控）、前瞻方向。知识本体来自 2026 行业报告（Renderforest/Ecomobi/Vivideo/Digen/ngram）。AI 应用面向 DirectorX：战略定位（衔接 122 商业化、121 编排）。
@@ -89,3 +144,9 @@
 - Vivideo — The State of AI Video Creation 2026：https://vivideo.ai/blog/state-of-ai-video-2026
 - Vivideo — AI Video Trends 2026: What the Numbers Mean：https://vivideo.ai/blog/ai-video-statistics-2026
 - ngram — 50+ AI Video Statistics for 2026：https://www.ngram.com/blog/ai-video-statistics-2026
+
+## 相关概念
+
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 广告创意生成方法论（Ad Creative Generation — Brief, Variants & Testing）](../135-ad-creative-gen/ad-creative-gen.md)

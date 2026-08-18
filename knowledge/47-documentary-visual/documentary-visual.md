@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "纪录片视觉语言（Documentary Visual Language）"
+description: "纪录片视觉手册：Bill Nichols 六大模式、观察式/参与式实操要点、纪实镜头语言与剪辑、访谈技巧与错误、历史纪录片\"情景再现\"、史诗纪录片的电影化表达"
+tags:
+  - "foundation"
+  - "camera"
+  - "editing"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:二榆影像（Nichols 理论解析）"
+    id: cite-1
+    title: "二榆影像（Nichols 理论解析）"
+  - resource: "cited:人民网/大陆桥\"情景再现\"研究"
+    id: cite-2
+    title: "人民网/大陆桥\"情景再现\"研究"
+  - resource: "cited:PetaPixel Nat Geo Pompeii"
+    id: cite-3
+    title: "PetaPixel Nat Geo Pompeii"
+  - resource: "cited:Moktan 历史视觉语言。"
+    id: cite-4
+    title: "Moktan 历史视觉语言。"
+  - resource: "https://www.2yufilm.productions/blog/documentary-techniques-guide-theory-observational-participatory-documentary"
+    id: url-1
+    title: "2yufilm.productions"
+  - resource: "http://media.people.com.cn/n/2014/1128/c390971-26114506.html"
+    id: url-2
+    title: "media.people.com.cn"
+  - resource: "http://www.dlqsyzz.com/7590.html"
+    id: url-3
+    title: "dlqsyzz.com"
+  - resource: "https://petapixel.com/2026/07/20/nat-geos-pompeii-out-of-time-combines-cinematic-filmmaking-history-and-tom-hiddleston/"
+    id: url-4
+    title: "petapixel.com"
+  - resource: "https://www.moktanproductions.com/blog/xtmt98ybulkqsxpv6bqqna4dj9m2mc"
+    id: url-5
+    title: "moktanproductions.com"
+  - resource: "https://www.indepthcine.com/videos/documentary-tips"
+    id: url-6
+    title: "indepthcine.com"
+dx_id: "47"
+related:
+  - "89-iconic-moves-deconstruction/iconic-moves-deconstruction.md"
+  - "99-comedy-timing/comedy-timing.md"
+  - "274-suspense-visual-language/suspense-visual-language.md"
+---
+
 # 纪录片视觉语言（Documentary Visual Language）
 
 > 本页是 DirectorX 纪录片视觉手册：Bill Nichols 六大模式、观察式/参与式实操要点、纪实镜头语言与剪辑、访谈技巧与错误、历史纪录片"情景再现"、史诗纪录片的电影化表达。与 13 口播 / 22 案例 / 46 场景衔接。
@@ -117,3 +171,9 @@
 - In Depth Cine: Tips For Shooting A Cinematic Documentary — https://www.indepthcine.com/videos/documentary-tips
 - Definition Magazine: Documentaries — Framing the Facts — https://definitionmagazine.com/features/documentaries-framing-the-facts/
 - 認識電影: 紀錄片拍攝方式與手法 — https://edumovie-tfai.org.tw/storage/files/1/JH-stu-402.pdf
+
+## 相关概念
+
+- [名场面运镜解剖（Iconic Camera Movement Deconstruction）](../89-iconic-moves-deconstruction/iconic-moves-deconstruction.md)
+- [喜剧节奏：术语详解 + AI 理解与实现（Comedy Timing — Deep Terms & AI Implementation）](../99-comedy-timing/comedy-timing.md)
+- [电影悬念视听语言（Suspense Visual Language — Cinematography, Sound & Timing of Tension）](../274-suspense-visual-language/suspense-visual-language.md)

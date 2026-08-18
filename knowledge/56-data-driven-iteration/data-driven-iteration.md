@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "素材数据驱动迭代（Data-Driven Creative Iteration）"
+description: "素材迭代手册：创意衰减与\"过程问题\"、模块化创作系统（Hook/Body/CTA 三层+功能标签）、受控测试矩阵（控制组+单变量）、Thumbstop→CTR→V100 诊断漏斗、决策规则、千川素材生命周期五阶段与冷启动"
+tags:
+  - "foundation"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Sovran 2026 迭代手册"
+    id: cite-1
+    title: "Sovran 2026 迭代手册"
+  - resource: "cited:AppAgent 数据（1/10-20 胜率）"
+    id: cite-2
+    title: "AppAgent 数据（1/10-20 胜率）"
+  - resource: "cited:蝉妈妈/电商干货社区千川实操"
+    id: cite-3
+    title: "蝉妈妈/电商干货社区千川实操"
+  - resource: "cited:Prestyj 规模化测试。"
+    id: cite-4
+    title: "Prestyj 规模化测试。"
+  - resource: "https://sovran.ai/blog/video-ad-iteration-strategy"
+    id: url-1
+    title: "sovran.ai"
+  - resource: "https://appagent.com/blog/how-to-iterate-mobile-video-ads/"
+    id: url-2
+    title: "appagent.com"
+  - resource: "https://prestyj.com/blog/video-ad-creative-testing-guide-2026"
+    id: url-3
+    title: "prestyj.com"
+  - resource: "https://tadkai.io/resources/creative-testing-2026"
+    id: url-4
+    title: "tadkai.io"
+  - resource: "https://adlibrary.com/posts/facebook-ad-creative-testing-best-practices"
+    id: url-5
+    title: "adlibrary.com"
+  - resource: "https://www.hwds868.com/article/qianchuan-creative-material-lifecycle.html"
+    id: url-6
+    title: "hwds868.com"
+dx_id: "56"
+aliases:
+  - "149"
+related:
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "58-content-matrix-series/content-matrix-series.md"
+---
+
 # 素材数据驱动迭代（Data-Driven Creative Iteration）
 
 > 本页是 DirectorX 素材迭代手册：创意衰减与"过程问题"、模块化创作系统（Hook/Body/CTA 三层+功能标签）、受控测试矩阵（控制组+单变量）、Thumbstop→CTR→V100 诊断漏斗、决策规则、千川素材生命周期五阶段与冷启动。与 41 素材工厂 / 54 缩略图 / 32 数据工具衔接。
@@ -183,3 +238,9 @@ Hook（停下滑动）→ Body（建立信任）→ CTA（转化意图）
 - Starti — AI Creative Optimization Platform: From Creative to Performance：https://starti.ai/blog/ai-creative-optimization-platform-from-creative-to-performance-june-2026/
 
 <!-- merged from: #149-data-driven-testing -->
+
+## 相关概念
+
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [视频内容矩阵与系列化（Content Matrix & Format Engineering）](../58-content-matrix-series/content-matrix-series.md)

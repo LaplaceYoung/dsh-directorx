@@ -46,13 +46,18 @@ user-invocable: true
 
 ## 工具映射（DirectorX 工具集）
 
+- 路由：每个新工艺请求先 `directorx_skill_route`，再 `directorx_skill_read` 它点名的技能正文，按 `next` 调工具。目录摘要不够。
+- 提示词：每镜先 `directorx_prompt_plan`（六要素 / 物理链 / 模型技能），再 `directorx_prompt_craft`。`brief.compose` 的 **稿** 阶段就是这一闸。不要把用户原句或成片角度原文当生成稿。
 - 生成：先 `directorx_generate_ready`，再 `directorx_generate_image` /
   `directorx_generate_video` / `directorx_generate_audio`（简单请求、批准的
   pilot unit 或返工）。ready 会告诉你缺设定图、场景、首帧还是尾帧。
 - 看图：`directorx_view_image` —— 生成前后都看像素，结论基于画面。
-- 分析/确定剪辑（免费且精确，优先于重新生成）：`directorx_probe_media`、
-  `directorx_extract_frames`（frame-qa）、WebUI 右侧时间线编辑器
-  （分割/重排/混音/导出）。
+- 分析/确定剪辑（免费且精确，优先于重新生成）：先 `directorx_edit_plan`
+  路由。图片几何 → `directorx_image_edit`；单段视频 → `directorx_video_process`；
+  人话 cut list → `directorx_edit`；调色/打开编辑台 → `directorx_studio`；
+  多镜 → `directorx_timeline` / `directorx_video_concat`。一律带 `nodeId` 回写
+  path，不要改镜头标题。`directorx_probe_media`、`directorx_extract_frames`
+  （frame-qa）、WebUI 编辑台（分割/重排/混音/导出）。
 - 质检：抽帧 + `directorx_view_image` 对照镜头契约逐镜判定 pass/retake。
 - 画布（DSH 掌管，增删改查/分组/编排都走工具）：
   - 查：`directorx_canvas_get` / `directorx_canvas_node` / `directorx_canvas_search` / `directorx_canvas_summary` / `directorx_canvas_groups`
@@ -65,12 +70,27 @@ user-invocable: true
 - 任务：`directorx_task_status` / `directorx_cancel_task` 恢复与止损异步任务；
   超时先查账本，不盲目重提。
 - 字幕：`directorx_transcribe_audio`（srt）产出字幕，供时间线编辑器使用。
-- 编辑产物：`directorx_edits` 引用 WebUI 里二次编辑保存的文件。
+- 编辑产物：`directorx_edits` 引用 WebUI 与 agent 确定性编辑保存的文件。
 - 知识：`directorx_knowledge_search` / `directorx_knowledge_read` +
-  `directorx-playbook`（四道闸门：规格/内容/成本/权利）。
+  `directorx-playbook`（四道闸门：规格/内容/成本/权利）。先
+  `directorx_skill_route`，文章 id 直接 `knowledge_read`。
+- 现场七步（对应规则 100-105，不要另起一套技能名）：
+  1. 模型栈一次写清（设置 / `directorx_provider_list`）
+  2. 项目根与画布（`directorx_canvas_get`）
+  3. 剧本拆镜（`directorx_storyboard` / shotlist）
+  4. 参考板：每张图写用途 + 禁用层（角色/服装/场景/道具分开）
+  5. 资产护照写入节点 `prompt` / `continuityRules`
+  6. `view_image` 复核后才算锁；未锁 `generate_ready` 必须 blocked
+  7. `prompt_craft` 拒写未锁主体；成稿带 craftId 再 generate
 - 分诊与占位：`directorx_brief`（含 compose 阶段图）、`directorx_propose`、
   `directorx_canvas_shotlist`、`directorx_confirm`。配方在 `recipes/`。
   人机命令：`/directorx` `[shotlist|proposals|next]`。
+- 收成技能：用户修改意见 `directorx_note`。交片后 `directorx_skill_capture`
+  `{ present: true }` 提问卡问是否保存为「xx」技能；同意后把流程和改法写成新技能。
+  不要写入插件自带 skills/。
+- 改编短剧：大纲先收敛结构；角色 / 美术 / 剧本可并行，不得改已拍板的结构。
+  分镜只认领剧本节拍，不发明情节。切镜前 `directorx_shot_vocab`。
+  评审 `directorx_bible` 出 Markdown 钉画布，不要另出 HTML。
 
 ## 工作流推导协议（复杂请求，配方只是先例不是枷锁）
 

@@ -1,7 +1,7 @@
 ---
 name: directorx-methodology
 description: >-
-  视频制作方法论速查（99 条联网调研沉淀的可执行规则）：成片结构/提示词工程/
+  视频制作方法论速查（105 条联网调研沉淀的可执行规则）：成片结构/提示词工程/
   镜头语言/导演技法/剪辑节奏/音频混音/字幕设计/叙事后期。写脚本、写提示词、
   剪节奏、做质检前先查本技能，用规则而不是凭感觉；决策与质检结论引用规则编号。
 user-invocable: true
@@ -10,7 +10,7 @@ user-invocable: true
 # 制作方法论速查（2026 调研沉淀）
 
 
-## 规则目录（99 条）
+## 规则目录（105 条）
 
 - 成片结构与留存：1-5（钩子/模式打断/留存曲线/时长密度/口播结构）
 - AI 提示词工程：6-9、14-15（单镜单动作/角色绑定/音画同步/镜头解剖/Veo 词汇）
@@ -35,6 +35,8 @@ user-invocable: true
   标签策略/留存曲线对照/封面质检闸门/CTR 复盘 SOP）
 - 配音与声音表演：92-99（规定情境/停顿杠杆/一句一重音/对象感/语速基准/
   音色四参数卡/一段一指令/中文预处理清单）
+- 2026-08 现场管线（X 社区）：100-105（分镜事实源/参考隔离/资产护照/
+  未锁不许写提示词/物理因果链/模型各吃各的提示词）
 
 调研来源：OpenAI Sora 2 Cookbook、Kling 3.0 官方 Quickstart、Google Cloud
 Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六原则
@@ -140,13 +142,14 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 
 ## 知识库深潜索引（规则 → 语料文章）
 
-规则是速查层；深潜用 `directorx_knowledge_search` / `directorx_knowledge_read`：
+规则是速查层；深潜用 `directorx_skill_route` 给出的 `articles` 做 `directorx_knowledge_read`（id 如 01/127），或 `directorx_knowledge_search`：
 - 规则 6/9/14 镜头解剖 → 文章 01 镜头语言与景别（19k 字全集）、89 名场面运镜解剖
 - 规则 12 转场/30 度 → 文章 02 剪辑与转场（蒙太奇/Murch）、127 AI 剪辑转场节奏
 - 规则 10/17 卡点节奏 → 文章 127、63 字幕节奏
 - 规则 7/16 角色一致性 → 文章 123 AI 长视频多镜一致性（场景卡/跨镜 QA）
 - 场面调度/构图 → 文章 07 导演技巧、94 场景调度深化、233 场面调度全要素
 - 叙事视点 → 文章 234 叙事视点（客观/主观/POV）
+- 规则 100-105 现场管线 → 文章 115 提示词、117/123 一致性、116 首尾帧、01 镜头语言
 
 ## 负面提示词体系（2026-02 调研沉淀）
 
@@ -386,6 +389,9 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
 83. **反向与冻结帧**：reverse 表达时光倒流、freeze 把观众钉在某一帧
     ——两者都要短（>2s 从强调变故障感）；冻结帧配标题弹出=结尾钩子。
     工具落点：video_process 的 reverse / freezeEnd（本工具已支持）。
+    编辑路由：先 `directorx_edit_plan`；图片几何走 `directorx_image_edit`，
+    单段视频走 `directorx_video_process`，人话 cut list 走 `directorx_edit`，
+    调色走 `directorx_studio`。带 nodeId 回写，不重绘。
 
 ## 平台运营与分发（2026 调研沉淀；规格口径见标注）
 
@@ -443,3 +449,31 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
     「一/不」变调语境自查；轻声词位置（我们/清楚）；句尾「啊」写
     音变字（哪/哇/呀）；儿化按体裁定；长句切意群加标点（>25 字
     主动断句）；写完朗读一遍——书面语腔是中文配音第一死因。
+
+## 2026-08 现场管线（X 社区，可执行层）
+
+来源：2026-08 公开制作帖（分镜当事实源、参考分层、资产未锁拒写提示词、
+动作因果链）。不引产品名。工具落点写 DirectorX 已有闸门。
+
+100. **分镜是唯一事实源**：故事先拆成可签字的分镜，再把每一格写成单镜
+    提示词，最后才 generate。禁止拿用户一句话直接出片。工具落点：
+    `directorx_storyboard` / `directorx_canvas_shotlist` / `directorx_confirm`
+    → `directorx_prompt_craft`（intent=分镜格，不是原句）。
+101. **参考隔离**：一张参考只控一层——脸/声、服装、场景光色、道具，
+    互不污染。服装图的工作室背景、场景图的构图不得进成片。工具落点：
+    `directorx_character_register` 的 refPath 只当身份层；场景走空镜节点；
+    道具单独参考；`directorx_generate_ready` 缺哪一层就 blocked。
+102. **资产护照**：角色/场景/道具各写一段可逐字复用的描述（发型/接缝/
+    义眼/布料/光源命名），后续每条提示词整段引用，不改写。工具落点：
+    节点 `prompt` + `directorx_style` + `continuityRules`；跨镜只改动作/
+    运镜/光线三样（规则 60）。
+103. **未锁不许写提示词**：身份、服装、场景、首帧未过 `view_image` 复核
+    前，禁止 `directorx_prompt_craft` / generate。设定图、空镜、关键帧
+    先出并钉住。工具落点：`directorx_generate_ready` 的 blocked + 提问卡。
+104. **物理因果链**：动作提示词必须写 原因→接触→受力→身体反馈→结果，
+    禁止结果先于接触出现（先摔倒再碰到杆）。工具落点：`prompt_craft`
+    成稿检查；质检看抽帧是否因果齐全（规则 42）。
+105. **模型各吃各的提示词**：同一分镜不得把一份散文丢给所有模型。
+    时间轴型要节拍/相对先后（规则 59）；参考型要逐层点名参考用途；
+    静帧型要美术指导+三视图规格。工具落点：`directorx_skill_route`
+    点名对应 `*-prompt-copilot`，再 `directorx_prompt_craft`。

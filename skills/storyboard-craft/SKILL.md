@@ -44,6 +44,22 @@ tags: [storyboard, shot-list, continuity, coverage, generation]
 | 复合动作 | 一镜塞"进门、坐下、开口" | 拆成多镜，一镜一动作弧 |
 | 空帧结尾 | 镜头淡出或停在虚焦 | 尾帧是资产：结束在清晰稳定的构图 |
 
+## 画布工艺（落到无限画布）
+- **铺成分镜行**：文本卡里的剧本（Fountain 场次标题、`镜头N：`、`第N场`）用 `directorx_canvas_script` 拆成「本 → 首帧 → 视频」一行一镜。只写 idea 空卡，不生成。
+- **抽帧上板**：成片视频用 `directorx_canvas_frames`（ffmpeg 均匀抽帧）铺一组图片卡，出处写在连续性戳上，不建 video→image 边。
+- **一键解析**：`directorx_canvas_parse` 用亮度切点拆镜，钉分镜稿文本卡 + 每镜代表帧。可再对文本卡铺成分镜行。
+- **片段重做**：`directorx_canvas_reshoot` cut 切掉头尾并抽出窗内首尾帧，中段只铺 idea 卡；生成回写 path 后 assemble 拼回。窗长 1–15 秒。
+- **按引用连线**：`directorx_canvas_autolink` 按角色库名字和卡片词令重叠补参考边。不新建节点。
+- **拼成片**：多段已成片视频用 `directorx_canvas_pack` 硬切拼成一条「成片」卡。预告片/片花只用 cut，不要 fade。
+- **接触表**：选中的图/视频用 `directorx_canvas_sheet` 抽中点帧拼成一张接触表，钉在画布上给评审。
+- **宫格切开**：一张有成片的图用 `directorx_canvas_split` 按列×行 crop 成一组独立图片卡。
+- **宫格拼回**：多张成片图用 `directorx_canvas_join` 拼回带镜号的宫格大图，给评审或交付。
+- **分屏对照**：2–4 张图/视频用 `directorx_canvas_stack` 拼成一条对照条。
+- **去硬字**：成片底栏字幕用 `directorx_canvas_desub` crop 或 blur，不重绘。
+- **续写位**：`directorx_canvas_extend` 抽出尾帧并铺一张 idea 空视频卡。生成仍走 craft/ready，回写续写卡。
+- **导出动图**：成片用 `directorx_canvas_gif` 钉一张 GIF 卡。
+- 整板仍先 `directorx_confirm` 再 `canvas_plan` / `canvas_script`。WebUI 菜单可直接跑这些步，因为它们不写 generating。
+
 ## 边界
 - 分镜不写台词内容本身（台词在脚本层），只写"谁在说话、说什么的情绪"；对白时长由 DX 层按 ~4.5 字/秒估算分配。
 - 每镜时长是预算不是承诺：镜头表给出的秒数按动作弧估算（动作镜 ~2.5s 起，对白镜按字数），容差 ±15%。

@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "灯光实操进阶与混合光（Advanced Lighting & Mixed-Light Balance）"
+description: "灯光进阶手册：混合光匹配方法论（测 Kelvin+色偏、五步匹配流程）、gel 使用时机、CRI vs TLCI、调光漂移、主光源优先原则、便携 LED 与环境光融合、实景光处理案例"
+tags:
+  - "foundation"
+  - "lighting"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Maxima LED 混合光匹配"
+    id: cite-1
+    title: "Maxima LED 混合光匹配"
+  - resource: "cited:Ulanzi 便携 LED 融合"
+    id: cite-2
+    title: "Ulanzi 便携 LED 融合"
+  - resource: "cited:GVM 色温指南"
+    id: cite-3
+    title: "GVM 色温指南"
+  - resource: "cited:豆瓣侯孝贤实景光案例。"
+    id: cite-4
+    title: "豆瓣侯孝贤实景光案例。"
+  - resource: "https://maximaled.com/how-do-you-match-professional-bi-colour-lighting-to-mixed-practical-lights-on-set/"
+    id: url-1
+    title: "maximaled.com"
+  - resource: "https://www.ulanzi.com/blogs/knowledges/blend-portable-leds-with-ambient-light-guide"
+    id: url-2
+    title: "ulanzi.com"
+  - resource: "https://www.ulanzi.com/blogs/knowledges/led-color-temperature-drift-fix-workflows"
+    id: url-3
+    title: "ulanzi.com"
+  - resource: "https://gvmled.com/color-temperature-video-filmmaking-guide/"
+    id: url-4
+    title: "gvmled.com"
+  - resource: "https://www.provideocoalition.com/how-to-get-true-natural-light-from-leds/"
+    id: url-5
+    title: "provideocoalition.com"
+  - resource: "https://site.douban.com/178720/widget/notes/10281080/note/501130297/"
+    id: url-6
+    title: "site.douban.com"
+dx_id: "50"
+related:
+  - "13-genre-documentary/documentary-talking-head.md"
+  - "19-live-production/live-production.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+---
+
 # 灯光实操进阶与混合光（Advanced Lighting & Mixed-Light Balance）
 
 > 本页是 DirectorX 灯光进阶手册：混合光匹配方法论（测 Kelvin+色偏、五步匹配流程）、gel 使用时机、CRI vs TLCI、调光漂移、主光源优先原则、便携 LED 与环境光融合、实景光处理案例。与 09 灯光基础 / 36 调色 / 20 DaVinci 衔接。
@@ -108,3 +161,9 @@
 - ProVideo Coalition: How to Get TRUE "Natural Light" from LEDs — https://www.provideocoalition.com/how-to-get-true-natural-light-from-leds/
 - 豆瓣: 侯孝贤《红气球之旅》实景光线处理 — https://site.douban.com/178720/widget/notes/10281080/note/501130297/
 - noiz.ai: 2026 最佳视频制作灯光指南——专业布局与设备技巧 — https://noiz.ai/use-cases/zh-Hans/article/guide-to-the-best-lighting-for-video-production-2026
+
+## 相关概念
+
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
+- [直播与实时制作（Live Production）](../19-live-production/live-production.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)

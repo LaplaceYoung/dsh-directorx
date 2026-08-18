@@ -12,7 +12,7 @@ import { StudioErrorBoundary } from './studio-chrome.tsx'
 import { closestPorts, flowAbsolutePosition, inferContinueKind, sideToHandle } from '../../canvas-generate.ts'
 import { INTER_HREF, dx } from '../canvas-theme.ts'
 import {
-  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet,
+  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet, ReshootDialog, ReviseDialog, SCRIPT_STARTER,
   MultiSelectBar, NodeMenu, SearchPalette, ShortcutsSheet, StageRail, Toast, TopBar, ZoomHud, type AddKind,
 } from './chrome.tsx'
 import { cycleShotStatus, defaultSize, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
@@ -26,8 +26,12 @@ import {
 import { createLiveSession } from './session-live.ts'
 import { boxPort, closestHandleId, WireDragLayer, WireEdge, WirePreview } from './WireEdge.tsx'
 import { getClientProject, pickDefaultProject, projectHeaders, setClientProject, withProject, type ProjectInfo } from './project.ts'
-import { alignBoxes, asClipPayload, distributeBoxes, focusViewOptions, nudgeBoxes, packClip, type AlignKind } from './layout.ts'
+import {
+  alignBoxes, asClipPayload, distributeBoxes, focusViewOptions, groupFrame, nudgeBoxes, nudgeStep,
+  packClip, readingOrder, type AlignKind,
+} from './layout.ts'
 import { incomingRefIds, nearestAspect, sizeFromAspect, specPrompt, type GenerateSpec } from './workstation.ts'
+import { ASK_DSH_REWRITE } from './ip-prompt.tsx'
 
 export interface StageProps {
   sessionId?: string
@@ -218,9 +222,21 @@ const STAGE_CSS = `
   border-color: rgba(255,255,255,.16) !important;
   background: rgba(12,12,12,.72) !important;
 }
-.dx-card-caption { pointer-events: auto; }
+.dx-card-caption {
+  pointer-events: auto;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+}
+.dx-card-dock {
+  position: absolute; left: 0; right: 0; top: 100%; margin-top: 14px; z-index: 8;
+}
 .dx-card-meta {
   display: flex; align-items: center; gap: 6px; width: 100%; min-height: 22px;
+  padding: 20px 8px 7px;
+  background: linear-gradient(180deg, transparent 0%, rgba(8,6,4,.8) 58%);
+}
+.dx-shot-no {
+  flex-shrink: 0; min-width: 28px; color: #fff; font-size: 11px; font-weight: 600;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
 }
 .dx-card-lock { color: rgba(255,255,255,.72); display: grid; place-items: center; flex-shrink: 0; }
 .dx-face-fill { background: #0a0a0a !important; }
@@ -230,6 +246,7 @@ const STAGE_CSS = `
   color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.2px;
   background: rgba(10,10,10,.55); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px);
 }
+.dx-kind-time { left: auto; right: 8px; }
 .dx-kind-image { background: #121214; }
 .dx-kind-video { background: #121110; }
 .dx-kind-text { background: linear-gradient(180deg, #17140f 0%, #100e0c 100%); }
@@ -259,12 +276,23 @@ const STAGE_CSS = `
 .dx-film::before { left: 0; }
 .dx-film::after { right: 0; }
 .dx-empty-plate {
-  height: 100%; display: grid; place-items: center; color: rgba(255,255,255,.28);
+  position: absolute; inset: 10px 10px 46px; height: auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 16px 14px; color: rgba(255,255,255,.28); box-sizing: border-box;
+  border: 1px dashed rgba(255,236,210,.16); border-radius: 12px;
+  background: radial-gradient(80% 70% at 50% 42%, rgba(255,244,228,.045), transparent 72%);
 }
-.dx-empty-glyph { display: grid; place-items: center; color: rgba(255,255,255,.3); }
-.dx-empty-glyph svg { width: 28px; height: 28px; }
+.dx-empty-glyph { display: grid; place-items: center; color: rgba(255,244,228,.38); }
+.dx-empty-glyph svg { width: 26px; height: 26px; }
 .dx-empty-title { color: #c8c8c8; font-size: 12px; }
-.dx-empty-hint { color: #6a6a6a; font-size: 10.5px; }
+.dx-empty-hint { color: #8a8278; font-size: 11.5px; }
+.dx-empty-intent {
+  max-width: 88%; color: #e6ddd0; font-size: 12.5px; line-height: 1.45; text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dx-status-dot { width: 6px; height: 6px; border-radius: 99px; display: inline-block; flex-shrink: 0; }
+.dx-multibar { scrollbar-width: none; }
+.dx-multibar::-webkit-scrollbar { display: none; }
 .dx-text-sheet {
   background:
     linear-gradient(180deg, rgba(232,214,176,.06), transparent 38%),
@@ -371,13 +399,34 @@ const STAGE_CSS = `
 .dx-stage .react-flow__resize-control.handle-top,
 .dx-stage .react-flow__resize-control.handle-right,
 .dx-stage .react-flow__resize-control.handle-bottom,
-.dx-stage .react-flow__resize-control.handle-left {
+.dx-stage .react-flow__resize-control.handle-left,
+.dx-stage .react-flow__resize-control.handle.top,
+.dx-stage .react-flow__resize-control.handle.right,
+.dx-stage .react-flow__resize-control.handle.bottom,
+.dx-stage .react-flow__resize-control.handle.left,
+.dx-stage .react-flow__resize-control.line.top,
+.dx-stage .react-flow__resize-control.line.right,
+.dx-stage .react-flow__resize-control.line.bottom,
+.dx-stage .react-flow__resize-control.line.left {
   display: none !important;
 }
 .dx-stage .react-flow__resize-control.top.left { top: 0 !important; left: 0 !important; }
 .dx-stage .react-flow__resize-control.top.right { top: 0 !important; right: 0 !important; }
 .dx-stage .react-flow__resize-control.bottom.left { bottom: 0 !important; left: 0 !important; }
 .dx-stage .react-flow__resize-control.bottom.right { bottom: 0 !important; right: 0 !important; }
+@media (max-width: 900px) {
+  .dx-topbar { left: 16px !important; }
+  .dx-zoomhud .dx-range { display: none !important; }
+  .dx-title { width: 148px !important; max-width: 32vw !important; }
+  .dx-gendock { left: 16px !important; }
+  .dx-asset-drawer { left: 16px !important; width: min(360px, calc(100% - 32px)) !important; }
+}
+@media (max-width: 760px) {
+  .dx-topbar-meta { display: none !important; }
+  .dx-hero-keys { display: none !important; }
+  .dx-title { width: 112px !important; max-width: 28vw !important; }
+  .dx-inspector { top: 64px !important; width: min(276px, calc(100% - 28px)) !important; }
+}
 `
 
 interface MediaFile { path: string; name: string; mediaType: string; size: number; at?: number }
@@ -429,6 +478,8 @@ function StageInner(props: StageProps): ReactNode {
   const [project, setProject] = useState<string | undefined>(getClientProject())
   const [addMenu, setAddMenu] = useState<{ x: number; y: number; flow?: { x: number; y: number } } | undefined>(undefined)
   const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | undefined>(undefined)
+  const [reshootId, setReshootId] = useState<string | undefined>(undefined)
+  const [reviseId, setReviseId] = useState<string | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | undefined>(undefined)
   const [compose, setCompose] = useState<GenerateSpec>({
     kind: 'image',
@@ -657,6 +708,26 @@ function StageInner(props: StageProps): ReactNode {
     return startWorkspaceSession()
   }, [boundSessionId, startWorkspaceSession])
 
+  const askDshText = useCallback(async (text: string) => {
+    if (text.trim() === '' || props.onAskDsh === undefined) return
+    const sessionId = await ensureWorkspaceSession()
+    await props.onAskDsh(text, sessionId)
+    setSessionOpen(true)
+    setSessionPulse(value => value + 1)
+  }, [ensureWorkspaceSession, props])
+
+  useEffect(() => {
+    const onAsk = (event: Event) => {
+      const text = (event as CustomEvent<{ text?: string }>).detail?.text
+      if (typeof text !== 'string' || text.trim() === '') return
+      void askDshText(text).catch(cause => {
+        setError(cause instanceof Error ? cause.message : String(cause))
+      })
+    }
+    window.addEventListener(ASK_DSH_REWRITE, onAsk)
+    return () => window.removeEventListener(ASK_DSH_REWRITE, onAsk)
+  }, [askDshText])
+
   const saveNow = useCallback(async () => {
     if (!dirtyRef.current) return
     setSaveState('保存中…')
@@ -724,6 +795,54 @@ function StageInner(props: StageProps): ReactNode {
     setToast(text)
     window.setTimeout(() => setToast(current => current === text ? undefined : current), 1600)
   }, [])
+
+  const runCraft = useCallback(async (action: 'script' | 'frames' | 'autolink' | 'parse' | 'reshoot' | 'pack' | 'sheet' | 'split' | 'join' | 'stack' | 'desub' | 'extend' | 'gif', extra: Record<string, unknown> = {}) => {
+    try {
+      if (dirtyRef.current) await saveNow()
+      const response = await fetch(withProject('/directorx/canvas/craft'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...projectHeaders() },
+        body: JSON.stringify({ action, ...extra }),
+      })
+      const body = await response.json() as {
+        ok?: boolean
+        message?: string
+        error?: string
+        doc?: CanvasDoc
+        reused?: boolean
+        added?: unknown[]
+        shots?: unknown[]
+        phase?: string
+        midId?: string
+        firstId?: string
+        lastId?: string
+        prompt?: string
+        durationSec?: number
+      }
+      if (!response.ok || body.ok === false) {
+        showToast(typeof body.message === 'string' && body.message !== '' ? body.message : typeof body.error === 'string' ? body.error : '画布工艺失败')
+        return undefined
+      }
+      if (body.doc !== undefined) applyDoc(body.doc)
+      if (action === 'script') showToast(body.reused === true ? '这页剧本已经铺过' : '已铺成分镜行')
+      else if (action === 'frames') showToast(body.reused === true ? '这段已经抽过帧' : '已抽帧上板')
+      else if (action === 'parse') showToast(body.reused === true ? '这段已经解析过' : `已解析 ${Array.isArray(body.shots) ? body.shots.length : ''} 镜`)
+      else if (action === 'reshoot') showToast(body.phase === 'assemble' ? '已拼回成片' : '已切出重做位')
+      else if (action === 'pack') showToast('已硬切拼成片')
+      else if (action === 'sheet') showToast('已出接触表')
+      else if (action === 'split') showToast('已宫格切开')
+      else if (action === 'join') showToast('已宫格拼回')
+      else if (action === 'stack') showToast('已分屏对照')
+      else if (action === 'desub') showToast('已去硬字')
+      else if (action === 'extend') showToast('已切出续写位')
+      else if (action === 'gif') showToast('已导出 GIF')
+      else showToast(`已按引用连 ${Array.isArray(body.added) ? body.added.length : 0} 条`)
+      return body
+    } catch (cause) {
+      showToast(cause instanceof Error ? cause.message : '画布工艺失败')
+      return undefined
+    }
+  }, [applyDoc, saveNow, showToast])
 
   const snapshotGraph = useCallback(() => ({
     nodes: nodesRef.current.map(node => ({
@@ -1157,6 +1276,38 @@ function StageInner(props: StageProps): ReactNode {
     await submitSpec(compose)
   }, [compose, submitSpec])
 
+  const submitReshoot = useCallback(async (input: { start: number; end: number; prompt: string }) => {
+    if (reshootId === undefined) return
+    const nodeId = reshootId
+    setReshootId(undefined)
+    const body = await runCraft('reshoot', { nodeId, phase: 'cut', start: input.start, end: input.end, prompt: input.prompt })
+    if (body?.midId === undefined) return
+    await submitSpec({
+      kind: 'video',
+      prompt: typeof body.prompt === 'string' && body.prompt !== '' ? body.prompt : input.prompt,
+      sourceId: body.midId,
+      targetId: body.midId,
+      refIds: [body.firstId, body.lastId].filter((id): id is string => typeof id === 'string' && id !== ''),
+      ...(typeof body.durationSec === 'number' ? { durationSec: body.durationSec } : {}),
+    })
+  }, [reshootId, runCraft, submitSpec])
+
+  const submitRevise = useCallback(async (change: string) => {
+    if (reviseId === undefined) return
+    const node = nodesRef.current.find(item => item.id === reviseId)
+    setReviseId(undefined)
+    const text = change.trim()
+    if (text === '' || node === undefined) return
+    await submitSpec({
+      kind: node.data.kind === 'video' ? 'video' : 'image',
+      prompt: `镜改 ${node.data.label}：${text}`,
+      sourceId: node.id,
+      targetId: node.id,
+      ...(typeof node.data.path === 'string' && node.data.path !== '' ? { refIds: [node.id] } : {}),
+      ...(node.data.characters !== undefined ? { characters: node.data.characters } : {}),
+    })
+  }, [reviseId, submitSpec])
+
   const runNodeGenerate = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
     const spec: GenerateSpec = {
@@ -1451,17 +1602,13 @@ function StageInner(props: StageProps): ReactNode {
     const members = selectedNodes.filter(node => node.type !== 'group' && (node.parentId === undefined || node.parentId === ''))
     if (members.length < 2) return
     pushHistory()
-    const pad = 36
-    const minX = Math.min(...members.map(node => node.position.x)) - pad
-    const minY = Math.min(...members.map(node => node.position.y)) - 52
-    const maxX = Math.max(...members.map(node => node.position.x + (typeof node.style?.width === 'number' ? node.style.width : 250))) + pad
-    const maxY = Math.max(...members.map(node => node.position.y + (typeof node.style?.height === 'number' ? node.style.height : 180))) + pad
+    const frame = groupFrame(boxesOf(members))
     const id = newId('group')
     const group: StageNode = {
       id,
       type: 'group',
-      position: { x: minX, y: minY },
-      style: { width: Math.max(280, maxX - minX), height: Math.max(200, maxY - minY) },
+      position: { x: frame.x, y: frame.y },
+      style: { width: frame.w, height: frame.h },
       selected: true,
       data: { label: '分组' },
     }
@@ -1469,18 +1616,34 @@ function StageInner(props: StageProps): ReactNode {
     setNodes(current => [
       attachActions(group),
       ...current.map(node => memberIds.has(node.id)
-        ? { ...node, parentId: id, extent: 'parent' as const, position: { x: node.position.x - minX, y: node.position.y - minY }, selected: false }
+        ? { ...node, parentId: id, extent: 'parent' as const, position: { x: node.position.x - frame.x, y: node.position.y - frame.y }, selected: false }
         : { ...node, selected: false }),
     ])
     scheduleSave()
   }, [attachActions, pushHistory, scheduleSave, selectedNodes])
 
+  const selectAdjacent = useCallback((direction: 1 | -1) => {
+    const list = readingOrder(nodesRef.current.map(node => ({
+      id: node.id,
+      x: node.position.x,
+      y: node.position.y,
+      ...(node.data.shotIndex !== undefined ? { shotIndex: node.data.shotIndex } : {}),
+    })))
+    if (list.length === 0) return
+    const current = nodesRef.current.find(node => node.selected === true)?.id
+    const index = list.findIndex(item => item.id === current)
+    const next = list[(index < 0 ? 0 : index + direction + list.length) % list.length]
+    if (next === undefined) return
+    setNodes(nodes => nodes.map(node => ({ ...node, selected: node.id === next.id })))
+  }, [])
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const typing = (event.target as HTMLElement | null)?.matches('input, textarea, [contenteditable=true]')
+      const target = event.target as HTMLElement | null
+      const typing = typeof target?.matches === 'function' && target.matches('input, textarea, [contenteditable=true]')
       if (typing) return
       const studio = snapshot.tab === 'image' || snapshot.tab === 'video'
-      if (studio && event.key !== 'Escape') return
+      if (studio) return
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
         event.preventDefault()
         if (event.shiftKey) redo()
@@ -1549,6 +1712,14 @@ function StageInner(props: StageProps): ReactNode {
         setCompose(current => ({ kind: current.kind, prompt: current.prompt }))
         if (snapshot.tab !== 'canvas') setEditorTab('canvas')
       }
+      if (event.key.toLowerCase() === 'e' && !event.metaKey && !event.ctrlKey) {
+        const focus = nodesRef.current.find(node => node.selected === true && node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '')
+        if (focus !== undefined) {
+          event.preventDefault()
+          openStudioFor(focus.id)
+        }
+        return
+      }
       if (event.key.toLowerCase() === 's' && !event.metaKey && !event.ctrlKey) {
         const focus = nodesRef.current.find(node => node.selected === true)
         if (focus !== undefined) {
@@ -1579,9 +1750,14 @@ function StageInner(props: StageProps): ReactNode {
         void fitView({ nodes: focus.length > 0 ? focus : undefined, ...focusViewOptions(kind) })
         return
       }
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        selectAdjacent(event.shiftKey ? -1 : 1)
+        return
+      }
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) && !event.metaKey && !event.ctrlKey) {
         event.preventDefault()
-        const step = event.shiftKey ? 16 : 2
+        const step = nudgeStep(snap, event.shiftKey)
         const dx = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0
         const dy = event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
         applyPositions(nudgeBoxes(boxesOf(nodesRef.current.filter(node => node.selected === true && node.data.locked !== true)), dx, dy))
@@ -1609,11 +1785,12 @@ function StageInner(props: StageProps): ReactNode {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, fitView, helpOpen, openGenerate, pasteClip, pushHistory, redo, scheduleSave, sessionOpen, snapshot.tab, toggleLock, undo, zoomIn, zoomOut])
+  }, [applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, fitView, helpOpen, openGenerate, openStudioFor, pasteClip, pushHistory, redo, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, zoomIn, zoomOut])
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
-      const typing = (event.target as HTMLElement | null)?.matches('input, textarea, [contenteditable=true]')
+      const target = event.target as HTMLElement | null
+      const typing = typeof target?.matches === 'function' && target.matches('input, textarea, [contenteditable=true]')
       if (typing) return
       const files = [...(event.clipboardData?.files ?? [])].filter(file => file.type.startsWith('image/') || file.type.startsWith('video/'))
       if (files.length === 0) return
@@ -1645,8 +1822,12 @@ function StageInner(props: StageProps): ReactNode {
       openStudioFor(node.id)
       return
     }
+    if (kind === 'script') {
+      void runCraft('script', { text: SCRIPT_STARTER })
+      return
+    }
     addNode(kind, {}, flow)
-  }, [addNode, openPicker, openStudioFor, showToast])
+  }, [addNode, openPicker, openStudioFor, runCraft, showToast])
 
   const setZoom = useCallback((next: number) => {
     const view = getViewport()
@@ -1654,12 +1835,16 @@ function StageInner(props: StageProps): ReactNode {
   }, [getViewport, setViewport])
 
   const studioOpen = snapshot.tab === 'image' || snapshot.tab === 'video'
+  const studioTitle = displayCardTitle(selected?.data.label, selected?.data.prompt, selected?.data.shotIndex)
+    || selected?.data.label
+    || snapshot.path?.split('/').pop()
+    || (snapshot.tab === 'video' ? '视频' : '图片')
   const sourceNode = compose.sourceId !== undefined ? nodes.find(node => node.id === compose.sourceId) : undefined
   const mediaSelected = selectedNodes.filter(node => node.type === 'media' && node.data.path)
   const multi = selectedNodes.length >= 2 && !studioOpen
 
   return (
-    <div className={`dx-stage${wiring ? ' dx-wiring' : ''}${hideWires ? ' dx-hide-wires' : ''}`} style={shell}>
+    <div className={`dx-stage${wiring ? ' dx-wiring' : ''}${hideWires ? ' dx-hide-wires' : ''}${sessionOpen ? ' dx-session-open' : ''}`} style={shell}>
       <style>{STAGE_CSS}</style>
       <TopBar
         title={title}
@@ -1805,7 +1990,7 @@ function StageInner(props: StageProps): ReactNode {
           }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={26} size={1.05} color="rgba(255,255,255,.07)" />
+          <Background variant={BackgroundVariant.Dots} gap={snap ? 16 : 24} size={1.05} color="rgba(255,255,255,.07)" />
           {box.width > 1080 && !sessionOpen ? (
             <MiniMap pannable zoomable position="bottom-left" style={{ background: '#121212', width: 132, height: 84 }} />
           ) : null}
@@ -1814,7 +1999,7 @@ function StageInner(props: StageProps): ReactNode {
           ) : null}
         </ReactFlow>
         <StageRail
-          onAdd={() => setAddMenu({ x: 68, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
+          onAdd={() => setAddMenu({ x: 96, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
           onSearch={() => setSearchOpen(true)}
           onAssets={() => { void openPicker() }}
           onUpload={() => uploadRef.current?.click()}
@@ -1833,11 +2018,21 @@ function StageInner(props: StageProps): ReactNode {
           onHideWires={() => setHideWires(value => !value)}
           onFit={() => {
             const focus = nodes.filter(node => node.selected === true)
-            void fitView({ nodes: focus.length > 0 ? focus : undefined, padding: 0.2, duration: 240, maxZoom: 1 })
+            const kind = focus.length === 1 && focus[0]?.type === 'group' ? 'group' : 'card'
+            void fitView({
+              nodes: focus.length > 0 ? focus : undefined,
+              ...(focus.length > 0 ? focusViewOptions(kind) : { padding: 0.2, duration: 240, maxZoom: 1 }),
+            })
           }}
         />
         <Toast text={toast} />
-        {nodes.length === 0 && !studioOpen ? <EmptyHero onGenerate={() => openGenerate()} /> : null}
+        {nodes.length === 0 && !studioOpen ? (
+          <EmptyHero
+            onGenerate={() => openGenerate()}
+            onAdd={() => setAddMenu({ x: 96, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)) })}
+            onScript={() => pickAdd('script')}
+          />
+        ) : null}
         {addMenu !== undefined ? (
           <AddMenu x={addMenu.x} y={addMenu.y} onPick={kind => pickAdd(kind, addMenu.flow)} />
         ) : null}
@@ -1898,7 +2093,56 @@ function StageInner(props: StageProps): ReactNode {
             })()}
             locked={nodes.find(item => item.id === nodeMenu.nodeId)?.data.locked === true}
             canUngroup={nodes.find(item => item.id === nodeMenu.nodeId)?.type === 'group'}
+            canScript={nodes.find(item => item.id === nodeMenu.nodeId)?.type === 'text'}
+            canFrames={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canParse={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canReshoot={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canAssemble={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+                && (node.data.continuityRules?.includes('重做中段') === true || /重做中段/.test(node.data.label))
+            })()}
+            canSplit={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'image' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canDesub={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canExtend={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canGif={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== ''
+            })()}
+            canRevise={(() => {
+              const node = nodes.find(item => item.id === nodeMenu.nodeId)
+              return node?.type === 'media' && (node.data.kind === 'image' || node.data.kind === 'video')
+            })()}
             onGenerate={() => { openGenerate(nodeMenu.nodeId); setNodeMenu(undefined) }}
+            onScript={() => { void runCraft('script', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onFrames={() => { void runCraft('frames', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onParse={() => { void runCraft('parse', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onReshoot={() => { setReshootId(nodeMenu.nodeId); setNodeMenu(undefined) }}
+            onAssemble={() => { void runCraft('reshoot', { nodeId: nodeMenu.nodeId, phase: 'assemble' }); setNodeMenu(undefined) }}
+            onSplit={() => { void runCraft('split', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onDesub={() => { void runCraft('desub', { nodeId: nodeMenu.nodeId, method: 'crop', region: 'bottom:15' }); setNodeMenu(undefined) }}
+            onExtend={() => { void runCraft('extend', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onGif={() => { void runCraft('gif', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
+            onRevise={() => { setReviseId(nodeMenu.nodeId); setNodeMenu(undefined) }}
+            onAutolink={() => { void runCraft('autolink', { nodeId: nodeMenu.nodeId }); setNodeMenu(undefined) }}
             onEdit={() => { openStudioFor(nodeMenu.nodeId); setNodeMenu(undefined) }}
             onDownload={() => { void downloadNode(nodeMenu.nodeId); setNodeMenu(undefined) }}
             onDuplicate={() => {
@@ -1915,6 +2159,22 @@ function StageInner(props: StageProps): ReactNode {
               deleteIds([nodeMenu.nodeId])
               setNodeMenu(undefined)
             }}
+          />
+        ) : null}
+        {reshootId !== undefined ? (
+          <ReshootDialog
+            durationSec={nodes.find(item => item.id === reshootId)?.data.durationSec}
+            prompt={nodes.find(item => item.id === reshootId)?.data.prompt ?? ''}
+            onCancel={() => setReshootId(undefined)}
+            onSubmit={input => { void submitReshoot(input) }}
+          />
+        ) : null}
+        {reviseId !== undefined ? (
+          <ReviseDialog
+            label={nodes.find(item => item.id === reviseId)?.data.label ?? '这一镜'}
+            prompt=""
+            onCancel={() => setReviseId(undefined)}
+            onSubmit={change => { void submitRevise(change) }}
           />
         ) : null}
         {edgeMenu !== undefined ? (
@@ -1969,7 +2229,7 @@ function StageInner(props: StageProps): ReactNode {
             />
           )
         })() : null}
-        {!studioOpen && compare === undefined && !searchOpen && !(selected?.type === 'media' && !multi) ? (
+        {!studioOpen && compare === undefined && !searchOpen && !multi && selected?.type !== 'media' && !(sessionOpen && box.width > 0 && box.width < 900) ? (
           <GenerateDock
             spec={compose}
             busy={askBusy}
@@ -1987,10 +2247,38 @@ function StageInner(props: StageProps): ReactNode {
             count={selectedNodes.length}
             canCompare={mediaSelected.length >= 2}
             canUngroup={selectedNodes.some(node => node.type === 'group')}
+            canPack={selectedNodes.filter(node => node.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== '').length >= 2}
+            canSheet={selectedNodes.filter(node => node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '').length >= 1}
+            canJoin={selectedNodes.filter(node => node.type === 'media' && node.data.kind === 'image' && typeof node.data.path === 'string' && node.data.path !== '').length >= 2}
+            canStack={selectedNodes.filter(node => node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '').length >= 2 && selectedNodes.filter(node => node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '').length <= 4}
             locked={selectedNodes.every(node => node.data.locked === true)}
             onCompare={() => setCompare([mediaSelected[0].id, mediaSelected[1].id])}
             onGroup={groupSelected}
             onUngroup={() => ungroupIds(selectedNodes.map(node => node.id))}
+            onPack={() => {
+              const ids = selectedNodes
+                .filter(node => node.type === 'media' && node.data.kind === 'video' && typeof node.data.path === 'string' && node.data.path !== '')
+                .map(node => node.id)
+              void runCraft('pack', { nodeIds: ids, transition: 'cut' })
+            }}
+            onSheet={() => {
+              const ids = selectedNodes
+                .filter(node => node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '')
+                .map(node => node.id)
+              void runCraft('sheet', { nodeIds: ids })
+            }}
+            onJoin={() => {
+              const ids = selectedNodes
+                .filter(node => node.type === 'media' && node.data.kind === 'image' && typeof node.data.path === 'string' && node.data.path !== '')
+                .map(node => node.id)
+              void runCraft('join', { nodeIds: ids })
+            }}
+            onStack={() => {
+              const ids = selectedNodes
+                .filter(node => node.type === 'media' && typeof node.data.path === 'string' && node.data.path !== '')
+                .map(node => node.id)
+              void runCraft('stack', { nodeIds: ids })
+            }}
             onAlign={alignSelected}
             onDistribute={distributeSelected}
             onLock={() => toggleLock(selectedNodes.map(node => node.id))}
@@ -2108,9 +2396,9 @@ function StageInner(props: StageProps): ReactNode {
           ) : (
             <StudioErrorBoundary>
               {snapshot.tab === 'video' ? (
-                <VideoStudio source={studioUrl} name={snapshot.path ?? 'video'} look={snapshot.look} nodeId={selected?.id} onExport={(blob, type) => { void onStudioExport(blob, type) }} onClose={() => setEditorTab('canvas')} />
+                <VideoStudio source={studioUrl} name={studioTitle} look={snapshot.look} nodeId={selected?.id} onExport={(blob, type) => { void onStudioExport(blob, type) }} onClose={() => setEditorTab('canvas')} />
               ) : (
-                <ImageStudio source={studioUrl} name={snapshot.path ?? 'image'} look={snapshot.look} onExport={(blob, type) => { void onStudioExport(blob, type) }} onClose={() => setEditorTab('canvas')} />
+                <ImageStudio source={studioUrl} name={studioTitle} look={snapshot.look} onExport={(blob, type) => { void onStudioExport(blob, type) }} onClose={() => setEditorTab('canvas')} />
               )}
             </StudioErrorBoundary>
           )

@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片文字渲染（Text Rendering — Typography as Controlled Object in Images）"
+description: "AI 图片文字渲染：文字作为受控对象（精确文本/位置/字体/对比）、提示词结构（文本作业定义/布局/约束）、字体现身（3D/霓虹/浮雕）、校对纪律"
+tags:
+  - "consistency"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Ideogram Text and Typography Prompting"
+    id: cite-1
+    title: "Text and Typography Prompting"
+    author: "org:Ideogram"
+  - resource: "cited:FreeGptImg AI Text Rendering Prompt Workflow 2026"
+    id: cite-2
+    title: "AI Text Rendering Prompt Workflow 2026"
+    author: "org:FreeGptImg"
+  - resource: "cited:Pixocto AI Poster Typography Guide"
+    id: cite-3
+    title: "AI Poster Typography Guide"
+    author: "org:Pixocto"
+  - resource: "cited:Promptomania Typography & Text Art Prompts"
+    id: cite-4
+    title: "Typography & Text Art Prompts"
+    author: "org:Promptomania"
+  - resource: "https://docs.ideogram.ai/using-ideogram/getting-started/prompting-guide/2-prompting-fundamentals/text-and-typography"
+    id: url-1
+    title: "docs.ideogram.ai"
+  - resource: "https://freegptimg.com/blog/ai-text-rendering-in-images-prompt-workflow-2026"
+    id: url-2
+    title: "freegptimg.com"
+  - resource: "https://pixocto.ai/tutorials/gpt-image-2-typography-prompt"
+    id: url-3
+    title: "pixocto.ai"
+  - resource: "https://promptomania.com/prompts/typography-prompts"
+    id: url-4
+    title: "promptomania.com"
+  - resource: "https://getvidzy.com/text-in-ai-images/"
+    id: url-5
+    title: "getvidzy.com"
+dx_id: "221"
+related:
+  - "194-motion-graphic-title/motion-graphic-title.md"
+  - "205-keyframe-poster/keyframe-poster.md"
+  - "213-copyright-safe-prompting/copyright-safe-prompting.md"
+---
+
 # AI 图片文字渲染（Text Rendering — Typography as Controlled Object in Images）
 
 > 本页为 AI 图片文字渲染：文字作为受控对象（精确文本/位置/字体/对比）、提示词结构（文本作业定义/布局/约束）、字体现身（3D/霓虹/浮雕）、校对纪律。知识本体来自 2026 文字渲染指南（Ideogram/FreeGptImg/Pixocto/Promptomania）。AI 应用面向 DirectorX：图片文字（衔接 194 动态文字、205 海报、213 版权、221 对应）。
@@ -85,3 +140,9 @@
 - Pixocto — AI Poster Typography Guide: 6 Styles：https://pixocto.ai/tutorials/gpt-image-2-typography-prompt
 - Promptomania — Best Typography & Text Art Prompts：https://promptomania.com/prompts/typography-prompts
 - Vidzy — Text in AI Images: Typography in AI Prompts：https://getvidzy.com/text-in-ai-images/
+
+## 相关概念
+
+- [AI 动态图形与标题设计（Motion Graphics & Titles — Kinetic Typography & Lower Thirds）](../194-motion-graphic-title/motion-graphic-title.md)
+- [AI 预告片海报与关键帧（Keyframe Poster — Promotional Still & Campaign Hero）](../205-keyframe-poster/keyframe-poster.md)
+- [AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）](../213-copyright-safe-prompting/copyright-safe-prompting.md)

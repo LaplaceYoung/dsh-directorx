@@ -6,8 +6,7 @@ description: |
   每段自带一条 MiniMax H3 视频提示词（官方口径默认英文、逐镜换行，promptLang 可切中文）：对齐指令和
   [Shot k] 切点时刻由分镜结构推导、逐字对账，台词逐字进 <d> 块（写法规范已内化为
   references/h3-prompt.md，不依赖外部 skill）。
-  产出 storyboard.json + Markdown + 单页评审报告（分镜节奏带 / 分集分镜表 / 生成批次单 /
-  配音对齐单，含导出 JSON）。分镜图出图拿场景与角色设定图当参考图，走影棚生成工具（可选，占位先行）。
+  产出 storyboard.json + Markdown，用 directorx_bible 钉到画布评审。分镜图出图拿场景与角色设定图当参考图，走 DirectorX 生成闸（可选，占位先行）。
   16 道质量门全部由脚本确定性检查；export 一键导出 H3 投产包（每段提示词 + 按 Picture 序的分镜图清单）。零依赖、零 API key，用当前会话额度。
   Use when asked to 分镜、出分镜、镜头表、切镜、storyboard for AI short drama。
 allowed-tools:
@@ -31,7 +30,7 @@ metadata:
     bins:
       - node          # >= 18，只用标准库，无 npm 依赖
     optional:
-      - mossland      # 影棚生成工具，有才出首帧图；没有就只交提示词，其余照常
+      - directorx      # 有生成能力才出首帧图；没有就只交提示词，其余照常
 tags: [novel, storyboard, adaptation, preproduction]
 
 ## novel-storyboard
@@ -78,7 +77,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs seed <script.json> --eps 1
 - `${CLAUDE_SKILL_DIR}/references/storyboard-pass.md` 和 `${CLAUDE_SKILL_DIR}/references/schema.md`（读它们，照着做）
 - 该集的 seedScenes 底稿 + 场景卡（art.json 的锚点与光照提示词）+ 角色卡（cast.json 的形象要点）
 
-流程：**先按剧情单元分段**（每段 9–15 秒、不跨场），**段内切 2–5 秒的分镜**（对话正反打、关键动作插入特写、进场三件套——切镜语法都在 storyboard-pass.md），每切写一条分镜图提示词。
+流程：**先按剧情单元分段**（每段 9–15 秒、不跨场），**段内切 2–5 秒的分镜**。分镜只认领剧本节拍，不发明情节。切之前 `directorx_shot_vocab` 查这一刀怎么切、什么时候别用（对话正反打、进场三件套、反应插入），再写分镜图提示词。
 
 **每段写一条 `h3Prompt`**，照 `${CLAUDE_SKILL_DIR}/references/h3-prompt.md` 写（官方方法论的内化版，**不依赖任何外部 skill**）。官方口径默认英文（`promptLang` 可切中文），**每个镜头独立一行**。要点：首行对齐指令和 `[Shot k]` 切点时刻**由分镜秒数推导，一个字符都不许漂**（validate 逐字对账）；认领台词**逐字**进 `<d>[Chinese] …</d>`；每切的运镜词写进自己那一行；声景与配乐分进后两个字段——**声景也是动作指令，画面改了声景一起改**。
 
@@ -97,10 +96,10 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs validate <storyboard.json>
 
 ### Step 4 — 出分镜图（可选）
 
-一切一张 16:9 关键帧，走影棚生成工具，读 `${CLAUDE_SKILL_DIR}/references/frame.md` 照构图与质检要求做。出图走影棚生成工具，调用契约：
+一切一张 16:9 关键帧，读 `${CLAUDE_SKILL_DIR}/references/frame.md` 照构图与质检要求做。出图走 DirectorX 生成闸：
 
-- **预算先收敛 + 试点先行**：先出第一段的整套分镜图（3–5 张）给用户验收，通过后其余段**全部占位**进 `mossland_prepare_generation`，用户在生成面板确认执行
-- **没有影棚就整步跳过**，只交提示词，报告显示占位不装有
+- **预算先收敛 + 试点先行**：先出第一段的整套分镜图（3–5 张）给用户验收，通过后其余段**全部占位**进 `directorx_propose`，用户确认后再生成
+- **没有生成能力就整步跳过**，只交提示词，评审卡显示占位不装有
 - **参考图是命根子**：`-i` 挂上该段场景设定图（该光照状态）+ 画内角色的设定图 + 涉及道具的设定图，提示词只负责取景和此刻的姿态
 - 一格一次调用绝不批量；输出 `./<段号>/f<切序>.png`（f1 = 主分镜图，每段一个文件夹）
 - **默认先出第一段的整套分镜图给用户看效果**（3–5 张），确认画风和正反打构图再往后补——一集约 30–40 格，错了浪费的是整批
@@ -112,13 +111,11 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs validate <storyboard.json>
 cd <输出目录>
 node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs render <剧名>-storyboard.json --md \
   --script <script.json> --outline <outline.json> --art <art.json> > <剧名>-storyboard.md
-node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs render <剧名>-storyboard.json --html \
-  --script <script.json> --outline <outline.json> --art <art.json> > storyboard-report.html
 ```
 
-报告界面语言用 `--lang zh|en` 指定（优先级 `--lang` > JSON 顶层 `lang` 字段 > 默认中文）——只切界面标签，与 `promptLang`（H3 提示词语言）互相独立。`render` 自动去 `images/<镜号>-frame.png` 找首帧（批次单还会找场景设定图），**先出图再 render**。报告含：KPI 带、分镜节奏带（粗分隔 = 段边界、片宽 = 分镜时长占比、颜色深浅 = 景别远近、点击跳段卡）、分集分镜表（主分镜图 + 子分镜条 + 逐切分镜行 + 分镜图/H3 提示词复制按钮）、生成批次单、配音对齐单、质量门、导出 JSON。Markdown 版每段附完整 H3 提示词，直接复制可用。
+不要另出 HTML。`directorx_bible pin kind:storyboard` 把质量门、时长和分镜表钉到画布。Markdown 每段附完整提示词，DSH 会话可以直接展示。
 
-汇报一句话说清：几集几镜、总时长 vs 目标、几个生成批次、出了几张首帧、报告路径；没过的门和没出的图明说。
+汇报一句话说清：几集几镜、总时长 vs 目标、几个生成批次、出了几张首帧；没过的门和没出的图明说。
 
 最终落地：
 
@@ -126,12 +123,12 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-storyboard.mjs render <剧名>-storyboard
 <输出目录>/
 ├── <剧名>-storyboard.json
 ├── <剧名>-storyboard.md
-├── storyboard-report.html         ← 双击就能开
+├── docs/storyboard-review.md
 ├── manifest.json                  ← export 生成
-└── E01-01/                        ← 一段一个文件夹 = 一次 H3 生成的全部材料
-    ├── f1.png                     ← 主分镜图（有影棚才有）
-    ├── f2.png …                   ← 子分镜图
-    └── prompt.md                  ← H3 提示词（export 生成）
+└── E01-01/                        ← 一段一个文件夹 = 一次生成的全部材料
+    ├── f1.png                     ← 主分镜图
+    ├── f2.png …
+    └── prompt.md
 ```
 
 ## 五个 skill 的接力（管线到此闭环）
@@ -144,7 +141,7 @@ novel-script     → script.json     （戏：场次、节拍、台词）
 novel-storyboard → storyboard.json （怎么拍：镜头、首帧、批次）
 ```
 
-分镜是消费端：seed 吃 script.json，分镜图出图吃 art 和 characters 的设定图当参考，H3 提示词直接下单给视频模型，配音对齐单接 script 台词本的 TTS 产物。五份 JSON 各自的报告都带导出按钮，改完都能喂回各自的 render/validate。
+分镜是消费端：seed 吃 script.json，只映射不发明。分镜图出图吃 art 和 characters 的设定图当参考。五份 JSON 用 `directorx_bible` 评审，改完再 validate。
 
 ## 边界
 

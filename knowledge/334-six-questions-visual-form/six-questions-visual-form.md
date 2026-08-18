@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影六问-视觉形式整合（Six Questions × Visual Form — Empathy & Engagement Framework）"
+description: "电影六问-视觉形式整合：景别/面孔可见性→具身移情、镜头时长/运动动态→参与、六问×形式特征联动（六问是目标，形式是工具）"
+tags:
+  - "synthesis"
+  - "camera"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Embodiment of the Cinematographer"
+    id: cite-1
+    title: "Embodiment of the Cinematographer"
+    author: "org:PMC"
+  - resource: "cited:PMC From Body to World"
+    id: cite-2
+    title: "From Body to World"
+    author: "org:PMC"
+  - resource: "cited:VU Shaping Film"
+    id: cite-3
+    title: "Shaping Film"
+    author: "org:VU"
+  - resource: "cited:UvT Effect of Motion Dynamics and POV"
+    id: cite-4
+    title: "Effect of Motion Dynamics and POV"
+    author: "org:UvT"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10352452/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10965617/"
+    id: url-2
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://research.vu.nl/ws/files/128052967/Shaping_film_A_quantitative_formal_analysis_of_contemporary_empathy_eliciting_Hollywood_cinema.pdf"
+    id: url-3
+    title: "research.vu.nl"
+  - resource: "https://arno.uvt.nl/show.cgi?fid=146343"
+    id: url-4
+    title: "arno.uvt.nl"
+  - resource: "http://arno.uvt.nl/show.cgi?fid=146438"
+    id: url-5
+    title: "arno.uvt.nl"
+dx_id: "334"
+related:
+  - "323-hybrid-immersion-experience/hybrid-immersion-experience.md"
+  - "327-audience-experience-design/audience-experience-design.md"
+  - "231-shot-size-emotion/shot-size-emotion.md"
+  - "226-character-concept-design/character-concept-design.md"
+  - "228-environment-concept-art/environment-concept-art.md"
+---
+
 # 电影六问-视觉形式整合（Six Questions × Visual Form — Empathy & Engagement Framework）
 
 > 本页为电影六问-视觉形式整合：景别/面孔可见性→具身移情、镜头时长/运动动态→参与、六问×形式特征联动（六问是目标，形式是工具）。知识本体来自 2026 移情研究（PMC/VU/UvT）。AI 应用面向 DirectorX：移情工程（衔接 323 六问、334 对应、327 视觉形式、231 景别）。
@@ -81,3 +137,11 @@
 - VU — Shaping Film: Quantitative Formal Analysis：https://research.vu.nl/ws/files/128052967/Shaping_film_A_quantitative_formal_analysis_of_contemporary_empathy_eliciting_Hollywood_cinema.pdf
 - UvT — The Effect of Motion Dynamics and POV Shots：https://arno.uvt.nl/show.cgi?fid=146343
 - UvT — Affecting Movie Viewers Through Formal Features：http://arno.uvt.nl/show.cgi?fid=146438
+
+## 相关概念
+
+- [电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）](../323-hybrid-immersion-experience/hybrid-immersion-experience.md)
+- [电影观众体验设计（Audience Experience Design — AxD Five-Stage & Engagement Framework）](../327-audience-experience-design/audience-experience-design.md)
+- [电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）](../231-shot-size-emotion/shot-size-emotion.md)
+- [AI 图片角色概念设计（Character Concept Design — Sheets, Turnarounds & Silhouette）](../226-character-concept-design/character-concept-design.md)
+- [AI 图片场景概念设计（Environment Concept Art — World Building & Key Art）](../228-environment-concept-art/environment-concept-art.md)

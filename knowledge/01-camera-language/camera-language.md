@@ -1,3 +1,68 @@
+---
+type: Reference
+title: "镜头语言与景别（Camera Language & Shot Size）"
+description: "镜头语言知识库：景别、角度、运动、构图、光学与轴线"
+tags:
+  - "foundation"
+  - "camera"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:维基百科 Shot (filmmaking)"
+    id: cite-1
+    title: "维基百科 Shot (filmmaking)"
+  - resource: "cited:Film Theory（filmtheory.net）"
+    id: cite-2
+    title: "Film Theory（filmtheory.net）"
+  - resource: "cited:Learn About Film"
+    id: cite-3
+    title: "Learn About Film"
+  - resource: "cited:行业通用教材知识（ The Five C's of Cinematography"
+    id: cite-4
+    title: "The Five C's of Cinematography"
+    author: "org:行业通用教材知识（"
+  - resource: "cited:公开要点）。"
+    id: cite-5
+    title: "公开要点）。"
+  - resource: "https://en.wikipedia.org/wiki/Shot_(filmmaking"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://filmtheory.net/cinematography/shots/"
+    id: url-2
+    title: "filmtheory.net"
+  - resource: "https://filmtheory.net/cinematography/camera-movement/"
+    id: url-3
+    title: "filmtheory.net"
+  - resource: "https://learnaboutfilm.com/film-language/picture/shotsize/"
+    id: url-4
+    title: "learnaboutfilm.com"
+  - resource: "https://www.studiobinder.com/blog/types-of-camera-shots-sizes-in-film/"
+    id: url-5
+    title: "studiobinder.com"
+dx_id: "01"
+aliases:
+  - "49"
+  - "81"
+  - "85"
+  - "168"
+  - "197"
+  - "241"
+  - "264"
+  - "345"
+  - "camera-movement-gen"
+  - "shot-types-gen"
+  - "composition-gen"
+related:
+  - "07-directing/directing-techniques.md"
+  - "10-camera-gear/camera-gear.md"
+  - "12-genre-music-performance/music-video-performance.md"
+---
+
 # 镜头语言与景别（Camera Language & Shot Size）
 
 > 本页是 DirectorX 镜头语言知识库：景别、角度、运动、构图、光学与轴线。每个概念含定义、功能、示例与 AI 生成应用。
@@ -594,3 +659,9 @@
 <!-- merged from: #241-camera-movement-theory -->
 <!-- merged from: #264-camera-language-images -->
 <!-- merged from: #345-camera-motion-semantics -->
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [摄影机与器材（Camera & Gear）](../10-camera-gear/camera-gear.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)

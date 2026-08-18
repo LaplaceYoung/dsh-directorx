@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）"
+description: "AI 动作场景手册（深化版）：以真实动作电影的行业技巧为知识本体（《神鬼认证》《捍卫任务》《不可能的任务》《疯狂麦斯》），**每个术语详解其具体内容**（画面里实际发生什么、包含哪些子元素、为什么行业这么做），并给出 **AI 如何理解与实现**（模型视角下的难点、可直接使用的提示词模板、生成后如何检查与修复）"
+tags:
+  - "production"
+  - "prompt"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:DC Film School 打斗三要素"
+    id: cite-1
+    title: "DC Film School 打斗三要素"
+  - resource: "cited:Cyclone Stunts 打斗拆解"
+    id: cite-2
+    title: "Cyclone Stunts 打斗拆解"
+  - resource: "cited:Film Independent 动作访谈"
+    id: cite-3
+    title: "Film Independent 动作访谈"
+  - resource: "cited:Runway/Seedance 官方提示词。"
+    id: cite-4
+    title: "Runway/Seedance 官方提示词。"
+  - resource: "https://dcfilmschool.com/電影打鬥場面怎麼拍？掌握三大要素：動作設計、/"
+    id: url-1
+    title: "dcfilmschool.com"
+  - resource: "https://cyclonestunts.com/2025/06/19/sample-blog-post/"
+    id: url-2
+    title: "cyclonestunts.com"
+  - resource: "https://www.filmindependent.org/blog/the-art-of-action-how-to-shoot-great-stunt-scenes-for-indie-filmmakers/"
+    id: url-3
+    title: "filmindependent.org"
+  - resource: "https://runway.com/resources/ai-video-prompting-guide"
+    id: url-4
+    title: "runway.com"
+  - resource: "https://studiolist.co/guides/ai-video-prompt-engineering-2026/"
+    id: url-5
+    title: "studiolist.co"
+  - resource: "https://oakgen.ai/blog/sora-2-vs-veo-3-vs-kling-3-vs-seedance-2-tested"
+    id: url-6
+    title: "oakgen.ai"
+dx_id: "97"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "41-ecommerce-assets/ecommerce-creative-factory.md"
+---
+
 # AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）
 
 > 本页是 DirectorX AI 动作场景手册（深化版）：以真实动作电影的行业技巧为知识本体（《神鬼认证》《捍卫任务》《不可能的任务》《疯狂麦斯》），**每个术语详解其具体内容**（画面里实际发生什么、包含哪些子元素、为什么行业这么做），并给出 **AI 如何理解与实现**（模型视角下的难点、可直接使用的提示词模板、生成后如何检查与修复）。面向 AI 生成制作。
@@ -191,3 +245,9 @@
 - StudioList: AI Video Prompt Engineering — 4 Formats — https://studiolist.co/guides/ai-video-prompt-engineering-2026/
 - Oakgen: 四模型动作/物理横评 — https://oakgen.ai/blog/sora-2-vs-veo-3-vs-kling-3-vs-seedance-2-tested
 - Seedance 2.0 提示词编写指南（火山引擎） — https://www.volcengine.com/article/40840
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [电商素材批量生成工厂（E-commerce Creative Factory）](../41-ecommerce-assets/ecommerce-creative-factory.md)

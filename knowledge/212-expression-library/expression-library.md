@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 角色表情库管理（Expression Library — Emotion Reference Collection & Consistency）"
+description: "AI 角色表情库管理：表情参考集（Facial Expression Repertoire）、多角色情绪数据库（FERg-DB）、强度变体命名规范、跨镜头表情一致性、表情库与情绪词汇联动"
+tags:
+  - "consistency"
+  - "camera"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Facial Expression Databases"
+    id: cite-1
+    title: "Facial Expression Databases"
+    author: "org:PMC"
+  - resource: "cited:PLOS UIBVFED: Virtual Facial Expression Dataset"
+    id: cite-2
+    title: "UIBVFED: Virtual Facial Expression Dataset"
+    author: "org:PLOS"
+  - resource: "cited:LibreFace Deep Facial Expression Analysis Toolkit"
+    id: cite-3
+    title: "Deep Facial Expression Analysis Toolkit"
+    author: "org:LibreFace"
+  - resource: "cited:USC Facial Expressions of Emotions for Virtual Characters"
+    id: cite-4
+    title: "Facial Expressions of Emotions for Virtual Characters"
+    author: "org:USC"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12209106/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0231266&type=printable"
+    id: url-2
+    title: "journals.plos.org"
+  - resource: "https://openaccess.thecvf.com/content/WACV2024/papers/Chang_LibreFace_An_Open-Source_Toolkit_for_Deep_Facial_Expression_Analysis_WACV_2024_paper.pdf"
+    id: url-3
+    title: "openaccess.thecvf.com"
+  - resource: "https://people.ict.usc.edu/~gratch/CSCI534/Readings/ACII-Handbook-VHexpression.pdf"
+    id: url-4
+    title: "people.ict.usc.edu"
+  - resource: "https://en.wikipedia.org/wiki/List_of_facial_expression_databases"
+    id: url-5
+    title: "en.wikipedia.org"
+dx_id: "212"
+related:
+  - "69-ai-performance-control/ai-performance-control.md"
+  - "175-micro-expression/micro-expression.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "137-digital-human/digital-human.md"
+  - "116-image-to-video-control/image-to-video-control.md"
+---
+
 # AI 角色表情库管理（Expression Library — Emotion Reference Collection & Consistency）
 
 > 本页为 AI 角色表情库管理：表情参考集（Facial Expression Repertoire）、多角色情绪数据库（FERg-DB）、强度变体命名规范、跨镜头表情一致性、表情库与情绪词汇联动。知识本体来自 2026 表情库研究（PMC/PLOS/LibreFace/虚拟角色手册）。AI 应用面向 DirectorX：表演一致性（衔接 69 表演、175 微表情、132→已并入 69、117 一致性、137 数字人）。
@@ -82,3 +140,11 @@
 - LibreFace — An Open-Source Toolkit for Deep Facial Expression Analysis (WACV 2024)：https://openaccess.thecvf.com/content/WACV2024/papers/Chang_LibreFace_An_Open-Source_Toolkit_for_Deep_Facial_Expression_Analysis_WACV_2024_paper.pdf
 - USC — Facial Expressions of Emotions for Virtual Characters：https://people.ict.usc.edu/~gratch/CSCI534/Readings/ACII-Handbook-VHexpression.pdf
 - Wikipedia — List of Facial Expression Databases：https://en.wikipedia.org/wiki/List_of_facial_expression_databases
+
+## 相关概念
+
+- [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
+- [AI 微表情细化（Micro-Expression — Gaze, Blink & Coordinated Facial Detail）](../175-micro-expression/micro-expression.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）](../116-image-to-video-control/image-to-video-control.md)

@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）"
+description: "AI 视频的透视与机位高度控制：机位高度心理学（平视=诚实对话/低角度=权力/高角度=脆弱）、焦段选择（24-85mm）、角度×景别×焦段的组合公式、AI 提示词结构"
+tags:
+  - "consistency"
+  - "camera"
+  - "prompt"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Runway Camera Angles in AI Image Generation"
+    id: cite-1
+    title: "Camera Angles in AI Image Generation"
+    author: "org:Runway"
+  - resource: "cited:Hedra Cinematic Camera Angles in AI Video"
+    id: cite-2
+    title: "Cinematic Camera Angles in AI Video"
+    author: "org:Hedra"
+  - resource: "cited:Naviya AI Camera Angle Prompts"
+    id: cite-3
+    title: "AI Camera Angle Prompts"
+    author: "org:Naviya"
+  - resource: "cited:LTX Camera Angles for AI Video"
+    id: cite-4
+    title: "Camera Angles for AI Video"
+    author: "org:LTX"
+  - resource: "https://runway.com/resources/ai-camera-angle-shot-type-tips"
+    id: url-1
+    title: "runway.com"
+  - resource: "https://www.hedra.com/blog/ai-video-camera-angles"
+    id: url-2
+    title: "hedra.com"
+  - resource: "https://www.naviya.chat/en/blog/ai-camera-angle-prompts"
+    id: url-3
+    title: "naviya.chat"
+  - resource: "https://www.vidu.com/blog/camera-angles-ai-video"
+    id: url-4
+    title: "vidu.com"
+  - resource: "https://ltx-23.app/blog/camera-anles-for-ai-video"
+    id: url-5
+    title: "ltx-23.app"
+dx_id: "178"
+related:
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "01-camera-language/camera-language.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "155-color-psychology/color-psychology.md"
+---
+
 # AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）
 
 > 本页为 AI 视频的透视与机位高度控制：机位高度心理学（平视=诚实对话/低角度=权力/高角度=脆弱）、焦段选择（24-85mm）、角度×景别×焦段的组合公式、AI 提示词结构。知识本体来自 2026 机位角度指南（Runway/Hedra/Vidu/Naviya/LTX）。AI 应用面向 DirectorX：镜头语言（衔接 124 镜头语言、168 运镜、176 景深）。与 124 分工：本页为机位高度/角度心理学/焦段，124 为景别与相机运动提示词库。
@@ -82,3 +139,10 @@ urban rooftop, dramatic sky"
 - Naviya — AI Camera Angle Prompts: Lens, Shot Size, and Perspective：https://www.naviya.chat/en/blog/ai-camera-angle-prompts
 - Vidu — AI Video Camera Angles: Shot Types & Prompts：https://www.vidu.com/blog/camera-angles-ai-video
 - LTX — Camera Angles for AI Video: 20+ Prompting Terms：https://ltx-23.app/blog/camera-anles-for-ai-video
+
+## 相关概念
+
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)

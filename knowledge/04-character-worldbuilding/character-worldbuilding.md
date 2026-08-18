@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "人物设定与世界观（Character & Worldbuilding）"
+description: "角色与世界观知识库：人物档案、Want vs Need、角色弧、原型、关系网、世界观三支柱、设定一致性、冰山理论与 AI 一致性模板"
+tags:
+  - "foundation"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Brandon Sanderson 2025 世界观讲座"
+    id: cite-1
+    title: "Brandon Sanderson 2025 世界观讲座"
+  - resource: "cited:ScreenCraft/No Film School/Final Draft 角色弧与 Want vs Need 指南"
+    id: cite-2
+    title: "ScreenCraft/No Film School/Final Draft 角色弧与 Want vs Need 指南"
+  - resource: "cited:行业教材要点（Lajos Egri The Art of Dramatic Writing"
+    id: cite-3
+    title: "The Art of Dramatic Writing"
+    author: "org:行业教材要点（Lajos-Egri"
+  - resource: "https://www.brandonsanderson.com/blogs/blog/worldbuilding-tools-lecture-2025"
+    id: url-1
+    title: "brandonsanderson.com"
+  - resource: "https://screencraft.org/blog/understanding-the-3-types-of-character-arcs/"
+    id: url-2
+    title: "screencraft.org"
+  - resource: "https://nofilmschool.com/character-want-vs-need"
+    id: url-3
+    title: "nofilmschool.com"
+  - resource: "https://www.finaldraft.com/blog/the-difference-between-what-your-character-wants-and-what-they-need"
+    id: url-4
+    title: "finaldraft.com"
+  - resource: "https://screencraft.org/blog/breaking-down-the-character-archetypes-of-the-heros-journey/"
+    id: url-5
+    title: "screencraft.org"
+  - resource: "https://nkjemisin.com/wp-content/uploads/2015/08/WDWebinar.pdf"
+    id: url-6
+    title: "nkjemisin.com"
+  - resource: "https://plotlens.ai/blog/worldbuilding-consistency/"
+    id: url-7
+    title: "plotlens.ai"
+dx_id: "04"
+related:
+  - "39-image-consistency/character-consistency.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+---
+
 # 人物设定与世界观（Character & Worldbuilding）
 
 > 本页是 DirectorX 角色与世界观知识库：人物档案、Want vs Need、角色弧、原型、关系网、世界观三支柱、设定一致性、冰山理论与 AI 一致性模板。
@@ -212,3 +267,9 @@
 - ScreenCraft: Character Archetypes of the Hero's Journey — https://screencraft.org/blog/breaking-down-the-character-archetypes-of-the-heros-journey/
 - N.K. Jemisin: Growing Your Iceberg — https://nkjemisin.com/wp-content/uploads/2015/08/WDWebinar.pdf
 - PlotLens: Worldbuilding Consistency — https://plotlens.ai/blog/worldbuilding-consistency/
+
+## 相关概念
+
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "动态分镜实操（Animatic 制作实战）"
+description: "动态分镜实操手册：Animatic 定义、与分镜/Previs 的区别、七步制作流程、分类型重点（动画/广告/真人电影）、常见错误与 AI 时代的动态分镜工作流"
+tags:
+  - "foundation"
+  - "storyboard"
+  - "workflow"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storyflow 2026 完整指南"
+    id: cite-1
+    title: "Storyflow 2026 完整指南"
+  - resource: "cited:Adobe"
+    id: cite-2
+    title: "Adobe"
+  - resource: "cited:School of Motion"
+    id: cite-3
+    title: "School of Motion"
+  - resource: "cited:AI 分镜工作流指南。"
+    id: cite-4
+    title: "AI 分镜工作流指南。"
+  - resource: "https://storyflow.so/blog/what-is-an-animatic-complete-guide"
+    id: url-1
+    title: "storyflow.so"
+  - resource: "https://www.adobe.com/uk/creativecloud/animation/discover/animatics.html"
+    id: url-2
+    title: "adobe.com"
+  - resource: "https://mythlabs.co.uk/insights/how-to-make-an-animatic"
+    id: url-3
+    title: "mythlabs.co.uk"
+  - resource: "https://www.moonb.io/blog/how-to-make-an-animatic"
+    id: url-4
+    title: "moonb.io"
+  - resource: "https://www.schoolofmotion.com/blog/making-giants-the-edit"
+    id: url-5
+    title: "schoolofmotion.com"
+  - resource: "https://aitoolsguidebook.com/zh/articles/ai-video-storyboard-workflow/"
+    id: url-6
+    title: "aitoolsguidebook.com"
+dx_id: "35"
+related:
+  - "07-directing/directing-techniques.md"
+  - "25-visualization-previz/visualization-previz.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+---
+
 # 动态分镜实操（Animatic 制作实战）
 
 > 本页是 DirectorX 动态分镜实操手册：Animatic 定义、与分镜/Previs 的区别、七步制作流程、分类型重点（动画/广告/真人电影）、常见错误与 AI 时代的动态分镜工作流。
@@ -102,3 +156,9 @@
 - School of Motion: Making Giants — The Edit — https://www.schoolofmotion.com/blog/making-giants-the-edit
 - AI 工具指南: AI 视频分镜工作流——先排镜头，重生次数砍一半 — https://aitoolsguidebook.com/zh/articles/ai-video-storyboard-workflow/
 - SegmentFault: 3 小时生成完整 AI 漫剧，工作室高效批量流程 — https://segmentfault.com/a/1190000048051713
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [分镜与叙事可视化（Storyboarding & Visualization）](../25-visualization-previz/visualization-previz.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)

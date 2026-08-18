@@ -1,3 +1,65 @@
+---
+type: Method
+title: "图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）"
+description: "图生视频（I2V）的深度控制技术：首帧/末帧控制（First/Last Frame）、运动控制面板（Motion Panel）、参考图锁定（Reference Lock）、图像强度（Image Strength）平衡"
+tags:
+  - "production"
+  - "i2v"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Dreamina Start and End Frame AI Video Generation 2026"
+    id: cite-1
+    title: "Start and End Frame AI Video Generation 2026"
+    author: "org:Dreamina"
+  - resource: "cited:Vidu AI Animation Generator From Image"
+    id: cite-2
+    title: "AI Animation Generator From Image"
+    author: "org:Vidu"
+  - resource: "cited:MagicHour How to Use Reference Images in I2V"
+    id: cite-3
+    title: "How to Use Reference Images in I2V"
+    author: "org:MagicHour"
+  - resource: "cited:Seedance 2 First & Last Frame Guide"
+    id: cite-4
+    title: "First & Last Frame Guide"
+    author: "org:Seedance-2"
+  - resource: "cited:EachLabs I2V Prompt Guide"
+    id: cite-5
+    title: "I2V Prompt Guide"
+    author: "org:EachLabs"
+  - resource: "https://kling.ai/blog/kling-3-subject-binding-character-consistency"
+    id: url-1
+    title: "kling.ai"
+  - resource: "https://www.kittl.com/blogs/ai-video-character-consistency-workflow/"
+    id: url-2
+    title: "kittl.com"
+  - resource: "https://www.vidu.com/ai-reference-to-video"
+    id: url-3
+    title: "vidu.com"
+  - resource: "https://hailuoai.video/pages/knowledge/model-consistency-ai-video-s2v-workflow"
+    id: url-4
+    title: "hailuoai.video"
+  - resource: "https://magichour.ai/blog/how-to-keep-characters-consistent-in-ai-video"
+    id: url-5
+    title: "magichour.ai"
+dx_id: "116"
+aliases:
+  - "183"
+related:
+  - "107-keyframe-animatic/keyframe-animatic.md"
+  - "113-mvp-case-playbook/mvp-case-playbook.md"
+  - "39-image-consistency/character-consistency.md"
+  - "108-moodboard-reference/moodboard-reference.md"
+  - "115-video-prompt-engineering/video-prompt-engineering.md"
+---
+
 # 图生视频深度控制（Image-to-Video Control — First/Last Frame, Motion & Subject Lock）
 
 > 本页为图生视频（I2V）的深度控制技术：首帧/末帧控制（First/Last Frame）、运动控制面板（Motion Panel）、参考图锁定（Reference Lock）、图像强度（Image Strength）平衡。知识本体来自 2026 I2V 工作流指南（CapCut Dreamina/Vidu/MagicHour/Seedance 指南）。AI 应用面向 DirectorX：生成门控的执行层——"只从图参考出发"的具体技术（衔接 107 关键帧、113 案例手册）。
@@ -182,3 +244,11 @@
 - MagicHour — How to Use Reference Images in Image-to-Video (2026)：https://magichour.ai/blog/how-to-use-reference-images-in-image-to-video
 - Seedance 2 — First & Last Frame: Control AI Video with Reference Images：https://seedance-2ai.org/blog/ai-video-first-last-frame-guide
 - EachLabs — Image to Video Prompt Guide：https://www.eachlabs.ai/blog/image-to-video-prompt-guide-best-practices-for-realistic-results
+
+## 相关概念
+
+- [关键帧与动画预演（Keyframes & Animatic — From Concept Art to Screen）](../107-keyframe-animatic/keyframe-animatic.md)
+- [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
+- [视频提示词工程总纲（Video Prompt Engineering — Structure, Timing & Control）](../115-video-prompt-engineering/video-prompt-engineering.md)

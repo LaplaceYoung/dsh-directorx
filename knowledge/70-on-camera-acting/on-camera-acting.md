@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "镜头前表演指导（Directing Performances On Camera）"
+description: "镜头前表演指导手册：Take 3 三步拍摄法、三步导演口诀（故事/表演/场面调度）、导演 EQ 与信任、视线匹配与视觉连续性、阻挡即权力、表演指导实战要点"
+tags:
+  - "production"
+  - "camera"
+  - "character"
+  - "continuity"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Peter D. Marshall 导演笔记（40+ 年从业）"
+    id: cite-1
+    title: "Peter D. Marshall 导演笔记（40+ 年从业）"
+  - resource: "cited:StudioBinder 视线匹配"
+    id: cite-2
+    title: "StudioBinder 视线匹配"
+  - resource: "cited:No Film School 阻挡指南"
+    id: cite-3
+    title: "No Film School 阻挡指南"
+  - resource: "cited:Previs Pro 对话双人镜头阻挡。"
+    id: cite-4
+    title: "Previs Pro 对话双人镜头阻挡。"
+  - resource: "https://filmdirectingcoach.substack.com/p/take-3-my-notes-on-directing-actors"
+    id: url-1
+    title: "filmdirectingcoach.substack.com"
+  - resource: "https://www.studiobinder.com/blog/what-is-an-eyeline-match/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://nofilmschool.com/camera-operators-eyeline-problem"
+    id: url-3
+    title: "nofilmschool.com"
+  - resource: "https://nofilmschool.com/film-blocking-guide"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://wiki.previspro.com/shots/blocking-a-dialogue-scene"
+    id: url-5
+    title: "wiki.previspro.com"
+  - resource: "https://peekatthis.com/movement-a-directors-guide-to-directing-physicality/"
+    id: url-6
+    title: "peekatthis.com"
+dx_id: "70"
+related:
+  - "86-storyboard-drawing/storyboard-drawing.md"
+  - "212-expression-library/expression-library.md"
+  - "244-acting-theory-deep/acting-theory-deep.md"
+---
+
 # 镜头前表演指导（Directing Performances On Camera）
 
 > 本页是 DirectorX 镜头前表演指导手册：Take 3 三步拍摄法、三步导演口诀（故事/表演/场面调度）、导演 EQ 与信任、视线匹配与视觉连续性、阻挡即权力、表演指导实战要点。与 18 表演体系 / 07 导演技巧 / 69 AI 表演控制衔接。
@@ -96,3 +150,9 @@
 - Previs Pro: How to Block a Dialogue 2-Shot — https://wiki.previspro.com/shots/blocking-a-dialogue-scene
 - Peekatthis: Directing Physicality — Block Actors Like a Pro (2026) — https://peekatthis.com/movement-a-directors-guide-to-directing-physicality/
 - Sequence: Directing Actors — Production Handbook — https://sequence.film/production-handbook/how-to-direct-actors
+
+## 相关概念
+
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)
+- [AI 角色表情库管理（Expression Library — Emotion Reference Collection & Consistency）](../212-expression-library/expression-library.md)
+- [电影表演理论深化（Acting Theory — Stanislavski, Method, Meisner & On-Camera Truth）](../244-acting-theory-deep/acting-theory-deep.md)

@@ -1,3 +1,51 @@
+---
+type: Case
+title: "商业案例与带货创作（Commerce Creative）"
+description: "商业创作知识库：直播话术三段式结构、千川信息流素材五段式模板、直播间节奏与互动设计、逼单/憋单技巧、合规红线"
+tags:
+  - "foundation"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:电商干货社区（直播话术三段式 / 千川素材五段式）"
+    id: cite-1
+    title: "电商干货社区（直播话术三段式 / 千川素材五段式）"
+  - resource: "cited:蝉妈妈运营圈"
+    id: cite-2
+    title: "蝉妈妈运营圈"
+  - resource: "cited:行业运营经验值。"
+    id: cite-3
+    title: "行业运营经验值。"
+  - resource: "https://www.hwds868.com/article/live-room-script-structure-retain-pitch-close.html"
+    id: url-1
+    title: "hwds868.com"
+  - resource: "https://www.hwds868.com/article/douyin-shop-qianchuan-video-script-five-section-template.html"
+    id: url-2
+    title: "hwds868.com"
+  - resource: "https://www.chanmama.com/yunyingquan/article/640.html"
+    id: url-3
+    title: "chanmama.com"
+  - resource: "https://www.hwds868.com/article/live-stream-bedan-8-tricks.html"
+    id: url-4
+    title: "hwds868.com"
+  - resource: "https://www.hwds868.com/article/live-anchor-closing-script-7-templates.html"
+    id: url-5
+    title: "hwds868.com"
+  - resource: "https://www.woshipm.com/copy/911245.html"
+    id: url-6
+    title: "woshipm.com"
+  - resource: "https://www.growthhk.cn/cgo/market/65409.html"
+    id: url-7
+    title: "growthhk.cn"
+dx_id: "29"
+---
+
 # 商业案例与带货创作（Commerce Creative）
 
 > 本页是 DirectorX 商业创作知识库：直播话术三段式结构、千川信息流素材五段式模板、直播间节奏与互动设计、逼单/憋单技巧、合规红线。每个概念含公式、话术模板、时长配比与检查清单。

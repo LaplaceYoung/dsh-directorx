@@ -1,3 +1,58 @@
+---
+type: Playbook
+title: "端到端生产工作流（End-to-End Production Workflow）"
+description: "端到端工作流手册：五阶段管线（开发/前期/拍摄/后期/分发）、传统 vs AI 对比、按视频类型的流程差异、八阶段逐镜头管线、迭代与版本控制、知识库工作流映射"
+tags:
+  - "production"
+  - "camera"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX 2026 视频制作流程"
+    id: cite-1
+    title: "LTX 2026 视频制作流程"
+  - resource: "cited:ImageKit 工作流拆解"
+    id: cite-2
+    title: "ImageKit 工作流拆解"
+  - resource: "cited:video-shotcraft pipeline"
+    id: cite-3
+    title: "video-shotcraft pipeline"
+  - resource: "cited:N23 影片制作流程。"
+    id: cite-4
+    title: "N23 影片制作流程。"
+  - resource: "https://ltx.io/blog/video-production-process-guide"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://imagekit.io/blog/video-production-workflow/"
+    id: url-2
+    title: "imagekit.io"
+  - resource: "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/master/references/pipeline.md"
+    id: url-3
+    title: "raw.githubusercontent.com"
+  - resource: "https://www.avid.com/resource-center/video-production-workflow"
+    id: url-4
+    title: "avid.com"
+  - resource: "https://n23-studio.com/blog/video-production-workflow"
+    id: url-5
+    title: "n23-studio.com"
+  - resource: "https://www.evercast.us/blog/video-production-workflow"
+    id: url-6
+    title: "evercast.us"
+dx_id: "96"
+related:
+  - "07-directing/directing-techniques.md"
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "42-article-to-video/article-to-video.md"
+---
+
 # 端到端生产工作流（End-to-End Production Workflow）
 
 > 本页是 DirectorX 端到端工作流手册：五阶段管线（开发/前期/拍摄/后期/分发）、传统 vs AI 对比、按视频类型的流程差异、八阶段逐镜头管线、迭代与版本控制、知识库工作流映射。整合本库 96 篇的总工作流手册。
@@ -122,3 +177,9 @@ AI 生成版：73 提示词 → 34 模型 → 40 分镜生成 → 62 自动化 �
 - Evercast: How the Pros Set Up a Streamlined Video Production Workflow — https://www.evercast.us/blog/video-production-workflow
 - QuickFrame: Video Production Process — Complete Guide for 2026 — https://quickframe.com/blog/video-production-process
 - Steven Video: AI Video Production Workflow 2026——从 Prompt 到专业拍摄的完整流程 — https://www.stevenvideo.com/blog/ai-video-production-workflow-2026-zh
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [图文转视频工作流（Article-to-Video Repurposing）](../42-article-to-video/article-to-video.md)

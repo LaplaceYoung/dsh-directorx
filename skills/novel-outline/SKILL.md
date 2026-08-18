@@ -2,7 +2,7 @@
 name: novel-outline
 description: |
   把一本小说改编成短剧大纲五件套：改编说明、人物表、爽点表、分集梗概、资产清单，
-  产出 outline.json + Markdown + 单页评审报告。13 道质量门全部脚本确定性检查
+  产出 outline.json + Markdown，用 directorx_bible 钉到画布评审。13 道质量门全部脚本确定性检查
   （角色分档上限、主场景上限随集数动态、爽点间隔≤3集、每集钩子悬念必填……），不靠模型自觉；
   支持体检模式：贴一份现成大纲进来，只跑质量门给诊断。零依赖 Node 脚本。
   触发场景：改编大纲、短剧大纲、拆大纲、小说转短剧、大纲体检、adaptation outline。
@@ -116,12 +116,11 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs validate <输出目录>/<书�
 ```bash
 cd <输出目录>
 node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs render <书名>-outline.json --md   > <书名>-outline.md
-node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs render <书名>-outline.json --html > outline-report.html
 ```
 
-report 里自带：KPI 带、关键决策（拍板三件事，大爆点列表和角色位统计自动算）、爽点时间轴（空档标在轴上，超阈值变红）、每集调度矩阵、场景概览卡、资产量折算、质量门（✓/✗ 烘进页面，未过弹病灶横幅）、导出 JSON 按钮（下载的就是 outline.json 原样）。
+不要另出 HTML。`directorx_bible` `{ action: "pin", kind: "outline" }` 把同一份评审钉到画布文本卡，DSH 会话里展示 Markdown。评审里要有：质量门、拍板三件事、爽点间隔、分集梗概。JSON 仍是事实源。
 
-汇报一句话说清：几集、几个角色几个场景、爽点分布、报告路径；被截断或有没过的门要明说。
+汇报一句话说清：几集、几个角色几个场景、爽点分布；被截断或有没过的门要明说。
 
 最终落地：
 
@@ -129,7 +128,7 @@ report 里自带：KPI 带、关键决策（拍板三件事，大爆点列表和
 <输出目录>/
 ├── <书名>-outline.json
 ├── <书名>-outline.md
-└── outline-report.html            ← 双击就能开
+└── docs/outline-review.md         ← bible pin 写出
 ```
 
 ## 体检模式
@@ -138,10 +137,9 @@ report 里自带：KPI 带、关键决策（拍板三件事，大爆点列表和
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs checkup <outline.json>   # 终端 ✓/✗
-node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs render <outline.json> --html > outline-report.html
 ```
 
-质量门面板就是诊断书。未过的门不阻止渲染——要的就是把病灶摆出来看。
+或 `directorx_bible checkup`。质量门就是诊断书。未过的门也要钉到画布上看病灶。
 
 ## 联动更新
 
@@ -151,7 +149,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/novel-outline.mjs render <outline.json> --html 
 
 - 单次上限 60 卷（每卷 15 章约 900 章）。超了明确报 `truncated`，不静默截断
 - 阈值是参数不是圣旨：平台不同就用 `params.thresholds` 覆盖，别改代码
-- 报告界面 v1 只有中文
+- 评审界面用 Markdown / 画布，不另出 HTML
 - 五件套的第五件（资产清单）永远是算出来的，模型手写必漏
 
 ## 知识库参考

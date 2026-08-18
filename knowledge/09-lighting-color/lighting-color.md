@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "灯光与色彩（Lighting & Color）"
+description: "灯光色彩知识库：布光体系、光质与色温、电影调色、色彩心理学、常见电影调色风格与 AI 生成应用"
+tags:
+  - "foundation"
+  - "lighting"
+  - "color"
+  - "style"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Three-point lighting"
+    id: cite-1
+    title: "Wikipedia Three-point lighting"
+  - resource: "cited:Noam Kroll 调色心理学"
+    id: cite-2
+    title: "Noam Kroll 调色心理学"
+  - resource: "cited:ARRI 灯光手册要点"
+    id: cite-3
+    title: "ARRI 灯光手册要点"
+  - resource: "cited:行业标准色彩理论。"
+    id: cite-4
+    title: "行业标准色彩理论。"
+  - resource: "https://en.wikipedia.org/wiki/Three-point_lighting"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://noamkroll.com/the-psychology-of-color-grading-its-emotional-impact-on-your-audience/"
+    id: url-2
+    title: "noamkroll.com"
+  - resource: "https://www.arri.com/resource/blob/83990/9d652bdf4480124850df62b824f2d47e/arri-lighting-handbook-chinese-data.pdf"
+    id: url-3
+    title: "arri.com"
+  - resource: "https://spectrum.rosco.com/the-basics-of-film-lighting"
+    id: url-4
+    title: "spectrum.rosco.com"
+  - resource: "https://www.studiobinder.com/blog/three-point-lighting-setup/"
+    id: url-5
+    title: "studiobinder.com"
+  - resource: "https://www.mauriziomercorella.com/color-grading-blog/color-grading-teal-and-orange-analysis-of-a-look"
+    id: url-6
+    title: "mauriziomercorella.com"
+dx_id: "09"
+related:
+  - "233-mise-en-scene/mise-en-scene.md"
+  - "36-color-luts/color-luts.md"
+  - "37-genre-horror-suspense/horror-suspense.md"
+---
+
 # 灯光与色彩（Lighting & Color）
 
 > 本页是 DirectorX 灯光色彩知识库：布光体系、光质与色温、电影调色、色彩心理学、常见电影调色风格与 AI 生成应用。每个概念含定义、参数、示例。
@@ -186,3 +240,9 @@
 - Rosco: The Basics of Film Lighting — https://spectrum.rosco.com/the-basics-of-film-lighting
 - StudioBinder: Three-Point Lighting Setup（索引） — https://www.studiobinder.com/blog/three-point-lighting-setup/
 - Maurizio Mercorella: Teal and Orange Analysis — https://www.mauriziomercorella.com/color-grading-blog/color-grading-teal-and-orange-analysis-of-a-look
+
+## 相关概念
+
+- [电影场面调度全要素（Mise-en-Scène — Setting, Costume, Lighting & Staging）](../233-mise-en-scene/mise-en-scene.md)
+- [调色风格与 LUT 制作（Color Grading & LUT Creation）](../36-color-luts/color-luts.md)
+- [恐怖/悬疑视觉语言（Horror & Suspense Visual Language）](../37-genre-horror-suspense/horror-suspense.md)

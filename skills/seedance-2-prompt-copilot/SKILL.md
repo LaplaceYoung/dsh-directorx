@@ -51,9 +51,7 @@ names to users.
 7. Include a Timeline or Action beats section for visible motion. Use timecodes
    when ordered beats, dialogue timing, transitions, music sync, or choreography
    matter.
-8. Use `references/prompt-patterns.md` only for multi-ref roles, ordered action
-   beats, sound timing, or a repair rewrite.
-9. Use `references/eval-cases.md` only when reviewing or testing this skill.
+8. Use `references/visual-elements.md` for camera, material, and beat wording.
 
 ## Output Contract
 

@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "直播与短视频联动（Live-Stream & Short-Video Synergy）"
+description: "直播短视频联动手册：短视频=免费流量入口的底层逻辑（资产 vs 消耗）、5 步引流 SOP（钩子/结构/话术/时机/数据）、5 大爆款模板、直播切片策略、TikTok 联动矩阵"
+tags:
+  - "foundation"
+  - "spec"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:电商干货社区 5 步引流 SOP"
+    id: cite-1
+    title: "电商干货社区 5 步引流 SOP"
+  - resource: "cited:TrueSight 抽帧切片"
+    id: cite-2
+    title: "TrueSight 抽帧切片"
+  - resource: "cited:连连 TikTok 联动"
+    id: cite-3
+    title: "连连 TikTok 联动"
+  - resource: "cited:ZonFlip TikTok Shop Live。"
+    id: cite-4
+    title: "ZonFlip TikTok Shop Live。"
+  - resource: "https://www.hwds868.com/article/video-to-live-traffic-bridge-5-steps.html"
+    id: url-1
+    title: "hwds868.com"
+  - resource: "https://tsight.io/articles/16554022"
+    id: url-2
+    title: "tsight.io"
+  - resource: "https://global.lianlianpay.com/article/MTU0NjIyLDU4Yg.html"
+    id: url-3
+    title: "global.lianlianpay.com"
+  - resource: "https://www.ziniao.com/blog/4337.html"
+    id: url-4
+    title: "ziniao.com"
+  - resource: "https://www.influencers-time.com/live-stream-to-clips-automated-vertical-reformatting-roi/"
+    id: url-5
+    title: "influencers-time.com"
+  - resource: "https://zonflip.com/the-anatomy-of-a-high-converting-tiktok-shop-live-offers-scripts-and-cadence-that-drive-real-gmv/"
+    id: url-6
+    title: "zonflip.com"
+dx_id: "59"
+related:
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "54-thumbnail-cover-system/thumbnail-cover-system.md"
+  - "56-data-driven-iteration/data-driven-iteration.md"
+---
+
 # 直播与短视频联动（Live-Stream & Short-Video Synergy）
 
 > 本页是 DirectorX 直播短视频联动手册：短视频=免费流量入口的底层逻辑（资产 vs 消耗）、5 步引流 SOP（钩子/结构/话术/时机/数据）、5 大爆款模板、直播切片策略、TikTok 联动矩阵。与 19 直播 / 56 素材迭代 / 29 话术衔接。
@@ -126,3 +178,9 @@ Stage 4（45-60s）召唤：明确 CTA（"点击头像进直播间"）
 - Influencers Time: Live Stream to Clips — Maximize ROI with Auto Reformatting — https://www.influencers-time.com/live-stream-to-clips-automated-vertical-reformatting-roi/
 - ZonFlip: The Anatomy of a High-Converting TikTok Shop Live — https://zonflip.com/the-anatomy-of-a-high-converting-tiktok-shop-live-offers-scripts-and-cadence-that-drive-real-gmv/
 - 明星关系图: 抖音矩阵账号如何联动运营？直播导流与短视频互动协同打法 — https://mxgxt.com/news/view/2034006
+
+## 相关概念
+
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [AI 缩略图与封面视觉系统（Thumbnail & Cover Visual System）](../54-thumbnail-cover-system/thumbnail-cover-system.md)
+- [素材数据驱动迭代（Data-Driven Creative Iteration）](../56-data-driven-iteration/data-driven-iteration.md)

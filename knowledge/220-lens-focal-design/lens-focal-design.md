@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影镜头与焦段设计（Lens & Focal Design — Perspective Compression & Anamorphic Character）"
+description: "电影镜头与焦段设计：焦段透视压缩、变形宽银幕镜头（Anamorphic：2x 挤压/椭圆散景/水平光晕）、镜头\"性格\"（不同镜头的气质）、镜头语言选择"
+tags:
+  - "consistency"
+  - "camera"
+  - "character"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:BlockReel Anamorphic Filmmaking Guide"
+    id: cite-1
+    title: "Anamorphic Filmmaking Guide"
+    author: "org:BlockReel"
+  - resource: "cited:StudioBinder What Is an Anamorphic Lens"
+    id: cite-2
+    title: "What Is an Anamorphic Lens"
+    author: "org:StudioBinder"
+  - resource: "cited:Zeiss Horizon Anamorphic"
+    id: cite-3
+    title: "Horizon Anamorphic"
+    author: "org:Zeiss"
+  - resource: "cited:Wikipedia Anamorphic Format"
+    id: cite-4
+    title: "Anamorphic Format"
+    author: "org:Wikipedia"
+  - resource: "https://blockreeldao.com/blog/anamorphic-filmmaking-the-definitive-guide-for-serious-filmmakers"
+    id: url-1
+    title: "blockreeldao.com"
+  - resource: "https://www.studiobinder.com/blog/what-is-an-anamorphic-lens-definition/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://www.zeiss.com/photonics-and-optics/en/home/content/newsroom/news-overview/2026/horizon-anamorphic.html"
+    id: url-3
+    title: "zeiss.com"
+  - resource: "https://en.wikipedia.org/wiki/Anamorphic_format"
+    id: url-4
+    title: "en.wikipedia.org"
+  - resource: "https://www.toolsforfilm.com/glossary/lens"
+    id: url-5
+    title: "toolsforfilm.com"
+dx_id: "220"
+related:
+  - "178-perspective-camera-height/perspective-camera-height.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "215-photo-camera-parameters/photo-camera-parameters.md"
+---
+
 # 电影镜头与焦段设计（Lens & Focal Design — Perspective Compression & Anamorphic Character）
 
 > 本页为电影镜头与焦段设计：焦段透视压缩、变形宽银幕镜头（Anamorphic：2x 挤压/椭圆散景/水平光晕）、镜头"性格"（不同镜头的气质）、镜头语言选择。知识本体来自 2026 镜头指南（BlockReel/StudioBinder/Zeiss/Wikipedia）。AI 应用面向 DirectorX：镜头选型（衔接 178 焦段、176 景深、215 参数、220 对应）。
@@ -84,3 +140,9 @@
 - Zeiss — Horizon Anamorphic: Full-Frame 2x Cinema Lenses：https://www.zeiss.com/photonics-and-optics/en/home/content/newsroom/news-overview/2026/horizon-anamorphic.html
 - Wikipedia — Anamorphic Format：https://en.wikipedia.org/wiki/Anamorphic_format
 - ToolsForFilm — Lens Glossary：https://www.toolsforfilm.com/glossary/lens
+
+## 相关概念
+
+- [AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）](../178-perspective-camera-height/perspective-camera-height.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)

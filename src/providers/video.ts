@@ -8,6 +8,8 @@ import { klingV3Video } from './kling-v3.ts'
 import { viduVideo } from './vidu.ts'
 import { veoVideo } from './veo.ts'
 import { genericAsVideo } from './generic-rest.ts'
+import { ensureAspectFrame, parseAspectRatio } from './frame-fit.ts'
+import { clampH3Duration, clipH3Prompt, h3Resolution, h3SkipReferences, isH3Model, limitH3Refs } from './h3-contract.ts'
 import type { MediaFile, ProviderContext, VideoResult } from './types.ts'
 
 interface VideoCreateEnvelope {
@@ -118,20 +120,38 @@ export async function modelverseVideo(
 ): Promise<VideoResult> {
   const baseURL = ctx.capability.baseURL.replace(/\/+$/, '')
   const apiKey = apiKeyOf(ctx.capability.apiKey, ['DIRECTORX_VIDEO_API_KEY', 'OPENAI_API_KEY'], baseURL)
-  const duration = Math.min(15, Math.max(4, Math.round(options.seconds ?? 5)))
-  const content: Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string }; role?: string }> = [{ type: 'text', text: prompt }]
-  const hasFrameLocks = options.firstFramePath !== undefined || options.lastFramePath !== undefined
-  if (options.firstFramePath !== undefined) {
-    content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(options.firstFramePath) }, role: 'first_frame' })
+  const h3 = isH3Model(ctx.capability.model, ctx.capability.mode)
+  const duration = h3 ? clampH3Duration(options.seconds) : Math.min(15, Math.max(4, Math.round(options.seconds ?? 5)))
+  const promptText = h3 ? clipH3Prompt(prompt).prompt : prompt
+  const content: Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string }; role?: string }> = [{ type: 'text', text: promptText }]
+  const aspect = parseAspectRatio(options.aspectRatio)
+  const firstFramePath = options.firstFramePath !== undefined
+    ? ensureAspectFrame(options.firstFramePath, ctx.settings.outputDir, aspect.w, aspect.h)
+    : undefined
+  const lastFramePath = options.lastFramePath !== undefined
+    ? ensureAspectFrame(options.lastFramePath, ctx.settings.outputDir, aspect.w, aspect.h)
+    : undefined
+  const hasFrameLocks = firstFramePath !== undefined || lastFramePath !== undefined
+  if (firstFramePath !== undefined) {
+    content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(firstFramePath) }, role: 'first_frame' })
   }
-  if (options.lastFramePath !== undefined) {
-    content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(options.lastFramePath) }, role: 'last_frame' })
+  if (lastFramePath !== undefined) {
+    content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(lastFramePath) }, role: 'last_frame' })
   }
-  for (const source of options.referenceImagePaths ?? []) {
-    content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(source) }, role: 'reference' })
+  // Official handbook: first/last entrance cannot mix with all-reference.
+  const skipRefs = h3SkipReferences(firstFramePath, lastFramePath)
+  if (!skipRefs) {
+    for (const source of limitH3Refs(options.referenceImagePaths ?? [])) {
+      content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(source) }, role: 'reference' })
+    }
   }
   const ratio = hasFrameLocks ? 'adaptive' : options.aspectRatio ?? '16:9'
-  const parameters: Record<string, unknown> = { duration, ratio, resolution: options.resolution ?? '2K', aigc_watermark: false }
+  const parameters: Record<string, unknown> = {
+    duration,
+    ratio,
+    resolution: h3 ? h3Resolution(options.resolution) : (options.resolution ?? '2K'),
+    aigc_watermark: false,
+  }
   const taskId = await submitModelverseTask(baseURL, apiKey, ctx.capability.model, content, parameters, ctx.signal)
   await ctx.ledger?.append({
     taskId,

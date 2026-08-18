@@ -1,3 +1,70 @@
+---
+type: Reference
+title: "AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）"
+description: "AI 声音设计的完整体系：文本转音效（Text-to-SFX）、拟音（Foley）、环境音（Ambience）、配乐生成，以及时间线感知放置与分轨导出"
+tags:
+  - "production"
+  - "sound"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Noiz AI Sound Effect Design 2026"
+    id: cite-1
+    title: "AI Sound Effect Design 2026"
+    author: "org:Noiz"
+  - resource: "cited:SFX Lab Auto Sound Design"
+    id: cite-2
+    title: "Auto Sound Design"
+    author: "org:SFX-Lab"
+  - resource: "cited:Adobe Firefly Sound Effect Generator"
+    id: cite-3
+    title: "Firefly Sound Effect Generator"
+    author: "org:Adobe"
+  - resource: "cited:Vidu AI Sound Effect Generator"
+    id: cite-4
+    title: "AI Sound Effect Generator"
+    author: "org:Vidu"
+  - resource: "cited:AimagicX AI Sound Effects Generation Guide 2026"
+    id: cite-5
+    title: "AI Sound Effects Generation Guide 2026"
+    author: "org:AimagicX"
+  - resource: "https://noiz.ai/use-cases/en/sound-effect-design"
+    id: url-1
+    title: "noiz.ai"
+  - resource: "https://www.sfxlab.studio/auto-sound-design"
+    id: url-2
+    title: "sfxlab.studio"
+  - resource: "https://www.adobe.com/products/firefly/features/sound-effect-generator.html"
+    id: url-3
+    title: "adobe.com"
+  - resource: "https://www.vidu.com/ai-sound-effect-generator"
+    id: url-4
+    title: "vidu.com"
+  - resource: "https://www.aimagicx.com/blog/ai-sound-effects-generation-foley-guide-2026"
+    id: url-5
+    title: "aimagicx.com"
+dx_id: "144"
+aliases:
+  - "182"
+  - "229"
+  - "251"
+  - "295"
+  - "302"
+  - "313"
+  - "347"
+  - "sound-prompts-gen"
+related:
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "128-vfx-effects-types/vfx-effects-types.md"
+  - "112-delivery-specs/delivery-specs.md"
+---
+
 # AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）
 
 > 本页为 AI 声音设计的完整体系：文本转音效（Text-to-SFX）、拟音（Foley）、环境音（Ambience）、配乐生成，以及时间线感知放置与分轨导出。知识本体来自 2026 声音设计指南（Noiz/SFX Lab/Adobe Firefly/Vidu/AimagicX）。AI 应用面向 DirectorX：成片声音层（衔接 119 音画同步、128 特效画面、112 交付响度）。
@@ -251,3 +318,9 @@ HarmonySet 数据集（CVPR 2025）研究视频-音乐语义对齐：画面情�
 - ReelMind — The Future of Film Scoring: AI Soundtracks That Match Visual Emotion：https://reelmind.ai/blog/the-future-of-film-scoring-ai-generated-soundtracks-that-match-visual-emotion
 - CSUN — Film Art: Sound：http://www.csun.edu/~med61203/Film%20Art%20Sound.pdf
 - Beverlyboy — Pacing vs. Rhythm in Film：https://beverlyboy.com/film-technology/pacing-vs-rhythm-in-film-why-timing-is-everything/
+
+## 相关概念
+
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [AI 特效类型生成深化（VFX Types — Weather, Particles, Magic & Destruction Prompts）](../128-vfx-effects-types/vfx-effects-types.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)

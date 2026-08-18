@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "导演技巧（Directing Techniques）"
+description: "导演知识库：分镜设计、调度走位、覆盖策略、指导表演、镜头设计思维与现场流程"
+tags:
+  - "foundation"
+  - "camera"
+  - "storyboard"
+  - "character"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Judith Weston Directing Actors"
+    id: cite-1
+    title: "Directing Actors"
+    author: "org:Judith-Weston"
+  - resource: "cited:十大要点"
+    id: cite-2
+    title: "十大要点"
+  - resource: "cited:StudioBinder 覆盖/调度指南（索引）"
+    id: cite-3
+    title: "StudioBinder 覆盖/调度指南（索引）"
+  - resource: "cited:MasterClass（Ron Howard 指导表演）"
+    id: cite-4
+    title: "MasterClass（Ron Howard 指导表演）"
+  - resource: "cited:行业标准镜头表规范。"
+    id: cite-5
+    title: "行业标准镜头表规范。"
+  - resource: "https://judithweston.com/web/archive/top-10-ideas-directing-actors"
+    id: url-1
+    title: "judithweston.com"
+  - resource: "https://www.studiobinder.com/blog/film-coverage/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://www.studiobinder.com/blog/blocking-and-staging-scenes/"
+    id: url-3
+    title: "studiobinder.com"
+  - resource: "https://www.studiobinder.com/blog/shot-list-template-free-download/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://nofilmschool.com/blocking-a-conversation"
+    id: url-5
+    title: "nofilmschool.com"
+dx_id: "07"
+related:
+  - "40-storyboard-generation/storyboard-generation.md"
+  - "48-ai-drama-studio/ai-drama-studio.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+---
+
 # 导演技巧（Directing Techniques）
 
 > 本页是 DirectorX 导演知识库：分镜设计、调度走位、覆盖策略、指导表演、镜头设计思维与现场流程。每个概念含定义、模板、示例与 AI 生成应用。
@@ -185,3 +241,9 @@
 - No Film School: The Subtle Art of Blocking a Conversation — https://nofilmschool.com/blocking-a-conversation
 - No Film School: How to Avoid Giving Actors Line Readings — https://nofilmschool.com/2019/02/how-direct-actors-actions
 - MasterClass: Ron Howard Teaches Directing（Frost/Nixon 覆盖调度章节） — https://www.masterclass.com/classes/ron-howard-teaches-directing/
+
+## 相关概念
+
+- [分镜图生成工作流（Storyboard-to-Video Pipeline）](../40-storyboard-generation/storyboard-generation.md)
+- [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)

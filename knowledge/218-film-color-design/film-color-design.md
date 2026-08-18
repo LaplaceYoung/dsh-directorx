@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影色彩设计（Film Color Design — Master Palette & Cross-Department Cohesion）"
+description: "电影色彩设计深化：主色板（Master Palette：1-3 锚色）、服装/场景/摄影跨部门统一、暖冷对比（青橙）、情绪板驱动、色板叙事"
+tags:
+  - "consistency"
+  - "color"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:CINED 5 Common Film Color Schemes"
+    id: cite-1
+    title: "5 Common Film Color Schemes"
+    author: "org:CINED"
+  - resource: "cited:FilmmakerGenius Production Design Color Palette"
+    id: cite-2
+    title: "Production Design Color Palette"
+    author: "org:FilmmakerGenius"
+  - resource: "cited:NoFilmSchool Decisive Film Color Palette"
+    id: cite-3
+    title: "Decisive Film Color Palette"
+    author: "org:NoFilmSchool"
+  - resource: "cited:StudioBinder How to Use Color in Film"
+    id: cite-4
+    title: "How to Use Color in Film"
+    author: "org:StudioBinder"
+  - resource: "https://www.cined.com/film-color-schemes-cinematic-color-design/"
+    id: url-1
+    title: "cined.com"
+  - resource: "https://filmmakergenius.com/academy/production-design-on-a-budget/production-design-color-palette"
+    id: url-2
+    title: "filmmakergenius.com"
+  - resource: "https://nofilmschool.com/film-color-palette"
+    id: url-3
+    title: "nofilmschool.com"
+  - resource: "https://www.studiobinder.com/blog/how-to-use-color-in-film-50-examples-of-movie-color-palettes/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.media.io/color-palette/cinematic-color-palette.html"
+    id: url-5
+    title: "media.io"
+dx_id: "218"
+related:
+  - "155-color-psychology/color-psychology.md"
+  - "141-color-grading/color-grading.md"
+  - "195-brand-visual-asset/brand-visual-asset.md"
+  - "192-negative-space/negative-space.md"
+---
+
 # 电影色彩设计（Film Color Design — Master Palette & Cross-Department Cohesion）
 
 > 本页为电影色彩设计深化：主色板（Master Palette：1-3 锚色）、服装/场景/摄影跨部门统一、暖冷对比（青橙）、情绪板驱动、色板叙事。知识本体来自 2026 色彩设计指南（CINED/NoFilmSchool/StudioBinder/FilmmakerGenius）。AI 应用面向 DirectorX：色彩统一（衔接 155 色彩心理、141 调色、195 品牌、218 对应）。
@@ -86,3 +142,10 @@
 - NoFilmSchool — How a Decisive Film Color Palette Can Make You a Better Storyteller：https://nofilmschool.com/film-color-palette
 - StudioBinder — How to Use Color in Film: 50+ Examples：https://www.studiobinder.com/blog/how-to-use-color-in-film-50-examples-of-movie-color-palettes/
 - Media.io — Cinematic Color Palette Ideas (21 Picks)：https://www.media.io/color-palette/cinematic-color-palette.html
+
+## 相关概念
+
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）](../141-color-grading/color-grading.md)
+- [AI 视频品牌视觉资产体系（Brand Visual Asset — Brand Kit as Machine-Readable Tokens）](../195-brand-visual-asset/brand-visual-asset.md)
+- [AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）](../192-negative-space/negative-space.md)

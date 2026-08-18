@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）"
+description: "AI 实拍光线匹配：从实拍素材提取光信息（方向/色温/亮度）、HDRI 生成与重打光（Relighting）、NeRF/光场估计、扩散条件化光照、时空光照一致性"
+tags:
+  - "consistency"
+  - "lighting"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Lighting in Motion (LiMo)"
+    id: cite-1
+    title: "Lighting in Motion (LiMo)"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Video Generation Models Are Inherent Lighting Estimators"
+    id: cite-2
+    title: "Video Generation Models Are Inherent Lighting Estimators"
+    author: "org:arXiv"
+  - resource: "cited:EverLight Indoor-Outdoor HDR Lighting Estimation"
+    id: cite-3
+    title: "Indoor-Outdoor HDR Lighting Estimation"
+    author: "org:EverLight"
+  - resource: "cited:ReelMind Extract HDRI from Ordinary Footage"
+    id: cite-4
+    title: "Extract HDRI from Ordinary Footage"
+    author: "org:ReelMind"
+  - resource: "https://arxiv.org/html/2512.13597v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2607.04674"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://openaccess.thecvf.com/content/ICCV2023/papers/Dastjerdi_EverLight_Indoor-Outdoor_Editable_HDR_Lighting_Estimation_ICCV_2023_paper.pdf"
+    id: url-3
+    title: "openaccess.thecvf.com"
+  - resource: "https://reelmind.ai/blog/ai-generated-video-light-analysis-extract-hdri-from-ordinary-footage"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://reelmind.ai/blog/ai-powered-video-light-direction-analysis-consistency-tools"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "170"
+related:
+  - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "165-environment-generation/environment-generation.md"
+  - "141-color-grading/color-grading.md"
+---
+
 # AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）
 
 > 本页为 AI 实拍光线匹配：从实拍素材提取光信息（方向/色温/亮度）、HDRI 生成与重打光（Relighting）、NeRF/光场估计、扩散条件化光照、时空光照一致性。知识本体来自 2026 光照估计研究（EverLight/LiMo/ReelMind/arXiv）。AI 应用面向 DirectorX：混合制作（衔接 57 混合制作、125 光线、165 环境）。
@@ -85,3 +141,10 @@
 - EverLight — Indoor-Outdoor Editable HDR Lighting Estimation (ICCV 2023)：https://openaccess.thecvf.com/content/ICCV2023/papers/Dastjerdi_EverLight_Indoor-Outdoor_Editable_HDR_Lighting_Estimation_ICCV_2023_paper.pdf
 - ReelMind — Extract HDRI from Ordinary Footage：https://reelmind.ai/blog/ai-generated-video-light-analysis-extract-hdri-from-ordinary-footage
 - ReelMind — AI-Powered Video Light Direction Analysis：https://reelmind.ai/blog/ai-powered-video-light-direction-analysis-consistency-tools
+
+## 相关概念
+
+- [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [AI 视频场景与环境生成（Environment Generation — Virtual Sets & Location Coherence）](../165-environment-generation/environment-generation.md)
+- [AI 视频色彩分级与调色（Color Grading — AI LUT, Cinematic Look & Post Pipeline）](../141-color-grading/color-grading.md)

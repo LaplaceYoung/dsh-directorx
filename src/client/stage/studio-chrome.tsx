@@ -65,6 +65,7 @@ export function StudioShell(props: {
         </div>
         <span style={{ fontSize: 11, color: dx.dim }}>{props.meta}</span>
         <span style={{ flex: 1 }} />
+        <span style={{ fontSize: 11, color: dx.dim, letterSpacing: 0.2 }}>Esc 返回 · ⌘S 保存</span>
         <button className="dx-hit dx-cta" style={studioPrimary} disabled={props.saveDisabled === true} onClick={props.onSave}>
           {props.saveLabel}
         </button>

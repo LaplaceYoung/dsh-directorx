@@ -1,3 +1,59 @@
+---
+type: Method
+title: "AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）"
+description: "AI 视频的负空间与留白设计：负空间（主体周围空域）的情绪/强调作用、三分法+引导空间（Lead Room）、宽幅与简化背景、AI 提示词控制留白"
+tags:
+  - "consistency"
+  - "prompt"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Adobe Negative Space Photography"
+    id: cite-1
+    title: "Negative Space Photography"
+    author: "org:Adobe"
+  - resource: "cited:Videomaker Negative Space in Your Shots"
+    id: cite-2
+    title: "Negative Space in Your Shots"
+    author: "org:Videomaker"
+  - resource: "cited:Filmmakers Academy Negative Space: Film Composition"
+    id: cite-3
+    title: "Negative Space: Film Composition"
+    author: "org:Filmmakers-Academy"
+  - resource: "cited:LTX Negative Space Definition"
+    id: cite-4
+    title: "Negative Space Definition"
+    author: "org:LTX"
+  - resource: "https://www.adobe.com/creativecloud/photography/type/negative-space-photography.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://www.videomaker.com/article/c10/15681-how-to-effectively-use-in-negative-space-in-your-shots/"
+    id: url-2
+    title: "videomaker.com"
+  - resource: "https://www.filmmakersacademy.com/blog-negative-space-film/"
+    id: url-3
+    title: "filmmakersacademy.com"
+  - resource: "https://ltx.io/glossary/negative-space"
+    id: url-4
+    title: "ltx.io"
+  - resource: "https://ixdf.org/literature/topics/negative-space"
+    id: url-5
+    title: "ixdf.org"
+dx_id: "192"
+related:
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+  - "187-blocking-staging/blocking-staging.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+---
+
 # AI 提示词负空间与留白（Negative Space — Breathing Room & Minimalist Emphasis）
 
 > 本页为 AI 视频的负空间与留白设计：负空间（主体周围空域）的情绪/强调作用、三分法+引导空间（Lead Room）、宽幅与简化背景、AI 提示词控制留白。知识本体来自 2026 构图指南（Adobe/Videomaker/Filmmakers Academy/LTX）。AI 应用面向 DirectorX：构图设计（衔接 124 镜头语言、176 景深、158 留白释放、187 孤立构图）。
@@ -80,3 +136,11 @@ negative space composition"（孤立）
 - Filmmakers Academy — Negative Space: Film Composition Guide：https://www.filmmakersacademy.com/blog-negative-space-film/
 - LTX — What Is Negative Space? Definition & Examples：https://ltx.io/glossary/negative-space
 - IxDF — Negative Space (2026 Update)：https://ixdf.org/literature/topics/negative-space
+
+## 相关概念
+
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)

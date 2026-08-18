@@ -1,3 +1,53 @@
+---
+type: Playbook
+title: "类型片拍摄清单（Genre Shooting Checklists）"
+description: "类型片视觉惯例手册：六大类型片实拍前检查清单（西部/歌舞/战争/黑帮/恐怖/公路/青春）、\"满足感+意外\"公式、类型片视觉惯例的运用纪律"
+tags:
+  - "production"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:影视工业网类型片拍摄指南（华彩尚映）"
+    id: cite-1
+    title: "影视工业网类型片拍摄指南（华彩尚映）"
+  - resource: "cited:维基类型电影"
+    id: cite-2
+    title: "维基类型电影"
+  - resource: "cited:知乎类型片标准。"
+    id: cite-3
+    title: "知乎类型片标准。"
+  - resource: "https://cinehello.com/stream/92585/"
+    id: url-1
+    title: "cinehello.com"
+  - resource: "https://www.zhihu.com/question/20148102/answer/766900880"
+    id: url-2
+    title: "zhihu.com"
+  - resource: "https://zh.wikipedia.org/zh-hans/电影类型"
+    id: url-3
+    title: "zh.wikipedia.org"
+  - resource: "https://www.studiobinder.com/blog/movie-genres-list/"
+    id: url-4
+    title: "studiobinder.com"
+  - resource: "https://www.foximusic.com/the-12-basic-film-genres-and-their-sub-genres/"
+    id: url-5
+    title: "foximusic.com"
+  - resource: "https://www.premiumbeat.com/blog/guide-to-basic-film-genres/"
+    id: url-6
+    title: "premiumbeat.com"
+  - resource: "https://www.sohu.com/a/329140214_100056703"
+    id: url-7
+    title: "sohu.com"
+dx_id: "87"
+related:
+  - "28-cinema-styles/cinema-styles.md"
+  - "65-ai-camera-control-benchmark/ai-camera-control-benchmark.md"
+---
+
 # 类型片拍摄清单（Genre Shooting Checklists）
 
 > 本页是 DirectorX 类型片视觉惯例手册：六大类型片实拍前检查清单（西部/歌舞/战争/黑帮/恐怖/公路/青春）、"满足感+意外"公式、类型片视觉惯例的运用纪律。与 28 风格流派 / 37 恐怖 / 11 广告 / 12 MV 衔接。
@@ -115,3 +165,8 @@
 - PremiumBeat: The Sci-Fi Film Genre — https://www.premiumbeat.com/blog/guide-to-basic-film-genres/
 - 搜狐: 干货——拍好类型片，你需要这份拍摄指南！ — https://www.sohu.com/a/329140214_100056703
 - 网易: 深度——看类型片拍摄指南！ — https://www.163.com/dy/article/DD0VBNEV0517HFBK.html
+
+## 相关概念
+
+- [摄影风格流派（Cinema Styles & Visual Language）](../28-cinema-styles/cinema-styles.md)
+- [AI 运镜控制精度实测（Camera Control Precision Field Test）](../65-ai-camera-control-benchmark/ai-camera-control-benchmark.md)

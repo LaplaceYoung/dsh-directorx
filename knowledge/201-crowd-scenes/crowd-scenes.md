@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 群体场景生成（Crowd Scenes — Density Control & No Duplicate Faces）"
+description: "AI 群体场景生成：密度控制（Density Modifiers）、群体行为（Collective Behavior）、广角/高角展现涌现模式、重复面孔规避（IC-LoRA/多样角色生成）、程序化生成防重复群众演员"
+tags:
+  - "consistency"
+  - "character"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX AI Crowd Generation: Prompting Techniques"
+    id: cite-1
+    title: "AI Crowd Generation: Prompting Techniques"
+    author: "org:LTX"
+  - resource: "cited:arXiv Gen-C: Populating Virtual Worlds with Generative Crowds"
+    id: cite-2
+    title: "Gen-C: Populating Virtual Worlds with Generative Crowds"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Evaluating Video Models as Multi-Person Simulators"
+    id: cite-3
+    title: "Evaluating Video Models as Multi-Person Simulators"
+    author: "org:arXiv"
+  - resource: "cited:ReelMind AI-Generated Crowd Scenes"
+    id: cite-4
+    title: "AI-Generated Crowd Scenes"
+    author: "org:ReelMind"
+  - resource: "https://ltx.io/blog/crowd-scene-generation"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://arxiv.org/html/2504.01924v3"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2510.20182v1"
+    id: url-3
+    title: "arxiv.org"
+  - resource: "https://reelmind.ai/blog/ai-generated-crowd-scenes-fill-your-shots-with-realistic-extras"
+    id: url-4
+    title: "reelmind.ai"
+  - resource: "https://morphic.com/resources/videos/crowd-simulation-videos"
+    id: url-5
+    title: "morphic.com"
+dx_id: "201"
+related:
+  - "186-multi-camera-same-scene/multi-camera-same-scene.md"
+  - "187-blocking-staging/blocking-staging.md"
+  - "128-vfx-effects-types/vfx-effects-types.md"
+  - "200-time-of-day-continuity/time-of-day-continuity.md"
+---
+
 # AI 群体场景生成（Crowd Scenes — Density Control & No Duplicate Faces）
 
 > 本页为 AI 群体场景生成：密度控制（Density Modifiers）、群体行为（Collective Behavior）、广角/高角展现涌现模式、重复面孔规避（IC-LoRA/多样角色生成）、程序化生成防重复群众演员。知识本体来自 2026 群体生成指南（LTX/arXiv Gen-C/ReelMind/Morphic）。AI 应用面向 DirectorX：人群镜头（衔接 186 多机位、187 调度、128 特效、201 对应）。
@@ -76,3 +131,10 @@ diverse faces, no repeated individuals"
 - arXiv — Evaluating Video Models as Simulators of Multi-Person Dynamics（2510.20182）：https://arxiv.org/html/2510.20182v1
 - ReelMind — AI-Generated Crowd Scenes: Realistic Extras：https://reelmind.ai/blog/ai-generated-crowd-scenes-fill-your-shots-with-realistic-extras
 - Morphic — Crowd Simulation AI Videos：https://morphic.com/resources/videos/crowd-simulation-videos
+
+## 相关概念
+
+- [AI 多机位同场景生成（Multi-Camera Same Scene — Coverage Grid & Scene-Consistent Angles）](../186-multi-camera-same-scene/multi-camera-same-scene.md)
+- [AI 人物空间调度（Blocking & Staging — Screen Geography & One-Action Beats）](../187-blocking-staging/blocking-staging.md)
+- [AI 特效类型生成深化（VFX Types — Weather, Particles, Magic & Destruction Prompts）](../128-vfx-effects-types/vfx-effects-types.md)
+- [AI 场景时间连续性（Time-of-Day Continuity — Lighting Plan & Time Flow）](../200-time-of-day-continuity/time-of-day-continuity.md)

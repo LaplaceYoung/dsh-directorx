@@ -1,3 +1,53 @@
+---
+type: Reference
+title: "AI 实时生成与直播（Real-Time Generation & Live — Streaming Avatars & Interactive Video）"
+description: "AI 实时生成与直播技术体系：实时交互数字人（流式管线）、延迟层级（亚秒级到数秒）、实时视频生成平台（真直播 vs 快速批渲染）、无限时长交互生成"
+tags:
+  - "production"
+  - "workflow"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:GMI Cloud Real-Time Generative Video Platforms 2026"
+    id: cite-1
+    title: "Real-Time Generative Video Platforms 2026"
+    author: "org:GMI-Cloud"
+  - resource: "cited:Live Avatar Project Page"
+    id: cite-2
+    title: "Project Page"
+    author: "org:Live-Avatar"
+  - resource: "cited:Mascot Real-Time AI Avatar under 500ms"
+    id: cite-3
+    title: "Real-Time AI Avatar under 500ms"
+    author: "org:Mascot"
+  - resource: "https://www.gmicloud.ai/en/blog/real-time-generative-video-2026"
+    id: url-1
+    title: "gmicloud.ai"
+  - resource: "https://liveavatar.github.io/"
+    id: url-2
+    title: "liveavatar.github.io"
+  - resource: "https://huggingface.co/Quark-Vision/Live-Avatar"
+    id: url-3
+    title: "huggingface.co"
+  - resource: "https://templates.mascot.bot/real-time-ai-avatar-500ms"
+    id: url-4
+    title: "templates.mascot.bot"
+  - resource: "https://www.gmicloud.ai/ja/blog/real-time-video-platforms-2026"
+    id: url-5
+    title: "gmicloud.ai"
+dx_id: "146"
+related:
+  - "137-digital-human/digital-human.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+---
+
 # AI 实时生成与直播（Real-Time Generation & Live — Streaming Avatars & Interactive Video）
 
 > 本页为 AI 实时生成与直播技术体系：实时交互数字人（流式管线）、延迟层级（亚秒级到数秒）、实时视频生成平台（真直播 vs 快速批渲染）、无限时长交互生成。知识本体来自 2026 实时平台分析（GMI Cloud/Live Avatar/Mascot）。AI 应用面向 DirectorX：直播/实时交互场景（衔接 137 数字人、119 音画同步、146 应用）。
@@ -83,3 +133,8 @@
 - Quark-Vision — Live-Avatar（45 FPS 实时数字人）：https://huggingface.co/Quark-Vision/Live-Avatar
 - Mascot — How to Build a Real-Time AI Avatar (Under 500ms)：https://templates.mascot.bot/real-time-ai-avatar-500ms
 - GMI Cloud — Which Video Tools Are Actually Live?：https://www.gmicloud.ai/ja/blog/real-time-video-platforms-2026
+
+## 相关概念
+
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)

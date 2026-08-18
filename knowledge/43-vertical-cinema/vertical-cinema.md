@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "竖屏视觉语言深化（Vertical-First Cinematography）"
+description: "竖屏视觉手册：竖屏不是横屏裁切——安全区地图、手机文字规则、竖屏构图语法、节奏与钩子、AI 竖屏生成（Seedance/即梦）、竖屏短剧拍摄要点"
+tags:
+  - "foundation"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:SmoothyEdit 剪辑师实地指南"
+    id: cite-1
+    title: "SmoothyEdit 剪辑师实地指南"
+  - resource: "cited:1kreach 2026 安全区"
+    id: cite-2
+    title: "1kreach 2026 安全区"
+  - resource: "cited:Reliably 竖屏优先管线"
+    id: cite-3
+    title: "Reliably 竖屏优先管线"
+  - resource: "cited:NemoVideo Seedance 竖版指南。"
+    id: cite-4
+    title: "NemoVideo Seedance 竖版指南。"
+  - resource: "https://smoothyedit.com/blog/editors-field-guide-vertical-video"
+    id: url-1
+    title: "smoothyedit.com"
+  - resource: "https://1kreach.com/blog/vertical-video-safe-zones-2026-platform-ui-overlay"
+    id: url-2
+    title: "1kreach.com"
+  - resource: "https://reliably.live/vertical-first-production-pipeline-from-script-to-short-form"
+    id: url-3
+    title: "reliably.live"
+  - resource: "https://photographyicon.com/vertical-video-social-media/"
+    id: url-4
+    title: "photographyicon.com"
+  - resource: "https://edicionvideopro.com/en/editing-techniques/916-aspect-ratio-guide-vertical-video-for-tiktok-reels/"
+    id: url-5
+    title: "edicionvideopro.com"
+  - resource: "https://www.nemovideo.com/zh-CN/blog/seedance-2-vertical-video-tiktok-reels"
+    id: url-6
+    title: "nemovideo.com"
+dx_id: "43"
+related:
+  - "00-visual-glossary/visual-diagrams.md"
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "15-editing-tools/editing-tools-workflow.md"
+---
+
 # 竖屏视觉语言深化（Vertical-First Cinematography）
 
 > 本页是 DirectorX 竖屏视觉手册：竖屏不是横屏裁切——安全区地图、手机文字规则、竖屏构图语法、节奏与钩子、AI 竖屏生成（Seedance/即梦）、竖屏短剧拍摄要点。与 05 短视频 / 24 平台 / 00 图解安全区衔接。
@@ -106,3 +159,9 @@
 - edicionvideopro: 9:16 Aspect Ratio (2026) — Pixels, Safe Zones & Setup — https://edicionvideopro.com/en/editing-techniques/916-aspect-ratio-guide-vertical-video-for-tiktok-reels/
 - NemoVideo: Seedance 2.0 制作竖版短视频——抖音/Reels 完整指南 — https://www.nemovideo.com/zh-CN/blog/seedance-2-vertical-video-tiktok-reels
 - fffzy: 竖屏短剧拍摄全指南——设备、技巧与行业趋势 — http://www.fffzy.com/post/104546.html
+
+## 相关概念
+
+- [视觉术语图解（Visual Glossary with Diagrams）](../00-visual-glossary/visual-diagrams.md)
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [剪辑工具与实操流程（Editing Tools & Workflow）](../15-editing-tools/editing-tools-workflow.md)

@@ -1,3 +1,55 @@
+---
+type: Case
+title: "经典案例逐镜头拆解（Case Studies & Shot-by-Shot）"
+description: "拉片知识库：拉片方法论、Apple \"1984\" 广告逐场景拆解、OK Go 一镜 MV 拆解、短剧爆款节奏公式、可复用的拆解模板"
+tags:
+  - "foundation"
+  - "camera"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Diggit Magazine \"1984\" 美学分析"
+    id: cite-1
+    title: "Diggit Magazine \"1984\" 美学分析"
+  - resource: "cited:OK Go 官方幕后资料"
+    id: cite-2
+    title: "OK Go 官方幕后资料"
+  - resource: "cited:No Film School（索引）"
+    id: cite-3
+    title: "No Film School（索引）"
+  - resource: "cited:短剧拆解行业文章（网易/虎嗅）。"
+    id: cite-4
+    title: "短剧拆解行业文章（网易/虎嗅）。"
+  - resource: "https://www.diggitmagazine.com/articles/behind-curtain-1984-s-aesthetics-immediacy"
+    id: url-1
+    title: "diggitmagazine.com"
+  - resource: "https://9to5mac.com/2019/02/04/1984-storyboard/"
+    id: url-2
+    title: "9to5mac.com"
+  - resource: "https://okgo.net/wp/2016/11/23/background-notes-and-full-credits-for-the-one-moment-video/"
+    id: url-3
+    title: "okgo.net"
+  - resource: "https://nofilmschool.com/2016/11/ok-go-the-one-moment-slow-motion-music-video"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://www.163.com/dy/article/L30RCS1005340TH8.html"
+    id: url-5
+    title: "163.com"
+  - resource: "https://www.huxiu.com/article/2360429.html"
+    id: url-6
+    title: "huxiu.com"
+dx_id: "22"
+related:
+  - "01-camera-language/camera-language.md"
+  - "07-directing/directing-techniques.md"
+  - "10-camera-gear/camera-gear.md"
+---
+
 # 经典案例逐镜头拆解（Case Studies & Shot-by-Shot）
 
 > 本页是 DirectorX 拉片知识库：拉片方法论、Apple "1984" 广告逐场景拆解、OK Go 一镜 MV 拆解、短剧爆款节奏公式、可复用的拆解模板。每个案例含结构分析、手法清单与可迁移要点。
@@ -130,3 +182,9 @@
 - No Film School: How OK GO Stretched a 4.2-Second Shot into a 4-Minute MV — https://nofilmschool.com/2016/11/ok-go-the-one-moment-slow-motion-music-video
 - 网易: 拆解 100+ 部爆款短剧后的单集节奏公式 — https://www.163.com/dy/article/L30RCS1005340TH8.html
 - 虎嗅: 一文了解爆款短剧套路 — https://www.huxiu.com/article/2360429.html
+
+## 相关概念
+
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [摄影机与器材（Camera & Gear）](../10-camera-gear/camera-gear.md)

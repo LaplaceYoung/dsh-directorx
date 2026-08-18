@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 图片水彩油画媒介深化（Painting Medium Deep — Watercolor, Oil & Impasto Techniques）"
+description: "AI 图片的绘画媒介深化：水彩技法（晕染/透明/留白）、油画技法（厚涂/笔触/罩染）、媒介特征词汇、画作级提示词（画廊品质）"
+tags:
+  - "synthesis"
+  - "color"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Picsart How to Prompt for Specific Art Styles"
+    id: cite-1
+    title: "How to Prompt for Specific Art Styles"
+    author: "org:Picsart"
+  - resource: "cited:Text2Img Watercolor and Painting Style AI 2026"
+    id: cite-2
+    title: "Watercolor and Painting Style AI 2026"
+    author: "org:Text2Img"
+  - resource: "cited:ZSky AI Painting Prompts 100+"
+    id: cite-3
+    title: "AI Painting Prompts 100+"
+    author: "org:ZSky"
+  - resource: "cited:ZSky AI Painting Style Prompts"
+    id: cite-4
+    title: "AI Painting Style Prompts"
+    author: "org:ZSky"
+  - resource: "https://picsart.com/tutorials/how-to-prompt-for-specific-art-styles-with-ai/"
+    id: url-1
+    title: "picsart.com"
+  - resource: "https://www.text2img.pro/watercolor-painting-style-ai-2026/"
+    id: url-2
+    title: "text2img.pro"
+  - resource: "https://zsky.ai/blog/ai-painting-prompts-guide"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://zsky.ai/ai-painting-prompts-complete-guide"
+    id: url-4
+    title: "zsky.ai"
+  - resource: "https://zsky.ai/blog/ai-painting-style-prompts"
+    id: url-5
+    title: "zsky.ai"
+dx_id: "273"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "250-image-mood-atmosphere/image-mood-atmosphere.md"
+  - "270-style-emotion-mapping/style-emotion-mapping.md"
+---
+
 # AI 图片水彩油画媒介深化（Painting Medium Deep — Watercolor, Oil & Impasto Techniques）
 
 > 本页为 AI 图片的绘画媒介深化：水彩技法（晕染/透明/留白）、油画技法（厚涂/笔触/罩染）、媒介特征词汇、画作级提示词（画廊品质）。知识本体来自 2026 绘画提示词指南（Picsart/Text2Img/ZSky）。AI 应用面向 DirectorX：画作图（衔接 224 风格、273 对应、250 氛围、126 风格）。
@@ -79,3 +135,9 @@ delicate color bleed"
 - ZSky — AI Painting Prompts: 100+ for Every Art Style：https://zsky.ai/blog/ai-painting-prompts-guide
 - ZSky — AI Painting Prompts — The Complete 2026 Guide：https://zsky.ai/ai-painting-prompts-complete-guide
 - ZSky — AI Painting Style Prompts: Oil, Watercolor, Acrylic：https://zsky.ai/blog/ai-painting-style-prompts
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）](../250-image-mood-atmosphere/image-mood-atmosphere.md)
+- [AI 图片风格情绪映射库（Style-Emotion Mapping — EmoStyle & Affective Art）](../270-style-emotion-mapping/style-emotion-mapping.md)

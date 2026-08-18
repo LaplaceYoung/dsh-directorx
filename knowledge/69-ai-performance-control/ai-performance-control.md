@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 角色表演控制（AI Performance Direction）"
+description: "AI 表演控制手册：分段表演模式（短语+指令交错）、四大表演指令家族（视线/停顿/声音/身体节拍）、音频方向配对、镜头围绕对白、三个可直接套用示例、常见错误、微表情与情绪词汇控制"
+tags:
+  - "production"
+  - "camera"
+  - "sound"
+  - "character"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX 对白与表演指南（2026-08）"
+    id: cite-1
+    title: "LTX 对白与表演指南（2026-08）"
+  - resource: "cited:塔猴 AI 短剧微表情控制"
+    id: cite-2
+    title: "塔猴 AI 短剧微表情控制"
+  - resource: "cited:CVPR 情绪词汇研究"
+    id: cite-3
+    title: "CVPR 情绪词汇研究"
+  - resource: "cited:Google Cloud 视频生成提示指南。"
+    id: cite-4
+    title: "Google Cloud 视频生成提示指南。"
+  - resource: "https://ltx.io/blog/directing-dialogue-and-acting"
+    id: url-1
+    title: "ltx.io"
+  - resource: "https://www.tahou.com/article/210412511179696133"
+    id: url-2
+    title: "tahou.com"
+  - resource: "https://openaccess.thecvf.com/content/CVPR2026W/GRAIL-V/papers/Boudreaux_Emotional_Vocabulary_as_Semantic_Grounding_How_Language_Register_Affects_Diffusion_CVPRW_2026_paper.pdf"
+    id: url-3
+    title: "openaccess.thecvf.com"
+  - resource: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/video/video-gen-prompt-guide?hl=zh-cn"
+    id: url-4
+    title: "docs.cloud.google.com"
+  - resource: "https://dev.to/super_lewis/the-seedance-25-prompting-guide-in-english-4hen"
+    id: url-5
+    title: "dev.to"
+  - resource: "https://invideo.io/blog/kling-motion-control/"
+    id: url-6
+    title: "invideo.io"
+dx_id: "69"
+aliases:
+  - "132"
+related:
+  - "282-narrative-av-genre/narrative-av-genre.md"
+  - "12-genre-music-performance/music-video-performance.md"
+  - "86-storyboard-drawing/storyboard-drawing.md"
+---
+
 # AI 角色表演控制（AI Performance Direction）
 
 > 本页是 DirectorX AI 表演控制手册：分段表演模式（短语+指令交错）、四大表演指令家族（视线/停顿/声音/身体节拍）、音频方向配对、镜头围绕对白、三个可直接套用示例、常见错误、微表情与情绪词汇控制。与 34 对白语法 / 18 表演体系 / 63 文案协同衔接。**已合并 132（FACS/情绪弧/减法提示）**——2026-08 去重整理。
@@ -122,3 +180,9 @@ Ekman 六种基础情绪 + FACS 动作单元（AU）可执行的提示映射：
 - GitHub: zhouwei713/facial-expression-prompting（人物表演与视频提示词导演 Skill） — 
 - Invideo: Kling Motion Control — Perfect Character Animation — https://invideo.io/blog/kling-motion-control/
 - Runway: AI Video Prompting Guide — 92 Ready-to-Use Prompts — https://runway.com/resources/ai-video-prompting-guide
+
+## 相关概念
+
+- [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
+- [音乐视频与表演（Music Video & Performance）](../12-genre-music-performance/music-video-performance.md)
+- [分镜绘制技巧（Storyboard Drawing & Notation）](../86-storyboard-drawing/storyboard-drawing.md)

@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影实拍光效艺术（Practical Lighting — Motivated Sources & In-Frame Light）"
+description: "电影实拍光效艺术：实用光源（Practicals：画面内可见光源装饰+照明）、动机化布光（Motivated Lighting：仿真实光源证明主光）、实用光×非叙事光平衡（曝光/情绪）"
+tags:
+  - "synthesis"
+  - "lighting"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Fiveable Practical and Motivated Lighting"
+    id: cite-1
+    title: "Practical and Motivated Lighting"
+    author: "org:Fiveable"
+  - resource: "cited:NoFilmSchool A Primer on Practical Lights"
+    id: cite-2
+    title: "A Primer on Practical Lights"
+    author: "org:NoFilmSchool"
+  - resource: "cited:Wedio Practical Lighting"
+    id: cite-3
+    title: "Practical Lighting"
+    author: "org:Wedio"
+  - resource: "cited:NoFilmSchool What Is Practical Lighting"
+    id: cite-4
+    title: "What Is Practical Lighting"
+    author: "org:NoFilmSchool"
+  - resource: "https://fiveable.me/cinematography/unit-8/practical-motivated-lighting/study-guide/taFJSUOQT4ZxJRYZ"
+    id: url-1
+    title: "fiveable.me"
+  - resource: "https://nofilmschool.com/2015/07/practical-light-primer-how-practical-lighting-bring-cinematography-to-life"
+    id: url-2
+    title: "nofilmschool.com"
+  - resource: "https://academy.wedio.com/practical-lighting/"
+    id: url-3
+    title: "academy.wedio.com"
+  - resource: "https://nofilmschool.com/practical-lighting"
+    id: url-4
+    title: "nofilmschool.com"
+  - resource: "https://www.wedio.com/en/learn/practical-lighting"
+    id: url-5
+    title: "wedio.com"
+dx_id: "341"
+related:
+  - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
+  - "225-film-lighting-theory/film-lighting-theory.md"
+  - "170-light-matching/light-matching.md"
+---
+
 # 电影实拍光效艺术（Practical Lighting — Motivated Sources & In-Frame Light）
 
 > 本页为电影实拍光效艺术：实用光源（Practicals：画面内可见光源装饰+照明）、动机化布光（Motivated Lighting：仿真实光源证明主光）、实用光×非叙事光平衡（曝光/情绪）。知识本体来自 2026 实拍光效（Fiveable/NoFilmSchool/Wedio）。AI 应用面向 DirectorX：光效设计（衔接 125 光线、341 对应、225 布光、170 光匹配）。
@@ -76,3 +131,9 @@
 - Wedio — Practical Lighting: How to Work with Practicals：https://academy.wedio.com/practical-lighting/
 - NoFilmSchool — What Is Practical Lighting in Film and TV：https://nofilmschool.com/practical-lighting
 - Wedio — Incorporating Practical Lighting: Tips：https://www.wedio.com/en/learn/practical-lighting
+
+## 相关概念
+
+- [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
+- [电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）](../225-film-lighting-theory/film-lighting-theory.md)
+- [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)

@@ -122,6 +122,9 @@ export function IconCheck(props: IconProps = {}): ReactNode {
 export function IconUnlink(props: IconProps = {}): ReactNode {
   return <Svg {...props}><path d="M6.2 9.8 4.8 11.2a2.2 2.2 0 1 1-3-3L3.2 6.8M9.8 6.2 11.2 4.8a2.2 2.2 0 1 1 3 3L12.8 9.2M6.8 9.2l2.4-2.4" /></Svg>
 }
+export function IconLink(props: IconProps = {}): ReactNode {
+  return <Svg {...props}><path d="M6.5 9.5 9.5 6.5M4.6 8.6 3.2 10a2.2 2.2 0 1 0 3.1 3.1l1.4-1.4M11.4 7.4 12.8 6A2.2 2.2 0 1 0 9.7 2.9L8.3 4.3" /></Svg>
+}
 export function IconPlay(props: IconProps = {}): ReactNode {
   return <Svg {...props} filled><path d="M5.2 3.6 13 8 5.2 12.4Z" /></Svg>
 }

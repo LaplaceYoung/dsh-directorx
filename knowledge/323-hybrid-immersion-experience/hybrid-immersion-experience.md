@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）"
+description: "电影杂交沉浸体验三整合：非线性/多线索/循环/元宇宙叙事（加深参与）、沉浸设计=叙事一部分（非技术）、六问进阶（我在哪/与谁/能做什么/发生什么/有进展吗/为何重要）维持沉浸"
+tags:
+  - "synthesis"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Integration of Film and Game"
+    id: cite-1
+    title: "Integration of Film and Game"
+    author: "org:PMC"
+  - resource: "cited:HBR Why the Best Immersive Experiences Succeed"
+    id: cite-2
+    title: "Why the Best Immersive Experiences Succeed"
+    author: "org:HBR"
+  - resource: "cited:EUR Audience Experience in Hybrid Environments"
+    id: cite-3
+    title: "Audience Experience in Hybrid Environments"
+    author: "org:EUR"
+  - resource: "cited:OUP Beyond Film: Experiential Cinema"
+    id: cite-4
+    title: "Beyond Film: Experiential Cinema"
+    author: "org:OUP"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11986995/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://hbr.org/2026/07/why-the-best-immersive-experiences-succeed"
+    id: url-2
+    title: "hbr.org"
+  - resource: "https://thesis.eur.nl/pub/76702/29879.pdf"
+    id: url-3
+    title: "thesis.eur.nl"
+  - resource: "https://academic.oup.com/book/39101/chapter/338495665"
+    id: url-4
+    title: "academic.oup.com"
+  - resource: "https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886"
+    id: url-5
+    title: "tandfonline.com"
+dx_id: "323"
+related:
+  - "316-immersion-expectation-reveal/immersion-expectation-reveal.md"
+  - "322-hybrid-audience-experience/hybrid-audience-experience.md"
+  - "167-interactive-branching/interactive-branching.md"
+---
+
 # 电影杂交沉浸体验三整合（Hybrid-Immersion-Experience — Unified Audience Journey）
 
 > 本页为电影杂交沉浸体验三整合：非线性/多线索/循环/元宇宙叙事（加深参与）、沉浸设计=叙事一部分（非技术）、六问进阶（我在哪/与谁/能做什么/发生什么/有进展吗/为何重要）维持沉浸。知识本体来自 2026 沉浸体验（PMC/HBR/EUR Thesis）。AI 应用面向 DirectorX：统一旅程（衔接 316 沉浸、323 对应、322 体验、167 互动）。
@@ -80,3 +134,9 @@
 - EUR — The Interplay of Audience Experience and Artistic Vision：https://thesis.eur.nl/pub/76702/29879.pdf
 - OUP — Beyond Film: Experiential Cinema Participation：https://academic.oup.com/book/39101/chapter/338495665
 - Tandfonline — Immersive Storytelling Experiences: A Design Methodology：https://www.tandfonline.com/doi/full/10.1080/14626268.2024.2389886
+
+## 相关概念
+
+- [电影沉浸-预期-揭示三整合（Immersion-Expectation-Reveal — Unified Engagement Architecture）](../316-immersion-expectation-reveal/immersion-expectation-reveal.md)
+- [电影杂交类型观众体验管理（Hybrid Audience Experience — Tonal Journey & Engagement）](../322-hybrid-audience-experience/hybrid-audience-experience.md)
+- [AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）](../167-interactive-branching/interactive-branching.md)

@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  alignBoxes, asClipPayload, characterBucket, clampMenu, displayCardTitle, distributeBoxes, focusViewOptions, incomingRefIds, isAssetSlug, libraryBucket, nextCardLabel, resolveStoredLabel,
-  nearestAspect, nudgeBoxes, packClip, sizeFromAspect, specPrompt, takePeers,
+  alignBoxes, asClipPayload, characterBucket, clampMenu, displayCardTitle, distributeBoxes, focusViewOptions, groupFrame, incomingRefIds, isAssetSlug, libraryBucket, nextCardLabel, resolveStoredLabel,
+  nearestAspect, nudgeBoxes, nudgeStep, packClip, readingOrder, shotMark, sizeFromAspect, snapCoord, specPrompt, takePeers, SNAP_GRID,
 } from '../lib/testing.js'
 
 const boxes = [
@@ -30,6 +30,39 @@ test('distributeBoxes spaces three or more boxes along an axis', () => {
 
 test('nudgeBoxes offsets every member', () => {
   assert.deepEqual(nudgeBoxes(boxes.slice(0, 1), 12, -4), [{ id: 'a', x: 12, y: 6 }])
+})
+
+test('groupFrame leaves header room above members', () => {
+  const frame = groupFrame([
+    { id: 'a', x: 100, y: 80, w: 200, h: 120 },
+    { id: 'b', x: 340, y: 90, w: 200, h: 120 },
+  ])
+  assert.ok(frame.y < 80)
+  assert.ok(frame.x < 100)
+  assert.ok(frame.w >= 440)
+  assert.ok(80 - frame.y >= 40)
+})
+
+test('readingOrder prefers shotIndex then row then column', () => {
+  const ordered = readingOrder([
+    { id: 'c', x: 10, y: 10, shotIndex: 3 },
+    { id: 'a', x: 400, y: 10, shotIndex: 1 },
+    { id: 'b', x: 40, y: 200, shotIndex: 2 },
+  ]).map(item => item.id)
+  assert.deepEqual(ordered, ['a', 'b', 'c'])
+})
+
+test('snapCoord and nudgeStep follow the 16px grid', () => {
+  assert.equal(snapCoord(23), 16)
+  assert.equal(snapCoord(25), 32)
+  assert.equal(nudgeStep(false, false), SNAP_GRID / 2)
+  assert.equal(nudgeStep(true, false), SNAP_GRID)
+  assert.equal(nudgeStep(true, true), SNAP_GRID * 2)
+})
+
+test('shotMark pads storyboard indices', () => {
+  assert.equal(shotMark(3), '#03')
+  assert.equal(shotMark(undefined), '')
 })
 
 test('packClip and asClipPayload round-trip selected nodes and inner edges', () => {

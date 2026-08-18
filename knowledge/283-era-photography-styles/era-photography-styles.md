@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 图片年代摄影流派（Era Photography Styles — Daguerreotype, Wet Plate & Decade Looks）"
+description: "AI 图片的年代摄影流派：早期工艺（银版镜面/湿版高对比）、年代美学（1920s Art Deco/50s Americana/70s 暖棕/80s 霓虹/90s 垃圾摇滚）、工艺+时代道具+媒介配方"
+tags:
+  - "synthesis"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:ZSky AI Vintage Photo Prompts"
+    id: cite-1
+    title: "AI Vintage Photo Prompts"
+    author: "org:ZSky"
+  - resource: "cited:AI Academy 30 ChatGPT Vintage Photo Prompts"
+    id: cite-2
+    title: "30 ChatGPT Vintage Photo Prompts"
+    author: "org:AI-Academy"
+  - resource: "cited:Gemini3Prompt AI Vintage & Retro Photography"
+    id: cite-3
+    title: "AI Vintage & Retro Photography"
+    author: "org:Gemini3Prompt"
+  - resource: "cited:ZSky 35+ Vintage & Retro Style Prompts"
+    id: cite-4
+    title: "35+ Vintage & Retro Style Prompts"
+    author: "org:ZSky"
+  - resource: "https://zsky.ai/blog/ai-vintage-photo-prompts"
+    id: url-1
+    title: "zsky.ai"
+  - resource: "https://academy.techpresso.co/prompts/chatgpt-prompts-vintage-photos"
+    id: url-2
+    title: "academy.techpresso.co"
+  - resource: "https://gemini3prompt.com/articles/ai-vintage-retro-photography/"
+    id: url-3
+    title: "gemini3prompt.com"
+  - resource: "https://zsky.ai/blog/ai-vintage-retro-prompts"
+    id: url-4
+    title: "zsky.ai"
+  - resource: "https://medium.com/@JacobMiles-Feldman/5-incredible-photography-styles-with-prompts-for-ai-generated-photos-b703a833a2da"
+    id: url-5
+    title: "medium.com"
+dx_id: "283"
+related:
+  - "155-color-psychology/color-psychology.md"
+  - "250-image-mood-atmosphere/image-mood-atmosphere.md"
+  - "203-character-era-consistency/character-era-consistency.md"
+---
+
 # AI 图片年代摄影流派（Era Photography Styles — Daguerreotype, Wet Plate & Decade Looks）
 
 > 本页为 AI 图片的年代摄影流派：早期工艺（银版镜面/湿版高对比）、年代美学（1920s Art Deco/50s Americana/70s 暖棕/80s 霓虹/90s 垃圾摇滚）、工艺+时代道具+媒介配方。知识本体来自 2026 年代摄影提示词（ZSky/AI Academy/Gemini3Prompt）。AI 应用面向 DirectorX：年代图（衔接 257 色彩年代、283 对应、250 氛围、203 时代）。
@@ -73,3 +128,9 @@
 - Gemini3Prompt — AI Vintage & Retro Photography Prompts：https://gemini3prompt.com/articles/ai-vintage-retro-photography/
 - ZSky — 35+ AI Vintage & Retro Style Prompts (Every Era)：https://zsky.ai/blog/ai-vintage-retro-prompts
 - Medium — 5 Photography Styles with Prompts for AI Photos：https://medium.com/@JacobMiles-Feldman/5-incredible-photography-styles-with-prompts-for-ai-generated-photos-b703a833a2da
+
+## 相关概念
+
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 图片氛围感（Image Mood & Atmosphere — Film Stocks, Grain & Era Looks）](../250-image-mood-atmosphere/image-mood-atmosphere.md)
+- [AI 角色时代一致性（Period & Era Consistency — Anachronism Avoidance & Era Locking）](../203-character-era-consistency/character-era-consistency.md)

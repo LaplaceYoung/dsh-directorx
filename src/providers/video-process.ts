@@ -4,6 +4,7 @@ import { existsSync, renameSync, rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { resolveOutputDir, slugify } from '../support.ts'
 import { probeMedia, type MediaProbe } from './ffmpeg.ts'
+import { fitScaleFilter } from './frame-fit.ts'
 import { gradeFilter, type GradeLook } from './grade.ts'
 
 /**
@@ -247,7 +248,7 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   if (input.files.length < 2) throw new Error('videoConcat needs at least 2 files')
   const out = outputPath(input.outputDir, 'concat', 'mp4')
   const fadeSec = input.fadeSec ?? 0.5
-  const scale = input.scale ?? '1280:720'
+  const scale = fitScaleFilter(input.scale ?? '1280:720')
 
   const XFADE_WHITELIST = new Set(['fade', 'dissolve', 'fadeblack', 'fadewhite', 'wipeleft', 'wiperight', 'wipeup', 'wipedown', 'slideleft', 'slideright', 'slideup', 'slidedown', 'circlecrop', 'rectcrop', 'distance', 'radial', 'smoothleft', 'smoothright', 'smoothup', 'smoothdown', 'circleopen', 'circleclose', 'vertopen', 'vertclose', 'horzopen', 'horzclose', 'pixelize', 'diagtl', 'diagtr', 'diagbl', 'diagbr', 'hlslice', 'hrslice', 'vuslice', 'vdslice', 'hblur', 'fadegrays', 'wipetl', 'wipetr', 'wipebl', 'wipebr', 'squeezeh', 'squeezev', 'zoomin', 'hlwind', 'hrwind', 'vuwind', 'vdwind', 'coverleft', 'coverright', 'coverup', 'coverdown', 'revealleft', 'revealright', 'revealup', 'revealdown'])
   const perPairTransitions = Array.isArray(input.transition) ? input.transition : undefined
@@ -262,14 +263,14 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
       args.push('-i', file)
       const hasAudio = probes[index].streams.some(stream => stream.type === 'audio')
       if (anyAudio) {
-        filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000[a${index}]`}`)
+        filters.push(`[${index}:v]${scale},fps=30,format=yuv420p,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000:d=${Math.max(0.2, probes[index]?.durationSec ?? 3)}[a${index}]`}`)
       } else {
-        filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}]`)
+        filters.push(`[${index}:v]${scale},fps=30,format=yuv420p,setpts=PTS-STARTPTS[v${index}]`)
       }
     })
     const inputs = anyAudio ? input.files.map((_, index) => `[v${index}][a${index}]`).join('') : input.files.map((_, index) => `[v${index}]`).join('')
     const filterComplex = `${filters.join(';')};${inputs}concat=n=${input.files.length}:v=1:a=${anyAudio ? 1 : 0}${anyAudio ? '[v][a]' : '[v]'}`
-    args.push('-filter_complex', filterComplex, '-map', '[v]', '-c:v', 'libx264', '-preset', 'veryfast')
+    args.push('-filter_complex', filterComplex, '-map', '[v]', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'veryfast')
     if (anyAudio) args.push('-map', '[a]', '-c:a', 'aac')
     args.push(out)
     runFfmpeg(args, 'video concat (cut)')
@@ -286,11 +287,11 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   if (anyAudio) {
     input.files.forEach((_, index) => {
       const hasAudio = probes[index].streams.some(stream => stream.type === 'audio')
-      filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000[a${index}]`}`)
+      filters.push(`[${index}:v]${scale},fps=30,format=yuv420p,setpts=PTS-STARTPTS[v${index}];${hasAudio ? `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS[a${index}]` : `anullsrc=channel_layout=stereo:sample_rate=48000:d=${Math.max(0.2, probes[index]?.durationSec ?? 3)}[a${index}]`}`)
     })
   } else {
     input.files.forEach((_, index) => {
-      filters.push(`[${index}:v]scale=${scale},fps=30,setpts=PTS-STARTPTS[v${index}]`)
+      filters.push(`[${index}:v]${scale},fps=30,format=yuv420p,setpts=PTS-STARTPTS[v${index}]`)
     })
   }
   let video = '[v0]'
@@ -313,7 +314,7 @@ export async function videoConcat(input: VideoConcatInput): Promise<VideoOutput>
   const filterComplex = `${filters.join(';')}`
   args.push('-filter_complex', filterComplex, '-map', video)
   if (anyAudio) args.push('-map', audio, '-c:a', 'aac')
-  args.push('-c:v', 'libx264', '-preset', 'veryfast', out)
+  args.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'veryfast', out)
   runFfmpeg(args, 'video concat (fade)')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }

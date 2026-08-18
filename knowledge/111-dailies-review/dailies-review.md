@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "样片审片与剪辑迭代（Dailies & Review Loops — Editorial Feedback Practice）"
+description: "本页知识本体来自真实影视后期审片制度：初剪（Rough Cut）→ 精剪（Fine Cut）→ 终审（Final Review）的三轮结构、SMPTE 时间码批注、单一反馈通道、版本归档与\"锁定剪辑\""
+tags:
+  - "production"
+  - "editing"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Dropbox How to Streamline Creative Review"
+    id: cite-1
+    title: "How to Streamline Creative Review"
+    author: "org:Dropbox"
+  - resource: "cited:PlayPause Director-Editor Communication Protocols"
+    id: cite-2
+    title: "Director-Editor Communication Protocols"
+    author: "org:PlayPause"
+  - resource: "cited:BlockReel Director's Notes to Editor"
+    id: cite-3
+    title: "Director's Notes to Editor"
+    author: "org:BlockReel"
+  - resource: "cited:Threadline Client Review and Approval Workflow"
+    id: cite-4
+    title: "Client Review and Approval Workflow"
+    author: "org:Threadline"
+  - resource: "cited:FileFeedback Video Edit Feedback Workflow"
+    id: cite-5
+    title: "Video Edit Feedback Workflow"
+    author: "org:FileFeedback"
+  - resource: "https://www.dropbox.com/resources/creative-review-video-projects"
+    id: url-1
+    title: "dropbox.com"
+  - resource: "https://playpause.io/blogs/director-editor-communication-protocols-rough-cut"
+    id: url-2
+    title: "playpause.io"
+  - resource: "https://blockreeldao.com/blog/directors-notes-for-editorial-communicating-vision-without-micromanaging"
+    id: url-3
+    title: "blockreeldao.com"
+  - resource: "https://threadlinestudio.io/blog/client-review-approval-workflow-video-editors"
+    id: url-4
+    title: "threadlinestudio.io"
+  - resource: "https://www.filefeedback.com/blog/video-edit-feedback-workflow"
+    id: url-5
+    title: "filefeedback.com"
+dx_id: "111"
+related:
+  - "02-editing-transitions/editing-transitions.md"
+  - "06-audio-sound/audio-sound-design.md"
+  - "15-editing-tools/editing-tools-workflow.md"
+---
+
 # 样片审片与剪辑迭代（Dailies & Review Loops — Editorial Feedback Practice）
 
 > 本页知识本体来自真实影视后期审片制度：初剪（Rough Cut）→ 精剪（Fine Cut）→ 终审（Final Review）的三轮结构、SMPTE 时间码批注、单一反馈通道、版本归档与"锁定剪辑"。AI 应用面向 DirectorX：审片是生产流程的固定环节——对生成结果逐镜审查、时间码定位、反馈指向具体问题（案例 3/4 的审片与"竞品效果"对照）。
@@ -101,3 +159,9 @@ Locked Edit 锁定剪辑 → 不再自由改动
 - BlockReel — Director's Notes to Editor: Lead Without Micromanaging：https://blockreeldao.com/blog/directors-notes-for-editorial-communicating-vision-without-micromanaging
 - Threadline — The Video Editor's Guide to Client Review and Approval：https://threadlinestudio.io/blog/client-review-approval-workflow-video-editors
 - FileFeedback — The Video Edit Feedback Workflow That Actually Works：https://www.filefeedback.com/blog/video-edit-feedback-workflow
+
+## 相关概念
+
+- [剪辑与转场（Editing & Transitions）](../02-editing-transitions/editing-transitions.md)
+- [音频制作与声音设计（Audio & Sound Design）](../06-audio-sound/audio-sound-design.md)
+- [剪辑工具与实操流程（Editing Tools & Workflow）](../15-editing-tools/editing-tools-workflow.md)

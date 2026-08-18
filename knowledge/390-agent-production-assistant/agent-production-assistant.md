@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影生产代理知识库（Agent Production Assistant — Script-to-Schedule Knowledge）"
+description: "电影生产代理知识库：Filmustage AI Agent（读剧本→排期→预算）、代理知识库（程序性记忆/工作流知识）、6 阶段代理生命周期（从演示到治理生产）、2026 生产代理框架（DREAM：内容组织+自动化）"
+tags:
+  - "synthesis"
+  - "workflow"
+  - "narrative"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Filmustage AI Agent Demo: Real Production Assistant"
+    id: cite-1
+    title: "AI Agent Demo: Real Production Assistant"
+    author: "org:Filmustage"
+  - resource: "cited:arXiv Managing Procedural Memory in LLM Agents"
+    id: cite-2
+    title: "Managing Procedural Memory in LLM Agents"
+    author: "org:arXiv"
+  - resource: "cited:YouMind How to Build AI Agents 2026"
+    id: cite-3
+    title: "How to Build AI Agents 2026"
+    author: "org:YouMind"
+  - resource: "cited:HFS Agentic AI Growth Wave"
+    id: cite-4
+    title: "Agentic AI Growth Wave"
+    author: "org:HFS"
+  - resource: "https://filmustage.com/p/webinar-agent"
+    id: url-1
+    title: "filmustage.com"
+  - resource: "https://arxiv.org/pdf/2606.23127.pdf"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://youmind.com/ru-RU/landing/x-viral-articles/build-production-ai-agents-2026"
+    id: url-3
+    title: "youmind.com"
+  - resource: "https://www.hfsresearch.com/research/growth-wave-reclaim-value/"
+    id: url-4
+    title: "hfsresearch.com"
+  - resource: "https://www.spekit.com/june-2026-launch"
+    id: url-5
+    title: "spekit.com"
+dx_id: "390"
+related:
+  - "383-production-workflow-practical/production-workflow-practical.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "80-knowledge-base-guide/knowledge-base-guide.md"
+---
+
 # 电影生产代理知识库（Agent Production Assistant — Script-to-Schedule Knowledge）
 
 > 本页为电影生产代理知识库：Filmustage AI Agent（读剧本→排期→预算）、代理知识库（程序性记忆/工作流知识）、6 阶段代理生命周期（从演示到治理生产）、2026 生产代理框架（DREAM：内容组织+自动化）。知识本体来自 2026 代理生产（Filmustage/arXiv/HFS）。AI 应用面向 DirectorX：生产代理（衔接 383 生产实用、390 对应、377 管线、121 编排）。
@@ -74,3 +130,9 @@
 - YouMind — How to Build AI Agents in 2026：https://youmind.com/ru-RU/landing/x-viral-articles/build-production-ai-agents-2026
 - HFS — Media Leaders: Next Growth Wave of Agentic AI：https://www.hfsresearch.com/research/growth-wave-reclaim-value/
 - Spekit — June 2026 Launch: Unified Knowledge Platform：https://www.spekit.com/june-2026-launch
+
+## 相关概念
+
+- [电影生产工作流实用（Production Workflow Practical — AI-Assisted Stage Execution）](../383-production-workflow-practical/production-workflow-practical.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [知识库使用手册（Knowledge Base Agent Guide）](../80-knowledge-base-guide/knowledge-base-guide.md)

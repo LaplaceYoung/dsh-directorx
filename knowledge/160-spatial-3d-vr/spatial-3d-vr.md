@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）"
+description: "AI 视频的跨模态扩展：360°/全景视频生成（球面投影扩散模型）、3D 空间视频（视差/深度）、VR 头显适配（Apple Vision Pro/Meta Quest）、AR 与空间计算"
+tags:
+  - "consistency"
+  - "model"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:arXiv Human-AI Co-Creation for 360° Panoramic Video"
+    id: cite-1
+    title: "Human-AI Co-Creation for 360° Panoramic Video"
+    author: "org:arXiv"
+  - resource: "cited:arXiv Generating 360° Video for 3D Scene"
+    id: cite-2
+    title: "Generating 360° Video for 3D Scene"
+    author: "org:arXiv"
+  - resource: "cited:ReelMind AI-Powered VR: Immersive 360° Video"
+    id: cite-3
+    title: "AI-Powered VR: Immersive 360° Video"
+    author: "org:ReelMind"
+  - resource: "cited:Reezo AI Video Meets AR/VR 2025"
+    id: cite-4
+    title: "AI Video Meets AR/VR 2025"
+    author: "org:Reezo"
+  - resource: "https://arxiv.org/html/2501.15456v1"
+    id: url-1
+    title: "arxiv.org"
+  - resource: "https://arxiv.org/html/2504.02045v3"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://reelmind.ai/blog/ai-powered-virtual-reality-creating-immersive-360deg-video-experiences"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://reezo.ai/blog/beyond-the-screen-ai-video-ar-vr-immersive-content-2025"
+    id: url-4
+    title: "reezo.ai"
+  - resource: "https://www.glbgpt.com/features/ai-vr-video-generator"
+    id: url-5
+    title: "glbgpt.com"
+dx_id: "160"
+related:
+  - "146-real-time-live/real-time-live.md"
+  - "124-shot-language-gen/shot-language-gen.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "360-silhouette-era-emotion/silhouette-era-emotion.md"
+  - "144-sound-design/sound-design.md"
+---
+
 # AI 视频跨模态与空间视频（Spatial & 3D Video — 360°, VR/AR & Spatial Computing）
 
 > 本页为 AI 视频的跨模态扩展：360°/全景视频生成（球面投影扩散模型）、3D 空间视频（视差/深度）、VR 头显适配（Apple Vision Pro/Meta Quest）、AR 与空间计算。知识本体来自 2026 空间视频研究（arXiv/ReelMind/Reezo/GlobalGPT）。AI 应用面向 DirectorX：沉浸式项目（衔接 146 实时、124 镜头、139 环境）。
@@ -79,3 +135,11 @@
 - ReelMind — AI-Powered Virtual Reality: Creating Immersive 360° Video：https://reelmind.ai/blog/ai-powered-virtual-reality-creating-immersive-360deg-video-experiences
 - Reezo — Beyond the Screen: AI Video Meets AR/VR：https://reezo.ai/blog/beyond-the-screen-ai-video-ar-vr-immersive-content-2025
 - GlobalGPT — AI VR Video Generator：https://www.glbgpt.com/features/ai-vr-video-generator
+
+## 相关概念
+
+- [AI 实时生成与直播（Real-Time Generation & Live — Streaming Avatars & Interactive Video）](../146-real-time-live/real-time-live.md)
+- [AI 镜头语言生成专项（Shot Language Generation — Camera, Movement & Framing Prompts）](../124-shot-language-gen/shot-language-gen.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 图片剪影-年代-情绪三融合（Silhouette-Era-Emotion — Vintage Dramatic Fusion）](../360-silhouette-era-emotion/silhouette-era-emotion.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)

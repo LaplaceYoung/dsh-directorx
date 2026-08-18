@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 多语言角色表演（Multilingual Character Performance — One Voice, Many Languages）"
+description: "AI 多语言角色表演：单音色跨语言克隆（品牌/角色声线一致）、多语言对口型（视觉音素/音位时机）、多语言音素模型、源锁定与后期对齐"
+tags:
+  - "consistency"
+  - "model"
+  - "character"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Genra AI Voice Cloning, Dubbing & Lip-Sync 2026"
+    id: cite-1
+    title: "AI Voice Cloning, Dubbing & Lip-Sync 2026"
+    author: "org:Genra"
+  - resource: "cited:Longstories Voice & Lip-Sync Consistency Best Practices"
+    id: cite-2
+    title: "Voice & Lip-Sync Consistency Best Practices"
+    author: "org:Longstories"
+  - resource: "cited:Murf What Is AI Dubbing"
+    id: cite-3
+    title: "What Is AI Dubbing"
+    author: "org:Murf"
+  - resource: "cited:Increditors AI Video Dubbing 2026"
+    id: cite-4
+    title: "AI Video Dubbing 2026"
+    author: "org:Increditors"
+  - resource: "https://genra.ai/blog/ai-voice-cloning-dubbing-lip-sync-guide"
+    id: url-1
+    title: "genra.ai"
+  - resource: "https://longstories.ai/blog/best-practices-ai-voice-lip-sync-consistency"
+    id: url-2
+    title: "longstories.ai"
+  - resource: "https://murf.ai/blog/what-is-ai-dubbing"
+    id: url-3
+    title: "murf.ai"
+  - resource: "https://www.rws.com/blog/ai-dubbing-in-2026/"
+    id: url-4
+    title: "rws.com"
+  - resource: "https://increditors.com/ai-video-dubbing-2026-production/"
+    id: url-5
+    title: "increditors.com"
+dx_id: "184"
+related:
+  - "27-caption-localization/caption-localization.md"
+  - "137-digital-human/digital-human.md"
+  - "119-audio-video-sync/audio-video-sync.md"
+  - "112-delivery-specs/delivery-specs.md"
+---
+
 # AI 多语言角色表演（Multilingual Character Performance — One Voice, Many Languages）
 
 > 本页为 AI 多语言角色表演：单音色跨语言克隆（品牌/角色声线一致）、多语言对口型（视觉音素/音位时机）、多语言音素模型、源锁定与后期对齐。知识本体来自 2026 多语言配音指南（Genra/Longstories/Murf/RWS）。AI 应用面向 DirectorX：全球化角色（衔接 27 本地化、137 数字人、119 对口型、147→已并入 27）。与 27 分工：本页为角色声线跨语言专项（单音色克隆/对口型），27 为字幕规范与本地化全流程（含 AI 配音）。
@@ -84,3 +141,10 @@
 - Murf — AI Dubbing Explained: Types, Benefits & Use Cases：https://murf.ai/blog/what-is-ai-dubbing
 - RWS — AI Dubbing in 2026: The Complete Guide：https://www.rws.com/blog/ai-dubbing-in-2026/
 - Increditors — AI Video Dubbing in 2026: What Is Actually Ready for Production：https://increditors.com/ai-video-dubbing-2026-production/
+
+## 相关概念
+
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [音频视频协同（Audio-Video Sync — AI Voice, Music & Lip-Sync）](../119-audio-video-sync/audio-video-sync.md)
+- [电影级交付规格（Delivery Specs — Color / Audio / Master Standards）](../112-delivery-specs/delivery-specs.md)

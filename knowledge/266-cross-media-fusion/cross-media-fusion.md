@@ -1,3 +1,60 @@
+---
+type: Reference
+title: "AI 图片多媒介融合（Cross-Media Fusion — Photo, Illustration & 3D Blending）"
+description: "AI 图片的多媒介融合：提示词混合（Prompt Blending：风格/关键词/模型融合）、混合媒介艺术（照片+插画+3D+拼贴）、融合技巧（权重/层次/无缝）、概念创作"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "model"
+  - "style"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Text2Img Master Prompt Blending"
+    id: cite-1
+    title: "Master Prompt Blending"
+    author: "org:Text2Img"
+  - resource: "cited:SeaArt 15 Mixed Media Prompts"
+    id: cite-2
+    title: "15 Mixed Media Prompts"
+    author: "org:SeaArt"
+  - resource: "cited:Adobe AI Image Prompt Examples"
+    id: cite-3
+    title: "AI Image Prompt Examples"
+    author: "org:Adobe"
+  - resource: "cited:Text2Img 2026 Prompt Blending Techniques"
+    id: cite-4
+    title: "2026 Prompt Blending Techniques"
+    author: "org:Text2Img"
+  - resource: "https://www.text2img.pro/master-prompt-blending-ai-styles-2026-4/"
+    id: url-1
+    title: "text2img.pro"
+  - resource: "https://www.seaart.ai/blog/mixed-media"
+    id: url-2
+    title: "seaart.ai"
+  - resource: "https://www.adobe.com/products/firefly/ai-generated-examples/image-prompts.html"
+    id: url-3
+    title: "adobe.com"
+  - resource: "https://www.text2img.pro/2026-prompt-blending-techniques/"
+    id: url-4
+    title: "text2img.pro"
+  - resource: "https://www.seahot.ai/blog/mixed-media"
+    id: url-5
+    title: "seahot.ai"
+dx_id: "266"
+related:
+  - "258-surrealism-collage/surrealism-collage.md"
+  - "126-style-art-direction/style-art-direction.md"
+  - "235-multi-image-lighting/multi-image-lighting.md"
+---
+
 # AI 图片多媒介融合（Cross-Media Fusion — Photo, Illustration & 3D Blending）
 
 > 本页为 AI 图片的多媒介融合：提示词混合（Prompt Blending：风格/关键词/模型融合）、混合媒介艺术（照片+插画+3D+拼贴）、融合技巧（权重/层次/无缝）、概念创作。知识本体来自 2026 混合媒介指南（Text2Img/SeaArt/Adobe Firefly）。AI 应用面向 DirectorX：概念图（衔接 258 超现实、266 对应、224 风格、126 风格迁移）。
@@ -80,3 +137,9 @@
 - Adobe — AI Image Prompt Examples (Firefly)：https://www.adobe.com/products/firefly/ai-generated-examples/image-prompts.html
 - Text2Img — 2026 Prompt Blending Techniques：https://www.text2img.pro/2026-prompt-blending-techniques/
 - SeaHot — 15 Mixed Media Prompts for Art：https://www.seahot.ai/blog/mixed-media
+
+## 相关概念
+
+- [AI 图片超现实拼贴（Surrealism & Collage — Dreamlike Juxtaposition & Photomontage）](../258-surrealism-collage/surrealism-collage.md)
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 图片多图光照统一（Multi-Image Lighting — Master Reference & Lighting Block）](../235-multi-image-lighting/multi-image-lighting.md)

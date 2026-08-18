@@ -1,3 +1,65 @@
+---
+type: Reference
+title: "AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）"
+description: "AI 视频风格体系与风格迁移（Style Transfer）完整指南：主流视觉风格（写实/电影/动画/水彩/漫画/胶片）、风格迁移原理（锁定运动改表层）、艺术方向一致性纪律"
+tags:
+  - "production"
+  - "style"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:LTX AI Video Styles: Complete Guide"
+    id: cite-1
+    title: "AI Video Styles: Complete Guide"
+    author: "org:LTX"
+  - resource: "cited:StudioPro AI Video Styles Explained"
+    id: cite-2
+    title: "AI Video Styles Explained"
+    author: "org:StudioPro"
+  - resource: "cited:Curify Style Transfer AI in 2026"
+    id: cite-3
+    title: "Style Transfer AI in 2026"
+    author: "org:Curify"
+  - resource: "cited:MagicHour Best Video-to-Video AI Tools 2026"
+    id: cite-4
+    title: "Best Video-to-Video AI Tools 2026"
+    author: "org:MagicHour"
+  - resource: "cited:Luma Character Style Swap"
+    id: cite-5
+    title: "Character Style Swap"
+    author: "org:Luma"
+  - resource: "https://www.adobe.com/products/firefly/discover/art-style-prompts-for-ai.html"
+    id: url-1
+    title: "adobe.com"
+  - resource: "https://zapier.com/blog/ai-art-styles/"
+    id: url-2
+    title: "zapier.com"
+  - resource: "https://zsky.ai/ai-art-styles-encyclopedia"
+    id: url-3
+    title: "zsky.ai"
+  - resource: "https://zsky.ai/blog/ai-art-styles-complete-guide-2026"
+    id: url-4
+    title: "zsky.ai"
+  - resource: "https://picsart.com/blog/ai-art-prompts/"
+    id: url-5
+    title: "picsart.com"
+dx_id: "126"
+aliases:
+  - "224"
+  - "357"
+related:
+  - "45-style-unification/style-unification.md"
+  - "108-moodboard-reference/moodboard-reference.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+---
+
 # AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）
 
 > 本页为 AI 视频风格体系与风格迁移（Style Transfer）完整指南：主流视觉风格（写实/电影/动画/水彩/漫画/胶片）、风格迁移原理（锁定运动改表层）、艺术方向一致性纪律。知识本体来自 2026 风格指南（LTX/StudioPro/Curify/MagicHour）。AI 应用面向 DirectorX：风格决策（衔接 45 风格统一、108 情绪板、117 一致性）。
@@ -218,3 +280,9 @@ generous negative space"
 
 <!-- merged from: #224-art-style-system -->
 <!-- merged from: #357-emotion-palette-system -->
+
+## 相关概念
+
+- [全片风格统一与美术指导（Style Unification & Art Direction）](../45-style-unification/style-unification.md)
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)

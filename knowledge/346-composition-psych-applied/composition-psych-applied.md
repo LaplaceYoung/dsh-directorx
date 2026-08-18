@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "AI 图片构图心理学应用（Composition Psychology Applied — GazeFusion & Saliency-Guided Design）"
+description: "AI 图片的构图心理学应用：显著引导生成（GazeFusion：saliency 先验控制视线）、眼动/格式塔影响注意（实证）、视线方向+取景提示（引导构图）、预测注意（Adobe 研究）"
+tags:
+  - "synthesis"
+  - "image"
+  - "vfx"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:PMC Eye Movement: Gestalt in Photography"
+    id: cite-1
+    title: "Eye Movement: Gestalt in Photography"
+    author: "org:PMC"
+  - resource: "cited:arXiv GazeFusion: Saliency-Guided Image Generation"
+    id: cite-2
+    title: "GazeFusion: Saliency-Guided Image Generation"
+    author: "org:arXiv"
+  - resource: "cited:PMC Leading Line Composition"
+    id: cite-3
+    title: "Leading Line Composition"
+    author: "org:PMC"
+  - resource: "cited:Adobe Predicting Attention in Photos"
+    id: cite-4
+    title: "Predicting Attention in Photos"
+    author: "org:Adobe"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10644408/"
+    id: url-1
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://arxiv.org/abs/2407.04191"
+    id: url-2
+    title: "arxiv.org"
+  - resource: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11763225/"
+    id: url-3
+    title: "pmc.ncbi.nlm.nih.gov"
+  - resource: "https://research.adobe.com/news/look-here-researcher-predicts-what-attracts-attention-in-photos-and-designs/"
+    id: url-4
+    title: "research.adobe.com"
+dx_id: "346"
+related:
+  - "246-composition-psychology/composition-psychology.md"
+  - "216-composition-rules-deep/composition-rules-deep.md"
+  - "271-composition-narrative-weight/composition-narrative-weight.md"
+---
+
 # AI 图片构图心理学应用（Composition Psychology Applied — GazeFusion & Saliency-Guided Design）
 
 > 本页为 AI 图片的构图心理学应用：显著引导生成（GazeFusion：saliency 先验控制视线）、眼动/格式塔影响注意（实证）、视线方向+取景提示（引导构图）、预测注意（Adobe 研究）。知识本体来自 2026 注意研究（PMC/arXiv GazeFusion/Adobe）。AI 应用面向 DirectorX：注意力工程（衔接 246 构图心理、346 对应、216 构图、271 权重）。
@@ -77,3 +129,9 @@ AI+众包预测"人们看什么/记住什么"——**"注意可预测"**（衔�
 - PMC — Impact of Leading Line Composition on Visual Cognition：https://pmc.ncbi.nlm.nih.gov/articles/PMC11763225/
 - Adobe — Look Here: Predicting Attention in Photos：https://research.adobe.com/news/look-here-researcher-predicts-what-attracts-attention-in-photos-and-designs/
 - NYU-ICL — Saliency-Guided Image Generation（GazeFusion GitHub）：
+
+## 相关概念
+
+- [AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）](../246-composition-psychology/composition-psychology.md)
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)
+- [AI 图片构图叙事权重（Narrative Weight — Size, Scale & Visual Hierarchy）](../271-composition-narrative-weight/composition-narrative-weight.md)

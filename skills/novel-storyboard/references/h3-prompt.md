@@ -1,6 +1,6 @@
 # H3 视频提示词 · 写法规范（内化版）
 
-方法论学自 MiniMax-H3 官方提示词指南（I2VA / 多图对齐模式），**内化成本 skill 自带文档——不依赖任何外部 skill**。写每段的 `h3Prompt` 照这份做，结构部分有质量门逐字对账。
+方法论学自 MiniMax-H3 官方提示词指南（I2VA / 多图对齐模式），**内化成本 skill 自带文档——不依赖任何外部 skill**。整条成片还要读 `minimax-h3-prompt-copilot` 的 `base-modes.md` / `ref-mode.md`。写每段的 `h3Prompt` 照这份做，结构部分有质量门逐字对账。
 
 ## 语言分工
 

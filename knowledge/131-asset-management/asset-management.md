@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）"
+description: "AI 视频生产的素材/资产管理体系：数字资产管理（DAM）、元数据策略（产品线/市场/语言/版本/渠道/权利/AI 来源）、版本化与复用决策、自动标签与检索"
+tags:
+  - "production"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Acquia DAM and AI"
+    id: cite-1
+    title: "DAM and AI"
+    author: "org:Acquia"
+  - resource: "cited:Kaltura Digital Asset Management 2026"
+    id: cite-2
+    title: "Digital Asset Management 2026"
+    author: "org:Kaltura"
+  - resource: "cited:Aprimo AI Digital Asset Management"
+    id: cite-3
+    title: "AI Digital Asset Management"
+    author: "org:Aprimo"
+  - resource: "cited:MuseDAM Video Asset Management in the AI Era 2026"
+    id: cite-4
+    title: "Video Asset Management in the AI Era 2026"
+    author: "org:MuseDAM"
+  - resource: "https://www.acquia.com/blog/artificial-intelligence-ai-and-dam"
+    id: url-1
+    title: "acquia.com"
+  - resource: "https://corp.kaltura.com/blog/digital-asset-management-2026/"
+    id: url-2
+    title: "corp.kaltura.com"
+  - resource: "https://www.aprimo.com/resource-library/article/ai-digital-asset-management"
+    id: url-3
+    title: "aprimo.com"
+  - resource: "https://www.musedam.cc/en-US/blog/video-asset-management-ai-2026"
+    id: url-4
+    title: "musedam.cc"
+  - resource: "https://www.canto.com/glossary/ai-digital-asset-management/"
+    id: url-5
+    title: "canto.com"
+dx_id: "131"
+related:
+  - "123-longform-consistency/longform-consistency.md"
+  - "122-quality-monetization/quality-monetization.md"
+  - "39-image-consistency/character-consistency.md"
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "108-moodboard-reference/moodboard-reference.md"
+---
+
 # AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）
 
 > 本页为 AI 视频生产的素材/资产管理体系：数字资产管理（DAM）、元数据策略（产品线/市场/语言/版本/渠道/权利/AI 来源）、版本化与复用决策、自动标签与检索。知识本体来自 2026 DAM 与 AI 指南（Acquia/Kaltura/Aprimo/MuseDAM）。AI 应用面向 DirectorX：生产资产库（衔接 123 长视频资产库、122 批量生产、39/117 参考资产）。
@@ -85,3 +140,11 @@ AI 自动为资产打标签（主体/场景/风格/情绪），支持语义检�
 - Aprimo — AI DAM: Transforming Asset Management：https://www.aprimo.com/resource-library/article/ai-digital-asset-management
 - MuseDAM — Video Asset Management in the AI Era: A 2026 Guide：https://www.musedam.cc/en-US/blog/video-asset-management-ai-2026
 - Canto — AI Digital Asset Management：https://www.canto.com/glossary/ai-digital-asset-management/
+
+## 相关概念
+
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)
+- [AI 视频质量控制与商业化（Quality Control & Monetization — Cost, QC & ROI）](../122-quality-monetization/quality-monetization.md)
+- [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)

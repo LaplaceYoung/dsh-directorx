@@ -1,3 +1,63 @@
+---
+type: Reference
+title: "AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）"
+description: "AI 长视频/多镜叙事的持续一致性体系：场景卡（Scene Card）、角色/风格锁定、参考资产库、跨镜 QA 清单——支撑 8-60+ 分钟的 AI 故事片"
+tags:
+  - "production"
+  - "character"
+  - "style"
+  - "continuity"
+  - "qa"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Storytool Long-Form AI Storytelling Workflow 2026"
+    id: cite-1
+    title: "Long-Form AI Storytelling Workflow 2026"
+    author: "org:Storytool"
+  - resource: "cited:LongStories Maintaining Style Across Series / AI Story Coherence"
+    id: cite-2
+    title: "Maintaining Style Across Series / AI Story Coherence"
+    author: "org:LongStories"
+  - resource: "cited:BytePlus Multi-Shot AI Video Storytelling"
+    id: cite-3
+    title: "Multi-Shot AI Video Storytelling"
+    author: "org:BytePlus"
+  - resource: "cited:AimagicX AI Multi-Shot Video Character Consistency"
+    id: cite-4
+    title: "AI Multi-Shot Video Character Consistency"
+    author: "org:AimagicX"
+  - resource: "https://storytool.io/blogs/long-form-ai-storytelling-workflow-2026"
+    id: url-1
+    title: "storytool.io"
+  - resource: "https://longstories.ai/blog/maintaining-style-ai-generated-video-series"
+    id: url-2
+    title: "longstories.ai"
+  - resource: "https://longstories.ai/blog/ai-story-coherence-long-videos"
+    id: url-3
+    title: "longstories.ai"
+  - resource: "https://www.byteplus.com/en/topic/578712"
+    id: url-4
+    title: "byteplus.com"
+  - resource: "https://www.aimagicx.com/blog/ai-multi-shot-video-character-consistency-2026"
+    id: url-5
+    title: "aimagicx.com"
+dx_id: "123"
+related:
+  - "117-ai-consistency-system/ai-consistency-system.md"
+  - "114-ai-video-model-matrix/ai-video-model-matrix.md"
+  - "108-moodboard-reference/moodboard-reference.md"
+  - "131-asset-management/asset-management.md"
+  - "04-character-worldbuilding/character-worldbuilding.md"
+---
+
 # AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）
 
 > 本页为 AI 长视频/多镜叙事的持续一致性体系：场景卡（Scene Card）、角色/风格锁定、参考资产库、跨镜 QA 清单——支撑 8-60+ 分钟的 AI 故事片。知识本体来自 2026 长视频工作流指南（Storytool/LongStories/BytePlus/AimagicX）。AI 应用面向 DirectorX：长片与剧集项目的持续一致性（衔接 117 单镜一致性 → 本页多镜叙事层）。
@@ -98,3 +158,11 @@
 - LongStories — How AI Maintains Story Coherence in Long Videos：https://longstories.ai/blog/ai-story-coherence-long-videos
 - BytePlus — Multi-Shot AI Video Storytelling: Techniques for Consistent：https://www.byteplus.com/en/topic/578712
 - AimagicX — AI Multi-Shot Video: How to Create Consistent Characters：https://www.aimagicx.com/blog/ai-multi-shot-video-character-consistency-2026
+
+## 相关概念
+
+- [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
+- [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
+- [AI 素材与资产管理（Asset Management — DAM, Metadata & Reuse）](../131-asset-management/asset-management.md)
+- [人物设定与世界观（Character & Worldbuilding）](../04-character-worldbuilding/character-worldbuilding.md)

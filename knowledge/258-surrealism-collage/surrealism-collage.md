@@ -1,3 +1,61 @@
+---
+type: Reference
+title: "AI 图片超现实拼贴（Surrealism & Collage — Dreamlike Juxtaposition & Photomontage）"
+description: "AI 图片的超现实与拼贴：超现实（梦境/不可能并置/融化物象）、拼贴/照片蒙太奇（分层纹理/异质元素混合）、达利式提示词、超现实叙事（潜意识/隐喻）"
+tags:
+  - "synthesis"
+  - "prompt"
+  - "narrative"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:DocsBot Surreal Image Prompts"
+    id: cite-1
+    title: "Surreal Image Prompts"
+    author: "org:DocsBot"
+  - resource: "cited:Gemini3Prompt AI Surrealist Art Prompts"
+    id: cite-2
+    title: "AI Surrealist Art Prompts"
+    author: "org:Gemini3Prompt"
+  - resource: "cited:Pixu Surrealism Inspired Prompts"
+    id: cite-3
+    title: "Surrealism Inspired Prompts"
+    author: "org:Pixu"
+  - resource: "cited:Pixu Surrealism Style Prompts"
+    id: cite-4
+    title: "Surrealism Style Prompts"
+    author: "org:Pixu"
+  - resource: "https://docsbot.ai/prompts/creative/surreal-image-prompts"
+    id: url-1
+    title: "docsbot.ai"
+  - resource: "https://gemini3prompt.com/articles/ai-surrealist-art-prompts/"
+    id: url-2
+    title: "gemini3prompt.com"
+  - resource: "https://pixu.ai/pixu/rf_stock_prompts/-/surrealism%20inspired"
+    id: url-3
+    title: "pixu.ai"
+  - resource: "https://pixu.ai/pixu/rf_stock_prompts/-/surrealism%20style"
+    id: url-4
+    title: "pixu.ai"
+  - resource: "https://pixu.ai/pixu/rf_stock_prompts/-/creative%20surreal"
+    id: url-5
+    title: "pixu.ai"
+dx_id: "258"
+related:
+  - "126-style-art-direction/style-art-direction.md"
+  - "181-atmosphere-weather-narrative/atmosphere-weather-narrative.md"
+  - "213-copyright-safe-prompting/copyright-safe-prompting.md"
+  - "232-multi-subject-composition/multi-subject-composition.md"
+  - "248-shot-language-semiotics/shot-language-semiotics.md"
+---
+
 # AI 图片超现实拼贴（Surrealism & Collage — Dreamlike Juxtaposition & Photomontage）
 
 > 本页为 AI 图片的超现实与拼贴：超现实（梦境/不可能并置/融化物象）、拼贴/照片蒙太奇（分层纹理/异质元素混合）、达利式提示词、超现实叙事（潜意识/隐喻）。知识本体来自 2026 超现实提示词指南（DocsBot/Pixu/Gemini3Prompt）。AI 应用面向 DirectorX：概念图（衔接 224 风格、258 对应、181 氛围、213 版权）。
@@ -77,3 +135,11 @@ dreamlike collage"
 - Pixu — Surrealism Inspired Prompts：https://pixu.ai/pixu/rf_stock_prompts/-/surrealism%20inspired
 - Pixu — Surrealism Style Prompts：https://pixu.ai/pixu/rf_stock_prompts/-/surrealism%20style
 - Pixu — Creative Surreal Prompts：https://pixu.ai/pixu/rf_stock_prompts/-/creative%20surreal
+
+## 相关概念
+
+- [AI 风格化与艺术方向（Style & Art Direction — Visual Styles & Style Transfer）](../126-style-art-direction/style-art-direction.md)
+- [AI 氛围与天气叙事（Atmosphere & Weather Narrative — Rain, Fog & Mood as Storytelling）](../181-atmosphere-weather-narrative/atmosphere-weather-narrative.md)
+- [AI 版权安全提示词（Copyright-Safe Prompting — Genericization & IP Avoidance）](../213-copyright-safe-prompting/copyright-safe-prompting.md)
+- [AI 图片多主体互动构图（Multi-Subject Composition — Spatial Assignment & Interaction）](../232-multi-subject-composition/multi-subject-composition.md)
+- [电影镜头语言符号学（Shot Language Semiotics — Metz, Denotation & Connotation）](../248-shot-language-semiotics/shot-language-semiotics.md)

@@ -1,3 +1,61 @@
+---
+type: Method
+title: "AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）"
+description: "AI 图片生成的摄影参数提示词：相机参数进提示词（光圈/快门/ISO/焦段）、真实感七要素、提示词结构（主体+机位+镜头+参数+光线+场景+真实感）、分场景参数配方"
+tags:
+  - "consistency"
+  - "camera"
+  - "prompt"
+  - "image"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:QuestStudio Best Camera Settings for AI Image Prompts"
+    id: cite-1
+    title: "Best Camera Settings for AI Image Prompts"
+    author: "org:QuestStudio"
+  - resource: "cited:Imagera Best Prompts for Realistic AI Images 2026"
+    id: cite-2
+    title: "Best Prompts for Realistic AI Images 2026"
+    author: "org:Imagera"
+  - resource: "cited:Overchat How to Make Realistic AI Photos"
+    id: cite-3
+    title: "How to Make Realistic AI Photos"
+    author: "org:Overchat"
+  - resource: "cited:Text2Img 2026 AI Photorealistic Prompt Tips"
+    id: cite-4
+    title: "2026 AI Photorealistic Prompt Tips"
+    author: "org:Text2Img"
+  - resource: "https://queststudio.io/blog/best-camera-settings-ai-image-prompts"
+    id: url-1
+    title: "queststudio.io"
+  - resource: "https://imagera.ai/blog/best-prompts-realistic-ai-images-2026"
+    id: url-2
+    title: "imagera.ai"
+  - resource: "https://overchat.ai/ai-hub/how-to-make-realistic-ai-photos"
+    id: url-3
+    title: "overchat.ai"
+  - resource: "https://www.text2img.pro/2026-ai-photorealistic-prompt-tips/"
+    id: url-4
+    title: "text2img.pro"
+  - resource: "https://arxiv.org/html/2412.02168v2"
+    id: url-5
+    title: "arxiv.org"
+dx_id: "215"
+related:
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "178-perspective-camera-height/perspective-camera-height.md"
+  - "176-depth-of-field-focus/depth-of-field-focus.md"
+  - "177-motion-blur-shutter/motion-blur-shutter.md"
+  - "216-composition-rules-deep/composition-rules-deep.md"
+---
+
 # AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）
 
 > 本页为 AI 图片生成的摄影参数提示词：相机参数进提示词（光圈/快门/ISO/焦段）、真实感七要素、提示词结构（主体+机位+镜头+参数+光线+场景+真实感）、分场景参数配方。知识本体来自 2026 摄影提示词指南（QuestStudio/Overchat/Imagera/Text2Img）。AI 应用面向 DirectorX：图片生成（衔接 33 图片提示词、178 焦段、176 景深、177 快门、216 构图）。
@@ -81,3 +139,11 @@
 - Overchat — How to Make Realistic AI Photos: Prompts & Examples：https://overchat.ai/ai-hub/how-to-make-realistic-ai-photos
 - Text2Img — 2026 AI Prompt Engineering Tips for Photorealistic Images：https://www.text2img.pro/2026-ai-photorealistic-prompt-tips/
 - arXiv — Generative Photography: Scene-Consistent Camera Control（2412.02168）：https://arxiv.org/html/2412.02168v2
+
+## 相关概念
+
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [AI 透视与机位高度（Perspective & Camera Height — Angle Psychology & Lens Choice）](../178-perspective-camera-height/perspective-camera-height.md)
+- [AI 景深与焦点控制（Depth of Field — Subject-Background-Distance & Bokeh）](../176-depth-of-field-focus/depth-of-field-focus.md)
+- [AI 动态模糊与快门速度（Motion Blur & Shutter — 180° Rule in AI Generation）](../177-motion-blur-shutter/motion-blur-shutter.md)
+- [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)

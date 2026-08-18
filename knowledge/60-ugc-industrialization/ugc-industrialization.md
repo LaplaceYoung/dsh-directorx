@@ -1,3 +1,51 @@
+---
+type: Playbook
+title: "UGC 素材工业化（UGC Creative System at Scale）"
+description: "UGC 工业化手册：UGC 系统=运营问题、内容速度数学、三层创作者体系、五组件简报、四周测试飞轮、开箱系统化触发、权利合规基础设施、30 天启动计划"
+tags:
+  - "foundation"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:D2C Times UGC 系统指南"
+    id: cite-1
+    title: "D2C Times UGC 系统指南"
+  - resource: "cited:Space Ads UGC 采购"
+    id: cite-2
+    title: "Space Ads UGC 采购"
+  - resource: "cited:Pixeltree 权利与绩效"
+    id: cite-3
+    title: "Pixeltree 权利与绩效"
+  - resource: "cited:Digital Applied 2026 授权框架。"
+    id: cite-4
+    title: "Digital Applied 2026 授权框架。"
+  - resource: "https://d2c-times.com/how-to-build-a-ugc-creative-system-that-never-runs-dry/"
+    id: url-1
+    title: "d2c-times.com"
+  - resource: "https://www.spaceads.agency/blog/ugc-ads-how-to-brief-source-and-run-creator-content"
+    id: url-2
+    title: "spaceads.agency"
+  - resource: "https://www.pixeltree.store/blog/ugc-content-for-paid-ads"
+    id: url-3
+    title: "pixeltree.store"
+  - resource: "https://www.digitalapplied.com/blog/ugc-rights-licensing-framework-2026-brand-creator-guide"
+    id: url-4
+    title: "digitalapplied.com"
+  - resource: "https://evolveamz.com/ugc-at-scale-without-a-studio-2026/"
+    id: url-5
+    title: "evolveamz.com"
+  - resource: "https://www.hustlermarketing.com/ugc-creators-management-guide-2026/"
+    id: url-6
+    title: "hustlermarketing.com"
+dx_id: "60"
+---
+
 # UGC 素材工业化（UGC Creative System at Scale）
 
 > 本页是 DirectorX UGC 工业化手册：UGC 系统=运营问题、内容速度数学、三层创作者体系、五组件简报、四周测试飞轮、开箱系统化触发、权利合规基础设施、30 天启动计划。与 56 素材迭代 / 41 素材工厂 / 59 直播联动衔接。

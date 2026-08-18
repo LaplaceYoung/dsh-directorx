@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影声学身份-杂交-体验整合（Sonic Identity × Hybrid × Experience — Sound DNA & Engagement）"
+description: "电影声学身份-杂交-体验整合：可扩展声音 DNA（核心主题/声音标识/语音语调/UX 音/音乐目录规则）、声音识别×情绪参与（识别+情感+一致 ROI）、AI 辅助声音资产+沉浸空间音频"
+tags:
+  - "synthesis"
+  - "sound"
+  - "continuity"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Oxford Sonic Branding Narrative Review"
+    id: cite-1
+    title: "Sonic Branding Narrative Review"
+    author: "org:Oxford"
+  - resource: "cited:WellSaid Sonic Identity"
+    id: cite-2
+    title: "Sonic Identity"
+    author: "org:WellSaid"
+  - resource: "cited:MassiveMusic Sonic Branding 2026"
+    id: cite-3
+    title: "Sonic Branding 2026"
+    author: "org:MassiveMusic"
+  - resource: "cited:Stephen Arnold State of Sonic 2026"
+    id: cite-4
+    title: "State of Sonic 2026"
+    author: "org:Stephen-Arnold"
+  - resource: "https://ora.ox.ac.uk/objects/uuid:a3db49b9-75e6-41c9-b31e-586b4f76b605/files/rt148fj539"
+    id: url-1
+    title: "ora.ox.ac.uk"
+  - resource: "https://www.wellsaid.io/resources/blog/sonic-identity"
+    id: url-2
+    title: "wellsaid.io"
+  - resource: "https://massivemusic.com/soundboard/why-sonic-branding-matters-more-than-ever-in-2026"
+    id: url-3
+    title: "massivemusic.com"
+  - resource: "https://stephenarnoldmusic.com/the-state-of-sonic-2026-trends-in-sonic-branding/"
+    id: url-4
+    title: "stephenarnoldmusic.com"
+  - resource: "https://www.henrystewartpublications.com/sites/default/files/Perlmutter%20&%20Bradshaw.pdf"
+    id: url-5
+    title: "henrystewartpublications.com"
+dx_id: "336"
+related:
+  - "204-sonic-branding/sonic-branding.md"
+  - "325-sonic-identity-hybrid/sonic-identity-hybrid.md"
+  - "144-sound-design/sound-design.md"
+  - "173-spatial-audio/spatial-audio.md"
+---
+
 # 电影声学身份-杂交-体验整合（Sonic Identity × Hybrid × Experience — Sound DNA & Engagement）
 
 > 本页为电影声学身份-杂交-体验整合：可扩展声音 DNA（核心主题/声音标识/语音语调/UX 音/音乐目录规则）、声音识别×情绪参与（识别+情感+一致 ROI）、AI 辅助声音资产+沉浸空间音频。知识本体来自 2026 声音身份（Oxford/MassiveMusic/WellSaid）。AI 应用面向 DirectorX：声音体验（衔接 204 声音记忆点、336 对应、325 声学系统、182 声画）。
@@ -79,3 +135,10 @@ DNA → 杂交 → 体验 → 生成 → 三因子校验
 - MassiveMusic — Why Sonic Branding Matters More Than Ever：https://massivemusic.com/soundboard/why-sonic-branding-matters-more-than-ever-in-2026
 - Stephen Arnold — The State of Sonic 2026：https://stephenarnoldmusic.com/the-state-of-sonic-2026-trends-in-sonic-branding/
 - Henry Stewart — Journal of Brand Strategy（Sonic）：https://www.henrystewartpublications.com/sites/default/files/Perlmutter%20&%20Bradshaw.pdf
+
+## 相关概念
+
+- [AI 声音记忆点设计（Sonic Branding — Audio Logo, Brand Soundscape & Mnemonic）](../204-sonic-branding/sonic-branding.md)
+- [电影声学指纹-杂交-类型整合（Sonic Identity — Scalable Systems & Hybrid Genre Fusion）](../325-sonic-identity-hybrid/sonic-identity-hybrid.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [AI 音频空间定位（Spatial Audio — 3D Sound, Ambisonics & Visual-Cued Placement）](../173-spatial-audio/spatial-audio.md)

@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "视频 SEO 与搜索视觉优化（Video SEO & Searchable Visuals）"
+description: "视频 SEO 手册：2026 算法核心（满意度>观看时长）、排名因素表、关键词研究方法、标题/描述/标签/字幕/章节五件套优化、缩略图技术规格（89% 自定义）、AI Overviews 引用策略、中文生态视频搜索"
+tags:
+  - "production"
+  - "platform"
+  - "spec"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:theStacc（160 万视频数据研究）"
+    id: cite-1
+    title: "theStacc（160 万视频数据研究）"
+  - resource: "cited:DreamHost"
+    id: cite-2
+    title: "DreamHost"
+  - resource: "cited:保哥笔记"
+    id: cite-3
+    title: "保哥笔记"
+  - resource: "cited:Google 搜索中心视频文档。"
+    id: cite-4
+    title: "Google 搜索中心视频文档。"
+  - resource: "https://thestacc.com/blog/youtube-seo/"
+    id: url-1
+    title: "thestacc.com"
+  - resource: "https://www.dreamhost.com/blog/youtube-seo-strategy/"
+    id: url-2
+    title: "dreamhost.com"
+  - resource: "https://vidiq.com/blog/post/youtube-seo-for-brands/"
+    id: url-3
+    title: "vidiq.com"
+  - resource: "https://www.deanlong.io/blog/video-seo-ai-search-youtube-visibility-playbook"
+    id: url-4
+    title: "deanlong.io"
+  - resource: "https://developers.google.cn/search/docs/appearance/video?hl=zh-cn"
+    id: url-5
+    title: "developers.google.cn"
+  - resource: "https://zhangwenbao.com/video-seo-2026-main-content-ai-citation.html"
+    id: url-6
+    title: "zhangwenbao.com"
+dx_id: "61"
+related:
+  - "58-content-matrix-series/content-matrix-series.md"
+  - "68-platform-spec-matrix/platform-spec-matrix.md"
+  - "71-ecommerce-visual-integration/ecommerce-visual-integration.md"
+---
+
 # 视频 SEO 与搜索视觉优化（Video SEO & Searchable Visuals）
 
 > 本页是 DirectorX 视频 SEO 手册：2026 算法核心（满意度>观看时长）、排名因素表、关键词研究方法、标题/描述/标签/字幕/章节五件套优化、缩略图技术规格（89% 自定义）、AI Overviews 引用策略、中文生态视频搜索。与 54 缩略图 / 27 字幕 / 16 平台增长衔接。
@@ -114,3 +168,9 @@ YouTube 每天 35 亿次搜索（全球第二大搜索引擎），每分钟上�
 - 保哥笔记: 视频 SEO 怎么做 2026——主内容规则+AI 引用 — https://zhangwenbao.com/video-seo-2026-main-content-ai-citation.html
 - 搜投工具: 视频 SEO 怎么做——视频页、章节、字幕、Schema 与视频位获取 — https://seosemtool.com/blog/seo-tutorial/video-seo-pages-chapters-captions-schema-video-visibility
 - Sky Digital: 短影音 SEO 怎麼做——從影片搜尋、字幕優化到網站導流 SOP — https://skydigital.com.tw/posts/short-video-seo/
+
+## 相关概念
+
+- [视频内容矩阵与系列化（Content Matrix & Format Engineering）](../58-content-matrix-series/content-matrix-series.md)
+- [多平台规格总表（Cross-Platform Video Spec Matrix）](../68-platform-spec-matrix/platform-spec-matrix.md)
+- [电商视觉全案整合（E-commerce Visual Integration）](../71-ecommerce-visual-integration/ecommerce-visual-integration.md)

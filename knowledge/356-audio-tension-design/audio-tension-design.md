@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "电影听觉张力设计（Audio Tension Design — Rhythm × Silence × Suspense）"
+description: "电影听觉张力设计：紧张音频线索（单独即造悬念）、策略静默（负空间驱动预期/锐化聆听）、分层音效（低频/渐强/冲击：不加响度造节奏张力）"
+tags:
+  - "synthesis"
+  - "sound"
+  - "overlap-review"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Nature Building Blocks of Suspense"
+    id: cite-1
+    title: "Building Blocks of Suspense"
+    author: "org:Nature"
+  - resource: "cited:Requiem Sound Design to Build Tension"
+    id: cite-2
+    title: "Sound Design to Build Tension"
+    author: "org:Requiem"
+  - resource: "cited:SinisterFilmFest Sculpting Silence"
+    id: cite-3
+    title: "Sculpting Silence"
+    author: "org:SinisterFilmFest"
+  - resource: "cited:Duende Build Tension with Sound"
+    id: cite-4
+    title: "Build Tension with Sound"
+    author: "org:Duende"
+  - resource: "https://www.nature.com/articles/s41599-022-01461-5"
+    id: url-1
+    title: "nature.com"
+  - resource: "https://www.requiemforadream.com/how-movies-use-sound-design-to-build-tension/"
+    id: url-2
+    title: "requiemforadream.com"
+  - resource: "https://sinisterfilmfest.com/2025/07/28/sculpting-silence-advanced-sound-design-techniques-in-horror-cinema/"
+    id: url-3
+    title: "sinisterfilmfest.com"
+  - resource: "https://duendesounds.com/creating-tension-with-sound-effects/"
+    id: url-4
+    title: "duendesounds.com"
+  - resource: "https://paths.grasp.study/courses/406ee426-e6b3-47c1-b74e-1f06c425b273/modules/7fb93b6e-ac84-4f96-ab08-a5561fb978f2/lessons/e499f741-1c59-4cb3-ab62-9b5e2c9ba05c"
+    id: url-5
+    title: "paths.grasp.study"
+dx_id: "356"
+related:
+  - "268-suspense-theory/suspense-theory.md"
+  - "144-sound-design/sound-design.md"
+  - "219-film-sound-theory/film-sound-theory.md"
+---
+
 # 电影听觉张力设计（Audio Tension Design — Rhythm × Silence × Suspense）
 
 > 本页为电影听觉张力设计：紧张音频线索（单独即造悬念）、策略静默（负空间驱动预期/锐化聆听）、分层音效（低频/渐强/冲击：不加响度造节奏张力）。知识本体来自 2026 听觉张力（Nature/Requiem/SinisterFilmFest）。AI 应用面向 DirectorX：张力声（衔接 268 悬念、356 对应、347 听觉节奏、260 静默）。
@@ -77,3 +132,9 @@
 - SinisterFilmFest — Sculpting Silence: Horror Sound Design：https://sinisterfilmfest.com/2025/07/28/sculpting-silence-advanced-sound-design-techniques-in-horror-cinema/
 - Duende — Build Tension with Sound：https://duendesounds.com/creating-tension-with-sound-effects/
 - Grasp — The Power of Cinematic Silence：https://paths.grasp.study/courses/406ee426-e6b3-47c1-b74e-1f06c425b273/modules/7fb93b6e-ac84-4f96-ab08-a5561fb978f2/lessons/e499f741-1c59-4cb3-ab62-9b5e2c9ba05c
+
+## 相关概念
+
+- [电影叙事悬念理论（Suspense Theory — Hitchcock's Suspense vs Surprise & Dramatic Irony）](../268-suspense-theory/suspense-theory.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [电影声音设计理论（Film Sound Theory — Diegetic/Non-Diegetic, Silence & Murch Principles）](../219-film-sound-theory/film-sound-theory.md)

@@ -1,3 +1,59 @@
+---
+type: Reference
+title: "电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）"
+description: "电影叙事视点：客观（Objective）/主观（Subjective）/视点（POV）三类型、视点镜头（POV Shot）机制、视点与叙事距离（Narration Distance）、视点切换的叙事功能"
+tags:
+  - "consistency"
+  - "camera"
+  - "narrative"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Wikipedia Point-of-View Shot"
+    id: cite-1
+    title: "Point-of-View Shot"
+    author: "org:Wikipedia"
+  - resource: "cited:StudioBinder Subjective Cinema"
+    id: cite-2
+    title: "Subjective Cinema"
+    author: "org:StudioBinder"
+  - resource: "cited:PremiumBeat Understanding POV in Film"
+    id: cite-3
+    title: "Understanding POV in Film"
+    author: "org:PremiumBeat"
+  - resource: "cited:Fiveable Point of View and Narration"
+    id: cite-4
+    title: "Point of View and Narration"
+    author: "org:Fiveable"
+  - resource: "https://en.wikipedia.org/wiki/Point-of-view_shot"
+    id: url-1
+    title: "en.wikipedia.org"
+  - resource: "https://www.studiobinder.com/blog/subjective-cinema/"
+    id: url-2
+    title: "studiobinder.com"
+  - resource: "https://www.premiumbeat.com/blog/understanding-pov-in-film-and-video/"
+    id: url-3
+    title: "premiumbeat.com"
+  - resource: "https://fiveable.me/introduction-to-film-theory/unit-5/point-view-narration-techniques/study-guide/RiMjnYMCfRsbZjmx"
+    id: url-4
+    title: "fiveable.me"
+  - resource: "https://medium.com/babel/cinema-subjective-objective-points-of-view-4cb48803706f"
+    id: url-5
+    title: "medium.com"
+dx_id: "234"
+related:
+  - "150-narrative-structure/narrative-structure.md"
+  - "231-shot-size-emotion/shot-size-emotion.md"
+  - "01-camera-language/camera-language.md"
+  - "158-emotional-arc-pacing/emotional-arc-pacing.md"
+---
+
 # 电影叙事视点（Narrative Viewpoint — Objective, Subjective & POV Shots）
 
 > 本页为电影叙事视点：客观（Objective）/主观（Subjective）/视点（POV）三类型、视点镜头（POV Shot）机制、视点与叙事距离（Narration Distance）、视点切换的叙事功能。知识本体来自 2026 视点理论（Wikipedia/PremiumBeat/StudioBinder/Fiveable）。AI 应用面向 DirectorX：叙事视角（衔接 150 叙事、231 景别、241 运镜、234 对应）。
@@ -75,3 +131,10 @@ POV 常配近景/中景（视线范围），主观用变形/失焦（感知滤�
 - PremiumBeat — Understanding Point of View in Film and Video：https://www.premiumbeat.com/blog/understanding-pov-in-film-and-video/
 - Fiveable — Point of View and Narration Techniques：https://fiveable.me/introduction-to-film-theory/unit-5/point-view-narration-techniques/study-guide/RiMjnYMCfRsbZjmx
 - Medium — Cinema: Subjective, Objective Points of View：https://medium.com/babel/cinema-subjective-objective-points-of-view-4cb48803706f
+
+## 相关概念
+
+- [AI 视频叙事结构深化（Narrative Structure — Three-Act, Hero's Journey & Beat Mapping for AI）](../150-narrative-structure/narrative-structure.md)
+- [电影景别情绪理论（Shot Size Emotion — Close-Up Intimacy, Wide Isolation）](../231-shot-size-emotion/shot-size-emotion.md)
+- [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 情绪曲线与节奏心理学（Emotional Arc & Pacing Psychology — Tension-Release & Rhythm）](../158-emotional-arc-pacing/emotional-arc-pacing.md)

@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, contactSheet, editsToScenes, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, contactSheet, editsToScenes, fitScaleFilter, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -636,6 +636,39 @@ test('audioMix overlays BGM onto a video with ducking', async () => {
   }
 })
 
+test('fitScaleFilter letterboxes WxH instead of stretching', () => {
+  const filter = fitScaleFilter('1280:720')
+  assert.match(filter, /force_original_aspect_ratio=decrease/)
+  assert.match(filter, /pad=1280:720:\(ow-iw\)\/2:\(oh-ih\)\/2/)
+  assert.match(filter, /setsar=1/)
+  assert.equal(fitScaleFilter('scale=640:360:flags=lanczos'), 'scale=640:360:flags=lanczos')
+})
+
+test('videoConcat letterboxes mismatched aspect instead of stretching', { skip: !hasFfmpeg }, async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-letterbox-'))
+  try {
+    const fourByThree = join(dir, '43.mp4')
+    const make = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'color=c=red:s=240x180:d=0.6:rate=24', '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', fourByThree], { encoding: 'utf8' })
+    if (make.status !== 0) throw new Error('4:3 clip failed')
+    const wide = join(dir, '169.mp4')
+    const makeWide = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'color=c=blue:s=320x180:d=0.6:rate=24', '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', wide], { encoding: 'utf8' })
+    if (makeWide.status !== 0) throw new Error('16:9 clip failed')
+    const joined = await videoConcat({ files: [fourByThree, wide], outputDir: dir, transition: 'cut', scale: '320:180' })
+    const stream = joined.probe.streams.find(item => item.type === 'video')
+    assert.equal(stream?.width, 320)
+    assert.equal(stream?.height, 180)
+    const frame = join(dir, 'edge.png')
+    const grab = spawnSync('ffmpeg', ['-hide_banner', '-y', '-ss', '0.2', '-i', joined.path, '-frames:v', '1', frame], { encoding: 'utf8' })
+    if (grab.status !== 0) throw new Error('frame grab failed')
+    const raw = spawnSync('ffmpeg', ['-hide_banner', '-i', frame, '-vf', 'crop=1:1:2:90', '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'], { encoding: 'buffer' })
+    assert.equal(raw.status, 0)
+    const [r, g, b] = raw.stdout
+    assert.ok(r < 40 && g < 40 && b < 40, `left edge should be pillarbox black, got rgb(${r},${g},${b})`)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('videoProcess trims and speeds up; videoConcat joins with xfade', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-vp-'))
   try {
@@ -654,6 +687,11 @@ test('videoProcess trims and speeds up; videoConcat joins with xfade', async () 
     const concat = await videoConcat({ files: [a, b], outputDir: dir, transition: 'fade', fadeSec: 0.4 })
     assert.ok(existsSync(concat.path), 'concat file exists')
     assert.ok(concat.probe.durationSec > 3.0 && concat.probe.durationSec < 4.0, `fade concat duration ~3.6s, got ${concat.probe.durationSec}`)
+    const silent = join(dir, 'silent.mp4')
+    const silentRun = spawnSync('ffmpeg', ['-hide_banner', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=320x180:rate=24:duration=1.5', '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', silent], { encoding: 'utf8' })
+    if (silentRun.status !== 0) throw new Error('silent clip failed')
+    const mixed = await videoConcat({ files: [silent, b], outputDir: dir, transition: 'fade', fadeSec: 0.3 })
+    assert.ok(mixed.probe.durationSec > 2.5 && mixed.probe.durationSec < 4.0, `silent+audio fade must not hang, got ${mixed.probe.durationSec}`)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

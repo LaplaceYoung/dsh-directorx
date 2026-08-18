@@ -1,3 +1,56 @@
+---
+type: Reference
+title: "场景设计与空间叙事（Set Design & Spatial Storytelling）"
+description: "场景设计手册：场景=另一位讲述者、道具=证据、缺席即表达、色彩/质感/家具的情绪语言、阈限空间与视觉隐喻、AI 场景生成应用"
+tags:
+  - "foundation"
+  - "color"
+  - "narrative"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Raindance 布景隐藏语言"
+    id: cite-1
+    title: "Raindance 布景隐藏语言"
+  - resource: "cited:ScreenAnarchy Uli Hanisch 访谈（美术设计即写作）"
+    id: cite-2
+    title: "ScreenAnarchy Uli Hanisch 访谈（美术设计即写作）"
+  - resource: "cited:IndieWire Backrooms 阈限空间。"
+    id: cite-3
+    title: "IndieWire Backrooms 阈限空间。"
+  - resource: "https://raindance.org/how-interior-design-tells-a-story-the-hidden-language-of-film-sets/"
+    id: url-1
+    title: "raindance.org"
+  - resource: "https://screenanarchy.com/2026/03/visegrad-film-forum-2026-interview-uli-hanisch.html"
+    id: url-2
+    title: "screenanarchy.com"
+  - resource: "https://www.indiewire.com/features/craft/backrooms-liminal-space-production-design-1235196696/"
+    id: url-3
+    title: "indiewire.com"
+  - resource: "https://www.kosmorama.org/en/kosmorama/artikler/production-design-and-creation-story-worlds-introduction"
+    id: url-4
+    title: "kosmorama.org"
+  - resource: "https://aaltodoc.aalto.fi/items/08cbb7e4-8980-489f-afa8-d70770659976"
+    id: url-5
+    title: "aaltodoc.aalto.fi"
+  - resource: "https://www.scholepress.hk/journal/jas/2/1/24"
+    id: url-6
+    title: "scholepress.hk"
+  - resource: "https://pdf.hanspub.org/design20230400000_60484264.pdf"
+    id: url-7
+    title: "pdf.hanspub.org"
+dx_id: "46"
+related:
+  - "93-lighting-narrative/lighting-narrative.md"
+  - "155-color-psychology/color-psychology.md"
+  - "209-prop-storytelling/prop-storytelling.md"
+---
+
 # 场景设计与空间叙事（Set Design & Spatial Storytelling）
 
 > 本页是 DirectorX 场景设计手册：场景=另一位讲述者、道具=证据、缺席即表达、色彩/质感/家具的情绪语言、阈限空间与视觉隐喻、AI 场景生成应用。与 45 风格统一 / 04 世界观 / 40 分镜工作流衔接。
@@ -94,3 +147,9 @@
 - Aalto: Constructing Meaning in Film Production Design — Semiotics as a Tool — https://aaltodoc.aalto.fi/items/08cbb7e4-8980-489f-afa8-d70770659976
 - Schole Press: 武侠电影客栈空间的权力、性别与文化身份叙事隐喻（《大醉侠》） — https://www.scholepress.hk/journal/jas/2/1/24
 - 汉斯出版社: 动画电影《深海》现实与梦境空间叙事与情感传达设计 — https://pdf.hanspub.org/design20230400000_60484264.pdf
+
+## 相关概念
+
+- [光线叙事（Lighting as Narrative）](../93-lighting-narrative/lighting-narrative.md)
+- [AI 视频色彩心理学（Color Psychology — Palette as Emotional Language）](../155-color-psychology/color-psychology.md)
+- [AI 场景道具叙事（Prop Storytelling — Objects as Meaning-Carriers）](../209-prop-storytelling/prop-storytelling.md)

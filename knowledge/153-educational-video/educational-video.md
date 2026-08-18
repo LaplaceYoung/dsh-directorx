@@ -1,3 +1,58 @@
+---
+type: Reference
+title: "AI 教育视频专项（Educational Video — Pedagogy-Driven Design & Visual Learning）"
+description: "AI 教育/教学视频的专项体系：教学法驱动的设计（微型课/情景式/讲授式）、视觉学习与认知留存（对抗遗忘曲线）、自动字幕与互动元素、学习分析反馈"
+tags:
+  - "consistency"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Seedance Create Engaging Learning Videos with AI"
+    id: cite-1
+    title: "Create Engaging Learning Videos with AI"
+    author: "org:Seedance"
+  - resource: "cited:Digen AI Video Maker for Educational Content 2026"
+    id: cite-2
+    title: "AI Video Maker for Educational Content 2026"
+    author: "org:Digen"
+  - resource: "cited:ReelMind Educational Content Reimagined: Explainer Videos with AI"
+    id: cite-3
+    title: "Educational Content Reimagined: Explainer Videos with AI"
+    author: "org:ReelMind"
+  - resource: "cited:Digen Text-to-Video AI for E-Learning 2026"
+    id: cite-4
+    title: "Text-to-Video AI for E-Learning 2026"
+    author: "org:Digen"
+  - resource: "https://www.seedance.tv/blog/ai-video-generator-education-2026"
+    id: url-1
+    title: "seedance.tv"
+  - resource: "https://resource.digen.ai/ai-video-maker-educational-content-2026/"
+    id: url-2
+    title: "resource.digen.ai"
+  - resource: "https://reelmind.ai/blog/educational-content-reimagined-engaging-explainer-videos-with-ai"
+    id: url-3
+    title: "reelmind.ai"
+  - resource: "https://resource.digen.ai/text-to-video-ai-e-learning-content-2026/"
+    id: url-4
+    title: "resource.digen.ai"
+  - resource: "https://reelmind.ai/blog/ai-for-educational-explainer-videos-complex-concepts-made-simple-visually"
+    id: url-5
+    title: "reelmind.ai"
+dx_id: "153"
+related:
+  - "137-digital-human/digital-human.md"
+  - "144-sound-design/sound-design.md"
+  - "27-caption-localization/caption-localization.md"
+  - "139-docu-knowledge-visuals/docu-knowledge-visuals.md"
+  - "142-short-form-platform/short-form-platform.md"
+---
+
 # AI 教育视频专项（Educational Video — Pedagogy-Driven Design & Visual Learning）
 
 > 本页为 AI 教育/教学视频的专项体系：教学法驱动的设计（微型课/情景式/讲授式）、视觉学习与认知留存（对抗遗忘曲线）、自动字幕与互动元素、学习分析反馈。知识本体来自 2026 教育视频指南（Seedance/Digen/ReelMind）。AI 应用面向 DirectorX：教育类项目（衔接 137 数字人讲师、144 声音、147 字幕、139 知识类画面）。
@@ -80,3 +135,11 @@
 - ReelMind — Educational Content Reimagined: Engaging Explainer Videos with AI：https://reelmind.ai/blog/educational-content-reimagined-engaging-explainer-videos-with-ai
 - Digen — Text to Video AI for E-Learning Content: 2026 Trends：https://resource.digen.ai/text-to-video-ai-e-learning-content-2026/
 - ReelMind — AI for Educational Explainer Videos: Complex Concepts Made Simple：https://reelmind.ai/blog/ai-for-educational-explainer-videos-complex-concepts-made-simple-visually
+
+## 相关概念
+
+- [AI 数字人全流程（Digital Human — Avatar Creation, Lip-Sync & Localization）](../137-digital-human/digital-human.md)
+- [AI 声音设计专项（Sound Design — Foley, Ambience, SFX & Mixing）](../144-sound-design/sound-design.md)
+- [字幕与本地化交付（Captions & Localization）](../27-caption-localization/caption-localization.md)
+- [AI 纪录片与知识类画面（Documentary & Educational Visuals — Archival, Reenactment & Data Viz）](../139-docu-knowledge-visuals/docu-knowledge-visuals.md)
+- [AI 短视频平台算法适配（Short-Form Platform Fit — Hooks, Retention & Platform Adaptation）](../142-short-form-platform/short-form-platform.md)

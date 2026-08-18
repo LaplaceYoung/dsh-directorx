@@ -33,7 +33,10 @@
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "pretest": "npm run typecheck && npm run build"
+    "pretest": "npm run typecheck && npm run build",
+    "knowledge:audit": "node --experimental-strip-types scripts/knowledge-okf.ts audit",
+    "knowledge:check": "node --experimental-strip-types scripts/knowledge-okf.ts check",
+    "knowledge:migrate": "node --experimental-strip-types scripts/knowledge-okf.ts migrate"
   },
   "keywords": [
     "deepseek-harness",

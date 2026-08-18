@@ -1,3 +1,55 @@
+---
+type: Reference
+title: "动画与动态设计（Motion Design & Animation）"
+description: "动效知识库：动效设计十二原则（迪士尼/现代改编）、缓动与关键帧、字幕动画与 Kinetic Typography、Lower Third 规范、片头设计、MG 动画制作流程"
+tags:
+  - "foundation"
+  - "workflow"
+status: stable
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Studio2a 十二原则"
+    id: cite-1
+    title: "Studio2a 十二原则"
+  - resource: "cited:Figma Easing 文档"
+    id: cite-2
+    title: "Figma Easing 文档"
+  - resource: "cited:Adobe 文字动画"
+    id: cite-3
+    title: "Adobe 文字动画"
+  - resource: "cited:Wikipedia Kinetic typography"
+    id: cite-4
+    title: "Wikipedia Kinetic typography"
+  - resource: "cited:MG 动画行业流程。"
+    id: cite-5
+    title: "MG 动画行业流程。"
+  - resource: "https://www.studio2a.co/12-principles-of-motion-design/"
+    id: url-1
+    title: "studio2a.co"
+  - resource: "https://help.figma.com/hc/en-us/articles/41238219562007-Motion-design-fundamentals-Easing"
+    id: url-2
+    title: "help.figma.com"
+  - resource: "https://blog.adobe.com/en/publish/2016/11/08/redesigning-the-12-principles-of-animation-for-motion-design"
+    id: url-3
+    title: "blog.adobe.com"
+  - resource: "https://en.wikipedia.org/wiki/Kinetic_typography"
+    id: url-4
+    title: "en.wikipedia.org"
+  - resource: "https://olafmotion.com/tips/lower-thirds-animation-tips-guide/"
+    id: url-5
+    title: "olafmotion.com"
+dx_id: "21"
+related:
+  - "07-directing/directing-techniques.md"
+  - "08-workflow-glossary/production-workflow-glossary.md"
+  - "13-genre-documentary/documentary-talking-head.md"
+---
+
 # 动画与动态设计（Motion Design & Animation）
 
 > 本页是 DirectorX 动效知识库：动效设计十二原则（迪士尼/现代改编）、缓动与关键帧、字幕动画与 Kinetic Typography、Lower Third 规范、片头设计、MG 动画制作流程。每个概念含定义、参数与规范。
@@ -164,3 +216,9 @@
 - Wikipedia: Kinetic typography — https://en.wikipedia.org/wiki/Kinetic_typography
 - OlafMotion: Lower Thirds Animation Tips — https://olafmotion.com/tips/lower-thirds-animation-tips-guide/
 - Wetton&Co: The Anatomy of a Title Sequence — https://wettonco.com/the-anatomy-of-a-title-sequence-balancing-narrative-and-legibility-in-film-graphics/
+
+## 相关概念
+
+- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)
+- [影视制作全流程与术语大全（Production Workflow & Glossary）](../08-workflow-glossary/production-workflow-glossary.md)
+- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)

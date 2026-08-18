@@ -94,6 +94,11 @@ export async function orchestrateProduction(input: {
     tools: [
       tool('directorx_brief', { request }, { type: briefOut.brief.type, targetSeconds: briefOut.brief.targetSeconds, aspectRatio: briefOut.brief.aspectRatio }),
       tool('directorx_infer_kind', { request }, { kind, entities }),
+      tool('directorx_prompt_plan', { intent: request }, {
+        level: briefOut.plan.level,
+        strategyHint: briefOut.plan.strategyHint,
+        next: briefOut.plan.next,
+      }),
     ],
   })
 

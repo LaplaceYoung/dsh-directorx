@@ -1,3 +1,57 @@
+---
+type: Reference
+title: "短视频制作技巧（Short-Form Video）"
+description: "短视频知识库：平台特征与算法、3.1 秒阈值、钩子设计、完播率编辑模式、竖屏构图与安全区、内容结构模板、声音与字幕"
+tags:
+  - "foundation"
+  - "sound"
+  - "platform"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Hootsuite TikTok 算法 2026"
+    id: cite-1
+    title: "Hootsuite TikTok 算法 2026"
+  - resource: "cited:ClipForge 2026 留存编辑手册（引用 Meta Reels Creator Playbook"
+    id: cite-2
+    title: "ClipForge 2026 留存编辑手册（引用 Meta Reels Creator Playbook"
+  - resource: "cited:TikTok Creator Academy"
+    id: cite-3
+    title: "TikTok Creator Academy"
+  - resource: "cited:Nielsen Norman Group"
+    id: cite-4
+    title: "Nielsen Norman Group"
+  - resource: "cited:MIT McGovern Institute 研究）"
+    id: cite-5
+    title: "MIT McGovern Institute 研究）"
+  - resource: "cited:剪映/CapCut 官方资料。"
+    id: cite-6
+    title: "剪映/CapCut 官方资料。"
+  - resource: "https://blog.hootsuite.com/tiktok-algorithm/"
+    id: url-1
+    title: "blog.hootsuite.com"
+  - resource: "https://clip-forge.io/blog/vertical-video-retention-editing-playbook-2026"
+    id: url-2
+    title: "clip-forge.io"
+  - resource: "https://www.tiktok.com/creator-academy/"
+    id: url-3
+    title: "tiktok.com"
+  - resource: "https://www.capcut.com/create/short-form-video-hooks-first-3-second-patterns"
+    id: url-4
+    title: "capcut.com"
+dx_id: "05"
+related:
+  - "42-article-to-video/article-to-video.md"
+  - "121-e2e-orchestration/e2e-orchestration.md"
+  - "161-audio-mastering/audio-mastering.md"
+---
+
 # 短视频制作技巧（Short-Form Video）
 
 > 本页是 DirectorX 短视频知识库：平台特征与算法、3.1 秒阈值、钩子设计、完播率编辑模式、竖屏构图与安全区、内容结构模板、声音与字幕。
@@ -213,3 +267,9 @@ TikTok Creator Academy 官方建议的三种开篇钩子：
 - Meta Reels Creator Playbook 2025（经 ClipForge 引用）
 - CapCut: Short-Form Video Hooks — https://www.capcut.com/create/short-form-video-hooks-first-3-second-patterns
 - SunoMV: 竖屏音乐视频开场钩子方法 — https://suno.bi/blog/first-3-seconds-hook-opening-method-vertical-mv-shorts-sunomv-2026
+
+## 相关概念
+
+- [图文转视频工作流（Article-to-Video Repurposing）](../42-article-to-video/article-to-video.md)
+- [AI 视频端到端编排（End-to-End AI Video Orchestration — Agent Pipeline & Workflow）](../121-e2e-orchestration/e2e-orchestration.md)
+- [AI 音频母带处理（Audio Mastering — LUFS, Dialogue Clarity & Platform Targets）](../161-audio-mastering/audio-mastering.md)

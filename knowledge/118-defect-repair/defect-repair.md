@@ -1,3 +1,62 @@
+---
+type: Reference
+title: "生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）"
+description: "AI 视频生成缺陷的完整诊断与修复体系：六类失败模式（身份漂移/环境变形/解剖破坏/物理失效/闪烁/文字破损）、诊断方法（先判断是哪一类再修）、修复策略（提示词/参考/节奏/后期），以及\"停止盲目重试\"的纪律"
+tags:
+  - "production"
+  - "prompt"
+  - "qa"
+status: stable
+stale_after: "2027-08-18"
+generated:
+  by: "process:directorx-knowledge-okf"
+  at: "2026-08-18T00:00:00Z"
+verified:
+  - by: "process:knowledge-audit"
+    at: "2026-08-18T00:00:00Z"
+sources:
+  - resource: "cited:Kling Fix AI Video Drift & Consistency"
+    id: cite-1
+    title: "Fix AI Video Drift & Consistency"
+    author: "org:Kling"
+  - resource: "cited:Imagetovideoai Artifact Troubleshooting Guide"
+    id: cite-2
+    title: "Artifact Troubleshooting Guide"
+    author: "org:Imagetovideoai"
+  - resource: "cited:DesignerBox 4 Failure Modes of AI Video Distortion"
+    id: cite-3
+    title: "4 Failure Modes of AI Video Distortion"
+    author: "org:DesignerBox"
+  - resource: "cited:NemoVideo Why Your AI Videos Look Fake"
+    id: cite-4
+    title: "Why Your AI Videos Look Fake"
+    author: "org:NemoVideo"
+  - resource: "cited:Genra 7 Fixes for Common AI Artifacts"
+    id: cite-5
+    title: "7 Fixes for Common AI Artifacts"
+    author: "org:Genra"
+  - resource: "https://kling.ai/blog/fix-ai-video-drift-consistency-guide"
+    id: url-1
+    title: "kling.ai"
+  - resource: "https://imagetovideoai.net/blog/ai-video-artifact-troubleshooting-guide"
+    id: url-2
+    title: "imagetovideoai.net"
+  - resource: "https://designerbox.ai/blog/avoid-distortions-in-ai-video/"
+    id: url-3
+    title: "designerbox.ai"
+  - resource: "https://www.nemovideo.com/blog/why-ai-videos-look-fake-how-to-fix"
+    id: url-4
+    title: "nemovideo.com"
+  - resource: "https://genra.ai/blog/why-ai-videos-look-fake-how-to-fix"
+    id: url-5
+    title: "genra.ai"
+dx_id: "118"
+related:
+  - "14-ai-video-generation/ai-video-generation.md"
+  - "33-ai-image-prompting/ai-image-prompting.md"
+  - "37-genre-horror-suspense/horror-suspense.md"
+---
+
 # 生成缺陷识别与修复（AI Video Artifacts — Diagnose, Fix, Regenerate）
 
 > 本页为 AI 视频生成缺陷的完整诊断与修复体系：六类失败模式（身份漂移/环境变形/解剖破坏/物理失效/闪烁/文字破损）、诊断方法（先判断是哪一类再修）、修复策略（提示词/参考/节奏/后期），以及"停止盲目重试"的纪律。知识本体来自 2026 缺陷排查指南（Kling/Imagetovideoai/DesignerBox/NemoVideo/Genra）。
@@ -94,3 +153,9 @@
 - DesignerBox — How to Avoid Distortions in AI Video: 4 Failure Modes：https://designerbox.ai/blog/avoid-distortions-in-ai-video/
 - NemoVideo — Why Your AI Videos Look Fake (And How to Fix Them)：https://www.nemovideo.com/blog/why-ai-videos-look-fake-how-to-fix
 - Genra — Why Your AI Videos Look Fake: 7 Fixes for Common AI Artifacts：https://genra.ai/blog/why-ai-videos-look-fake-how-to-fix
+
+## 相关概念
+
+- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [AI 图片生成提示词手册（AI Image Prompting）](../33-ai-image-prompting/ai-image-prompting.md)
+- [恐怖/悬疑视觉语言（Horror & Suspense Visual Language）](../37-genre-horror-suspense/horror-suspense.md)
