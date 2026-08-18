@@ -82,9 +82,14 @@ export function normalizeH3Prompt(prompt: string, input: {
 
 export function h3CraftLooksReady(prompt: string): string | undefined {
   const body = prompt.trim()
-  if (body.length < 80) return 'H3 成稿太短。按参考说明 + 核心创意 + 画面过程写，或写成官方三字段。'
-  const hasTimeline = /\[Shot\s*1\]|Shot 1|0-3|0〜|【画面过程|integrated_multimodal_description/i.test(body)
-  if (!hasTimeline) return 'H3 成稿缺少时间线（[Shot 1] 或按秒分段的画面过程）。不要只写一句氛围。'
+  if (/角度不是成稿|本行是角度/.test(body)) return 'H3 占位不能是角度标签。按参考说明 + 核心创意 + 画面过程写细。'
+  if (body.length < 160) return 'H3 成稿太短。按参考说明 + 核心创意 + 画面过程写，或写成官方三字段，不要塞一个 [Shot 1] 过闸。'
+  const hasOfficial = HAS_OFFICIAL_FIELDS.test(body)
+  const hasThree = /参考素材说明/.test(body) && /核心创意/.test(body) && /画面过程/.test(body)
+  const hasTimeline = /\[Shot\s*1\]/.test(body) || /At 00:/.test(body) || /0\.00-second/.test(body)
+  if (!hasOfficial && !hasThree && !hasTimeline) {
+    return 'H3 成稿缺少时间线或三段公式（参考说明 + 核心创意 + 画面过程 / 官方三字段）。不要只写一句氛围。'
+  }
   return undefined
 }
 

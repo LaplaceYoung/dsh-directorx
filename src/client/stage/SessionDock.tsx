@@ -348,7 +348,7 @@ const SESSION_CHIPS = [
   },
   {
     label: '保存本次为技能',
-    text: '请对刚完成的成片 directorx_skill_capture { action: "offer", present: true }。用提问卡问我是否保存为「xx」技能，禁止正文菜单。我同意后把阶段流程、directorx_note 里的修改意见、拒因和风格锁整理成 SKILL.md，再 action:save。不要写入插件自带 skills/。',
+    text: '请对刚完成的成片 directorx_skill_capture { action: "offer", present: true }。用 DSH 标准提问问我是否保存为「xx」技能，禁止正文菜单。我同意后把阶段流程、directorx_note 里的修改意见、拒因和风格锁整理成 SKILL.md，再 action:save。不要写入插件自带 skills/。',
   },
   {
     label: '保存本系列设定',

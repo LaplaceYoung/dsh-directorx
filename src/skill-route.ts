@@ -106,7 +106,7 @@ const RULES: Rule[] = [
     id: 'capture',
     match: /保存为技能|存成 skill|收成技能|skill_capture|保存本次为/i,
     mode: 'research',
-    reason: '交片后收成：提问卡问是否保存为技能，再把流程和修改意见写成 SKILL.md。',
+    reason: '交片后收成：用 DSH 标准提问是否保存为技能，再把流程和修改意见写成 SKILL.md。',
     skills: ['directorx-skill-capture', 'directorx-chengpian'],
     knowledge: ['成片 流程'],
     extraTools: ['directorx_skill_capture', 'directorx_note', 'directorx_ask'],

@@ -118,7 +118,7 @@ const PERSON_WORD = /人物|角色|女孩|男孩|女人|男人|士兵|将军|民
 const SCENE_HINT = /空镜|场景图|场景设定|建立镜头|establishing|scene.?still|场景参考/
 const KEYFRAME_HINT = /关键帧|keyframe|首帧静帧|尾帧静帧/
 const I2V_HINT = /图生视频|i2v|image.to.video|用这张|以这张|这张图动/
-const FL_HINT = /首尾帧|first.+last|尾帧|last.?frame|从.+过渡到|转场到/
+const FL_HINT = /首尾帧|fl2va|first[\s_-]*and[\s_-]*last|first[\s_-]*last[\s_-]*frame/i
 const SHEET_NODE = /设定|三视图|定妆|turnaround|sheet|角色卡/
 
 export function parseStrategy(value: unknown): GenerateStrategy | undefined {
@@ -195,10 +195,11 @@ export function classifyGenerateStrategy(input: AssessReadyInput): GenerateStrat
     if (declared === 'scene-still' || SCENE_HINT.test(text)) return 'scene-still'
     return 't2i'
   }
-  if (declared === 'fl2v' || (hasPath(input.firstFrame) && hasPath(input.lastFrame)) || FL_HINT.test(text)) return 'fl2v'
-  if (declared === 't2v' || declared === 'ref2v') return declared
+  if (declared === 'fl2v' || (hasPath(input.firstFrame) && hasPath(input.lastFrame))) return 'fl2v'
+  if (declared !== undefined) return declared
+  if (FL_HINT.test(text)) return 'fl2v'
   const source = previousMedia(input)
-  if (declared === 'i2v' || hasPath(input.firstFrame) || I2V_HINT.test(text)) return 'i2v'
+  if (hasPath(input.firstFrame) || I2V_HINT.test(text)) return 'i2v'
   if (source?.kind === 'image' && hasPath(source.path)) return 'i2v'
   if (source?.kind === 'video' && hasPath(source.path)) return 'i2v'
   const names = detectNamedCharacters(text, input.snapshot, input.characters)
@@ -382,7 +383,7 @@ function buildNext(report: ReadyReport): string[] {
   if (report.verdict === 'ready') {
     next.push('严格/协同：directorx_propose 带 craftId+readyId；生成必须带同一个 readyId')
   } else {
-    next.push('用提问卡 directorx_ask 让用户选路，补资产后再 directorx_generate_ready commit:true')
+    next.push('用 directorx_ask（DSH 标准提问）让用户选路，补资产后再 directorx_generate_ready commit:true')
   }
   return [...new Set(next)]
 }

@@ -3,6 +3,7 @@ import { join, resolve, sep } from 'node:path'
 import { expandCraftQuery } from './craft-map.ts'
 import {
   extractMarkdownLinks,
+  formatArticleId,
   isStale,
   normalizeOkfType,
   parseOkfDocument,
@@ -342,10 +343,12 @@ export class DirectorxCorpus {
 }
 
 function matchArticle(inventory: KnowledgeArticle[], wanted: string): KnowledgeArticle | undefined {
+  const numeric = /^\d{1,3}$/.test(wanted) ? Number(wanted) : undefined
   const hits = inventory.filter(article => (
     article.id === wanted
     || article.slug === wanted
     || String(article.number) === wanted
+    || (numeric !== undefined && (article.number === numeric || formatArticleId(article.number) === wanted))
     || (article.aliases ?? []).includes(wanted)
   ))
   if (hits.length === 0) return undefined

@@ -27,7 +27,12 @@ export interface PromptCraft {
 const FILE = 'prompt-crafts.json'
 const MAX = 100
 
-const CAMERA_MARK = /镜头|景别|运镜|光|焦|camera|shot|lens|light|close-up|wide|cinematic|35mm|构图|atmosphere/i
+const SHOT_SIZE = /镜头|景别|特写|近景|中景|远景|全景|过肩|建立镜头|close-?up|medium shot|wide shot|extreme long|establishing|\bMCU\b|\bELS\b|\bCU\b|\bMS\b|\bLS\b/i
+const CAMERA = /运镜|机位|推近|推拉|摇移|跟镜|手持|固定机位|static|push|pan|tilt|dolly|handheld|eye-level|low[- ]?angle|high[- ]?angle|orbit|crane/i
+const LIGHT = /光|灯|逆光|侧光|伦勃朗|golden hour|key light|\bkey\b|rim light|soft light|practical|霓虹|月光|阳光|暖光|冷光|\bnight\b|work-lamp/i
+const ENV = /室内|室外|街|巷|城|工地|现场|场地|房间|码头|渡口|广场|雾|环境|空间|palace|site|street|room|rain|dust|fog|夜|dawn|dusk|atmosphere/i
+const STYLE = /cinematic|电影|胶片|赛璐璐|35mm|50mm|anamorphic|atmosphere|风格|grain|\blook\b/i
+const ANGLE_STUB = /角度不是成稿|本行是角度/
 
 export class PromptCraftStore {
   constructor(private readonly outputDir: string) {}
@@ -61,12 +66,14 @@ export class PromptCraftStore {
 export function isThinPrompt(intent: string, prompt: string): string | undefined {
   const body = prompt.trim()
   const seed = intent.trim()
-  if (body.length < 80) return '成稿太短（<80 字）。意图不是提示词，必须写成带景别/光线/镜头/环境的导演稿。'
+  if (body.length < 120) return '成稿太短（<120 字）。意图不是提示词，必须写成带景别/运镜/光线/环境/风格的导演稿。'
+  if (ANGLE_STUB.test(body)) return '占位不能是角度标签。按景别/运镜/光线/环境/风格写成可执行导演稿。'
   if (seed !== '' && body === seed) return '成稿不能等于用户原句。先检索再改写。'
-  if (seed !== '' && body.length < seed.length + 40 && !CAMERA_MARK.test(body)) {
-    return '成稿几乎没展开，且看不到镜头/光线/构图语言。'
+  if (seed !== '' && body.length < seed.length + 60) return '成稿几乎没展开。按六要素写细，不要复述原句。'
+  const dims = [SHOT_SIZE, CAMERA, LIGHT, ENV, STYLE].filter(mark => mark.test(body)).length
+  if (dims < 4) {
+    return `成稿缺导演要素（现有 ${dims}/5：景别/运镜/光线/环境/风格）。至少写齐 4 项，不能只塞 cinematic / 35mm。`
   }
-  if (!CAMERA_MARK.test(body)) return '成稿缺少镜头语言（景别/运镜/光线/焦段/atmosphere）。'
   return undefined
 }
 

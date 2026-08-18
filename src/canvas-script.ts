@@ -240,8 +240,9 @@ export async function applyScriptRows(input: {
       prompt: text.slice(0, 2000),
       x: input.origin?.x ?? 48,
       y: input.origin?.y ?? 48,
-      width: 280,
-      height: 200,
+      width: 320,
+      height: Math.max(200, Math.min(520, 80 + text.split('\n').length * 18)),
+      continuityRules: [`${SCRIPT_STAMP_PREFIX}source`],
     })
     source = doc.nodes[doc.nodes.length - 1]
     sourceId = source.id

@@ -48,8 +48,8 @@ sources:
 dx_id: "101"
 related:
   - "332-full-integration-practice/full-integration-practice.md"
-  - "13-genre-documentary/documentary-talking-head.md"
-  - "14-ai-video-generation/ai-video-generation.md"
+  - "401-chase-scene/chase-scene.md"
+  - "403-romance-emotional-scene/romance-emotional-scene.md"
 ---
 
 # AI 辅助剧本写作：术语详解 + AI 理解与实现（AI-Assisted Screenwriting — Deep Terms & Implementation）
@@ -279,5 +279,5 @@ CRDT（无冲突复制数据类型）——多人同时编辑同一文档不冲�
 ## 相关概念
 
 - [电影全整合落地与总合成（Full Integration in Practice — Framework to Prompt）](../332-full-integration-practice/full-integration-practice.md)
-- [纪录片与口播知识类（Documentary & Talking Head）](../13-genre-documentary/documentary-talking-head.md)
-- [AI 视频生成工作流（AI Video Generation）](../14-ai-video-generation/ai-video-generation.md)
+- [追逐/追车场景镜头级方案（Chase & Vehicle Scene — Shot-by-Shot Design + AI）](../401-chase-scene/chase-scene.md)
+- [浪漫/情感场景镜头级方案（Romance & Emotional Scene — Intimacy & Feeling + AI）](../403-romance-emotional-scene/romance-emotional-scene.md)

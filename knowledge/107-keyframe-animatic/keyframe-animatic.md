@@ -50,14 +50,14 @@ sources:
     title: "lucidlink.com"
 dx_id: "107"
 related:
+  - "110-ai-vfx-pipeline/ai-vfx-pipeline.md"
   - "48-ai-drama-studio/ai-drama-studio.md"
   - "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
-  - "07-directing/directing-techniques.md"
 ---
 
 # 关键帧与动画预演（Keyframes & Animatic — From Concept Art to Screen）
 
-> 本页知识本体来自真实动画/视效工作室的生产管线：概念图（Concept Art）→ 故事板 → Animatic（预演剪辑）→ 布局（Layout）→ 资产 → 动画 → 光照渲染 → 合成 → 成片。核心论点：**动画和视效从不"文本直出成片"——每一镜在生成前都有确定的关键帧/参考帧/预演**，这正是"生成视频前必须有图参考"的行业依据。
+> 本页知识本体来自真实动画/视效工作室的生产管线：概念图（Concept Art）→ 故事板 → Animatic（预演剪辑）→ 布局（Layout）→ 资产 → 动画 → 光照渲染 → 合成 → 成片。核心论点：**动画和视效从不"文本直出成片"——每一镜在生成前都有确定的关键帧/参考帧/预演**，这正是"生成视频前必须有图参考"的行业依据（衔接 110 AI 视觉特效管线：前期预演对应后期合成）。
 > 来源：RMCAD「Breaking Down the Animation Pipeline」、CG Spectrum「Guide to Animation Pipeline」、Shortfilmcentral「Animation Production Pipeline 2026」、Meshy「Key Stages for 3D Artists」。
 
 ## 概述
@@ -161,6 +161,6 @@ Animatic = 分镜画面 + 时间 + 声音：
 
 ## 相关概念
 
+- [AI 视觉特效管线（VFX Pipeline — Roto / Matchmove / Comp & AI Application）](../110-ai-vfx-pipeline/ai-vfx-pipeline.md)
 - [AI 短剧/漫剧视觉工厂（AI Drama & Manhua Studio Pipeline）](../48-ai-drama-studio/ai-drama-studio.md)
 - [真人+AI 混合制作工作流（Hybrid Live-Action & AI Production）](../57-hybrid-liveaction-ai/hybrid-liveaction-ai.md)
-- [导演技巧（Directing Techniques）](../07-directing/directing-techniques.md)

@@ -297,7 +297,7 @@ related:
 5. **AI 生成提示词模板**（与 DirectorX prompt-engineering 语法一致）：
    - 图片：`[景别] of [主体], [角度], [镜头运动/机位], [构图], [焦距/景深], [光线], [色彩]` → 例：`medium close-up of a determined detective, low angle, shallow depth of field, 85mm, rule of thirds, cool blue palette`
    - 视频：`[参考映射] -> Camera: [景别+运动] -> Subject: [动作] -> Space: [环境] -> Audio: [声音] -> Negative: [负面约束]`
-6. **候选生成（Coverage 思维）**：关键动作同时生成多个机位版本（主镜头 + 过肩 + 特写），给剪辑留选择空间（对应 07 导演文档的 Coverage 策略）。
+6. **候选生成（Coverage 思维）**：关键动作同时生成多个机位版本（主镜头 + 过肩 + 特写），给剪辑留选择空间（对应 7 导演文档的 Coverage 策略）。
 
 ## 术语表（中英对照）
 

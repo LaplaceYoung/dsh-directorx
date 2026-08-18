@@ -35,6 +35,11 @@ test('scanIpRisk is case-insensitive for English marks', () => {
   assert.equal(hits[0].kind, 'character')
 })
 
+test('lowercase frozen motion is not Frozen the movie', () => {
+  assert.equal(scanIpRisk('camera frozen on the hanging iron city, waves frozen mid-draw').length, 0)
+  assert.ok(scanIpRisk('elsa in arendelle ice palace').some(hit => /elsa/i.test(hit.term)))
+})
+
 test('combo triggers without naming the IP', () => {
   const hits = scanIpRisk('黄皮电气老鼠在草地上跑')
   assert.ok(hits.some(hit => hit.kind === 'combo'))

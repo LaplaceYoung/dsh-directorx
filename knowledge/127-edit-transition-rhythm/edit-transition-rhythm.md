@@ -60,7 +60,7 @@ related:
 
 # AI 剪辑转场与节奏（AI Editing — Smart Transitions, Rhythm & Beat-Sync）
 
-> 本页为 AI 剪辑能力体系：智能剪辑（自动粗剪/选材）、节拍同步（Beat-Sync 卡点）、转场类型与节奏控制、AI 辅助工具分类。知识本体来自 2026 AI 剪辑工具评测（OpusClip/ReelMind/Cutback/Superprompt）。AI 应用面向 DirectorX：剪辑端能力（衔接 02 剪辑转场、44 AI 剪辑工具、63 字幕节奏）。
+> 本页为 AI 剪辑能力体系：智能剪辑（自动粗剪/选材）、节拍同步（Beat-Sync 卡点）、转场类型与节奏控制、AI 辅助工具分类。知识本体来自 2026 AI 剪辑工具评测（OpusClip/ReelMind/Cutback/Superprompt）。AI 应用面向 DirectorX：剪辑端能力（衔接 2 剪辑转场、44 AI 剪辑工具、63 字幕节奏）。
 > 来源：OpusClip「12 Best AI Beat-Sync Tools」、ReelMind「Automated Video Rhythm Editing」、Cutback「Best AI Video Editing Tools 2026」、Superprompt「10 Best AI Video Editing Apps」、BeatCut。
 
 ## 概述
@@ -77,7 +77,7 @@ related:
 4. **智能转场**：按内容/节奏选转场类型
 5. **节奏调整（Pacing）**：按平台节奏整体调速
 
-### 转场类型速查（衔接 02）
+### 转场类型速查（衔接 2）
 
 | 类型 | 情绪/用途 |
 |---|---|

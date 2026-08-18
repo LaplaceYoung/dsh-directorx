@@ -46,11 +46,12 @@ related:
   - "97-action-stunts/action-stunts.md"
   - "69-ai-performance-control/ai-performance-control.md"
   - "117-ai-consistency-system/ai-consistency-system.md"
+  - "211-motion-style-transfer/motion-style-transfer.md"
 ---
 
 # AI 动作与表演生成（Motion & Performance — Motion Transfer, Pose Control & Mocap-Less）
 
-> 本页为 AI 动作与表演生成体系：运动迁移（Motion Transfer，参考视频→角色）、姿态控制（Pose Control）、无动捕（Mocap-Less）动画、关键帧控制与多参考融合。知识本体来自 2026 动作生成研究/工具（arXiv SCAIL/TopView/DeepMotion/Kling）。AI 应用面向 DirectorX：表演控制（衔接 97 动作编舞、132 表演情绪、117 一致性）。
+> 本页为 AI 动作与表演生成体系：运动迁移（Motion Transfer，参考视频→角色）、姿态控制（Pose Control）、无动捕（Mocap-Less）动画、关键帧控制与多参考融合。知识本体来自 2026 动作生成研究/工具（arXiv SCAIL/TopView/DeepMotion/Kling）。AI 应用面向 DirectorX：表演控制（衔接 97 动作编舞、132 表演情绪、117 一致性、211 运动风格迁移）。
 > 来源：arXiv「SCAIL: Studio-Grade Character Animation」、Kling「AI Motion Control」、TopView「AI Motion Control」、DeepMotion「Animate 3D」。
 
 ## 概述
@@ -137,3 +138,4 @@ related:
 - [AI 生成动作场景：术语详解 + AI 理解与实现（Action Stunts — Deep Terms & AI Implementation）](../97-action-stunts/action-stunts.md)
 - [AI 角色表演控制（AI Performance Direction）](../69-ai-performance-control/ai-performance-control.md)
 - [AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）](../117-ai-consistency-system/ai-consistency-system.md)
+- [AI 运动风格迁移（Motion Style Transfer — Video-to-Video & Retargeting）](../211-motion-style-transfer/motion-style-transfer.md)

@@ -85,7 +85,7 @@ function stagesFor(kind: ComposeKind, hasMaterials: boolean): ComposeStage[] {
   }
   const ask: ComposeStage = {
     name: '问',
-    purpose: '一次澄清真正的分叉（时长/画幅/改编幅度/替换范围），每项带推荐默认。必须 directorx_ask 提问卡，禁止正文菜单。',
+    purpose: '一次澄清真正的分叉（时长/画幅/改编幅度/替换范围），每项带推荐默认。必须 directorx_ask（DSH 标准提问），禁止正文菜单。',
     tools: ['directorx_ask'],
     phase: 'plan',
   }
@@ -196,7 +196,7 @@ export function composeProductionFlow(input: {
       return [`${stage.name}：${stage.purpose} — ${stage.tools.join(' / ')}`]
     }),
     '用户用 /directorx 看制片板，或 directorx_confirm 走 DSH 提问签字；确认前不生成。directorx_orchestrate 是可选加速，不是必经入口',
-    '交片后 directorx_skill_capture present:true：提问卡问是否保存为技能，把流程和用户改意见写成新技能',
+    '交片后 directorx_skill_capture present:true：用 DSH 标准提问是否保存为技能，把流程和用户改意见写成新技能',
   ]
   const researchQueries = researchFor(kind, input.request)
   return {

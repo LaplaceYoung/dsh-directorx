@@ -51,11 +51,12 @@ related:
   - "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md"
   - "225-film-lighting-theory/film-lighting-theory.md"
   - "170-light-matching/light-matching.md"
+  - "350-motivated-light-narrative/motivated-light-narrative.md"
 ---
 
 # 电影实拍光效艺术（Practical Lighting — Motivated Sources & In-Frame Light）
 
-> 本页为电影实拍光效艺术：实用光源（Practicals：画面内可见光源装饰+照明）、动机化布光（Motivated Lighting：仿真实光源证明主光）、实用光×非叙事光平衡（曝光/情绪）。知识本体来自 2026 实拍光效（Fiveable/NoFilmSchool/Wedio）。AI 应用面向 DirectorX：光效设计（衔接 125 光线、341 对应、225 布光、170 光匹配）。
+> 本页为电影实拍光效艺术：实用光源（Practicals：画面内可见光源装饰+照明）、动机化布光（Motivated Lighting：仿真实光源证明主光）、实用光×非叙事光平衡（曝光/情绪）。知识本体来自 2026 实拍光效（Fiveable/NoFilmSchool/Wedio）。AI 应用面向 DirectorX：光效设计（衔接 125 光线、341 对应、225 布光、170 光匹配、350 光效动机叙事）。
 > 来源：Fiveable「Practical and Motivated Lighting」、NoFilmSchool「A Primer on Practical Lights」、Wedio「Practical Lighting」、NoFilmSchool「What Is Practical Lighting」。
 
 ## 概述
@@ -137,3 +138,4 @@ related:
 - [AI 光线与氛围提示词体系（Lighting & Atmosphere Prompts — Cinematic Illumination）](../125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md)
 - [电影布光理论（Film Lighting Theory — Three-Point, Hard/Soft & High/Low Key）](../225-film-lighting-theory/film-lighting-theory.md)
 - [AI 实拍光线匹配（Light Matching — HDRI Extraction & Scene Relighting）](../170-light-matching/light-matching.md)
+- [电影实拍光效-动机-叙事三整合（Motivated Light × Narrative — Unmotivated as Tool）](../350-motivated-light-narrative/motivated-light-narrative.md)

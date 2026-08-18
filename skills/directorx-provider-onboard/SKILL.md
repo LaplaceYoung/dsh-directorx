@@ -30,7 +30,7 @@ user-invocable: true
    字段路径必须能在用户文档里引用到。引用不到就问用户，不要猜。
 
 4. `directorx_ask`  
-   提问卡确认：按 A 还是 B、baseURL 是否正确、要不要打一发最短真调用。不要在正文里列菜单。
+   用 directorx_ask（DSH 标准提问）确认：按 A 还是 B、baseURL 是否正确、要不要打一发最短真调用。不要在正文里列菜单。
 
 5. `directorx_provider_smoke` `{ id, createFixture?, pollFixture?, live? }`  
    先契约+探活。`live:true` 才打最短付费调用（B 类）。失败按返回的 issues 改 spec，不要重写协议。

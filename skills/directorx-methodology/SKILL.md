@@ -469,7 +469,7 @@ Veo 提示词指南、Runway Help Center、NarratoAI、Moozix、Walter Murch 六
     运镜/光线三样（规则 60）。
 103. **未锁不许写提示词**：身份、服装、场景、首帧未过 `view_image` 复核
     前，禁止 `directorx_prompt_craft` / generate。设定图、空镜、关键帧
-    先出并钉住。工具落点：`directorx_generate_ready` 的 blocked + 提问卡。
+    先出并钉住。工具落点：`directorx_generate_ready` 的 blocked + `directorx_ask`。
 104. **物理因果链**：动作提示词必须写 原因→接触→受力→身体反馈→结果，
     禁止结果先于接触出现（先摔倒再碰到杆）。工具落点：`prompt_craft`
     成稿检查；质检看抽帧是否因果齐全（规则 42）。

@@ -136,9 +136,9 @@ function displayTitle(raw: string, fallback: string): string {
 function harvestPrompts(title: string, name: string): { agentPrompt: string; writePrompt: string } {
   return {
     agentPrompt: [
-      '成片已到交付。立刻用提问卡问用户要不要把这次流程收成技能，禁止在正文写 1.2.3 菜单。',
+      '成片已到交付。立刻用 directorx_ask / skill_capture present 走 DSH 标准提问，问用户要不要把这次流程收成技能，禁止在正文写 1.2.3 菜单。',
       `调用 directorx_skill_capture { action: "offer", present: true }，默认名是「${title}」/ ${name}。`,
-      '用户说不保存就停。说换个名字就再用提问卡或自定义回答收下名字。',
+      '用户说不保存就停。说换个名字就再用 DSH 标准提问或自定义回答收下名字。',
       '同意后根据 harvest 的 stages / notes / rejects / crafts / style / ip 自己写 SKILL.md 正文，再 directorx_skill_capture action:save。',
       '不要写入插件自带 skills/。用户修改意见用 directorx_note 记过的和提案拒绝原因都要写进技能纪律。',
     ].join(''),
@@ -361,7 +361,7 @@ export async function runSkillCapture(input: {
         harvest,
         ask: harvest.ask,
         next: ['directorx_ask 让用户写下技能名', 'directorx_skill_capture save'],
-        agentPrompt: '用户要换名字。再出一张提问卡，或用自定义回答收下名字，然后写正文再 save。',
+        agentPrompt: '用户要换名字。再走 DSH 标准提问，或用自定义回答收下名字，然后写正文再 save。',
       }
     }
     return {
@@ -389,7 +389,7 @@ export async function runSkillCapture(input: {
       saved: false,
       decision,
       harvest,
-      next: ['先用提问卡或 name 参数确定技能名'],
+      next: ['先用 directorx_ask 或 name 参数确定技能名'],
     }
   }
   const saved = await saveCapturedSkill({

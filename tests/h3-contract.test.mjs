@@ -17,6 +17,7 @@ test('H3 contract matches official handbook spec', () => {
   assert.equal(clampH3Duration(20), 15)
   assert.equal(clampH3Duration(8), 8)
   assert.equal(h3Resolution('2K'), '1440p')
+  assert.equal(h3Resolution('1440P'), '1440p')
   assert.equal(h3Resolution('768p'), '768p')
   assert.equal(h3SkipReferences('/tmp/a.png', undefined), true)
   assert.equal(h3SkipReferences(undefined, undefined), false)
@@ -43,5 +44,10 @@ test('H3 prompt normalize adds official alignment and music lock', () => {
   assert.match(i2v.prompt, /fully referenced/)
   assert.equal(inferH3PromptMode({ firstFrame: 'a.png', lastFrame: 'b.png' }), 'fl2v')
   assert.ok(h3CraftLooksReady('短'))
-  assert.equal(h3CraftLooksReady('[Shot 1] Cinematic, 35mm, a wide shot of the hanging iron city as the orbital rail splits a rust-red seam and lanterns shake.'), undefined)
+  assert.ok(h3CraftLooksReady('[Shot 1] Cinematic, 35mm, a wide shot of the hanging iron city.'))
+  assert.equal(h3CraftLooksReady([
+    '【参考素材说明】无参考图，纯文生。',
+    '【核心创意】远景锁悬挂铁城，灯笼晃。',
+    '【画面过程说明】[Shot 1] Extreme long shot, static camera, rust-red orbital rail, lanterns shake in golden hour dust, cinematic 35mm, five seconds of wind.',
+  ].join('\n')), undefined)
 })

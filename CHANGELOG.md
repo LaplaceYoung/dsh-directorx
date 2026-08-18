@@ -4,9 +4,18 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **提问走 DSH 标准通道**：分叉、签字、收成技能不再叫「提问卡通道」。`directorx_ask` / `confirm` / `skill_capture` 一律 `userInteraction.ask`。
+- **剧本/人物设定上板**：`character_register`、`storyboard`、`bible pin`、`canvas_script` 把剧本和人物设定钉成画布文本节点。
+- **生成不再过松**：成稿门槛改为至少 120 字且景别/运镜/光线/环境/风格写齐 4 项；H3 要 160 字 + 时间线或三段公式。占位展开写成可执行导演稿，不再塞「角度不是成稿」。
+- **generate_ready 不再把硬切/转场误判成首尾帧**；声明 `ref2v` / `t2v` 优先于宽泛 FL 词。
+- **IP 扫描**：`frozen` 不再把英语冻结动作误判成冰雪奇缘。
+- **Modelverse H3**：`1440P` 大小写都映射到 `2K`。
+
 ### Changed
 
-- **知识库 OKF 治理**：语料按 Open Knowledge Format v0.2 带 `type` / `tags` / `description` / `sources`。删掉 10 篇重号占位，合并 11 篇导航/总合成/N+1 四融合（376/385/394→80，367/374→332 等）。有效文章 351→330；旧编号走重定向。`knowledge_search` 可按 type/tag 过滤，综合篇降权。维护命令 `npm run knowledge:audit` / `knowledge:check`。
+- **知识库 OKF 治理**：语料按 Google Open Knowledge Format v0.2 带 `type` / `tags` / `description` / `sources`。删掉重号占位，合并导航/总合成/N+1 四融合。有效文章 **348**（90 个旧编号重定向）。`knowledge_search` 可按 type/tag/group 过滤，综合篇降权。维护命令 `npm run knowledge:audit` / `knowledge:check`。
 - **画布分镜排版**：镜号与标题叠在卡片底部，空卡显示意图而不是空白图标；多选时收起生成条，避免和多选栏叠在一起。编组给幕标题留出上边距。方向键按 8/16 网格微移，吸附打开时跟网格对齐。Tab / ⇧Tab 按镜号和阅读顺序换镜。
 - **画布卡片**：成图铺满卡片，不再叠齿孔/角标/底栏；文件名 slug 不当标题；双击节点居中缩放到合适位置。DSH 会话里生成结果出小图预览，双击加入画布（已在画布上则聚焦）。
 - **画布 / 编辑台**：E 打开所选媒体编辑；编辑台显示镜头名而非文件名；Esc 先取消裁剪/文字再返回画布；⌘S 保存；图片工具 V/C/B/T/A；视频时间线播放头带当前时间。

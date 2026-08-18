@@ -86,7 +86,7 @@ user-invocable: true
   `directorx_canvas_shotlist`、`directorx_confirm`。配方在 `recipes/`。
   人机命令：`/directorx` `[shotlist|proposals|next]`。
 - 收成技能：用户修改意见 `directorx_note`。交片后 `directorx_skill_capture`
-  `{ present: true }` 提问卡问是否保存为「xx」技能；同意后把流程和改法写成新技能。
+  `{ present: true }` 用 DSH 标准提问是否保存为「xx」技能；同意后把流程和改法写成新技能。
   不要写入插件自带 skills/。
 - 改编短剧：大纲先收敛结构；角色 / 美术 / 剧本可并行，不得改已拍板的结构。
   分镜只认领剧本节拍，不发明情节。切镜前 `directorx_shot_vocab`。
@@ -103,7 +103,7 @@ user-invocable: true
 2. **推演流程形状**：由素材构成 + 目标推理（源视频→按内容 beat 分段→逐段重生成→重组；
    N 张静帧→关键帧蒙太奇/逐张 I2V→转场+音频；长视频→窗口化分析→ffmpeg 剪辑优先；
    纯文本创意→单元生产）。每个计划单元必须匹配工具真实能力，超出能力时明说并给最近退化方案。
-3. **一次澄清**：用 `directorx_ask` 提问卡收集真正的未知项（受众/平台/画幅/时长/风格/必须与禁止），
+3. **一次澄清**：用 `directorx_ask`（DSH 标准提问）收集真正的未知项（受众/平台/画幅/时长/风格/必须与禁止），
    每项带推荐默认值。禁止在正文里写编号菜单。用户已委托的选择则直接声明采用的默认。
 4. **研究工艺**：`directorx_skill_search` / `directorx_skill_read` 读技能全文，
    `directorx_knowledge_search` / `directorx_knowledge_read` 挖工艺文献，浓缩 3-5 条

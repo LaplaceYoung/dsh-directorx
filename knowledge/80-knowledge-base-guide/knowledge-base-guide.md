@@ -12,7 +12,7 @@ verified:
   - by: "process:knowledge-audit"
     at: "2026-08-18T00:00:00Z"
 sources:
-  - resource: "https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf"
+  - resource: Open Knowledge Format v0.2 (Google Cloud knowledge-catalog)
     id: cite-okf
     title: "Open Knowledge Format v0.2"
   - resource: "https://arxiv.org/html/2604.14572v3"
@@ -144,7 +144,7 @@ aliases:
 
 ## 来源
 
-- Open Knowledge Format v0.2：https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf
+- Open Knowledge Format v0.2（Google Cloud knowledge-catalog / okf）
 - arXiv — Distilling Enterprise Knowledge into Navigable Agent Skills（2604.14572）：https://arxiv.org/html/2604.14572v3
 - arXiv — AgenticRAG（2605.05538）：https://arxiv.org/html/2605.05538v1
 - 本库：`knowledge/INDEX.md`、`knowledge/_meta/inventory.json`

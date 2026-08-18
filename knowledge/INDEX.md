@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # DirectorX 知识库
 
-330 篇有效文章，86 个已合并旧编号。此文件是 OKF v0.2 根索引，由 `npm run knowledge:audit` 生成。
+348 篇有效文章，90 个已合并旧编号。此文件是 OKF v0.2 根索引，由 `npm run knowledge:audit` 生成。
 
 使用方式：先 `directorx_knowledge_search`（可按 type / tag / group 过滤），再 `directorx_knowledge_read` 读规范文章。旧编号与占位 slug 会重定向到合并后的文章。
 
@@ -238,7 +238,7 @@ okf_version: "0.2"
 * [电影蒙太奇理论（Montage Theory — Kuleshov Effect & Intellectual Montage）](./239-montage-theory/montage-theory.md) - (Reference) 电影蒙太奇理论：苏联蒙太奇学派、库列肖夫效应（Kuleshov Effect：同镜头因相邻镜头而变义）、爱森斯坦理智蒙太奇（Intellectual Montage：冲突产生第三义）、蒙太奇类型
 * [AI 图片风格参考驱动（Style Reference Driven — StyleGallery & Semantic-Aware Transfer）](./240-style-reference-driven/style-reference-driven.md) - (Reference) AI 图片的风格参考驱动：风格参考图 → 风格迁移（StyleGallery 语义感知/跨注意+自适应归一化）、单变量控制（固定锚点改一个变量）、风格保真度、身份保持
 
-# 高阶综合方法论（241-400，109 篇）
+# 高阶综合方法论（241-400，113 篇）
 
 * [电影声音空间叙事（Sound Spatial Narrative — Off-Screen Sound & Perspective）](./242-sound-spatial-narrative/sound-spatial-narrative.md) - (Reference) 电影声音空间叙事：画外声音（Off-Screen Sound）扩展世界、声音透视（Sound Perspective：响度/空间化/深度传达距离）、声音引导方位、声景叙事（衔接 219 声音理论的空间维度、173 空间音频技术、242 对应）
 * [AI 图片光影色彩统一（Photo Grading Unified — Batch Look & Learning Your Style）](./243-photo-grading-unified/photo-grading-unified.md) - (Reference) AI 图片的光影色彩统一：参考图定 look（肤色/风格）、AI 学习编辑风格批量应用、按光照分组批处理（保自然差异）、视觉校验（肤色/阴影/高光）
@@ -288,7 +288,6 @@ okf_version: "0.2"
 * [电影预期-揭示-杂交三整合（Expectation-Reveal-Hybrid — Unified Narrative Strategy）](./307-expectation-reveal-hybrid/expectation-reveal-hybrid.md) - (Reference) 电影预期-揭示-杂交三整合：统一主题串联多类型（保持调性一致）、反讽用俗套（元评论/对比类型元素）、强动机角色落地杂交（防混乱/承诺错位）、"读者不拒绝杂交，拒绝破承诺"
 * [AI 图片年代表演三锚应用（Era Portrait Anchors — Costume, Setting & Expression in Period Images）](./308-era-portrait-anchors/era-portrait-anchors.md) - (Reference) AI 图片的年代表演三锚应用：时代画像配方（年代+服饰+背景+光照+瑕疵/时代色/胶片效果）、摄影技术语言（主体/光/背景/镜头/情绪/风格）、跨场景光/阴影一致
 * [电影杂交类型配乐（Hybrid Scoring — Orchestral + Electronic in One Sound）](./309-hybrid-scoring/hybrid-scoring.md) - (Reference) 电影杂交类型配乐：管弦+电子混合（一个统一声音）、纹理优先（Texture-First）+管弦分层、情绪与规模塑造、杂交地平线（小提琴旋律×颗粒失真合成垫）
-* [电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）](./311-expectation-suspense-sensory/expectation-suspense-sensory.md) - (Reference) 电影预期-悬念-通感整合：未来导向预期（Expectation 是悬念/张力的来源）、非叙事音乐+叙事线索共同塑造、PAL-D 回路设计决策、主客观+生理信号测量迭代
 * [AI 图片记忆-时间-情绪三融合（Memory-Time-Emotion — Life Story Timelines & Memory Narration）](./312-memory-time-emotion/memory-time-emotion.md) - (Reference) AI 图片的记忆-时间-情绪三融合：人生故事时间线（AI 自动结构：时间戳/主题章节）、记忆驱动多镜头叙事（情绪整合）、时间线情绪翻译（AI 把情绪转视觉+节奏结构）
 * [AI 图片签名时间融合（Signature-Time Fusion — Adaptive Identity & Living Visual Systems）](./315-signature-time-evolution/signature-time-evolution.md) - (Reference) AI 图片的签名时间融合：自适应身份系统（Living Identity：替代静态风格指南）、实时演变资产（AI 驱动上下文适配）、动态 Logo/运动优先品牌、核心身份保持+演变
 * [电影沉浸-预期-揭示三整合（Immersion-Expectation-Reveal — Unified Engagement Architecture）](./316-immersion-expectation-reveal/immersion-expectation-reveal.md) - (Reference) 电影沉浸-预期-揭示三整合：游戏化电影（关卡式单元+奖励系统）、非线性多线索叙事（过去/现在/未来交织）、沉浸设计框架（叙事架构/具身交互/跨媒体空间）、编辑对叙事认知的影响（VR）
@@ -307,7 +306,6 @@ okf_version: "0.2"
 * [AI 图片世界引擎应用（World Engine Application — Production Pipelines & Versioned Assets）](./333-world-engine-app/world-engine-app.md) - (Playbook) AI 图片的世界引擎应用：生产级管线（节点式/模块化）、版本化资产+跨平台管理（LoRA 权重/ControlNet/模板）、持久世界工作流（世界引擎实际应用）
 * [电影六问-视觉形式整合（Six Questions × Visual Form — Empathy & Engagement Framework）](./334-six-questions-visual-form/six-questions-visual-form.md) - (Reference) 电影六问-视觉形式整合：景别/面孔可见性→具身移情、镜头时长/运动动态→参与、六问×形式特征联动（六问是目标，形式是工具）
 * [AI 图片跨模态沉浸系列（Cross-Modal Immersive Series — Unified Multimodal Storytelling）](./335-cross-modal-series/cross-modal-series.md) - (Reference) AI 图片的跨模态沉浸系列：统一多模态模型（文本/图像/音频/视频一体）、融合策略（早期/中期/晚期+组合）、视觉小说式互动多代理、生产级多模态管线
-* [电影声学身份-杂交-体验整合（Sonic Identity × Hybrid × Experience — Sound DNA & Engagement）](./336-sonic-hybrid-experience/sonic-hybrid-experience.md) - (Reference) 电影声学身份-杂交-体验整合：可扩展声音 DNA（核心主题/声音标识/语音语调/UX 音/音乐目录规则）、声音识别×情绪参与（识别+情感+一致 ROI）、AI 辅助声音资产+沉浸空间音频
 * [AI 图片全整合世界设计（Total World Design — Image + Narrative + Audio Unified Series）](./337-total-world-design/total-world-design.md) - (Reference) AI 图片的全整合世界设计：统一多模态世界建构（图像/文本/声音/故事结构一体系列）、持久世界传说（记忆驱动 Lore 系统）、角色系统+视觉风格指南+音频线索+动态叙事弧、概念到最终媒体的生产管线
 * [电影杂交-沉浸-预期总设计（Hybrid-Immersion-Expectation — Unified Suspense & Experience）](./338-hybrid-immersion-expectation/hybrid-immersion-expectation.md) - (Reference) 电影杂交-沉浸-预期总设计：时空沉浸×叙事沉浸（双沉浸维持动量）、电影/游戏策略融合（跨媒介线索）、悬念技术（等待意外）、节奏/共识/主动角色（观众参与）
 * [AI 图片六问沉浸应用（Six Questions in Images — Engagement Prompts & Frame Progression）](./339-six-questions-images/six-questions-images.md) - (Method) AI 图片的六问沉浸应用：六问逐帧设计（我在哪/与谁/能做什么/发生什么/有进展/为何重要）、互动帧提示（预测下一帧/重混色板）、实时互动（选择/投票引导后续图）、英雄之旅弧跨系列
@@ -349,6 +347,29 @@ okf_version: "0.2"
 * [电影生产代理知识库（Agent Production Assistant — Script-to-Schedule Knowledge）](./390-agent-production-assistant/agent-production-assistant.md) - (Reference) 电影生产代理知识库：Filmustage AI Agent（读剧本→排期→预算）、代理知识库（程序性记忆/工作流知识）、6 阶段代理生命周期（从演示到治理生产）、2026 生产代理框架（DREAM：内容组织+自动化）
 * [AI 图片参考锚定生成（Reference-Anchored Generation — Identity & Style Consistency）](./391-reference-anchored-generation/reference-anchored-generation.md) - (Reference) AI 图片的参考锚定生成：参考图作锚（风格/角色/环境）、多参考+权重（影响强度控制）、参考驱动模式（跨场景一致）、生成器差异（参考=灵感 vs 身份）
 * [AI 电影真实感框架（AI Cinematic Realism — Conscious Assembly Grammar）](./392-ai-cinematic-realism/ai-cinematic-realism.md) - (Method) AI 电影真实感框架：AI 电影真实感框架（理念框架+三层结构+工艺语法+四支柱+四十要点）、人类创作作者身份核心（奥斯卡 AI 指南）、AI 成本治理（董事会级框架）、体验管理（从消费到共构）
+* [2026 AI 生成广告/TVC 逐镜头案例拆解（AI-Generated Ads & TVC — Shot-by-Shot Case Studies）](./395-ai-ad-campaign-case/ai-ad-campaign-case.md) - (Case) 以 Svedka 超级碗 AI 广告、Shriram Life 全 AI 广告片、Ziggo 章鱼 TVC 三个 2026 真实案例，逐镜拆解 AI 广告的镜头语言、AI 技术点与可复用打法
+* [竖屏短剧爆款逐镜案例拆解（Vertical Drama Hit Case Breakdown）](./396-vertical-drama-case/vertical-drama-case.md) - (Case) 以《好一个乖乖女》《家里家外》《十八岁太奶奶驾到》三部 2025 现象级竖屏短剧为例，逐镜拆解开场钩子、前 3 分钟节奏、爽点镜头与数据表现，提炼单集万能节奏公式与竖屏构图纪律，映射到 AI 短剧生产管线
+* [游戏 CG 预告片逐镜案例拆解（Game CG Trailer — Shot-by-Shot Case Studies）](./397-game-cg-trailer-case/game-cg-trailer-case.md) - (Case) 3 部 2025-2026 游戏 CG 预告逐镜拆解：《黑神话：钟馗》首曝 CG、The Witcher IV「The Duel」、KCD II「Live a Life Medieval」——钩子结构、镜头语言、动捕/渲染幕后与播放数据，提炼可复用的游戏 CG 预告片套路并映射到 AI 生成工作流
+* [音乐视频逐镜拆解：2025 三大案例的节拍同步与场景工程（Music Video Case Studies — Beat Sync & Scene Craft）](./398-music-video-case/music-video-case.md) - (Case) 以 Lady Gaga《Abracadabra》、LISA《Born Again》、j-hope《Sweet Dreams》三个 2025 真实案例拆解 MV 的节拍卡点、场景-情绪映射、对口型与 AI 生成工作流
+* [电商信息流爆款素材逐镜拆解（E-commerce Ad Creative Case — Hook, Structure & Data）](./399-ecommerce-creative-case/ecommerce-creative-case.md) - (Case) 三个 2025 年真实电商素材案例（TikTok 美区 7 秒减脂粉、口播六段式指尖玩具、淘宝 AI 数字人直播）的逐镜/钩子/数据拆解，以及电商素材钩子类型学、字幕口播协同与 AI 批量生产映射
+* [AI 视频交付规格总表（AI Video Delivery Spec Matrix — 2026）](./400-ai-delivery-spec/ai-delivery-spec.md) - (Spec) AI 生成视频的交付规格速查：全平台上传规格（2026 官方文档数值）、音频响度（LUFS/dBTP）、色彩空间与母版格式、导出三杠杆、AI 生成物交付注意（抽帧质检/响度校准/格式转换）
+
+# 专业创作深化（401-500，14 篇）
+
+* [追逐/追车场景镜头级方案（Chase & Vehicle Scene — Shot-by-Shot Design + AI）](./401-chase-scene/chase-scene.md) - (Reference) 追逐场景的镜头级方案：节拍→镜头序列表、7 类关键镜头画面构成（车轮低角度/过肩/追尾/航拍俯冲/护栏擦过/杂物碰撞/隧道灯影）、速度感营造、节奏与转场、常见错误与 AI 生成工作流，每个镜头给出中英 AI 提示词与生成后检查
+* [悬疑推理场景镜头级方案（Mystery & Reveal Scene — Information Control + AI）](./402-mystery-reveal-scene/mystery-reveal-scene.md) - (Reference) 悬疑推理场景的镜头级方案：信息控制本质、线索发现→误导→逼近→reveal 的节拍镜头表、关键镜头画面构成（主观视线/特写/走廊纵深/阴影遮挡/镜面/惊鸿一瞥）、信息保留技巧与 reveal 时刻设计，全部落到可执行的 AI 提示词与生成后检查
+* [浪漫/情感场景镜头级方案（Romance & Emotional Scene — Intimacy & Feeling + AI）](./403-romance-emotional-scene/romance-emotional-scene.md) - (Reference) 浪漫与情感戏的镜头级 AI 生成方案：以克制与留白为总原则，给出相遇→试探→靠近→顶点→余韵的节拍-镜头表、8 个关键镜头的画面构成与中英提示词及生成后检查、亲密感营造四件套、什么不拍、常见错误表与 AI 编排工作流
+* [史诗/宏大场景镜头级方案（Epic & Scale Scene — Monumental Framing + AI）](./404-epic-scale-scene/epic-scale-scene.md) - (Reference) 史诗宏大场景的镜头级生成方案：宏大感三来源（比例/时间/运动）、建立世界→单体入画→汇聚→大场面高潮→余韵的节拍序列、8 个关键镜头（人如蚁大远景/低角度巨物/群体航拍/比例对比/剪影/慢推轨）的中英提示词与生成后检查、比例尺度营造、音乐节奏驱动、常见错误表与 AI 编排工作流
+* [画面视觉引导与层次（Visual Guidance & Depth — Directing the Eye + AI）](./405-visual-guidance-depth/visual-guidance-depth.md) - (Reference) 画面视觉引导与层次详解：八种引导视线的手段（光线/线条/对比/运动/视线/景深/色彩/负空间）、前景-中景-背景纵深构建、视觉平衡，以及如何在 AI 提示词中显式写出引导与层次并在生成后检查
+* [镜头-情绪系统（Camera-to-Emotion — Shot, Angle & Movement as Feeling + AI）](./406-camera-emotion-system/camera-emotion-system.md) - (Reference) 镜头-情绪系统：把镜头语言翻译成情绪（景别→亲疏、机位角度→权力压迫、运动→紧张平静、手持→纪实、焦段→疏离亲密、光色→情绪基调），每个维度含情绪机制/经典用法/AI 提示词/生成后检查，以及镜头组合的完整序列示例
+* [参考图与首尾帧实战手册（Reference & First/Last Frame — Control Playbook + AI）](./407-reference-first-last-frame/reference-first-last-frame.md) - (Playbook) 参考图与首尾帧的镜头级控制：四类参考图的用法与权重、首帧/尾帧要素清单、从图到动的五步工作流、忠实度 vs 运动度的强度平衡、常见错误与 AI 编排
+* [多镜一致性编排（Multi-Shot Consistency Orchestration — Anchor System + AI）](./408-multi-shot-consistency/multi-shot-consistency.md) - (Reference) AI 视频多镜一致性编排方法：六类锚点（角色/场景/风格/光线/道具/时间）锁什么与怎么锁、跨镜批次生成 SOP、抽帧校验与漂移修复——让整场戏而不是单镜头统一
+* [电影级 AI 短片逐镜拆解（AI-Generated Short Film — Shot-by-Shot Case Studies）](./409-ai-shortfilm-case/ai-shortfilm-case.md) - (Case) 以 Air Head（OpenAI Sora）、KITSUNE（Google Veo 2）、Google I/O 2025 开场影片（Veo 3）三部官方/公开 AI 短片逐镜拆解开场到收尾的镜头序列与 AI 技术点，并以首部全 AI 长片《Where the Robots Grow》作数据参照，提炼 AI 短片的素材比思维、一致性纪律与生成后检查修复清单
+* [更多竖屏短剧与游戏预告逐镜拆解（More Drama & Trailer Shot-by-Shot — 2025-2026）](./410-drama-trailer-more/drama-trailer-more.md) - (Case) 以《暗潮涌动》《盛夏芬德拉》《一品布衣》三部 2025-2026 爆款竖屏短剧（谍战/情绪流/男频基建三种打法）与《影之刃零》《遗忘之海》两支高传播游戏预告为例，逐镜拆解钩子、节奏、镜头语言与数据表现，作为 396/397 案例库的续篇，并映射到 AI 生成工作流
+* [恐怖/惊悚场景镜头级方案（Horror & Thriller Scene — Fear by Design + AI）](./411-horror-scene/horror-scene.md) - (Reference) 恐怖/惊悚场景的镜头级方案：恐惧三层机制（预期恐惧/突然惊吓/心理不安）、节拍→镜头序列表、7 类关键镜头画面构成（走廊推近/门缝阴影/镜面反射/焦外威胁/惊吓特写/喘息静帧/威胁 POV）、制造恐惧的镜头手段、jump scare 设计原则、常见错误与 AI 生成工作流，每个镜头给出中英 AI 提示词与生成后检查
+* [战争/冲突场景镜头级方案（War & Battle Scene — Chaos & Order + AI）](./413-war-battle-scene/war-battle-scene.md) - (Reference) 战争/冲突场景的镜头级方案：宏观战略与个体挣扎双视角、节拍→镜头序列表、8 类关键镜头（炮火大远景/士兵过肩/尘土硝烟/慢动作牺牲/主观奔跑/战壕纵深/正面冲锋/战后静场）的中英提示词与生成后检查、混乱与秩序平衡、慢动作与高速交替、常见错误与 AI 编排工作流
+* [生成参数控制实战（Parameters — Seed, CFG, Steps, Negative & Tuning + AI）](./417-parameters-tuning/parameters-tuning.md) - (Method) AI 视频/图像生成参数的镜头级控制实战：Seed/CFG/Steps/分辨率/时长/运动强度/负面提示词/风格强度/参考权重 × 组合策略（一致性/运动/质量）× seed 复现迭代与常见错误表
+* [长镜与一镜到底续接（One-Shot & Long Take Chaining — Seamless Continuity + AI）](./418-one-shot-chaining/one-shot-chaining.md) - (Reference) AI 伪一镜到底的分段续接方法：首尾帧衔接、运动矢量延续、场景卡、隐藏剪辑点，穿过门/遮挡/转场动作/同构图延续四类无缝转场，长镜内角色场景光一致性维持，接缝校验与修复
 
 # 已合并旧编号
 
@@ -394,12 +415,14 @@ okf_version: "0.2"
 * **305** → [278](./278-genre-acting/genre-acting.md) — 杂交表演调性多能（语域切换/跨类型训练）已合并到类型片表演惯例
 * **306** → [299](./299-signature-motif/signature-motif.md) — 母题-签名整合、Brand Kit/风格元素集、15-30 示例图、@BrandStyle 双保险已合并到签名母题
 * **310** → [299](./299-signature-motif/signature-motif.md) — 跨格式系列、DNA 先定义、视觉配方、平台路由、集中治理已合并到签名母题
+* **311** → [293](./293-suspense-synesthesia-integration/suspense-synesthesia-integration.md) — 预期-悬念-通感并入叙事-悬念-通感三整合（同主题重复写作，预期机制/测量迭代已并入）
 * **313** → [144](./144-sound-design/sound-design.md) — 杂交场景声音整合（可着色声床、模块分层、频率雕刻）已合并到声音设计
 * **314** → [278](./278-genre-acting/genre-acting.md) — 杂交场景设计（统一简报/灵活色纹/灯光切换）已合并到类型片表演惯例
 * **317** → [278](./278-genre-acting/genre-acting.md) — 杂交类型视觉与提示词（融合提示/风格权重/视觉库）已合并到类型片表演惯例
 * **318** → [278](./278-genre-acting/genre-acting.md) — 声学指纹与跨部门统一（指纹预定义/集成声轨）已合并到类型片表演惯例
 * **320** → [278](./278-genre-acting/genre-acting.md) — 纹理优先分层与共享处理（声床匹配/有机叠加）已合并到类型片表演惯例
 * **326** → [186](./186-multi-camera-same-scene/multi-camera-same-scene.md) — 风格嵌入签名、视觉身份治理、模块化世界、记忆连贯系统、人类-AI共创已合并到 AI 多机位同场景生成
+* **336** → [325](./325-sonic-identity-hybrid/sonic-identity-hybrid.md) — 声学身份-杂交-体验并入声学指纹-杂交-类型（同主题重复写作，DNA 五组件/三因子/空间音频已并入）
 * **344** → [155](./155-color-psychology/color-psychology.md) — 纹理年代指纹（年代-纹理映射、老化材料配方）已合并到色彩心理学
 * **345** → [01](./01-camera-language/camera-language.md) — 运动能指、运动矢量语法、运动批评已合并到镜头语言与景别
 * **347** → [144](./144-sound-design/sound-design.md) — 听觉节奏（节奏vs速度、声音呼吸、节律主导）已合并到声音设计（实践端）与电影声音理论（理论端）
@@ -424,6 +447,7 @@ okf_version: "0.2"
 * **camera-movement-gen** → [01](./01-camera-language/camera-language.md) — 占位稿已删除，镜头运动并入镜头语言与景别
 * **cinematic-glossary-gen** → [00](./00-visual-glossary/visual-diagrams.md) — 占位稿已删除，术语表并入视觉术语图解
 * **composition-gen** → [01](./01-camera-language/camera-language.md) — 占位稿已删除，构图并入镜头语言与景别
+* **expectation-suspense-sensory** → [293](./293-suspense-synesthesia-integration/suspense-synesthesia-integration.md) — 预期-悬念-通感并入叙事-悬念-通感三整合（同主题重复写作，预期机制/测量迭代已并入）
 * **knowledge-final-index** → [80](./80-knowledge-base-guide/knowledge-base-guide.md) — 终索引设计并入使用手册
 * **music-generation-gen** → [119](./119-audio-video-sync/audio-video-sync.md) — 占位稿已删除，配乐生成并入音频视频协同
 * **navigable-knowledge** → [80](./80-knowledge-base-guide/knowledge-base-guide.md) — 知识库导航应用并入使用手册
@@ -435,6 +459,7 @@ okf_version: "0.2"
 * **shot-types-gen** → [01](./01-camera-language/camera-language.md) — 占位稿已删除，景别类型并入镜头语言与景别
 * **silhouette-engagement-fusion** → [360](./360-silhouette-era-emotion/silhouette-era-emotion.md) — 剪影四融合并入剪影-年代-情绪三融合
 * **skill-library-navigation** → [80](./80-knowledge-base-guide/knowledge-base-guide.md) — 技能库导航优化并入使用手册
+* **sonic-hybrid-experience** → [325](./325-sonic-identity-hybrid/sonic-identity-hybrid.md) — 声学身份-杂交-体验并入声学指纹-杂交-类型（同主题重复写作，DNA 五组件/三因子/空间音频已并入）
 * **sound-prompts-gen** → [144](./144-sound-design/sound-design.md) — 占位稿已删除，声音提示词并入声音设计
 * **total-synthesis** → [332](./332-full-integration-practice/full-integration-practice.md) — 总合成设计并入全整合落地
 * **ultimate-unified-design** → [332](./332-full-integration-practice/full-integration-practice.md) — 终极统一设计并入全整合落地

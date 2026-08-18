@@ -53,7 +53,7 @@ export async function presentAsk(input: {
   agent?: unknown
   signal?: AbortSignal
 }): Promise<{ answers: ConfirmAnswer[]; questions: ConfirmQuestion[] }> {
-  if (input.questions.length === 0) throw new Error('directorx_ask 需要至少一道 question')
+  if (input.questions.length === 0) throw new Error('directorx_ask 需要至少一道 question（走 DSH 标准提问）')
   const asked = await input.ask({
     questions: input.questions,
     ...(input.agent === undefined ? {} : { agent: input.agent }),

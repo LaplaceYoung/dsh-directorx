@@ -5,12 +5,15 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  CharacterStore,
   checkShotVocab,
   detectBibles,
   listShotVocab,
+  pinCharacterSetting,
   reviewBible,
   runBible,
   showShotVocab,
+  DirectorxCanvasStore,
 } from '../lib/testing.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -54,6 +57,30 @@ test('bible detect + pin writes a canvas text card', async () => {
     assert.equal(pinned.kind, 'outline')
     assert.equal(typeof pinned.canvasNodeId, 'string')
     assert.match(String(pinned.saved), /outline-review\.md/)
+    const doc = await new DirectorxCanvasStore(dir).read()
+    assert.ok(doc.nodes.some(node => node.kind === 'text' && node.id === pinned.canvasNodeId))
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('character register pins a visible 人物设定 text node', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'dx-cast-pin-'))
+  try {
+    const card = await new CharacterStore(dir).register({
+      name: '千刃',
+      description: '短黑发，青灰短打，左手持窄刀',
+      refPath: '/tmp/qianren.png',
+      outfit: '青灰短打',
+      props: '窄刀',
+    })
+    const pinned = await pinCharacterSetting(dir, card)
+    assert.ok(pinned)
+    const doc = await new DirectorxCanvasStore(dir).read()
+    const node = doc.nodes.find(item => item.id === pinned.nodeId)
+    assert.equal(node.kind, 'text')
+    assert.match(node.label, /人物设定：千刃/)
+    assert.match(node.label, /窄刀/)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

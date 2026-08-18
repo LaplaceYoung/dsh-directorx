@@ -2,9 +2,9 @@
   "schema_version": 2,
   "okf_version": "0.2",
   "generated_at": "2026-08-18T00:00:00Z",
-  "active_article_count": 330,
-  "legacy_redirect_count": 86,
-  "max_id": 392,
+  "active_article_count": 348,
+  "legacy_redirect_count": 90,
+  "max_id": 418,
   "missing_ids": [
     34,
     49,
@@ -48,12 +48,14 @@
     305,
     306,
     310,
+    311,
     313,
     314,
     317,
     318,
     320,
     326,
+    336,
     344,
     345,
     347,
@@ -68,9 +70,20 @@
     377,
     380,
     381,
-    385
+    385,
+    393,
+    394,
+    412,
+    414,
+    415,
+    416
   ],
-  "unexplained_gaps": [],
+  "unexplained_gaps": [
+    412,
+    414,
+    415,
+    416
+  ],
   "groups": [
     {
       "id": "foundation",
@@ -98,7 +111,14 @@
       "label": "高阶综合方法论",
       "min": 241,
       "max": 400,
-      "count": 109
+      "count": 113
+    },
+    {
+      "id": "craft",
+      "label": "专业创作深化",
+      "min": 401,
+      "max": 500,
+      "count": 14
     }
   ],
   "articles": [
@@ -167,12 +187,12 @@
         "12-genre-music-performance/music-video-performance.md"
       ],
       "stale_after": null,
-      "chars": 19246,
-      "bytes": 38791,
+      "chars": 19245,
+      "bytes": 38790,
       "section_count": 81,
       "external_url_count": 24,
       "source_status": "linked",
-      "sha256": "ecf65e2578a22b4e82df4018ec08b85a9f3d172556fd3f5cc2f2974c30e4f6d3",
+      "sha256": "15c27a70d66062dd352c87780093eee773ad3806b365b88d96dbcc6c4a3294f7",
       "flags": []
     },
     {
@@ -560,12 +580,12 @@
         "45-style-unification/style-unification.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 10688,
-      "bytes": 19558,
+      "chars": 10687,
+      "bytes": 19557,
       "section_count": 30,
       "external_url_count": 12,
       "source_status": "linked",
-      "sha256": "beb452f2259393beec828b05fc0c56cc5357fecceba367bf3e26d90d366adbdb",
+      "sha256": "a19e8b0066849ae1fbec1f4228b9b13baa874e22e0d97acf7e643791714d7e2a",
       "flags": []
     },
     {
@@ -2454,12 +2474,12 @@
       ],
       "related": [],
       "stale_after": null,
-      "chars": 3140,
-      "bytes": 6178,
+      "chars": 3107,
+      "bytes": 6134,
       "section_count": 14,
-      "external_url_count": 3,
+      "external_url_count": 2,
       "source_status": "linked",
-      "sha256": "8421763aaef376b76214801f21f61ebaf3c74d55a02c80dfea1a84093fb6848d",
+      "sha256": "9cfab6e076d4ae625218a237662075f0aa7627dd6c1074dce75d52c0548891c5",
       "flags": []
     },
     {
@@ -3027,16 +3047,16 @@
       "aliases": [],
       "related": [
         "332-full-integration-practice/full-integration-practice.md",
-        "13-genre-documentary/documentary-talking-head.md",
-        "14-ai-video-generation/ai-video-generation.md"
+        "401-chase-scene/chase-scene.md",
+        "403-romance-emotional-scene/romance-emotional-scene.md"
       ],
       "stale_after": null,
-      "chars": 6186,
-      "bytes": 14369,
+      "chars": 6236,
+      "bytes": 14426,
       "section_count": 34,
       "external_url_count": 6,
       "source_status": "linked",
-      "sha256": "4d1975457f974f2d5d03a26a7b174ab4be2a31f8a4e53c55a30bf3a22b1e09b2",
+      "sha256": "2afd806fab3684076f8ad4f08d34b14bb977212d1fc9bab03c1b6542e30b5e74",
       "flags": []
     },
     {
@@ -3195,17 +3215,17 @@
       "status": "stable",
       "aliases": [],
       "related": [
+        "110-ai-vfx-pipeline/ai-vfx-pipeline.md",
         "48-ai-drama-studio/ai-drama-studio.md",
-        "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md",
-        "07-directing/directing-techniques.md"
+        "57-hybrid-liveaction-ai/hybrid-liveaction-ai.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 3477,
-      "bytes": 8340,
+      "chars": 3548,
+      "bytes": 8461,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "287b78723d2748c04b64cf069d1048c643e8c509aef89ba7d20259a7053460b9",
+      "sha256": "749f117d814f553f3ae0a72868a90c5b45f5270bb203d6438fbd777fbecbb2c3",
       "flags": []
     },
     {
@@ -3346,17 +3366,17 @@
       "status": "stable",
       "aliases": [],
       "related": [
+        "400-ai-delivery-spec/ai-delivery-spec.md",
         "51-color-psychology-brand/color-psychology-brand.md",
-        "114-ai-video-model-matrix/ai-video-model-matrix.md",
-        "190-color-space-conversion/color-space-conversion.md"
+        "114-ai-video-model-matrix/ai-video-model-matrix.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 3736,
-      "bytes": 8208,
+      "chars": 3698,
+      "bytes": 8158,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "6d55cc12464ac11e5f70496f35fdbb2098f7a93ebb74a4f03daa8d31699e2a79",
+      "sha256": "9478dcdbc57f86905d9a44234465f5b210d239a15fb4abb7238deae6375cd46a",
       "flags": []
     },
     {
@@ -3514,15 +3534,16 @@
       "related": [
         "39-image-consistency/character-consistency.md",
         "108-moodboard-reference/moodboard-reference.md",
-        "113-mvp-case-playbook/mvp-case-playbook.md"
+        "113-mvp-case-playbook/mvp-case-playbook.md",
+        "123-longform-consistency/longform-consistency.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 3329,
-      "bytes": 7646,
+      "chars": 3467,
+      "bytes": 7881,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "80f36ce0646fbe0be0fd83b570c7088c7be234bf08906bc77651c39dfd33ce20",
+      "sha256": "993c5e59e050281ee742ba8d6f7c9333adea70bf0f502afa5501a25e44f3624d",
       "flags": []
     },
     {
@@ -3832,12 +3853,12 @@
         "119-audio-video-sync/audio-video-sync.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2963,
-      "bytes": 6873,
+      "chars": 2961,
+      "bytes": 6871,
       "section_count": 13,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "75f1823b78e7657fba6dbe13658ed357b44fb6ca4a4de21267a6c83386270500",
+      "sha256": "5f1b91a36ecb77fe293b1674fbbcd2b0ec87de522e868e66d0d0fb01fb44234d",
       "flags": []
     },
     {
@@ -4778,15 +4799,16 @@
       "related": [
         "97-action-stunts/action-stunts.md",
         "69-ai-performance-control/ai-performance-control.md",
-        "117-ai-consistency-system/ai-consistency-system.md"
+        "117-ai-consistency-system/ai-consistency-system.md",
+        "211-motion-style-transfer/motion-style-transfer.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2484,
-      "bytes": 5773,
+      "chars": 2618,
+      "bytes": 5996,
       "section_count": 13,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "ca93e53a795f921e78bfd6f1367d32cfe4c767d113e5bd11361478f88948bfa0",
+      "sha256": "643e189332752c037578e5bcfa05dfa34ba2014578cf75c28070084696efc8de",
       "flags": []
     },
     {
@@ -7129,15 +7151,16 @@
         "216-composition-rules-deep/composition-rules-deep.md",
         "210-golden-ratio-composition/golden-ratio-composition.md",
         "01-camera-language/camera-language.md",
+        "346-composition-psych-applied/composition-psych-applied.md",
         "215-photo-camera-parameters/photo-camera-parameters.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2493,
-      "bytes": 5970,
+      "chars": 2655,
+      "bytes": 6237,
       "section_count": 13,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "20511cdf46ba31d7227be1d77f00d64e76562cd0c687e76aa303a46ac4e0c5d1",
+      "sha256": "21691dcba7a64ded27710e5b1881b7cfaac18004eca8815dcd52414c202215f4",
       "flags": []
     },
     {
@@ -8199,21 +8222,24 @@
         "narrative"
       ],
       "status": "stable",
-      "aliases": [],
+      "aliases": [
+        "311",
+        "expectation-suspense-sensory"
+      ],
       "related": [
         "282-narrative-av-genre/narrative-av-genre.md",
         "268-suspense-theory/suspense-theory.md",
         "267-film-synesthesia/film-synesthesia.md",
-        "219-film-sound-theory/film-sound-theory.md",
-        "144-sound-design/sound-design.md"
+        "304-expectation-management/expectation-management.md",
+        "129-eval-benchmark/eval-benchmark.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2802,
-      "bytes": 6421,
-      "section_count": 14,
-      "external_url_count": 5,
+      "chars": 3896,
+      "bytes": 8486,
+      "section_count": 17,
+      "external_url_count": 7,
       "source_status": "linked",
-      "sha256": "a4ae7468ea871fc7656c1b24d98500eeb5c682e3a054e464f00b3878cb4ca325",
+      "sha256": "3a6611d08e61bdf779465c95f47de8a624a37c2970b9c472e26540bb4032cc5f",
       "flags": []
     },
     {
@@ -8502,37 +8528,6 @@
       "flags": []
     },
     {
-      "number": 311,
-      "id": "311",
-      "slug": "expectation-suspense-sensory",
-      "title": "电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）",
-      "path": "knowledge/311-expectation-suspense-sensory/expectation-suspense-sensory.md",
-      "group": "synthesis",
-      "type": "Reference",
-      "description": "电影预期-悬念-通感整合：未来导向预期（Expectation 是悬念/张力的来源）、非叙事音乐+叙事线索共同塑造、PAL-D 回路设计决策、主客观+生理信号测量迭代",
-      "tags": [
-        "synthesis",
-        "narrative"
-      ],
-      "status": "stable",
-      "aliases": [],
-      "related": [
-        "293-suspense-synesthesia-integration/suspense-synesthesia-integration.md",
-        "304-expectation-management/expectation-management.md",
-        "282-narrative-av-genre/narrative-av-genre.md",
-        "268-suspense-theory/suspense-theory.md",
-        "155-color-psychology/color-psychology.md"
-      ],
-      "stale_after": "2027-08-18",
-      "chars": 2831,
-      "bytes": 6455,
-      "section_count": 14,
-      "external_url_count": 5,
-      "source_status": "linked",
-      "sha256": "131bd433fee498b8f00e02e881dffb64d422470a06734270a65890336d3c336c",
-      "flags": []
-    },
-    {
       "number": 312,
       "id": "312",
       "slug": "memory-time-emotion",
@@ -8612,19 +8607,19 @@
       "status": "stable",
       "aliases": [],
       "related": [
-        "311-expectation-suspense-sensory/expectation-suspense-sensory.md",
+        "293-suspense-synesthesia-integration/suspense-synesthesia-integration.md",
         "167-interactive-branching/interactive-branching.md",
         "282-narrative-av-genre/narrative-av-genre.md",
         "245-narrative-time-space/narrative-time-space.md",
         "289-reveal-design/reveal-design.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2869,
-      "bytes": 6524,
+      "chars": 2882,
+      "bytes": 6547,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "1aae33e852b06754db1f133162db48187be56ed141f8d1e3b5ec67d8ab44a871",
+      "sha256": "d21d90425df8fe53c459b558784be049e797a6f28a76882a4eea963b80440e68",
       "flags": []
     },
     {
@@ -8797,21 +8792,24 @@
         "sound"
       ],
       "status": "stable",
-      "aliases": [],
+      "aliases": [
+        "336",
+        "sonic-hybrid-experience"
+      ],
       "related": [
         "204-sonic-branding/sonic-branding.md",
         "278-genre-acting/genre-acting.md",
         "144-sound-design/sound-design.md",
-        "184-multilingual-character-performance/multilingual-character-performance.md",
-        "137-digital-human/digital-human.md"
+        "173-spatial-audio/spatial-audio.md",
+        "184-multilingual-character-performance/multilingual-character-performance.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2890,
-      "bytes": 6467,
-      "section_count": 14,
-      "external_url_count": 5,
+      "chars": 4084,
+      "bytes": 8520,
+      "section_count": 18,
+      "external_url_count": 7,
       "source_status": "linked",
-      "sha256": "1497d161e45bd88a27deb3fa23fd93913ebd20cc09d75e1c9b23b870a3285041",
+      "sha256": "ab708c4321d325ff64d901df266a5ee6a2c8a6d5c6a40c515e0884b365175b0c",
       "flags": []
     },
     {
@@ -9111,37 +9109,6 @@
       "flags": []
     },
     {
-      "number": 336,
-      "id": "336",
-      "slug": "sonic-hybrid-experience",
-      "title": "电影声学身份-杂交-体验整合（Sonic Identity × Hybrid × Experience — Sound DNA & Engagement）",
-      "path": "knowledge/336-sonic-hybrid-experience/sonic-hybrid-experience.md",
-      "group": "synthesis",
-      "type": "Reference",
-      "description": "电影声学身份-杂交-体验整合：可扩展声音 DNA（核心主题/声音标识/语音语调/UX 音/音乐目录规则）、声音识别×情绪参与（识别+情感+一致 ROI）、AI 辅助声音资产+沉浸空间音频",
-      "tags": [
-        "synthesis",
-        "sound",
-        "continuity"
-      ],
-      "status": "stable",
-      "aliases": [],
-      "related": [
-        "204-sonic-branding/sonic-branding.md",
-        "325-sonic-identity-hybrid/sonic-identity-hybrid.md",
-        "144-sound-design/sound-design.md",
-        "173-spatial-audio/spatial-audio.md"
-      ],
-      "stale_after": "2027-08-18",
-      "chars": 2737,
-      "bytes": 6182,
-      "section_count": 14,
-      "external_url_count": 5,
-      "source_status": "linked",
-      "sha256": "c0ffa6b7473cd5a41f5b647b9f6fd19d61af282975cb39cd491547d5f0452156",
-      "flags": []
-    },
-    {
       "number": 337,
       "id": "337",
       "slug": "total-world-design",
@@ -9294,15 +9261,16 @@
       "related": [
         "125-lighting-atmosphere-prompt/lighting-atmosphere-prompt.md",
         "225-film-lighting-theory/film-lighting-theory.md",
-        "170-light-matching/light-matching.md"
+        "170-light-matching/light-matching.md",
+        "350-motivated-light-narrative/motivated-light-narrative.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2460,
-      "bytes": 5787,
+      "chars": 2605,
+      "bytes": 6044,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "4fb3870e956e4de81435473680359c4da9b9ab5df3fec16637fa6fe16fb2b7df",
+      "sha256": "1318f75f0fafb80335e959a3d77386bb402aa9a03b5609b96a48eac03017964a",
       "flags": []
     },
     {
@@ -9500,8 +9468,7 @@
       "type": "Reference",
       "description": "电影手持-见证-纪实三要素：真实电影（Cinéma Vérité：手持=在场即时）、观察式纪实（Observer=见证非记录器）、自然光+未抛光画面+最少干预（真实性）、纪实伦理（真实×同意）",
       "tags": [
-        "synthesis",
-        "overlap-review"
+        "synthesis"
       ],
       "status": "stable",
       "aliases": [],
@@ -9512,11 +9479,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2483,
-      "bytes": 5775,
+      "bytes": 5754,
       "section_count": 15,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "777160a06d2628956af02f5353aeef44ef1975b5e00561497749cfc00cbccc6a",
+      "sha256": "68896c6cfcc6077101e1e9b7e91b1110b06ab9d4a0249cb38bec2d29a66e435e",
       "flags": []
     },
     {
@@ -9621,8 +9588,7 @@
       "description": "电影听觉张力设计：紧张音频线索（单独即造悬念）、策略静默（负空间驱动预期/锐化聆听）、分层音效（低频/渐强/冲击：不加响度造节奏张力）",
       "tags": [
         "synthesis",
-        "sound",
-        "overlap-review"
+        "sound"
       ],
       "status": "stable",
       "aliases": [],
@@ -9633,11 +9599,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2469,
-      "bytes": 5843,
+      "bytes": 5822,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "f9887c208ca0347d2a65a1916a8ad4b4ff8e4d9297c3d5c34ced726a6386a500",
+      "sha256": "3754dd62d90d6f210fd9f6ed78be6a383aa71efc4e91c345772dcad6931b249e",
       "flags": []
     },
     {
@@ -9721,8 +9687,7 @@
       "type": "Reference",
       "description": "电影纪实-手持-伦理应用：知情同意+参与者自主+编辑/AI 透明、关怀义务文档（Duty of Care：补偿/编辑控制/放映参与）、再现/素材/AI 元素不扭曲真实",
       "tags": [
-        "synthesis",
-        "overlap-review"
+        "synthesis"
       ],
       "status": "stable",
       "aliases": [],
@@ -9735,11 +9700,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2854,
-      "bytes": 6366,
+      "bytes": 6345,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "b0bd4f743b49cbad019333f7a11dd9741bb268813031322f6ad3e6adb570ea97",
+      "sha256": "da72b9847b69df970fb80e36ddbcf1038ac86f592d5603680fdd0a3e2b010142",
       "flags": []
     },
     {
@@ -9761,15 +9726,16 @@
       "related": [
         "348-atmosphere-emotion-library/atmosphere-emotion-library.md",
         "355-saliency-gaze-gestalt/saliency-gaze-gestalt.md",
-        "281-motivated-motion-image/motivated-motion-image.md"
+        "281-motivated-motion-image/motivated-motion-image.md",
+        "371-affective-immersive-fusion/affective-immersive-fusion.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2698,
-      "bytes": 6028,
+      "chars": 2861,
+      "bytes": 6306,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "bf822e11678d00d6a86cae146c3bbc2e577998bc42a8467c6e5c04005dbaa565",
+      "sha256": "e4ae9a31c753c63345b7cedd72d0c9111dae11b9242d00673ad101b3b96c2824",
       "flags": []
     },
     {
@@ -9980,8 +9946,7 @@
         "sound",
         "workflow",
         "continuity",
-        "narrative",
-        "overlap-review"
+        "narrative"
       ],
       "status": "stable",
       "aliases": [
@@ -9997,11 +9962,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2801,
-      "bytes": 6626,
+      "bytes": 6605,
       "section_count": 15,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "9bca294ae3e7a183e121d084eb757edca64d5c5d204beee9f770554ca5341342",
+      "sha256": "bee4ac44e5a516fcc8f28e9acf890a86d395403280708225b87dcd3515441830",
       "flags": []
     },
     {
@@ -10019,8 +9984,7 @@
         "prompt",
         "model",
         "workflow",
-        "image",
-        "overlap-review"
+        "image"
       ],
       "status": "stable",
       "aliases": [],
@@ -10033,11 +9997,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2716,
-      "bytes": 6156,
+      "bytes": 6135,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "5d0a67aea4828be4a9ffe42e9adde21c0dd957cf5273195ff61aec4a60b2ec0f",
+      "sha256": "42da911052b247c8e489ee6afdbbe0f4c18d5f930131afe8fdf2827055ea9fb6",
       "flags": []
     },
     {
@@ -10053,8 +10017,7 @@
         "synthesis",
         "model",
         "workflow",
-        "image",
-        "overlap-review"
+        "image"
       ],
       "status": "stable",
       "aliases": [],
@@ -10067,11 +10030,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2848,
-      "bytes": 6409,
+      "bytes": 6388,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "1e52c69f734dfff47437df2c201a751807ff281dba7a3c94889042770718c009",
+      "sha256": "297a096b04b2ba056d08bd679b199c90dbdfde784b8a5978f083c85c1bf0b1f8",
       "flags": []
     },
     {
@@ -10184,8 +10147,7 @@
       "tags": [
         "synthesis",
         "sound",
-        "workflow",
-        "overlap-review"
+        "workflow"
       ],
       "status": "stable",
       "aliases": [
@@ -10200,11 +10162,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2789,
-      "bytes": 6214,
+      "bytes": 6193,
       "section_count": 15,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "b3a389488647a26ad0bcd18ebef094a2d4fff5cd9e914fb9ab8ed7c8e3227e9b",
+      "sha256": "7225940f9f2574179572c5a17eed5f557e208df5bddcfe1b3b6aaa5e2228ab4c",
       "flags": []
     },
     {
@@ -10320,8 +10282,7 @@
       "tags": [
         "synthesis",
         "sound",
-        "narrative",
-        "overlap-review"
+        "narrative"
       ],
       "status": "stable",
       "aliases": [],
@@ -10333,11 +10294,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2863,
-      "bytes": 6515,
+      "bytes": 6494,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "69895927c0efc5f5e26c36ed33da16fa11b04c957fa3687bae96af5c1c86b37c",
+      "sha256": "d2186389c22f2e239c84c08441efb7e53604880f567000c16c4d7b13a9ef8e2f",
       "flags": []
     },
     {
@@ -10418,8 +10379,7 @@
         "character",
         "style",
         "continuity",
-        "image",
-        "overlap-review"
+        "image"
       ],
       "status": "stable",
       "aliases": [],
@@ -10432,11 +10392,11 @@
       ],
       "stale_after": "2027-08-18",
       "chars": 2761,
-      "bytes": 6365,
+      "bytes": 6344,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "7258b4c5060e17f36ea54751835c3280e4d750844bea96fd4eacb352e62f4ee6",
+      "sha256": "63177f9a2e4626921fc8c4e5df64ba4ba22304f4917532cd259e99a9fea01bd8",
       "flags": []
     },
     {
@@ -10468,6 +10428,666 @@
       "external_url_count": 4,
       "source_status": "linked",
       "sha256": "c55e20eb1f99f74a527957c884d8eeabdd3011ebac2957df6e6f9be69afbe2ba",
+      "flags": []
+    },
+    {
+      "number": 395,
+      "id": "395",
+      "slug": "ai-ad-campaign-case",
+      "title": "2026 AI 生成广告/TVC 逐镜头案例拆解（AI-Generated Ads & TVC — Shot-by-Shot Case Studies）",
+      "path": "knowledge/395-ai-ad-campaign-case/ai-ad-campaign-case.md",
+      "group": "synthesis",
+      "type": "Case",
+      "description": "以 Svedka 超级碗 AI 广告、Shriram Life 全 AI 广告片、Ziggo 章鱼 TVC 三个 2026 真实案例，逐镜拆解 AI 广告的镜头语言、AI 技术点与可复用打法",
+      "tags": [
+        "synthesis",
+        "camera"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "38-advertising-visual/advertising-visual.md",
+        "105-commercial-pipeline/commercial-pipeline.md",
+        "113-mvp-case-playbook/mvp-case-playbook.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 11786,
+      "bytes": 23784,
+      "section_count": 11,
+      "external_url_count": 11,
+      "source_status": "linked",
+      "sha256": "15ac5ffd27cc9fb6c73356880225c2c1a352054ddd8e0c2d630a1b3bda191764",
+      "flags": []
+    },
+    {
+      "number": 396,
+      "id": "396",
+      "slug": "vertical-drama-case",
+      "title": "竖屏短剧爆款逐镜案例拆解（Vertical Drama Hit Case Breakdown）",
+      "path": "knowledge/396-vertical-drama-case/vertical-drama-case.md",
+      "group": "synthesis",
+      "type": "Case",
+      "description": "以《好一个乖乖女》《家里家外》《十八岁太奶奶驾到》三部 2025 现象级竖屏短剧为例，逐镜拆解开场钩子、前 3 分钟节奏、爽点镜头与数据表现，提炼单集万能节奏公式与竖屏构图纪律，映射到 AI 短剧生产管线",
+      "tags": [
+        "synthesis",
+        "camera",
+        "workflow"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "89-iconic-moves-deconstruction/iconic-moves-deconstruction.md",
+        "113-mvp-case-playbook/mvp-case-playbook.md",
+        "48-ai-drama-studio/ai-drama-studio.md",
+        "104-vertical-drama-onset/vertical-drama-onset.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 11214,
+      "bytes": 27615,
+      "section_count": 11,
+      "external_url_count": 4,
+      "source_status": "linked",
+      "sha256": "ec044d0171586390e0b438af712f781b4bfef791ad7c13cc9d5df3a0ea8ee59f",
+      "flags": []
+    },
+    {
+      "number": 397,
+      "id": "397",
+      "slug": "game-cg-trailer-case",
+      "title": "游戏 CG 预告片逐镜案例拆解（Game CG Trailer — Shot-by-Shot Case Studies）",
+      "path": "knowledge/397-game-cg-trailer-case/game-cg-trailer-case.md",
+      "group": "synthesis",
+      "type": "Case",
+      "description": "3 部 2025-2026 游戏 CG 预告逐镜拆解：《黑神话：钟馗》首曝 CG、The Witcher IV「The Duel」、KCD II「Live a Life Medieval」——钩子结构、镜头语言、动捕/渲染幕后与播放数据，提炼可复用的游戏 CG 预告片套路并映射到 AI 生成工作流",
+      "tags": [
+        "synthesis",
+        "camera",
+        "workflow",
+        "trailer"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "89-iconic-moves-deconstruction/iconic-moves-deconstruction.md",
+        "151-game-cinematics/game-cinematics.md",
+        "126-style-art-direction/style-art-direction.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 11909,
+      "bytes": 25128,
+      "section_count": 11,
+      "external_url_count": 10,
+      "source_status": "linked",
+      "sha256": "5dd839081b1c39c7426f8ac9acd22e834a94129b66619e1d1accb83078d939fb",
+      "flags": []
+    },
+    {
+      "number": 398,
+      "id": "398",
+      "slug": "music-video-case",
+      "title": "音乐视频逐镜拆解：2025 三大案例的节拍同步与场景工程（Music Video Case Studies — Beat Sync & Scene Craft）",
+      "path": "knowledge/398-music-video-case/music-video-case.md",
+      "group": "synthesis",
+      "type": "Case",
+      "description": "以 Lady Gaga《Abracadabra》、LISA《Born Again》、j-hope《Sweet Dreams》三个 2025 真实案例拆解 MV 的节拍卡点、场景-情绪映射、对口型与 AI 生成工作流",
+      "tags": [
+        "synthesis",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "12-genre-music-performance/music-video-performance.md",
+        "134-music-video-gen/music-video-gen.md",
+        "119-audio-video-sync/audio-video-sync.md",
+        "22-case-studies/case-studies.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 11687,
+      "bytes": 24107,
+      "section_count": 11,
+      "external_url_count": 10,
+      "source_status": "linked",
+      "sha256": "c7637039d4c82e1e26fde39744c270880383d5ba2a7c5bf4abe201454eaeddc9",
+      "flags": []
+    },
+    {
+      "number": 399,
+      "id": "399",
+      "slug": "ecommerce-creative-case",
+      "title": "电商信息流爆款素材逐镜拆解（E-commerce Ad Creative Case — Hook, Structure & Data）",
+      "path": "knowledge/399-ecommerce-creative-case/ecommerce-creative-case.md",
+      "group": "synthesis",
+      "type": "Case",
+      "description": "三个 2025 年真实电商素材案例（TikTok 美区 7 秒减脂粉、口播六段式指尖玩具、淘宝 AI 数字人直播）的逐镜/钩子/数据拆解，以及电商素材钩子类型学、字幕口播协同与 AI 批量生产映射",
+      "tags": [
+        "synthesis",
+        "sound"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "89-iconic-moves-deconstruction/iconic-moves-deconstruction.md",
+        "113-mvp-case-playbook/mvp-case-playbook.md",
+        "29-commerce-creative/commerce-creative.md",
+        "41-ecommerce-assets/ecommerce-creative-factory.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 10925,
+      "bytes": 24102,
+      "section_count": 16,
+      "external_url_count": 7,
+      "source_status": "linked",
+      "sha256": "8026a1779ae31eaf56de3d77446e6d98285fada270ea427752ccd2a143330bce",
+      "flags": []
+    },
+    {
+      "number": 400,
+      "id": "400",
+      "slug": "ai-delivery-spec",
+      "title": "AI 视频交付规格总表（AI Video Delivery Spec Matrix — 2026）",
+      "path": "knowledge/400-ai-delivery-spec/ai-delivery-spec.md",
+      "group": "synthesis",
+      "type": "Spec",
+      "description": "AI 生成视频的交付规格速查：全平台上传规格（2026 官方文档数值）、音频响度（LUFS/dBTP）、色彩空间与母版格式、导出三杠杆、AI 生成物交付注意（抽帧质检/响度校准/格式转换）",
+      "tags": [
+        "synthesis",
+        "color",
+        "sound",
+        "qa",
+        "platform",
+        "spec"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "68-platform-spec-matrix/platform-spec-matrix.md",
+        "112-delivery-specs/delivery-specs.md",
+        "174-qc-automation/qc-automation.md",
+        "161-audio-mastering/audio-mastering.md",
+        "190-color-space-conversion/color-space-conversion.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 13368,
+      "bytes": 22767,
+      "section_count": 13,
+      "external_url_count": 31,
+      "source_status": "linked",
+      "sha256": "f5c1ace99f7e87c5f4f905afcf6b66c822cd94c16e445e650bfbd7fa4b309b34",
+      "flags": []
+    },
+    {
+      "number": 401,
+      "id": "401",
+      "slug": "chase-scene",
+      "title": "追逐/追车场景镜头级方案（Chase & Vehicle Scene — Shot-by-Shot Design + AI）",
+      "path": "knowledge/401-chase-scene/chase-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "追逐场景的镜头级方案：节拍→镜头序列表、7 类关键镜头画面构成（车轮低角度/过肩/追尾/航拍俯冲/护栏擦过/杂物碰撞/隧道灯影）、速度感营造、节奏与转场、常见错误与 AI 生成工作流，每个镜头给出中英 AI 提示词与生成后检查",
+      "tags": [
+        "craft",
+        "camera",
+        "editing",
+        "prompt",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "97-action-stunts/action-stunts.md",
+        "01-camera-language/camera-language.md",
+        "177-motion-blur-shutter/motion-blur-shutter.md",
+        "207-one-shot-long-take/one-shot-long-take.md",
+        "124-shot-language-gen/shot-language-gen.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 16622,
+      "bytes": 33109,
+      "section_count": 25,
+      "external_url_count": 18,
+      "source_status": "linked",
+      "sha256": "411f5b368fa7351f468967d07f3c7a121795819ee5a39fdd583d420b6bb968f3",
+      "flags": []
+    },
+    {
+      "number": 402,
+      "id": "402",
+      "slug": "mystery-reveal-scene",
+      "title": "悬疑推理场景镜头级方案（Mystery & Reveal Scene — Information Control + AI）",
+      "path": "knowledge/402-mystery-reveal-scene/mystery-reveal-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "悬疑推理场景的镜头级方案：信息控制本质、线索发现→误导→逼近→reveal 的节拍镜头表、关键镜头画面构成（主观视线/特写/走廊纵深/阴影遮挡/镜面/惊鸿一瞥）、信息保留技巧与 reveal 时刻设计，全部落到可执行的 AI 提示词与生成后检查",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "268-suspense-theory/suspense-theory.md",
+        "274-suspense-visual-language/suspense-visual-language.md",
+        "289-reveal-design/reveal-design.md",
+        "102-dialogue-coverage/dialogue-coverage.md",
+        "93-lighting-narrative/lighting-narrative.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 15983,
+      "bytes": 31865,
+      "section_count": 19,
+      "external_url_count": 16,
+      "source_status": "linked",
+      "sha256": "ec7bb60423d08d7fac258fc1ae26d309d0a307d719f01689d99338b97ebc3798",
+      "flags": []
+    },
+    {
+      "number": 403,
+      "id": "403",
+      "slug": "romance-emotional-scene",
+      "title": "浪漫/情感场景镜头级方案（Romance & Emotional Scene — Intimacy & Feeling + AI）",
+      "path": "knowledge/403-romance-emotional-scene/romance-emotional-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "浪漫与情感戏的镜头级 AI 生成方案：以克制与留白为总原则，给出相遇→试探→靠近→顶点→余韵的节拍-镜头表、8 个关键镜头的画面构成与中英提示词及生成后检查、亲密感营造四件套、什么不拍、常见错误表与 AI 编排工作流",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "231-shot-size-emotion/shot-size-emotion.md",
+        "93-lighting-narrative/lighting-narrative.md",
+        "88-sound-image-on-set/sound-image-on-set.md",
+        "98-natural-light/natural-light.md",
+        "176-depth-of-field-focus/depth-of-field-focus.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 16033,
+      "bytes": 31942,
+      "section_count": 19,
+      "external_url_count": 16,
+      "source_status": "linked",
+      "sha256": "cc86882c29804869c3fd28cca190464ee96ff769f479a6c815f0cbdf3f5a1a44",
+      "flags": []
+    },
+    {
+      "number": 404,
+      "id": "404",
+      "slug": "epic-scale-scene",
+      "title": "史诗/宏大场景镜头级方案（Epic & Scale Scene — Monumental Framing + AI）",
+      "path": "knowledge/404-epic-scale-scene/epic-scale-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "史诗宏大场景的镜头级生成方案：宏大感三来源（比例/时间/运动）、建立世界→单体入画→汇聚→大场面高潮→余韵的节拍序列、8 个关键镜头（人如蚁大远景/低角度巨物/群体航拍/比例对比/剪影/慢推轨）的中英提示词与生成后检查、比例尺度营造、音乐节奏驱动、常见错误表与 AI 编排工作流",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "201-crowd-scenes/crowd-scenes.md",
+        "178-perspective-camera-height/perspective-camera-height.md",
+        "207-one-shot-long-take/one-shot-long-take.md",
+        "177-motion-blur-shutter/motion-blur-shutter.md",
+        "231-shot-size-emotion/shot-size-emotion.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 15642,
+      "bytes": 30212,
+      "section_count": 22,
+      "external_url_count": 26,
+      "source_status": "linked",
+      "sha256": "3eaa69ddcd68ecd7f41d330ce45085b4f5ad4e54135102db88cd09158f76625c",
+      "flags": []
+    },
+    {
+      "number": 405,
+      "id": "405",
+      "slug": "visual-guidance-depth",
+      "title": "画面视觉引导与层次（Visual Guidance & Depth — Directing the Eye + AI）",
+      "path": "knowledge/405-visual-guidance-depth/visual-guidance-depth.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "画面视觉引导与层次详解：八种引导视线的手段（光线/线条/对比/运动/视线/景深/色彩/负空间）、前景-中景-背景纵深构建、视觉平衡，以及如何在 AI 提示词中显式写出引导与层次并在生成后检查",
+      "tags": [
+        "craft",
+        "color",
+        "prompt"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "216-composition-rules-deep/composition-rules-deep.md",
+        "246-composition-psychology/composition-psychology.md",
+        "176-depth-of-field-focus/depth-of-field-focus.md",
+        "178-perspective-camera-height/perspective-camera-height.md",
+        "192-negative-space/negative-space.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 11792,
+      "bytes": 23307,
+      "section_count": 25,
+      "external_url_count": 5,
+      "source_status": "linked",
+      "sha256": "af3cebe37678dc1f10b9eacda8f4de3f5512a4bf8ff15a891ffd0c863f3b0956",
+      "flags": []
+    },
+    {
+      "number": 406,
+      "id": "406",
+      "slug": "camera-emotion-system",
+      "title": "镜头-情绪系统（Camera-to-Emotion — Shot, Angle & Movement as Feeling + AI）",
+      "path": "knowledge/406-camera-emotion-system/camera-emotion-system.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "镜头-情绪系统：把镜头语言翻译成情绪（景别→亲疏、机位角度→权力压迫、运动→紧张平静、手持→纪实、焦段→疏离亲密、光色→情绪基调），每个维度含情绪机制/经典用法/AI 提示词/生成后检查，以及镜头组合的完整序列示例",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "overlap-review"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "231-shot-size-emotion/shot-size-emotion.md",
+        "178-perspective-camera-height/perspective-camera-height.md",
+        "133-motion-physics/motion-physics.md",
+        "177-motion-blur-shutter/motion-blur-shutter.md",
+        "343-handheld-aesthetics/handheld-aesthetics.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 10603,
+      "bytes": 20388,
+      "section_count": 24,
+      "external_url_count": 11,
+      "source_status": "linked",
+      "sha256": "bba1b7aeaec1b57787180a93957e99113a7ba6b472a56f7f437b0532229d0623",
+      "flags": []
+    },
+    {
+      "number": 407,
+      "id": "407",
+      "slug": "reference-first-last-frame",
+      "title": "参考图与首尾帧实战手册（Reference & First/Last Frame — Control Playbook + AI）",
+      "path": "knowledge/407-reference-first-last-frame/reference-first-last-frame.md",
+      "group": "craft",
+      "type": "Playbook",
+      "description": "参考图与首尾帧的镜头级控制：四类参考图的用法与权重、首帧/尾帧要素清单、从图到动的五步工作流、忠实度 vs 运动度的强度平衡、常见错误与 AI 编排",
+      "tags": [
+        "craft",
+        "camera",
+        "workflow",
+        "i2v"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "116-image-to-video-control/image-to-video-control.md",
+        "115-video-prompt-engineering/video-prompt-engineering.md",
+        "39-image-consistency/character-consistency.md",
+        "240-style-reference-driven/style-reference-driven.md",
+        "126-style-art-direction/style-art-direction.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 9796,
+      "bytes": 22379,
+      "section_count": 29,
+      "external_url_count": 5,
+      "source_status": "linked",
+      "sha256": "46cd739914fbcb4283a341f50419061b4ba0514245753094934eefd734a913cb",
+      "flags": []
+    },
+    {
+      "number": 408,
+      "id": "408",
+      "slug": "multi-shot-consistency",
+      "title": "多镜一致性编排（Multi-Shot Consistency Orchestration — Anchor System + AI）",
+      "path": "knowledge/408-multi-shot-consistency/multi-shot-consistency.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "AI 视频多镜一致性编排方法：六类锚点（角色/场景/风格/光线/道具/时间）锁什么与怎么锁、跨镜批次生成 SOP、抽帧校验与漂移修复——让整场戏而不是单镜头统一",
+      "tags": [
+        "craft",
+        "camera",
+        "character",
+        "style",
+        "continuity"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "117-ai-consistency-system/ai-consistency-system.md",
+        "123-longform-consistency/longform-consistency.md",
+        "238-image-series-consistency/image-series-consistency.md",
+        "174-qc-automation/qc-automation.md",
+        "48-ai-drama-studio/ai-drama-studio.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 9408,
+      "bytes": 20496,
+      "section_count": 21,
+      "external_url_count": 4,
+      "source_status": "linked",
+      "sha256": "c520b23609ea876586637f3b29427ecec18be68e7d32b5251815c719535aaaf9",
+      "flags": []
+    },
+    {
+      "number": 409,
+      "id": "409",
+      "slug": "ai-shortfilm-case",
+      "title": "电影级 AI 短片逐镜拆解（AI-Generated Short Film — Shot-by-Shot Case Studies）",
+      "path": "knowledge/409-ai-shortfilm-case/ai-shortfilm-case.md",
+      "group": "craft",
+      "type": "Case",
+      "description": "以 Air Head（OpenAI Sora）、KITSUNE（Google Veo 2）、Google I/O 2025 开场影片（Veo 3）三部官方/公开 AI 短片逐镜拆解开场到收尾的镜头序列与 AI 技术点，并以首部全 AI 长片《Where the Robots Grow》作数据参照，提炼 AI 短片的素材比思维、一致性纪律与生成后检查修复清单",
+      "tags": [
+        "craft",
+        "camera",
+        "model",
+        "continuity"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "113-mvp-case-playbook/mvp-case-playbook.md",
+        "115-video-prompt-engineering/video-prompt-engineering.md",
+        "124-shot-language-gen/shot-language-gen.md",
+        "117-ai-consistency-system/ai-consistency-system.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 14245,
+      "bytes": 29873,
+      "section_count": 12,
+      "external_url_count": 11,
+      "source_status": "linked",
+      "sha256": "b0d41d47ad89c4ec8678fe7b3bb281a85f0eec4db13e400b43c99158530bd1e9",
+      "flags": []
+    },
+    {
+      "number": 410,
+      "id": "410",
+      "slug": "drama-trailer-more",
+      "title": "更多竖屏短剧与游戏预告逐镜拆解（More Drama & Trailer Shot-by-Shot — 2025-2026）",
+      "path": "knowledge/410-drama-trailer-more/drama-trailer-more.md",
+      "group": "craft",
+      "type": "Case",
+      "description": "以《暗潮涌动》《盛夏芬德拉》《一品布衣》三部 2025-2026 爆款竖屏短剧（谍战/情绪流/男频基建三种打法）与《影之刃零》《遗忘之海》两支高传播游戏预告为例，逐镜拆解钩子、节奏、镜头语言与数据表现，作为 396/397 案例库的续篇，并映射到 AI 生成工作流",
+      "tags": [
+        "craft",
+        "camera",
+        "workflow",
+        "trailer"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "22-case-studies/case-studies.md",
+        "113-mvp-case-playbook/mvp-case-playbook.md",
+        "396-vertical-drama-case/vertical-drama-case.md",
+        "397-game-cg-trailer-case/game-cg-trailer-case.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 16790,
+      "bytes": 39149,
+      "section_count": 13,
+      "external_url_count": 2,
+      "source_status": "linked",
+      "sha256": "cafa5ba7434a6f6d66232db460f06337966d6c90f184c1f9ea13e98d93dd7e8b",
+      "flags": []
+    },
+    {
+      "number": 411,
+      "id": "411",
+      "slug": "horror-scene",
+      "title": "恐怖/惊悚场景镜头级方案（Horror & Thriller Scene — Fear by Design + AI）",
+      "path": "knowledge/411-horror-scene/horror-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "恐怖/惊悚场景的镜头级方案：恐惧三层机制（预期恐惧/突然惊吓/心理不安）、节拍→镜头序列表、7 类关键镜头画面构成（走廊推近/门缝阴影/镜面反射/焦外威胁/惊吓特写/喘息静帧/威胁 POV）、制造恐惧的镜头手段、jump scare 设计原则、常见错误与 AI 生成工作流，每个镜头给出中英 AI 提示词与生成后检查",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "37-genre-horror-suspense/horror-suspense.md",
+        "274-suspense-visual-language/suspense-visual-language.md",
+        "268-suspense-theory/suspense-theory.md",
+        "236-chiaroscuro-light/chiaroscuro-light.md",
+        "93-lighting-narrative/lighting-narrative.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 18484,
+      "bytes": 37688,
+      "section_count": 23,
+      "external_url_count": 11,
+      "source_status": "linked",
+      "sha256": "9ff497c7e7554dddbb99c291282c30392d907051e14dbe0c29f9b7d8f177688b",
+      "flags": []
+    },
+    {
+      "number": 413,
+      "id": "413",
+      "slug": "war-battle-scene",
+      "title": "战争/冲突场景镜头级方案（War & Battle Scene — Chaos & Order + AI）",
+      "path": "knowledge/413-war-battle-scene/war-battle-scene.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "战争/冲突场景的镜头级方案：宏观战略与个体挣扎双视角、节拍→镜头序列表、8 类关键镜头（炮火大远景/士兵过肩/尘土硝烟/慢动作牺牲/主观奔跑/战壕纵深/正面冲锋/战后静场）的中英提示词与生成后检查、混乱与秩序平衡、慢动作与高速交替、常见错误与 AI 编排工作流",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "workflow",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "201-crowd-scenes/crowd-scenes.md",
+        "404-epic-scale-scene/epic-scale-scene.md",
+        "177-motion-blur-shutter/motion-blur-shutter.md",
+        "343-handheld-aesthetics/handheld-aesthetics.md",
+        "97-action-stunts/action-stunts.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 20801,
+      "bytes": 39858,
+      "section_count": 25,
+      "external_url_count": 30,
+      "source_status": "linked",
+      "sha256": "23ee15798f119f23259bd2c4a837561c9482cf0d196cf865c97f70c26666ef71",
+      "flags": []
+    },
+    {
+      "number": 417,
+      "id": "417",
+      "slug": "parameters-tuning",
+      "title": "生成参数控制实战（Parameters — Seed, CFG, Steps, Negative & Tuning + AI）",
+      "path": "knowledge/417-parameters-tuning/parameters-tuning.md",
+      "group": "craft",
+      "type": "Method",
+      "description": "AI 视频/图像生成参数的镜头级控制实战：Seed/CFG/Steps/分辨率/时长/运动强度/负面提示词/风格强度/参考权重 × 组合策略（一致性/运动/质量）× seed 复现迭代与常见错误表",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt",
+        "style",
+        "continuity"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "138-params-tuning/params-tuning.md",
+        "407-reference-first-last-frame/reference-first-last-frame.md",
+        "115-video-prompt-engineering/video-prompt-engineering.md",
+        "118-defect-repair/defect-repair.md",
+        "174-qc-automation/qc-automation.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 16408,
+      "bytes": 32254,
+      "section_count": 33,
+      "external_url_count": 9,
+      "source_status": "linked",
+      "sha256": "c64fd93f22b6f9ffe5a825c57891a21e5d03a7b788ca7b29c4938c468c0f8349",
+      "flags": []
+    },
+    {
+      "number": 418,
+      "id": "418",
+      "slug": "one-shot-chaining",
+      "title": "长镜与一镜到底续接（One-Shot & Long Take Chaining — Seamless Continuity + AI）",
+      "path": "knowledge/418-one-shot-chaining/one-shot-chaining.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "AI 伪一镜到底的分段续接方法：首尾帧衔接、运动矢量延续、场景卡、隐藏剪辑点，穿过门/遮挡/转场动作/同构图延续四类无缝转场，长镜内角色场景光一致性维持，接缝校验与修复",
+      "tags": [
+        "craft",
+        "editing",
+        "character",
+        "continuity",
+        "i2v"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "207-one-shot-long-take/one-shot-long-take.md",
+        "408-multi-shot-consistency/multi-shot-consistency.md",
+        "407-reference-first-last-frame/reference-first-last-frame.md",
+        "116-image-to-video-control/image-to-video-control.md",
+        "117-ai-consistency-system/ai-consistency-system.md"
+      ],
+      "stale_after": "2027-08-18",
+      "chars": 14348,
+      "bytes": 30454,
+      "section_count": 34,
+      "external_url_count": 12,
+      "source_status": "linked",
+      "sha256": "eb4b8d8a62d1fde999eae20e81ad3446c1f4b27ce5ec4ea3285337854431fc5f",
       "flags": []
     }
   ]

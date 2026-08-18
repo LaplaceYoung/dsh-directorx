@@ -5,7 +5,7 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { chengpianPersonaText, draftDirectorPrompts, planPlaceholderEnqueue, ProposalStore, resolveGenerateAuthorization, runChengpianEvent } from '../lib/testing.js'
+import { chengpianPersonaText, draftDirectorPrompts, isThinPrompt, planPlaceholderEnqueue, ProposalStore, resolveGenerateAuthorization, runChengpianEvent } from '../lib/testing.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -84,6 +84,8 @@ test('draftDirectorPrompts always returns 2–4 distinct director-angle lines', 
   assert.equal(four.length, 4)
   assert.equal(over.length, 4)
   assert.equal(new Set(four).size, 4)
+  assert.ok(four.every(line => isThinPrompt('码头雾中女人站住', line) === undefined))
+  assert.ok(four.every(line => !/角度不是成稿/.test(line)))
 })
 
 test('chengpianPersonaText names 成片 modes and 导演角度 knowledge/skill rules', () => {

@@ -192,7 +192,7 @@ export function serializeFrontmatter(frontmatter: OkfFrontmatter): string {
 export function inferOkfType(title: string, slug = '', excerpt = ''): OkfType {
   const head = `${title} ${slug}`
   void excerpt
-  if (/(案例手册|逐镜头|field test|benchmark|case studies|拉片|名场面)/i.test(head) || /案例/.test(title)) {
+  if (/(案例手册|逐镜头|field test|benchmark|case studies|拉片|名场面|拆解|案例)/i.test(head) || /案例/.test(title)) {
     return 'Case'
   }
   if (/(能力矩阵|规格总表|spec matrix|能力边界|交付规格)/i.test(head) || /(矩阵|总表)/.test(title)) {
@@ -223,7 +223,7 @@ export function inferOkfTags(input: {
   for (const [pattern, tag] of TAG_RULES) {
     if (pattern.test(hay)) tags.add(tag)
   }
-  if ((input.number ?? 0) >= 350) tags.add('overlap-review')
+  if ((input.number ?? 0) >= 350 && /融合|整合|系统|总(?:设计|应用|合)|综合|系列|框架/.test(hay)) tags.add('overlap-review')
   return [...tags].slice(0, 8)
 }
 

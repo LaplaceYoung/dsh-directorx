@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DirectorxCanvasStore } from './canvas.ts'
+import { pinTextCard, CAST_STAMP_PREFIX, SCRIPT_CARD_STAMP } from './canvas-text.ts'
 import { resolveOutputDir } from './support.ts'
 
 export type BibleKind = 'outline' | 'characters' | 'art' | 'script' | 'storyboard'
@@ -163,6 +164,27 @@ function characterReview(doc: Record<string, unknown>, path: string): BibleRevie
   return packReview('characters', path, source, gates, lines.join('\n'))
 }
 
+function formatCastSource(doc: Record<string, unknown>, title: string): string {
+  const characters = Array.isArray(doc.characters) ? doc.characters : []
+  const blocks = [`人物设定：${title}`, '']
+  for (const item of characters.slice(0, 24)) {
+    const rec = asRecord(item)
+    const name = typeof rec.name === 'string' ? rec.name : '?'
+    const persona = asRecord(rec.persona)
+    const one = typeof rec.oneLiner === 'string' ? rec.oneLiner : ''
+    const appearance = typeof persona.appearance === 'string'
+      ? persona.appearance
+      : typeof rec.description === 'string' ? rec.description : ''
+    const identity = typeof persona.identity === 'string' ? persona.identity : ''
+    blocks.push(`## ${name}`)
+    if (one !== '') blocks.push(one)
+    if (identity !== '') blocks.push(`身份：${identity}`)
+    if (appearance !== '') blocks.push(`外貌：${appearance}`)
+    blocks.push('')
+  }
+  return blocks.join('\n').trim()
+}
+
 function packReview(kind: BibleKind, path: string, title: string, gates: BibleGate[], markdown: string): BibleReview {
   const passed = gates.filter(item => item.ok).length
   return {
@@ -219,33 +241,41 @@ export async function reviewBible(path: string, kindHint?: BibleKind): Promise<B
 export async function pinBible(input: {
   outputDir: string
   review: BibleReview
-}): Promise<{ path: string; nodeId: string; markdown: string }> {
+}): Promise<{ path: string; nodeId: string; sourceNodeId?: string; markdown: string }> {
   const dir = join(resolveOutputDir(input.outputDir), 'docs')
   await mkdir(dir, { recursive: true })
   const file = join(dir, `${input.review.kind}-review.md`)
   await writeFile(file, input.review.markdown, 'utf8')
   const canvas = new DirectorxCanvasStore(input.outputDir)
-  const doc = await canvas.read()
-  const maxBottom = doc.nodes.reduce((max, node) => Math.max(max, node.y + (node.height ?? 120)), 0)
-  const nodeId = `bible-${input.review.kind}`
-  const existing = doc.nodes.find(node => node.id === nodeId)
-  const lines = input.review.markdown.split('\n').length
-  const height = Math.max(220, Math.min(720, 80 + lines * 18))
-  const label = input.review.markdown.slice(0, 8000)
-  if (existing !== undefined) {
-    await canvas.update(nodeId, { label, width: 520, height })
-  } else {
-    await canvas.addNode({
-      id: nodeId,
-      kind: 'text',
-      label,
-      x: 48,
-      y: maxBottom + 48,
-      width: 520,
-      height,
-    })
+  const reviewPin = await pinTextCard({
+    store: canvas,
+    stamp: `评审:${input.review.kind}`,
+    body: input.review.markdown,
+    id: `bible-${input.review.kind}`,
+    width: 520,
+  })
+  let sourceNodeId: string | undefined
+  if (input.review.kind === 'characters' || input.review.kind === 'script') {
+    try {
+      const raw = asRecord(JSON.parse(await readFile(input.review.path, 'utf8')))
+      const sourceBody = input.review.kind === 'characters'
+        ? formatCastSource(raw, input.review.title)
+        : input.review.markdown.replace(/^# 评审.+\n+/, '').trim()
+      if (sourceBody !== '') {
+        const source = await pinTextCard({
+          store: canvas,
+          stamp: `${input.review.kind === 'characters' ? CAST_STAMP_PREFIX : SCRIPT_CARD_STAMP}${input.review.title}`,
+          body: sourceBody,
+          id: input.review.kind === 'characters' ? `cast-bible-${input.review.kind}` : `script-bible`,
+          width: 480,
+        })
+        sourceNodeId = source.nodeId
+      }
+    } catch {
+      // review card is enough
+    }
   }
-  return { path: file, nodeId, markdown: input.review.markdown }
+  return { path: file, nodeId: reviewPin.nodeId, ...(sourceNodeId !== undefined ? { sourceNodeId } : {}), markdown: input.review.markdown }
 }
 
 export function skillDir(): string {

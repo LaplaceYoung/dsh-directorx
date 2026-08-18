@@ -47,7 +47,7 @@ sources:
     title: "frontiersin.org"
 dx_id: "316"
 related:
-  - "311-expectation-suspense-sensory/expectation-suspense-sensory.md"
+  - "293-suspense-synesthesia-integration/suspense-synesthesia-integration.md"
   - "167-interactive-branching/interactive-branching.md"
   - "282-narrative-av-genre/narrative-av-genre.md"
   - "245-narrative-time-space/narrative-time-space.md"
@@ -136,7 +136,7 @@ related:
 
 ## 相关概念
 
-- [电影预期-悬念-通感整合（Expectation-Suspense-Sensory — Immersive Unified Experience）](../311-expectation-suspense-sensory/expectation-suspense-sensory.md)
+- [电影叙事-悬念-通感三整合（Narrative-Suspense-Synesthesia — PAL-D & Unified Tension Design）](../293-suspense-synesthesia-integration/suspense-synesthesia-integration.md)
 - [AI 互动分支叙事（Interactive Branching — Choose-Your-Own-Adventure & Generative Stories）](../167-interactive-branching/interactive-branching.md)
 - [电影叙事-视听-类型三整合（Narrative-AV-Genre Integration — Unified Cinematic Language）](../282-narrative-av-genre/narrative-av-genre.md)
 - [电影叙事时空（Narrative Time & Space — Story/Plot/Screen Time & Temporal Devices）](../245-narrative-time-space/narrative-time-space.md)

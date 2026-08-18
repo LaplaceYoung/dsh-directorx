@@ -51,11 +51,12 @@ related:
   - "348-atmosphere-emotion-library/atmosphere-emotion-library.md"
   - "355-saliency-gaze-gestalt/saliency-gaze-gestalt.md"
   - "281-motivated-motion-image/motivated-motion-image.md"
+  - "371-affective-immersive-fusion/affective-immersive-fusion.md"
 ---
 
 # AI 图片运动-注意-情绪三融合（Motion-Attention-Emotion — Affective Saliency Fusion）
 
-> 本页为 AI 图片的运动-注意-情绪三融合：VA 情绪注入（EmotiCrafter）+ 跨模态注意融合（空间/时间显著区）、视觉提示（面部标注/AU/语境/身体）、情感显著引导（情绪相关区域强调）。知识本体来自 2026 情感融合（ICCV EmotiCrafter/arXiv/Glos）。AI 应用面向 DirectorX：情感显著（衔接 348 情绪库、362 对应、355 显著、281 运动）。
+> 本页为 AI 图片的运动-注意-情绪三融合：VA 情绪注入（EmotiCrafter）+ 跨模态注意融合（空间/时间显著区）、视觉提示（面部标注/AU/语境/身体）、情感显著引导（情绪相关区域强调）。知识本体来自 2026 情感融合（ICCV EmotiCrafter/arXiv/Glos）。AI 应用面向 DirectorX：情感显著（衔接 348 情绪库、362 对应、355 显著、281 运动、371 情感沉浸融合）。
 > 来源：ICCV「EmotiCrafter」、arXiv「Visual and Textual Prompts for Emotion」、Glos「Cross-Modal Attention Fusion」、PMC「Emotional World of Visual Media」。
 
 ## 概述
@@ -133,3 +134,4 @@ related:
 - [AI 图片氛围情绪库（Atmosphere-Emotion Library — VA-Driven & Affective Generation）](../348-atmosphere-emotion-library/atmosphere-emotion-library.md)
 - [AI 图片显著-视线-格式塔应用（Saliency-Gaze-Gestalt — Attention Control Framework）](../355-saliency-gaze-gestalt/saliency-gaze-gestalt.md)
 - [AI 图片镜头动机（Motivated Motion in Images — Implied Movement & Direction）](../281-motivated-motion-image/motivated-motion-image.md)
+- [AI 图片情感显著-互动-沉浸三融合（Affective Saliency × Interactive × Immersive — VR-Aware Fusion）](../371-affective-immersive-fusion/affective-immersive-fusion.md)

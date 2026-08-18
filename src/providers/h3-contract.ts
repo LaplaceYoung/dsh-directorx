@@ -35,9 +35,10 @@ export function clipH3Prompt(prompt: string): { prompt: string; clipped: boolean
 
 export function h3Resolution(requested?: string): string {
   const raw = (requested ?? '').trim()
-  if (raw === '' || raw === '2K' || raw === '1080p' || raw === '1K') return H3_RECOMMENDED_RESOLUTION
-  if (raw === '768p' || raw === '720p') return '768p'
-  return raw === '1440p' ? H3_RECOMMENDED_RESOLUTION : raw
+  const key = raw.toLowerCase()
+  if (raw === '' || key === '2k' || key === '1080p' || key === '1k') return H3_RECOMMENDED_RESOLUTION
+  if (key === '768p' || key === '720p') return '768p'
+  return key === '1440p' ? H3_RECOMMENDED_RESOLUTION : raw
 }
 
 /** Official: first/last frames set the output aspect; do not also send role:reference. */

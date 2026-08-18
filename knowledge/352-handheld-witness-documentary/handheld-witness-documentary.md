@@ -4,7 +4,6 @@ title: "电影手持-见证-纪实三要素（Handheld × Witness × Documentary
 description: "电影手持-见证-纪实三要素：真实电影（Cinéma Vérité：手持=在场即时）、观察式纪实（Observer=见证非记录器）、自然光+未抛光画面+最少干预（真实性）、纪实伦理（真实×同意）"
 tags:
   - "synthesis"
-  - "overlap-review"
 status: stable
 stale_after: "2027-08-18"
 generated:

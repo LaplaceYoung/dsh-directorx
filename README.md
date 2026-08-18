@@ -23,6 +23,7 @@
 <p align="center">
   <a href="#自适应接入"><strong>自适应接入</strong></a> ·
   <a href="#它做什么"><strong>能力</strong></a> ·
+  <a href="#知识库okf"><strong>知识库</strong></a> ·
   <a href="#成片"><strong>成片</strong></a> ·
   <a href="#快速开始"><strong>安装</strong></a> ·
   <a href="#一次制作怎么走"><strong>流程</strong></a> ·
@@ -53,7 +54,7 @@
 ingest 收文档和 Key（Key 不进会话）
   → classify 判断 A / B
   → draft 只填封闭 AdapterSpec（禁止写代码）
-  → ask 提问卡确认协议 / 是否打最短真调用
+  → directorx_ask（DSH 标准提问）确认协议 / 是否打最短真调用
   → smoke 契约 + 探活（可选一发最短生成）
   → commit 写入 Settings，热挂工具
 ```
@@ -64,7 +65,7 @@ ingest 收文档和 Key（Key 不进会话）
 | 你要填的 | baseURL + caps | create.body 映射 + poll 或 syncResult |
 | 生成入口 | 仍是 `directorx_generate_image` / `video` / `audio`，可带 `model` | 同左，mode=`generic-rest` |
 
-设置页有「接入新模型」表单；或直接对会话说「接入这个模型」。分叉一律走 **提问卡**（`directorx_ask`），不要在聊天里列 1. 2. 3.
+设置页有「接入新模型」表单；或直接对会话说「接入这个模型」。分叉一律走 **DSH 标准提问**（`directorx_ask` / `userInteraction.ask`），不要在聊天里列 1. 2. 3.
 
 ---
 
@@ -119,11 +120,42 @@ DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent 
 
 #### 知
 
-330 篇知识库（OKF v0.2）、105 条方法论、12 套配方、39 套主技能。生成前检索，质检引用规则编号。
+348 篇知识库（Google OKF v0.2）、105 条方法论、12 套配方、39 套主技能。生成前按 type/tag 检索，质检引用规则编号。
 
 </td>
 </tr>
 </table>
+
+---
+
+## 知识库（OKF）
+
+知识库按 **Google Open Knowledge Format (OKF) v0.2** 治理，不是一堆无结构 Markdown。每篇概念文必须带：
+
+- **type**：`Reference` / `Method` / `Playbook` / `Spec` / `Case`
+- **title / description / tags**
+- **sources**（出处）与 **verified**（核验）
+- **status**、**stale_after**（过期日）
+- **path 即身份**：旧编号走 `aliases` + `_meta/redirects.json`，不另起一篇同名文
+
+`INDEX.md` 与 `log.md` 是保留根文件。维护：`npm run knowledge:audit` / `knowledge:check`。
+
+### 做到了什么
+
+| 指标 | 结果 |
+| --- | --- |
+| 有效文章 | **348**（Reference 268 · Method 27 · Playbook 30 · Spec 8 · Case 15） |
+| 已合并旧编号 | **90**，检索旧 id 仍能读到现行文 |
+| 精确重复正文 | **0** |
+| 结构错误 / 审计警告 | **0** |
+| 检索 | `directorx_knowledge_search` 可按 **type / tag / group** 过滤，综合篇降权 |
+
+### 好处
+
+- **检索对型**：要规格读 Spec，要打法读 Playbook，要案例读 Case，agent 不会把总合成篇当成镜头事实。
+- **身份稳定**：合并、改名不打断旧引用；DSH 按 id 精读，不必两边各搜一遍。
+- **可核验、可过期**：每篇有出处和核验记录；模型/平台/法规文带 `stale_after`，过期会降权而不是假装仍准。
+- **生成前少噪音**：先 search 再 read，综合篇让路给基础篇，占位和成稿引用的是规范文而不是重复导航。
 
 ---
 
@@ -159,7 +191,7 @@ dsh web
 
 然后打开 **Settings → DirectorX**，四个能力各自开关：Vision / Image / Video / Audio。RC.7 起设置项按命名空间 `directorx` 挂到 Host，不再依赖模型供应商白名单。
 
-复杂任务的分叉（时长、画幅、提示词、落画布、是否付费测试）一律用 **提问卡**，不要在正文里写编号菜单。知识用 `directorx_knowledge_search` / `read`（同义词 + 分组），技能用 `directorx_skill_search` / `read` 读全文。阶段产物写入 `directorx_stage`（brief → … → deliver）。
+复杂任务的分叉（时长、画幅、提示词、落画布、是否付费测试）一律用 **DSH 标准提问**，不要在正文里写编号菜单。知识用 `directorx_knowledge_search` / `read`（同义词 + 分组），技能用 `directorx_skill_search` / `read` 读全文。阶段产物写入 `directorx_stage`（brief → … → deliver）。
 
 | 阶段 | 做什么 |
 | --- | --- |
@@ -207,7 +239,7 @@ flowchart LR
 | --- | --- |
 | DSH | 想、问、批、写节点、领取生成意图、调色、剪辑 |
 | 画布 UI | 看、连、缩放、搜索；底部生成条只 POST 意图 |
-| 右侧浮窗 | 当前工作区会话：流式正文、`skill：` 工具行、「思考中」、提问卡、新会话 |
+| 右侧浮窗 | 当前工作区会话：流式正文、`skill：` 工具行、「思考中」、DSH 标准提问、新会话 |
 
 约定：
 
@@ -228,16 +260,16 @@ flowchart LR
 | --- | --- | --- |
 | 分诊 | `directorx_brief` / `chengpian` | 类型、平台、时长、澄清问题、是否该确认 / 生成 |
 | 镜头 | `directorx_shot` / `shot_sequence` / `shot_gate` | 景别运镜布光 → 提示词；相邻镜承接；生成前门禁 |
-| 占位 | `directorx_propose` / `canvas_shotlist` / `directorx_confirm` | 完整规格入队；编号分镜表；DSH 提问卡片签字。人也可 `/directorx` 看制片板 |
+| 占位 | `directorx_propose` / `canvas_shotlist` / `directorx_confirm` | 完整导演稿入队；编号分镜表；DSH 标准提问签字。人也可 `/directorx` 看制片板 |
 | 画布 | `canvas_plan` / `group` / `sequence` / `node` / `intents` | 确认后落板；增删改查、分组、按幕写分镜；领取 UI 意图 |
 | 生成 | `generate_image` / `generate_video` / `generate_audio` | 文生图/视频/音频；角色锚点与三视图规格；可选 `model` 覆盖 |
 | 入驻 | `provider_ingest` / `classify` / `draft` / `smoke` / `commit` | 用户给模型+文档+Key；A 复用已有协议，B 走 generic-rest |
-| 提问 | `directorx_ask` / `directorx_confirm` | 分叉与签字都走 DSH 提问卡，禁止正文菜单 |
+| 提问 | `directorx_ask` / `directorx_confirm` | 分叉与签字都走 DSH 标准提问，禁止正文菜单 |
 | 检索 | `skill_route` / `skill_search` / `read` · `knowledge_search` / `read` | 路由同时点名技能与文章 id；两边命中互相带对岸 |
 | 阶段 | `directorx_stage` | 成片阶段账本与产物路径，过闸再进下一阶段 |
 | 剪辑 | `edit_plan` / `image_edit` / `video_process` / `edit` / `timeline` / `smart_cut` / `studio` | 先路由再动手；图片几何、单段处理、人话 cut list、时间线、精剪、16 调色；带 nodeId 回写画布 |
 | 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
-| 知识 | `directorx_knowledge_search` / `read` | 330 篇 OKF 语料，可按 type/tag/group 检索 |
+| 知识 | `directorx_knowledge_search` / `read` | 348 篇 Google OKF v0.2 语料，可按 type/tag/group 检索 |
 
 视频协议（设置页按能力配置，不绑死一家）：Sora 2、可灵（两代）、Runway、MiniMax H3、Vidu、Veo、Seedance。
 
@@ -309,7 +341,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 <details>
 <summary><b>画布右侧的会话是另一套 agent 吗？</b></summary>
 
-不是。那是当前工作区绑定的 DSH 会话：流式输出、提问卡、批准、新会话都走官方 Session。插件不另起 loop。
+不是。那是当前工作区绑定的 DSH 会话：流式输出、标准提问、批准、新会话都走官方 Session。插件不另起 loop。
 
 </details>
 
@@ -342,7 +374,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 dsh-directorx
 ├── src/           工具、画布、媒体、配方编排
 ├── skills/        方法论、工坊、novel-* 门禁
-├── knowledge/     330 篇导演/生成语料（OKF v0.2）
+├── knowledge/     348 篇导演/生成语料（Google OKF v0.2）
 ├── recipes/       内容类型先例（按素材改，不是目录）
 ├── workflows/     可选并行模板
 ├── docs/assets/   画布截图与成片演示

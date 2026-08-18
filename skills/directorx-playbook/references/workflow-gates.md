@@ -43,8 +43,8 @@
 MEDIA PLACEHOLDER
 kind: video
 duration: 8s
-prompt: ...
+prompt: Medium shot, eye-level handheld, dusty construction site at dusk, two soldiers drag a man by the arms, warm practical work-lamps, 35mm cinematic, 5 seconds, struggle then a shout.
 status: blocked-by-configuration
 ```
 
-占位内容应包含后续可直接执行的完整提示词和所需参数。
+占位内容应包含后续可直接执行的完整导演提示词（景别/运镜/光线/环境/风格）和所需参数，不能是一句意图或角度标签。

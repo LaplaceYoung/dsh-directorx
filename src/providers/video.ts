@@ -10,6 +10,15 @@ import { veoVideo } from './veo.ts'
 import { genericAsVideo } from './generic-rest.ts'
 import { ensureAspectFrame, parseAspectRatio } from './frame-fit.ts'
 import { clampH3Duration, clipH3Prompt, h3Resolution, h3SkipReferences, isH3Model, limitH3Refs } from './h3-contract.ts'
+
+/** Modelverse H3 accepts 768P / 2K, not the official 1440p token. */
+function modelverseH3Resolution(requested?: string): string {
+  const official = h3Resolution(requested)
+  const key = official.toLowerCase()
+  if (key === '1440p' || key === '2k' || key === '1080p' || key === '1k') return '2K'
+  if (key === '768p' || key === '720p') return '768P'
+  return official === '768P' ? '768P' : official
+}
 import type { MediaFile, ProviderContext, VideoResult } from './types.ts'
 
 interface VideoCreateEnvelope {
@@ -142,14 +151,14 @@ export async function modelverseVideo(
   const skipRefs = h3SkipReferences(firstFramePath, lastFramePath)
   if (!skipRefs) {
     for (const source of limitH3Refs(options.referenceImagePaths ?? [])) {
-      content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(source) }, role: 'reference' })
+      content.push({ type: 'image_url' as const, image_url: { url: await mediaSourceToDataUrl(source) }, role: h3 ? 'reference_image' : 'reference' })
     }
   }
   const ratio = hasFrameLocks ? 'adaptive' : options.aspectRatio ?? '16:9'
   const parameters: Record<string, unknown> = {
     duration,
     ratio,
-    resolution: h3 ? h3Resolution(options.resolution) : (options.resolution ?? '2K'),
+    resolution: h3 ? modelverseH3Resolution(options.resolution) : (options.resolution ?? '2K'),
     aigc_watermark: false,
   }
   const taskId = await submitModelverseTask(baseURL, apiKey, ctx.capability.model, content, parameters, ctx.signal)

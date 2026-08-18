@@ -196,6 +196,26 @@ test('declared t2v is not upgraded when a character sheet exists', () => {
   assert.equal(report.verdict, 'ready')
 })
 
+test('declared ref2v is not forced to fl2v by 转场 or 硬切 wording', () => {
+  const snapshot = { characters: [{ name: '林工', refPath: '/tmp/lin-sheet.png' }], nodes: [], edges: [] }
+  const report = assessGenerateReady({
+    kind: 'video',
+    intent: '预告上半：钩子+人物关系+对白，H3 镜内硬切',
+    prompt: `${DETAILED} 镜内硬切，转场到下一拍，不要首尾帧插值`,
+    strategy: 'ref2v',
+    characters: ['林工'],
+    snapshot,
+  })
+  assert.equal(report.strategy, 'ref2v')
+  assert.equal(report.verdict, 'ready')
+  assert.equal(classifyGenerateStrategy({
+    kind: 'video',
+    intent: '预告上半镜内硬切',
+    prompt: `${DETAILED} 镜内硬切转场到下一拍`,
+    snapshot: emptySnap(),
+  }), 't2v')
+})
+
 test('inferred ref2v still applies when strategy is omitted and a sheet exists', () => {
   const snapshot = { characters: [{ name: '林工', refPath: '/tmp/lin-sheet.png' }], nodes: [], edges: [] }
   assert.equal(classifyGenerateStrategy({

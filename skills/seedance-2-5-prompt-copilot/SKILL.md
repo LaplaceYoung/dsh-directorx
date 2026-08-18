@@ -44,7 +44,7 @@ not a claim about live reference count or compatibility.
 - `First/last-frame mode` is the explicit alternative. It uses two ordered image
   anchors for opening and terminal states. It is not a smaller multi-reference
   workflow.
-- 只有用户在提问卡里选定，才能从多参考改成首尾帧。不要凭附件数量自行切换。
+- 只有用户在 DSH 标准提问里选定，才能从多参考改成首尾帧。不要凭附件数量自行切换。
 
 For direct generation, preserve the approved mode, reference order, and prompt.
 Let the live runtime resolve the exact Seedance 2.5 request mode. If validation

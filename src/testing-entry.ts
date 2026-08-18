@@ -63,6 +63,10 @@ export { viduVideo } from './providers/vidu.ts'
 export { veoVideo } from './providers/veo.ts'
 export { DirectorxCanvasStore, canvasEdgeAllowed } from './canvas.ts'
 export { parseScriptBeats, SCRIPT_STARTER, applyScriptRows } from './canvas-script.ts'
+export {
+  pinTextCard, pinCharacterSetting, formatCharacterSetting, formatStoryboardText,
+  CAST_STAMP_PREFIX, SCRIPT_CARD_STAMP, STORYBOARD_STAMP,
+} from './canvas-text.ts'
 export { planAutolink, applyAutolink } from './canvas-autolink.ts'
 export { applyFrameStrip } from './canvas-frames.ts'
 export { parseCraftAction, runCanvasCraft } from './canvas-craft.ts'

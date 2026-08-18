@@ -16,7 +16,8 @@ tags: [trailer, teaser, anime, shonen, smash-cut]
 ## 切
 - 只硬切。动态画面禁止 fade / 叠化。
 - 冲击帧停在清晰、稳定、可被下一刀砸碎的构图上。
-- 成片用 `directorx_canvas_pack` `transition=cut`。评审用 `directorx_canvas_sheet`。
+- **H3**：不要把预告拆成多条 FL2VA 慢动作再拼。官方预告入口是全参考（风格图+人物图）+ `[Shot N]` 镜内硬切 + 画内文字用双引号原文。一条 10–15s 里打完钩子或高潮。有首尾帧时 H3 不会自动加切。
+- 超过 15s 再 `directorx_canvas_pack` `transition=cut`。评审用 `directorx_canvas_sheet`。
 - 什么时候别用：叙事短片、产品演示、需要时间流动的长镜头。那些走别的配方。
 
 ## 日漫热血（剧场版调）

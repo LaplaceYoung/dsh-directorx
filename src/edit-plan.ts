@@ -209,7 +209,7 @@ export function planEdit(input: {
     }
   }
 
-  warnings.push('意图不够具体，先用提问卡确认要调色、裁切还是剪辑。')
+  warnings.push('意图不够具体，先用 directorx_ask 确认要调色、裁切还是剪辑。')
   next.push('directorx_ask')
   return {
     route: 'ask',

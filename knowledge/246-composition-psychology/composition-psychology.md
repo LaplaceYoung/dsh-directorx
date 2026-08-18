@@ -52,12 +52,13 @@ related:
   - "216-composition-rules-deep/composition-rules-deep.md"
   - "210-golden-ratio-composition/golden-ratio-composition.md"
   - "01-camera-language/camera-language.md"
+  - "346-composition-psych-applied/composition-psych-applied.md"
   - "215-photo-camera-parameters/photo-camera-parameters.md"
 ---
 
 # AI 图片摄影构图心理学（Composition Psychology — Eye Tracking & Gaze Guidance）
 
-> 本页为 AI 图片的摄影构图心理学：眼动研究（视线路径/注视时间）、引导线认知（Leading Lines 引导注意）、格式塔属性（视觉复杂度/美感）、构图-注视一致性。知识本体来自 2026 眼动研究（PMC 多篇）。AI 应用面向 DirectorX：构图设计（衔接 216 构图法则、210 黄金比例、246 对应、197 运镜心理）。
+> 本页为 AI 图片的摄影构图心理学：眼动研究（视线路径/注视时间）、引导线认知（Leading Lines 引导注意）、格式塔属性（视觉复杂度/美感）、构图-注视一致性。知识本体来自 2026 眼动研究（PMC 多篇）。AI 应用面向 DirectorX：构图设计（衔接 216 构图法则、210 黄金比例、246 对应、197 运镜心理、346 构图心理学应用）。
 > 来源：PMC「Leading Line Composition and Visual Cognition」、PMC「Gestalt Properties in Photography」、PMC「Role of Composition in Viewing」、SAGE「How Images Draw the Eye」。
 
 ## 概述
@@ -143,4 +144,5 @@ related:
 - [AI 图片构图法则体系（Composition Rules — Framing, Leading Lines & Visual Hierarchy）](../216-composition-rules-deep/composition-rules-deep.md)
 - [AI 黄金比例构图（Golden Ratio Composition — Phi Grid & Cinematic Balance）](../210-golden-ratio-composition/golden-ratio-composition.md)
 - [镜头语言与景别（Camera Language & Shot Size）](../01-camera-language/camera-language.md)
+- [AI 图片构图心理学应用（Composition Psychology Applied — GazeFusion & Saliency-Guided Design）](../346-composition-psych-applied/composition-psych-applied.md)
 - [AI 图片摄影参数提示词（Photographic Parameters — Aperture, Shutter, ISO & Lens in Prompts）](../215-photo-camera-parameters/photo-camera-parameters.md)

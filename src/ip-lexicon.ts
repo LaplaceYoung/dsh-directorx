@@ -141,7 +141,7 @@ const ENTRIES: IpEntry[] = [
   item('character', ['米老鼠', '米奇老鼠', 'mickey mouse']),
   item('character', ['唐老鸭', 'donald duck']),
   item('character', ['hello kitty', 'hellokitty']),
-  item('character', ['冰雪奇缘', '艾莎', 'elisa', 'elsa', 'frozen']),
+  item('character', ['冰雪奇缘', '艾莎', 'elisa', 'elsa', 'disney frozen']),
   item('character', ['小黄人', 'minions']),
   item('character', ['熊本熊', 'kumamon']),
   item('character', ['兔八哥', 'bugs bunny']),

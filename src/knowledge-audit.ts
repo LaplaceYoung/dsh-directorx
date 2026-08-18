@@ -79,6 +79,8 @@ const MERGES: Array<{ from: number; to: number; reason: string }> = [
   { from: 365, to: 358, reason: '节奏四整合并入节奏-视点-体验整合' },
   { from: 381, to: 372, reason: '声统全整合并入听觉叙事和谐' },
   { from: 393, to: 382, reason: '创作生态聚合并入多模型聚合平台' },
+  { from: 336, to: 325, reason: '声学身份-杂交-体验并入声学指纹-杂交-类型（同主题重复写作，DNA 五组件/三因子/空间音频已并入）' },
+  { from: 311, to: 293, reason: '预期-悬念-通感并入叙事-悬念-通感三整合（同主题重复写作，预期机制/测量迭代已并入）' },
 ]
 
 const STUBS: Array<{ dir: string; slug: string; to: number; reason: string }> = [

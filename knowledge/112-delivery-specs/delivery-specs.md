@@ -53,9 +53,9 @@ sources:
     title: "filmcane.com"
 dx_id: "112"
 related:
+  - "400-ai-delivery-spec/ai-delivery-spec.md"
   - "51-color-psychology-brand/color-psychology-brand.md"
   - "114-ai-video-model-matrix/ai-video-model-matrix.md"
-  - "190-color-space-conversion/color-space-conversion.md"
 ---
 
 # 电影级交付规格（Delivery Specs — Color / Audio / Master Standards）
@@ -166,6 +166,6 @@ related:
 
 ## 相关概念
 
+- [AI 视频交付规格总表（AI Video Delivery Spec Matrix — 2026）](../400-ai-delivery-spec/ai-delivery-spec.md)
 - [色彩心理学与品牌视觉（Color Psychology & Brand Visuals）](../51-color-psychology-brand/color-psychology-brand.md)
 - [AI 视频模型能力矩阵（AI Video Model Matrix 2026 — Capabilities & Selection）](../114-ai-video-model-matrix/ai-video-model-matrix.md)
-- [AI 色彩空间转换实操（Color Space Conversion — Rec.709/2020, SDR/HDR & Working Space）](../190-color-space-conversion/color-space-conversion.md)

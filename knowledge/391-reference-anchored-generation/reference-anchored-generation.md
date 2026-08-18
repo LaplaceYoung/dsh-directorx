@@ -8,7 +8,6 @@ tags:
   - "style"
   - "continuity"
   - "image"
-  - "overlap-review"
 status: stable
 stale_after: "2027-08-18"
 generated:

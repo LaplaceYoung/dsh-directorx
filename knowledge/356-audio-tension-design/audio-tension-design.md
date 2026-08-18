@@ -5,7 +5,6 @@ description: "电影听觉张力设计：紧张音频线索（单独即造悬念
 tags:
   - "synthesis"
   - "sound"
-  - "overlap-review"
 status: stable
 stale_after: "2027-08-18"
 generated:

@@ -4,7 +4,6 @@ title: "电影纪实-手持-伦理应用（Documentary-Handheld-Ethics — Duty 
 description: "电影纪实-手持-伦理应用：知情同意+参与者自主+编辑/AI 透明、关怀义务文档（Duty of Care：补偿/编辑控制/放映参与）、再现/素材/AI 元素不扭曲真实"
 tags:
   - "synthesis"
-  - "overlap-review"
 status: stable
 stale_after: "2027-08-18"
 generated:

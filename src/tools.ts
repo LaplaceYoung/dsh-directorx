@@ -43,7 +43,8 @@ import { commitIpRewrite, scanIpWithMemory } from './ip-memory.ts'
 import { applyGrade, listGradeLabels, resolveGradeLook } from './providers/grade.ts'
 import { withCharacterSheetSpec } from './providers/sheet-prompt.ts'
 import { ResearchLedger } from './research-ledger.ts'
-import { craftPrompt, requireCraft } from './prompt-craft.ts'
+import { craftPrompt, isThinPrompt, requireCraft } from './prompt-craft.ts'
+import { pinCharacterSetting, pinTextCard, formatStoryboardText, STORYBOARD_STAMP } from './canvas-text.ts'
 import { planPrompt } from './prompt-plan.ts'
 import { planProduction } from './production-flow.ts'
 import {
@@ -140,6 +141,17 @@ async function generationGate(
       inBudget: true,
       proposal,
     })
+    const thin = isThinPrompt(crafted.craft.intent, auth.prompt)
+    if (thin !== undefined) {
+      return {
+        generate: false as const,
+        prompt: auth.prompt,
+        reason: thin,
+        authorized: false,
+        refused: true,
+        next: 'directorx_prompt_plan → directorx_prompt_craft。占位必须是导演成稿，不能是角度标签或原句。',
+      }
+    }
     const scanned = await scanIpWithMemory(settings.outputDir, auth.prompt)
     if (scanned.brief.dirty) {
       return {
@@ -599,10 +611,10 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_skill_capture',
-    description: '成片交付后把流程和用户修改意见收成新技能。offer 弹出提问卡「是否保存为 xx 技能」；用户同意后你写 SKILL.md 正文再 save。只写入项目/用户技能库，不覆盖插件自带 skills/。',
+    description: '成片交付后把流程和用户修改意见收成新技能。offer 走 DSH 标准提问「是否保存为 xx 技能」；用户同意后你写 SKILL.md 正文再 save。只写入项目/用户技能库，不覆盖插件自带 skills/。',
     parameters: {
-      action: { type: 'string', enum: ['harvest', 'offer', 'save'], description: '默认 offer。harvest 只收事实；offer 出提问卡；save 写入技能。' },
-      present: { type: 'boolean', description: 'offer 时立刻弹出画布提问卡，不要只返回 JSON。' },
+      action: { type: 'string', enum: ['harvest', 'offer', 'save'], description: '默认 offer。harvest 只收事实；offer 走 DSH 标准提问；save 写入技能。' },
+      present: { type: 'boolean', description: 'offer 时立刻通过 userInteraction.ask 提问，不要只返回 JSON。' },
       name: { type: 'string', description: 'save：小写英文短横线技能名。' },
       title: { type: 'string', description: '展示名，可中文。' },
       description: { type: 'string', description: 'SKILL.md description：做什么、何时触发。' },
@@ -617,7 +629,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
       } | undefined
       if (args.present === true && userInteraction === undefined) {
-        throw new Error('directorx_skill_capture present 需要 DSH userInteraction（画布会话提问卡）')
+        throw new Error('directorx_skill_capture present 需要 DSH userInteraction（标准提问通道）')
       }
       const result = await runSkillCapture({
         outputDir: settings.outputDir,
@@ -717,7 +729,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_generate_ready',
-    description: '生成前参考齐备闸。读画布和角色库，判定本任务该走设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧 / 文生。缺参考就 blocked，并用提问卡让用户选路。commit:true 只在齐备时发 readyId；generate/propose/canvas_continue 必带。',
+    description: '生成前参考齐备闸。读画布和角色库，判定本任务该走设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧 / 文生。缺参考就 blocked，并用 directorx_ask（DSH 标准提问）让用户选路。commit:true 只在齐备时发 readyId；generate/propose/canvas_continue 必带。',
     parameters: {
       kind: { type: 'string', enum: ['image', 'video'], required: true, description: '本任务出图还是出视频。' },
       intent: { type: 'string', required: true, description: '用户原句 / 画布意图。' },
@@ -733,7 +745,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       referenceImages: { type: 'array', items: { type: 'string' } },
       waivers: { type: 'array', items: { type: 'string' }, description: '用户确认后才可放弃的项：character-sheet / scene-still / first-frame / last-frame。已登记角色不能放弃设定图。' },
       commit: { type: 'boolean', description: 'true = 齐备则写入 readyId。' },
-      present: { type: 'boolean', description: 'blocked 时立刻弹出提问卡。' },
+      present: { type: 'boolean', description: 'blocked 时立刻走 DSH 标准提问。' },
     },
     output: objectOutput(),
     timeoutMs: 300_000,
@@ -1335,7 +1347,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_canvas_script',
-    description: '把文本/剧本节点拆成「本→首帧→视频」分镜行铺上画布。认 Fountain 场次标题、镜头N、中文第N场。只写 idea 空卡，不生成媒体。同一剧本节点再调一次会复用已铺的行。',
+    description: '把文本/剧本节点拆成「本→首帧→视频」分镜行铺上画布。认 Fountain 场次标题、镜头N、中文第N场。剧本正文本身就是可见文本卡。只写 idea 空卡，不生成媒体。同一剧本节点再调一次会复用已铺的行。',
     parameters: {
       nodeId: { type: 'string', description: '已有文本节点 id。可与 text 二选一。' },
       text: { type: 'string', description: '直接给剧本正文。没有 nodeId 时会先建一张文本卡。' },
@@ -2039,7 +2051,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_ask',
-    description: 'Pause on a DSH question card for any fork the user must own (时长/画幅/风格/接入协议/是否打最短测试). NEVER write a numbered 1.2.3 menu in assistant text — call this instead. Up to 6 questions, each with options and a recommended default.',
+    description: 'Pause on the standard DSH question channel (ctx.userInteraction.ask) for any fork the user must own (时长/画幅/风格/接入协议/是否打最短测试). NEVER write a numbered 1.2.3 menu in assistant text — call this instead. Up to 6 questions, each with options and a recommended default.',
     parameters: {
       question: { type: 'string', description: 'Single-question shorthand.' },
       options: { type: 'array', items: { type: 'object', additionalProperties: true }, description: '[{label, description?}]' },
@@ -2056,7 +2068,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
       } | undefined
       if (userInteraction === undefined) {
-        throw new Error('directorx_ask requires DSH userInteraction (Web UI or TUI).')
+        throw new Error('directorx_ask requires DSH userInteraction (standard question channel).')
       }
       const questions = normalizeAskQuestions(args.questions ?? args)
       return presentAsk({
@@ -2070,7 +2082,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_stage',
-    description: '成片阶段账本（outputDir/stage.json）：brief→research→forks→script→cast→storyboard→craft→place→generate→assemble→qa→deliver。记录阶段性产物，过闸用提问卡。deliver 时返回收成提问卡，接着 directorx_skill_capture。不要静默跳阶段。',
+    description: '成片阶段账本（outputDir/stage.json）：brief→research→forks→script→cast→storyboard→craft→place→generate→assemble→qa→deliver。记录阶段性产物，过闸用 DSH 标准提问。deliver 时返回收成提问，接着 directorx_skill_capture。不要静默跳阶段。',
     parameters: {
       action: { type: 'string', enum: ['get', 'record', 'advance'], description: 'Default get.' },
       stage: { type: 'string', description: 'record/advance 的阶段 id。' },
@@ -2177,7 +2189,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_character_register',
-    description: 'Register a character/subject anchor: a reference image + description stored in characters.json. Later generation calls can pass the character name via the `characters` parameter and the reference + description are injected automatically — the subject-consistency pattern used across multi-shot productions (Runway Gen-4 / Kling 3.0 subject reference).',
+    description: 'Register a character/subject anchor: a reference image + description stored in characters.json, and pin a visible 人物设定 text node on the canvas. Later generation calls can pass the character name via the `characters` parameter and the reference + description are injected automatically.',
     parameters: {
       name: { type: 'string', required: true, description: 'Character name (unique; re-registering overwrites).' },
       description: { type: 'string', description: 'Appearance description (stable features only: hair/outfit/scars/props).' },
@@ -2188,7 +2200,15 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return new CharacterStore(settings.outputDir).register({ name: String(args.name), description: args.description, refPath: String(args.refPath), outfit: typeof args.outfit === 'string' ? args.outfit : undefined, props: typeof args.props === 'string' ? args.props : undefined })
+      const card = await new CharacterStore(settings.outputDir).register({
+        name: String(args.name),
+        description: args.description,
+        refPath: String(args.refPath),
+        outfit: typeof args.outfit === 'string' ? args.outfit : undefined,
+        props: typeof args.props === 'string' ? args.props : undefined,
+      })
+      const pinned = await pinCharacterSetting(settings.outputDir, card)
+      return { ...card, ...(pinned !== undefined ? { canvasNodeId: pinned.nodeId } : {}) }
     },
   })))
 
@@ -2581,7 +2601,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_storyboard',
-    description: 'Storyboard duration planning (PenShot-inspired deterministic layer): allocates per-shot durations against model limits, clamps out-of-range values, fills unspecified shots toward the target, and checks continuity anchors (every shot must reference registered characters/scenes). Returns a generation-ready shot plan + issues.',
+    description: 'Storyboard duration planning (PenShot-inspired deterministic layer): allocates per-shot durations against model limits, clamps out-of-range values, fills unspecified shots toward the target, and checks continuity anchors. Pins the shot table as a visible 分镜表 text node on the canvas.',
     parameters: {
       shots: { type: 'array', items: { type: 'object', additionalProperties: true }, required: true, description: 'Shot list: [{id?, description, seconds?}].' },
       targetSeconds: { type: 'number', description: 'Whole-film target (e.g. 30).' },
@@ -2592,13 +2612,25 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     output: objectOutput(),
     timeoutMs: 30_000,
     async execute(args: any) {
-      return planStoryboard({
+      const plan = planStoryboard({
         shots: Array.isArray(args.shots) ? args.shots as never[] : [],
         targetSeconds: args.targetSeconds,
         maxShotSeconds: args.maxShotSeconds,
         minShotSeconds: args.minShotSeconds,
         anchors: args.anchors as { characters?: string[]; scenes?: string[] } | undefined,
       })
+      try {
+        const pinned = await pinTextCard({
+          store: canvas,
+          stamp: STORYBOARD_STAMP,
+          body: formatStoryboardText(plan),
+          id: 'storyboard-plan',
+          width: 480,
+        })
+        return { ...plan, canvasNodeId: pinned.nodeId }
+      } catch {
+        return plan
+      }
     },
   })))
 
@@ -2647,7 +2679,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_chengpian',
-    description: '成片决策。先于提问/生成调用。返回 confirm/generate、角度 lenses（不是成稿）、prompt_plan 与 compose 流程 next。confirm=true 时带提问卡。',
+    description: '成片决策。先于提问/生成调用。返回 confirm/generate、角度 lenses（不是成稿）、prompt_plan 与 compose 流程 next。confirm=true 时带 DSH 标准提问。',
     parameters: {
       event: { type: 'string', enum: ['unclear', 'generate', 'placeholder-batch'], required: true, description: 'unclear = 不明确事件; generate = 一个生成任务; placeholder-batch = 整批占位。' },
       prompt: { type: 'string', description: 'Generation task wording, or the exact chosen prompt.' },
@@ -2656,7 +2688,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       inBudget: { type: 'boolean', description: '自动 only: false if this unit would exceed the agreed budget.' },
       necessaryAsk: { type: 'boolean', description: '自动 only: true if this ambiguity must be asked.' },
       variantCount: { type: 'number', description: '严格: how many of 二到四个提示词 (clamped 2–4).' },
-      present: { type: 'boolean', description: 'true = 立刻弹出提问卡，不要只返回 JSON。' },
+      present: { type: 'boolean', description: 'true = 立刻走 DSH 标准提问，不要只返回 JSON。' },
     },
     output: objectOutput(),
     timeoutMs: 300_000,
@@ -3228,14 +3260,14 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     order: 117,
     text: [
       '## DirectorX media tools',
-      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (question cards). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so the canvas session shows a question card: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (DSH standard `userInteraction.ask`). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so DSH asks: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',
       '- Skill/knowledge routing: on a craft request, call `directorx_skill_route` first. Read every skill in `skills` and every article id in `articles` (`directorx_knowledge_read 116`, not a new search phrase). `skill_search` / `knowledge_search` hits also carry the other side (`articles` / `skills`). Do not invent a parallel path. 成片任务仍要 `directorx_chengpian`。',
-      '- Prompt orchestration: call `directorx_prompt_plan` before `directorx_prompt_craft`. It returns six-element gaps, the physics chain for video, the model copilot to read, and an IP method if names appear. Write the craft yourself. Do not send the canvas one-liner or a canned lens line to generate. MiniMax-H3 crafts follow `minimax-h3-prompt-copilot` handbook: name each reference\'s job, write a visible timeline, quote on-screen text, skip role:reference when first/last frames are set, default 1440p / 4–15s / ≤7000 characters. Other video models may reuse that shape.',
+      '- Prompt orchestration: call `directorx_prompt_plan` before `directorx_prompt_craft`. It returns six-element gaps, the physics chain for video, the model copilot to read, and an IP method if names appear. Write the craft yourself. Do not send the canvas one-liner or a canned lens line to generate. Placeholders must already be director crafts (景别/运镜/光线/环境/风格). MiniMax-H3 crafts follow `minimax-h3-prompt-copilot` handbook: name each reference\'s job, write a visible timeline, quote on-screen text, skip role:reference when first/last frames are set, Modelverse 768P/2K (map 1440p→2K) / 4–15s / ≤7000 characters. Other video models may reuse that shape.',
       '- Copyright-safe prompts: if the user names an IP, do not send that name to generate and do not stamp a canned substitute. Call `directorx_ip_scan` (method axes + project memory), `directorx_knowledge_read` 213, write a situation-specific genericization (attributes, not identity), then `directorx_ip_rewrite` to validate and remember. Generate with the rewrite plus `negativeLine`. Cite Nature genericization + arXiv 2406.14526 (rewrite+negative). The canvas underlines those terms in red and hands the rewrite to you.',
       '- Work style: complex work → load `directorx-production-lead` + `directorx-chengpian`, match a recipe, compose research / confirm / placeholders; keep the user informed at unit granularity; answer in the user\'s language (Chinese by default).',
       '- Craft decisions cite rules from `directorx-methodology` (成片结构/提示词工程/剪辑节奏/LLM 精剪速查); QC verdicts reference rule numbers.',
-      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. After a signed plan: `directorx_canvas_plan` or `directorx_canvas_script` (文本拆成 本→首帧→视频 行) then `directorx_canvas_arrange`. 抽帧上板用 `directorx_canvas_frames`；成片一键解析用 `directorx_canvas_parse`；片段重做 `directorx_canvas_reshoot` cut → 生成中段 → assemble；多段成片硬切拼条用 `directorx_canvas_pack`（预告片禁止 fade）；接触表用 `directorx_canvas_sheet`；一张图宫格切开用 `directorx_canvas_split`；多张图宫格拼回用 `directorx_canvas_join`；分屏对照用 `directorx_canvas_stack`；硬字幕用 `directorx_canvas_desub`；续写位用 `directorx_canvas_extend`；评审动图用 `directorx_canvas_gif`；按引用连线用 `directorx_canvas_autolink`。Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
-      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, ask cards then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；转场要首尾帧。同一系列先 `directorx_series apply`。多人连续 / 单镜长拍 / 完全控制先 `directorx_blocking`（用户给角色图+开场+事件顺序，你写台账再 pin）。只改一镜先 `directorx_revise`，回写只改该节点 path。After a canvas intent, write results back with `directorx_canvas_update`.',
+      '- The infinite canvas is the storyboard, but writing it is gated. Read freely (`directorx_canvas_get` / `node` / `search` / `summary`). Do **not** `directorx_canvas_plan` or batch-`directorx_canvas_add` until the user has signed the script/storyboard via `directorx_confirm` or an explicit 「落到画布」. Script and character settings must appear as canvas text nodes (`directorx_canvas_script` / `directorx_character_register` / `directorx_storyboard` / `directorx_bible pin`). After a signed plan: `directorx_canvas_plan` or `directorx_canvas_script` (文本拆成 本→首帧→视频 行) then `directorx_canvas_arrange`. 抽帧上板用 `directorx_canvas_frames`；成片一键解析用 `directorx_canvas_parse`；片段重做 `directorx_canvas_reshoot` cut → 生成中段 → assemble；多段成片硬切拼条用 `directorx_canvas_pack`（预告片禁止 fade）；接触表用 `directorx_canvas_sheet`；一张图宫格切开用 `directorx_canvas_split`；多张图宫格拼回用 `directorx_canvas_join`；分屏对照用 `directorx_canvas_stack`；硬字幕用 `directorx_canvas_desub`；续写位用 `directorx_canvas_extend`；评审动图用 `directorx_canvas_gif`；按引用连线用 `directorx_canvas_autolink`。Single-node repairs are fine. The WebUI generate bar only queues `directorx_canvas_intents` — it must not write generating nodes. On a canvas instruction, claim with `directorx_canvas_intents` `{ claim: true }`, then continue only after the same confirm gate.',
+      '- Generation: NEVER send the canvas one-liner to generate_*. Order is always `directorx_knowledge_search`/`read` + `directorx_skill_search`/`read` (+ web if facts are missing) → `directorx_prompt_craft` → `directorx_generate_ready` (decide 设定图 / 场景空镜 / 关键帧 / 图生 / 首尾帧; if blocked, `directorx_ask` then make the missing asset first) → propose/confirm → generate with `craftId` **and** `readyId`. 严格/协同 still need an approved `proposalId`. 自动也不得跳过 craft/ready。有人名就要角色设定图；连续镜头要上一镜末帧或本镜关键帧；不要把「转场/硬切」误判成首尾帧。同一系列先 `directorx_series apply`。多人连续 / 单镜长拍 / 完全控制先 `directorx_blocking`（用户给角色图+开场+事件顺序，你写台账再 pin）。只改一镜先 `directorx_revise`，回写只改该节点 path。After a canvas intent, write results back with `directorx_canvas_update`.',
       '- Edit (deterministic, never regenerate): 拿不准先 `directorx_edit_plan`。调色/打开编辑台 → `directorx_studio`（prompt + nodeId）。图片旋转/翻转/裁切/缩放/明暗 → `directorx_image_edit`。单段视频裁剪/变速/静音/倒放/定格 → `directorx_video_process`。多条人话剪辑 → `directorx_edit`。多镜组装 → `directorx_timeline` / `directorx_video_concat`。口播精剪 → 转写后再 `directorx_smart_cut`。这些工具都可带 nodeId，会回写 path、不改镜头标题。完成后 `directorx_extract_frames` + `directorx_view_image` 质检。craft/ready/proposal 只约束生成，不约束本地编辑。不要用生成模型重绘来完成调色、裁切、旋转或变速。',
       '- Reporting: when delivering, state the node/shot list, artifact paths (or WebUI cards), canvas updates, and what is next. Then `directorx_skill_capture` present the save-as-skill card. User revision notes belong in `directorx_note` as they happen. Adaptation reviews go through `directorx_bible` (Markdown on the canvas / in the DSH session), never a standalone HTML file. Base claims on tool results, never on promises.',
       '',

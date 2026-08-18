@@ -8,7 +8,6 @@ tags:
   - "workflow"
   - "continuity"
   - "narrative"
-  - "overlap-review"
 status: stable
 stale_after: "2027-08-18"
 generated:

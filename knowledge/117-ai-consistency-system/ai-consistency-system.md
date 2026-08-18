@@ -56,11 +56,12 @@ related:
   - "39-image-consistency/character-consistency.md"
   - "108-moodboard-reference/moodboard-reference.md"
   - "113-mvp-case-playbook/mvp-case-playbook.md"
+  - "123-longform-consistency/longform-consistency.md"
 ---
 
 # AI 一致性全体系（AI Consistency System — Character / Scene / Product / Style）
 
-> 本页为 AI 生成一致性的完整方法体系：四类一致性（角色/场景/产品/风格）× 五级方法（参考锚定/参考图集/风格参考/微调 LoRA/首末帧锁定）。知识本体来自 2026 一致性工作流指南（LTX/Kittl/AIVid/ImgVeo/MagicHour）。AI 应用面向 DirectorX：跨镜一致性决策矩阵（衔接 39/108/113 案例手册）。
+> 本页为 AI 生成一致性的完整方法体系：四类一致性（角色/场景/产品/风格）× 五级方法（参考锚定/参考图集/风格参考/微调 LoRA/首末帧锁定）。知识本体来自 2026 一致性工作流指南（LTX/Kittl/AIVid/ImgVeo/MagicHour）。AI 应用面向 DirectorX：跨镜一致性决策矩阵（衔接 39/108/113 案例手册、123 长视频一致性）。
 > 来源：LTX「How to Maintain Character Consistency in AI Video」、Kittl「AI Video Character Consistency Workflow 2026」、AIVid「Master Consistent Character AI Video Workflows」、ImgVeo「Cross-Model Guide 2026」、MagicHour「Keep Characters Consistent in AI Video」。
 
 ## 概述
@@ -157,3 +158,4 @@ related:
 - [图片一致性控制（Character & Visual Consistency）](../39-image-consistency/character-consistency.md)
 - [情绪板与参考体系（Mood Board & Reference System — Art Direction Terms & Practice）](../108-moodboard-reference/moodboard-reference.md)
 - [Video Agent MVP 案例手册：11 个测试案例的 AI 优化打法（MVP Case Playbook — Making AI Better on Real Cases）](../113-mvp-case-playbook/mvp-case-playbook.md)
+- [AI 长视频与多镜叙事一致性（Long-Form AI Video — Multi-Shot Narrative Consistency）](../123-longform-consistency/longform-consistency.md)
