@@ -32,7 +32,7 @@ export const CRAFT_SYNONYMS: Array<[RegExp, string]> = [
 ]
 
 export const SKILL_ARTICLES: Record<string, string[]> = {
-  'directorx-methodology': ['01', '02', '07', '123', '127', '213', '401', '402', '403', '404', '405', '406', '409', '410'],
+  'directorx-methodology': ['01', '02', '07', '123', '127', '213', '401', '402', '403', '404', '405', '406', '409', '410', '411', '413'],
   'directorx-production-lead': ['114', '115', '121'],
   'directorx-chengpian': ['115', '07', '01'],
   'directorx-playbook': ['114', '115', '158'],
@@ -47,7 +47,7 @@ export const SKILL_ARTICLES: Record<string, string[]> = {
   'directorx-blocking-craft': ['117', '123', '116', '408'],
   'editing-workflow': ['02', '127', '15'],
   'frame-qa': ['174', '118', '111'],
-  'video-prompt-builder': ['115', '130', '158', '01', '213', '407'],
+  'video-prompt-builder': ['115', '130', '158', '01', '213', '407', '417'],
   'video-prompt-reverse': ['159', '115', '103'],
   'kling-prompt-copilot': ['114', '115'],
   'seedance-2-prompt-copilot': ['114', '115'],
@@ -56,7 +56,7 @@ export const SKILL_ARTICLES: Record<string, string[]> = {
   'gpt-image2-prompt-copilot': ['115', '221'],
   'banana-prompt-copilot': ['115', '223'],
   'cinematic-style': ['126', '01', '09', '405', '406'],
-  'continuous-video': ['116', '117', '123', '407', '408'],
+  'continuous-video': ['116', '117', '123', '407', '408', '418'],
   'caption-localization': ['63', '06'],
   'ai-audio': ['06', '144', '119'],
   'audio-sound': ['06', '144', '23'],
@@ -65,7 +65,7 @@ export const SKILL_ARTICLES: Record<string, string[]> = {
   'script-writing': ['03', '101'],
   'short-video': ['05', '142', '188'],
   'vfx-compositing': ['128', '110'],
-  'shot-recipes': ['01', '02', '07', '124', '401', '402', '403', '404', '405', '406', '409', '410'],
+  'shot-recipes': ['01', '02', '07', '124', '401', '402', '403', '404', '405', '406', '409', '410', '411', '413'],
 }
 
 const MODE_ARTICLES: Record<string, string[]> = {
