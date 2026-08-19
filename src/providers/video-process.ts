@@ -342,12 +342,13 @@ export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
   const trackLabels: string[] = []
   input.tracks.forEach((track, index) => {
     const vol = track.volume ?? 1
-    parts.push(`[${index + 1}:a]volume=${vol},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[trk${index}]`)
-    trackLabels.push(`[trk${index}]`)
+    // Do not label pads `trkN`: ffmpeg 7 treats `trk` as a MOV track specifier.
+    parts.push(`[${index + 1}:a]volume=${vol},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[bus${index}]`)
+    trackLabels.push(`[bus${index}]`)
   })
   let mixInputs = trackLabels.join('')
   if (input.duckUnder !== undefined && input.duckUnder >= 0 && input.duckUnder < input.tracks.length) {
-    const voice = `[trk${input.duckUnder}]`
+    const voice = `[bus${input.duckUnder}]`
     const bgm = input.duckUnder === 0
       ? trackLabels.slice(1).join('') === '' ? null : trackLabels.slice(1)
       : [trackLabels[0]]

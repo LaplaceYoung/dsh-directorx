@@ -7,6 +7,7 @@
 ### Fixed
 
 - **CI**：Ubuntu runner 补装 ffmpeg；音频 mock 假数据小于 1KB 时不再被 `openaiTts` 当成失败。
+- **audioMix**：滤镜标签避开 ffmpeg 7 的 `trk` 流选择器，侧链闪避在 Ubuntu 上也能建图。
 
 ### Changed
 
