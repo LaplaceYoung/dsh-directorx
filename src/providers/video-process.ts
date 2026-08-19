@@ -333,42 +333,45 @@ export interface AudioMixInput {
   durationPolicy?: 'keep_video' | 'pad_audio' | 'loop_audio' | 'trim_audio' | 'shortest'
 }
 
+export function audioMixGraph(
+  tracks: Array<{ volume?: number }>,
+  duckUnder?: number,
+  targetLufs?: number,
+): { filter: string; audioLabel: string } {
+  const parts: string[] = []
+  tracks.forEach((track, index) => {
+    const vol = track.volume ?? 1
+    parts.push(`[${index + 1}:a]volume=${vol},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[bus${index}]`)
+  })
+  let mixInputs = tracks.map((_, index) => `[bus${index}]`).join('')
+  if (duckUnder !== undefined && duckUnder >= 0 && duckUnder < tracks.length) {
+    const bgm = tracks.map((_, index) => index).filter(index => index !== duckUnder)
+    if (bgm.length > 0) {
+      const keys = bgm.map((_, index) => `[key${index}]`).join('')
+      parts.push(`[bus${duckUnder}]asplit=${bgm.length + 1}${keys}[voice]`)
+      const sides = bgm.map((index, slot) => {
+        parts.push(`[bus${index}][key${slot}]sidechaincompress=threshold=0.15:ratio=4:attack=20:release=400:makeup=1[side${slot}]`)
+        return `[side${slot}]`
+      })
+      mixInputs = duckUnder === 0 ? ['[voice]', ...sides].join('') : [...sides, '[voice]'].join('')
+    }
+  }
+  if (targetLufs !== undefined) {
+    parts.push(`${mixInputs}amix=inputs=${tracks.length}:duration=first:normalize=0[pre]`)
+    parts.push(`[pre]loudnorm=I=${targetLufs}:TP=-1:LRA=11[mixed]`)
+  } else {
+    parts.push(`${mixInputs}amix=inputs=${tracks.length}:duration=first:normalize=0[mixed]`)
+  }
+  return { filter: parts.join(';'), audioLabel: '[mixed]' }
+}
+
 export async function audioMix(input: AudioMixInput): Promise<VideoOutput> {
   if (input.tracks.length === 0) throw new Error('audioMix needs at least one track')
   const out = outputPath(input.outputDir, 'mixed', 'mp4')
   const args: string[] = ['-i', input.video]
   for (const track of input.tracks) args.push('-i', track.path)
-  const parts: string[] = []
-  const trackLabels: string[] = []
-  input.tracks.forEach((track, index) => {
-    const vol = track.volume ?? 1
-    // Do not label pads `trkN`: ffmpeg 7 treats `trk` as a MOV track specifier.
-    parts.push(`[${index + 1}:a]volume=${vol},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[bus${index}]`)
-    trackLabels.push(`[bus${index}]`)
-  })
-  let mixInputs = trackLabels.join('')
-  if (input.duckUnder !== undefined && input.duckUnder >= 0 && input.duckUnder < input.tracks.length) {
-    const voice = `[bus${input.duckUnder}]`
-    const bgm = input.duckUnder === 0
-      ? trackLabels.slice(1).join('') === '' ? null : trackLabels.slice(1)
-      : [trackLabels[0]]
-    if (bgm !== null && bgm.length > 0) {
-      const ducked = bgm.map(label => `${label}${voice}sidechaincompress=threshold=0.15:ratio=4:attack=20:release=400:makeup=1[duck${bgm.indexOf(label)}]`).join(';')
-      parts.push(ducked)
-      const duckLabels = bgm.map((_, index) => `[duck${index}]`)
-      const all = input.duckUnder === 0 ? [voice, ...duckLabels] : [...duckLabels, voice]
-      mixInputs = all.join('')
-    }
-  }
-  let audioLabel = '[mixed]'
-  if (input.targetLufs !== undefined) {
-    parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed0]`)
-    parts.push(`[mixed0]loudnorm=I=${input.targetLufs}:TP=-1:LRA=11[mixed]`)
-    audioLabel = '[mixed]'
-  } else {
-    parts.push(`${mixInputs}amix=inputs=${input.tracks.length}:duration=first:normalize=0[mixed]`)
-  }
-  args.push('-filter_complex', parts.join(';'), '-map', '0:v', '-map', audioLabel, '-c:v', 'copy', '-c:a', 'aac', '-shortest', out)
+  const graph = audioMixGraph(input.tracks, input.duckUnder, input.targetLufs)
+  args.push('-filter_complex', graph.filter, '-map', '0:v', '-map', graph.audioLabel, '-c:v', 'copy', '-c:a', 'aac', '-shortest', out)
   runFfmpeg(args, 'audio mix')
   return { path: out, mimeType: 'video/mp4', probe: probeMedia(out) }
 }

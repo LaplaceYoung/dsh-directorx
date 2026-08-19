@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
-import { DirectiveError, audioBeats, audioMix, audioSync, clipRank, contactSheet, editsToScenes, fitScaleFilter, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
+import { DirectiveError, audioBeats, audioMix, audioMixGraph, audioSync, clipRank, contactSheet, editsToScenes, fitScaleFilter, hasLibass, openaiTts, parseEditInstructions, parseSrt, qaCheck, renderTimeline, smartCut, subtitleCut, videoAnalyze, videoConcat, videoPip, videoProcess, videoSubtitle, videoUnderstand, videoZoom } from '../lib/testing.js'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
@@ -615,6 +615,14 @@ test('videoSubtitle soft-muxes an srt track without libass', ff, async () => {
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
+})
+
+test('audioMixGraph splits the duck key so a pad is never consumed twice', () => {
+  const graph = audioMixGraph([{ volume: 1 }, { volume: 0.4 }], 0)
+  assert.match(graph.filter, /asplit=2/)
+  assert.match(graph.filter, /\[voice\]/)
+  assert.match(graph.filter, /sidechaincompress/)
+  assert.equal((graph.filter.match(/\[bus0\]/g) ?? []).length, 2)
 })
 
 test('audioMix overlays BGM onto a video with ducking', ff, async () => {
