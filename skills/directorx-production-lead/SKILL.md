@@ -35,7 +35,7 @@ user-invocable: true
 ## 成片主动性（严格 / 自动 / 协同）
 
 成片任务先加载 `directorx-chengpian`，用 `directorx_chengpian` 决策，确认走
-`directorx_confirm`（DSH `userInteraction`）。用户也可 `/directorx` 直接看制片板。
+`directorx_confirm`（DSH `userQuestions`）。用户也可 `/directorx` 直接看制片板。
 不要另起一套 agent loop。
 
 - **严格**：第一个不明确事件及时确认；确认次数较多；绝不自己执行生成；

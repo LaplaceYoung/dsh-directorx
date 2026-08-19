@@ -325,7 +325,7 @@ export async function runSkillCapture(input: {
   if (action === 'offer') {
     let answers = input.answers
     if (input.present === true) {
-      if (input.ask === undefined) throw new Error('directorx_skill_capture present 需要 DSH userInteraction')
+      if (input.ask === undefined) throw new Error('directorx_skill_capture present 需要 DSH userQuestions')
       answers = (await presentAsk({
         questions: [harvest.ask],
         ask: input.ask,

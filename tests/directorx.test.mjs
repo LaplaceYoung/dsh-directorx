@@ -60,8 +60,22 @@ test('package metadata declares dsh bundle and dsh-plugin topic', async () => {
   const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
   assert.equal(pkg.dsh.bundle.patch, './cordis.patch.yml')
   assert.equal(pkg.dsh.client.platform, 'web')
+  assert.equal(pkg.dsh.client.immediately, true)
+  for (const name of [
+    '@deepseek-ai/dsh-client-connection',
+    '@deepseek-ai/dsh-client-ui-settings',
+    '@deepseek-ai/dsh-client-ui-settings-plugins',
+    '@deepseek-ai/dsh-client-ui-commands',
+    '@deepseek-ai/dsh-api-remotes',
+  ]) {
+    assert.ok(pkg.dsh.client.inject.includes(name), name)
+  }
   const readme = await readFile(join(root, 'README.md'), 'utf8').catch(() => '')
   assert.match(readme, /dsh-plugin/)
+  assert.match(readme, /0\.1\.0-rc\.8/)
+  const client = await readFile(join(root, 'src/client/index.ts'), 'utf8')
+  assert.match(client, /settingsScope/)
+  assert.match(client, /settings\.plugin\.item/)
 })
 
 test('cleanup test artifacts', async () => {

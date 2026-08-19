@@ -39,12 +39,33 @@ declare module 'cordis' {
       register(definition: {
         name: string
         description: string
-        input?: { hint: string }
-        handler: (invocation: { rawInput: string; signal?: AbortSignal }) =>
+        input?: { hint: string; images?: boolean }
+        recordInput?: boolean
+        handler: (invocation: {
+          rawInput: string
+          signal?: AbortSignal
+          attachments?: readonly unknown[]
+        }) =>
           | { kind: 'success' | 'error'; text?: string }
           | Promise<{ kind: 'success' | 'error'; text?: string }>
       }): () => void
     }
+    /** DSH 0.1.0-rc.8 ask seam. Older hosts may only expose `userInteraction`. */
+    userQuestions?: {
+      ask(request: {
+        questions: Array<{
+          id: string
+          question: string
+          header?: string
+          detail?: string
+          options?: Array<{ label: string; description?: string }>
+          multiSelect?: boolean
+        }>
+        agent?: unknown
+        signal?: AbortSignal
+      }): Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
+    }
+    /** Pre-rc.8 alias of `userQuestions`. */
     userInteraction?: {
       ask(request: {
         questions: Array<{

@@ -1,6 +1,10 @@
 /**
  * Bare `/directorx` opens a DSH popupSelect (ui-command decoration).
  * Argued lines (`/directorx shotlist`) stay on the host command handler.
+ *
+ * DSH 0.1.0-rc.8 names the client service `commandUi` and executes through
+ * `remote.commands.execute(sessionId, line, images)`. Older hosts used
+ * `command` + `connection.api.commands.execute`.
  */
 
 export const DIRECTORX_SLASH_OPTIONS = [
@@ -20,18 +24,23 @@ interface CommandFace {
     available: (session: { sessionId: string }) => boolean
     ui: {
       kind: 'popupSelect'
-      options: () => Promise<readonly { id: string; label: string; detail?: string }[]>
+      options: (session: { sessionId: string }, signal?: AbortSignal) => Promise<readonly { id: string; label: string; detail?: string }[]>
       onSelect: (option: { id: string }, session: { sessionId: string }) => void | Promise<void>
     }
   }): () => void
 }
 
-interface ConnectionFace {
-  api: {
-    commands: {
-      execute: (request: { sessionId: string; line: string }) => Promise<unknown>
-    }
-  }
+interface RemoteCommands {
+  execute(sessionId: string, line: string, images?: readonly unknown[]): Promise<unknown>
+}
+
+interface ConnectionCommands {
+  execute(request: {
+    sessionId?: string
+    agentId?: string
+    line: string
+    images?: readonly unknown[]
+  }): Promise<unknown>
 }
 
 interface InjectContext {
@@ -39,25 +48,52 @@ interface InjectContext {
   inject?(deps: string[], callback: (ctx: InjectContext) => void): void
 }
 
-export function registerDirectorxSlash(ctx: InjectContext): void {
-  if (typeof ctx.inject !== 'function') return
-  ctx.inject(['command'], (commandCtx) => {
-    const command = commandCtx.get('command') as CommandFace | undefined
-    const connection = commandCtx.get('connection') as ConnectionFace | undefined
-    if (command === undefined || connection === undefined) return
-    command.decorate({
-      name: 'directorx',
-      available: () => true,
-      ui: {
-        kind: 'popupSelect',
-        options: async () => DIRECTORX_SLASH_OPTIONS.map(option => ({ ...option })),
-        onSelect: async (option, session) => {
-          await connection.api.commands.execute({
-            sessionId: session.sessionId,
-            line: directorxCommandLine(option.id),
-          })
-        },
+function optionalService(ctx: InjectContext, name: string): unknown {
+  const rec = ctx as unknown as Record<string, unknown>
+  if (rec[name] !== undefined) return rec[name]
+  try {
+    return ctx.get(name)
+  } catch {
+    return undefined
+  }
+}
+
+export async function executeDirectorxLine(ctx: InjectContext, sessionId: string, line: string): Promise<void> {
+  const remote = optionalService(ctx, 'remote') as { commands?: RemoteCommands } | undefined
+  if (remote?.commands !== undefined && typeof remote.commands.execute === 'function') {
+    await remote.commands.execute(sessionId, line, [])
+    return
+  }
+  const connection = optionalService(ctx, 'connection') as { api?: { commands?: ConnectionCommands } } | undefined
+  const execute = connection?.api?.commands?.execute
+  if (execute === undefined) return
+  await execute({ sessionId, agentId: sessionId, line, images: [] })
+}
+
+function decorateDirectorx(ctx: InjectContext, command: CommandFace): void {
+  command.decorate({
+    name: 'directorx',
+    available: () => true,
+    ui: {
+      kind: 'popupSelect',
+      options: async () => DIRECTORX_SLASH_OPTIONS.map(option => ({ ...option })),
+      onSelect: async (option, session) => {
+        await executeDirectorxLine(ctx, session.sessionId, directorxCommandLine(option.id))
       },
-    })
+    },
   })
+}
+
+export function registerDirectorxSlash(ctx: InjectContext): void {
+  const attach = (host: InjectContext): boolean => {
+    const command = (optionalService(host, 'commandUi') ?? optionalService(host, 'command')) as CommandFace | undefined
+    if (command === undefined || typeof command.decorate !== 'function') return false
+    decorateDirectorx(host, command)
+    return true
+  }
+  if (attach(ctx)) return
+  if (typeof ctx.inject !== 'function') return
+  // rc.8+ web profile. Do not wait on the retired `command` name — that fiber
+  // would hang forever on a host that only exposes `commandUi`.
+  ctx.inject(['commandUi'], attach)
 }

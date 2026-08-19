@@ -6,6 +6,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   normalizeAskQuestions,
+  resolveHostAsk,
   ProductionStageStore,
   SkillIndex,
   chengpianAskQuestions,
@@ -14,6 +15,23 @@ import {
 } from '../lib/testing.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+
+test('resolveHostAsk prefers userQuestions then the userInteraction alias', () => {
+  const questions = { ask: async () => ({ answers: [{ id: 'q1', selected: ['ok'] }] }) }
+  const legacy = { ask: async () => ({ answers: [{ id: 'q1', selected: ['old'] }] }) }
+  const services = { userQuestions: questions, userInteraction: legacy }
+  const ctx = {
+    get(name) {
+      if (name in services) return services[name]
+      throw new Error(`missing ${name}`)
+    },
+  }
+  assert.equal(resolveHostAsk(ctx)?.ask, questions.ask)
+  delete services.userQuestions
+  assert.equal(resolveHostAsk(ctx)?.ask, legacy.ask)
+  delete services.userInteraction
+  assert.equal(resolveHostAsk(ctx), undefined)
+})
 
 test('normalizeAskQuestions turns options into cards and injects recommended', () => {
   const questions = normalizeAskQuestions({

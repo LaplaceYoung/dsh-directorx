@@ -25,7 +25,7 @@ DeepSeek Harness
 │   generate_audio / knowledge_search / knowledge_read │
 │   task_status / cancel_task（任务账本）               │
 │   directorx_canvas_*（DSH 掌管：增删改查/分组/编排）  │
-│   directorx_confirm（ctx.userInteraction.ask 签字）   │
+│   directorx_confirm（ctx.userQuestions.ask 签字）     │
 │ commands: /directorx [shotlist|proposals|next]        │
 │ web route: GET /directorx/media (流式媒体供给)        │
 │            GET/POST /directorx/canvas/intent          │
@@ -52,16 +52,16 @@ export const inject = ['tools', 'skills', 'systemPrompt', 'settings', 'llm']
 
 | DSH 服务 | 用途 |
 |---|---|
-| `tools` | 注册媒体 / 画布 / 知识库工具；`directorx_confirm` 在执行时取 `userInteraction` |
+| `tools` | 注册媒体 / 画布 / 知识库工具；`directorx_confirm` 在执行时取 `userQuestions` |
 | `skills` | 注册内置 `SKILL.md` 为 DSH runtime skills |
 | `systemPrompt` | 注入媒体工具使用纪律，避免模型瞎猜协议 |
 | `commands`（可选 `ctx.inject`） | `/directorx` 制片板：直接 UI，不进模型 transcript |
-| `userInteraction`（可选） | `directorx_confirm` 暂停在 DSH 提问卡片上签字 |
+| `userQuestions`（可选；旧名 `userInteraction`） | `directorx_confirm` 暂停在 DSH 提问卡片上签字 |
 | `settings` | 注册 `directorx` 命名空间，保存四类模型配置 |
 | `llm` | 声明四个 configurable provider，让 WebUI 配置平面暴露 `directorx` 设置 |
 
-浏览器端插件通过 `dsh.client` 注册 **Settings → DirectorX** 设置页，使用
-`settings.describe` / `settings.mutate` 读写同一命名空间。
+浏览器端插件通过 `dsh.client` 注册 **Settings → DirectorX** 设置页，读取
+`settingsScope` 镜像、用 `settings.mutate` 写同一命名空间。
 
 ## 配置模型
 
@@ -227,11 +227,11 @@ DSH model calls directorx_generate_video
   的完整 handler 验证（字节一致、206 切片、跨源 403、同源放行）。
 - `pretest` 先跑 `tsc --noEmit` 与 `npm run build`，保证提交产物和源码一致。
 
-## DSH 插件协议合规审计（2026-08-18）
+## DSH 插件协议合规审计（2026-08-20）
 
 **合规面**：
-- Host：`inject` 声明 tools/skills/systemPrompt/settings/llm；settings 用 `settings.register(ns, schema, {applies:'live', validate})`；全部 HTTP 路由经 `ctx.effect(registerXxx, label)` 效应绑定并返回清理器；工具随设置变更整体重注册（disposeTools 前先释放）；模型供应商经 `llm.registerConfigurableProviders` 声明为 declared 提供者。
-- Client：`inject` 声明 slots/connection/layout；所有 slot 经 `ctx.slots.inject(cb → disposer)` 注册；details 用 priority -1 替换内置面板并注入 closeDetails；shell.overlay 注入 open/closeDetails；settings.section 注入 connection.api.settings。
+- Host：`inject` 声明 tools/skills/systemPrompt/settings/llm；settings 用 `settings.register(ns, schema, {applies:'live', validate})`；全部 HTTP 路由经 `ctx.effect(registerXxx, label)` 效应绑定并返回清理器；工具随设置变更整体重注册（disposeTools 前先释放）；模型供应商经 `llm.registerConfigurableProviders` 声明为 declared 提供者。提问走 `userQuestions`（兼容旧名 `userInteraction`）。
+- Client：`inject` 声明 slots/connection/layout/sessions/settingsScope；所有 slot 经 `ctx.slots.inject(cb → disposer)` 注册；details 用 priority -1 替换内置面板并注入 closeDetails；shell.overlay 注入 open/closeDetails；settings.section / settings.plugin.item 注入 `settingsScope.bind({ namespace: 'directorx' })` 与 mutate。`/directorx` 装饰 `commandUi`。
 - 主题策略：**壳层组件（details 栏/编辑入口/设置节/工具卡）使用 DSW 主题令牌**（--dsw-alias-*），浅色/深色主题均可用；**画布与编辑器画布面为刻意恒暗的创作表面**（行业惯例，如纯黑点阵工作台），内部配色自成体系、不随 shell 主题翻转。
 - 全局副作用（window 监听/localStorage/剪贴板）全部在 React effect 内注册并返回清理器。
 

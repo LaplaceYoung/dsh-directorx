@@ -52,7 +52,7 @@ import {
 } from './generate-ready.ts'
 import { StudioTicketStore } from './studio-intent.ts'
 import { runInProject, sessionProjectRoot } from './project.ts'
-import { normalizeAskQuestions, presentAsk } from './ask.ts'
+import { normalizeAskQuestions, presentAsk, resolveHostAsk } from './ask.ts'
 import { ProductionStageStore, parseStageId } from './stage.ts'
 import { deliverCapture, extraSkillRoots, runSkillCapture } from './skill-capture.ts'
 import { defaultSkillRoot, skillIndex } from './skill-index.ts'
@@ -614,7 +614,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     description: '成片交付后把流程和用户修改意见收成新技能。offer 走 DSH 标准提问「是否保存为 xx 技能」；用户同意后你写 SKILL.md 正文再 save。只写入项目/用户技能库，不覆盖插件自带 skills/。',
     parameters: {
       action: { type: 'string', enum: ['harvest', 'offer', 'save'], description: '默认 offer。harvest 只收事实；offer 走 DSH 标准提问；save 写入技能。' },
-      present: { type: 'boolean', description: 'offer 时立刻通过 userInteraction.ask 提问，不要只返回 JSON。' },
+      present: { type: 'boolean', description: 'offer 时立刻通过 userQuestions.ask 提问，不要只返回 JSON。' },
       name: { type: 'string', description: 'save：小写英文短横线技能名。' },
       title: { type: 'string', description: '展示名，可中文。' },
       description: { type: 'string', description: 'SKILL.md description：做什么、何时触发。' },
@@ -625,11 +625,9 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     output: objectOutput(),
     timeoutMs: 300_000,
     async execute(args: any, exec: any) {
-      const userInteraction = ctx.get('userInteraction') as {
-        ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
-      } | undefined
-      if (args.present === true && userInteraction === undefined) {
-        throw new Error('directorx_skill_capture present 需要 DSH userInteraction（标准提问通道）')
+      const hostAsk = resolveHostAsk(ctx)
+      if (args.present === true && hostAsk === undefined) {
+        throw new Error('directorx_skill_capture present 需要 DSH userQuestions（标准提问通道）')
       }
       const result = await runSkillCapture({
         outputDir: settings.outputDir,
@@ -641,8 +639,8 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
         body: typeof args.body === 'string' ? args.body : undefined,
         answer: typeof args.answer === 'string' ? args.answer : undefined,
         replace: args.replace === true,
-        ...(args.present === true && userInteraction !== undefined
-          ? { ask: request => userInteraction.ask(request), agent: exec.agent, signal: exec.signal }
+        ...(args.present === true && hostAsk !== undefined
+          ? { ask: request => hostAsk.ask(request), agent: exec.agent, signal: exec.signal }
           : {}),
       })
       if (result.saved === true && typeof result.name === 'string' && typeof result.description === 'string') {
@@ -776,13 +774,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       let answers
       const ask = (diagnosed as { ask?: unknown }).ask
       if (args.present === true && Array.isArray(ask) && ask.length > 0) {
-        const userInteraction = ctx.get('userInteraction') as {
-          ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
-        } | undefined
-        if (userInteraction === undefined) throw new Error('directorx_generate_ready present 需要 DSH userInteraction')
+        const hostAsk = resolveHostAsk(ctx)
+        if (hostAsk === undefined) throw new Error('directorx_generate_ready present 需要 DSH userQuestions')
         answers = (await presentAsk({
           questions: normalizeAskQuestions(ask),
-          ask: request => userInteraction.ask(request),
+          ask: request => hostAsk.ask(request),
           agent: exec.agent,
           signal: exec.signal,
         })).answers
@@ -2017,7 +2013,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_confirm',
-    description: 'Pause on the DSH ask UI (ctx.userInteraction) to sign off the production board: next pending proposal, multi-select proposals, or the canvas shot list. Applies approve/reject to the ledger. Does not generate media. Prefer this over a free-form ask_user_question after directorx_propose / directorx_canvas_shotlist.',
+    description: 'Pause on the DSH ask UI (ctx.userQuestions) to sign off the production board: next pending proposal, multi-select proposals, or the canvas shot list. Applies approve/reject to the ledger. Does not generate media. Prefer this over a free-form ask_user_question after directorx_propose / directorx_canvas_shotlist.',
     parameters: {
       scope: {
         type: 'string',
@@ -2028,21 +2024,15 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     output: objectOutput(),
     timeoutMs: 300_000,
     async execute(args: any, exec: any) {
-      const userInteraction = ctx.get('userInteraction') as {
-        ask: (request: {
-          questions: unknown[]
-          agent?: unknown
-          signal?: AbortSignal
-        }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
-      } | undefined
-      if (userInteraction === undefined) {
-        throw new Error('directorx_confirm requires DSH userInteraction (Web UI or TUI). This deployment has no ask provider.')
+      const hostAsk = resolveHostAsk(ctx)
+      if (hostAsk === undefined) {
+        throw new Error('directorx_confirm requires DSH userQuestions (Web UI or TUI). This deployment has no ask provider.')
       }
       const scope = args.scope === 'proposals' || args.scope === 'shotlist' ? args.scope : 'next'
       return confirmProduction({
         scope,
         outputDir: settings.outputDir,
-        ask: request => userInteraction.ask(request),
+        ask: request => hostAsk.ask(request),
         agent: exec.agent,
         signal: exec.signal,
       })
@@ -2051,7 +2041,7 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
 
   disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_ask',
-    description: 'Pause on the standard DSH question channel (ctx.userInteraction.ask) for any fork the user must own (时长/画幅/风格/接入协议/是否打最短测试). NEVER write a numbered 1.2.3 menu in assistant text — call this instead. Up to 6 questions, each with options and a recommended default.',
+    description: 'Pause on the standard DSH question channel (ctx.userQuestions.ask) for any fork the user must own (时长/画幅/风格/接入协议/是否打最短测试). NEVER write a numbered 1.2.3 menu in assistant text — call this instead. Up to 6 questions, each with options and a recommended default.',
     parameters: {
       question: { type: 'string', description: 'Single-question shorthand.' },
       options: { type: 'array', items: { type: 'object', additionalProperties: true }, description: '[{label, description?}]' },
@@ -2064,16 +2054,14 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
     output: objectOutput(),
     timeoutMs: 300_000,
     async execute(args: any, exec: any) {
-      const userInteraction = ctx.get('userInteraction') as {
-        ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
-      } | undefined
-      if (userInteraction === undefined) {
-        throw new Error('directorx_ask requires DSH userInteraction (standard question channel).')
+      const hostAsk = resolveHostAsk(ctx)
+      if (hostAsk === undefined) {
+        throw new Error('directorx_ask requires DSH userQuestions (standard question channel).')
       }
       const questions = normalizeAskQuestions(args.questions ?? args)
       return presentAsk({
         questions,
-        ask: request => userInteraction.ask(request),
+        ask: request => hostAsk.ask(request),
         agent: exec.agent,
         signal: exec.signal,
       })
@@ -2724,13 +2712,11 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
       const ask = decision.confirm ? chengpianAskQuestions(decision, args.event) : []
       let answers
       if (args.present === true && ask.length > 0) {
-        const userInteraction = ctx.get('userInteraction') as {
-          ask: (request: { questions: unknown[]; agent?: unknown; signal?: AbortSignal }) => Promise<{ answers: Array<{ id: string; selected: string[]; custom?: string }> }>
-        } | undefined
-        if (userInteraction === undefined) throw new Error('directorx_chengpian present 需要 DSH userInteraction')
+        const hostAsk = resolveHostAsk(ctx)
+        if (hostAsk === undefined) throw new Error('directorx_chengpian present 需要 DSH userQuestions')
         answers = (await presentAsk({
           questions: normalizeAskQuestions(ask),
-          ask: request => userInteraction.ask(request),
+          ask: request => hostAsk.ask(request),
           agent: exec.agent,
           signal: exec.signal,
         })).answers
@@ -3260,7 +3246,7 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
     order: 117,
     text: [
       '## DirectorX media tools',
-      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (DSH standard `userInteraction.ask`). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so DSH asks: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',
+      '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (DSH standard `userQuestions.ask`). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so DSH asks: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',
       '- Skill/knowledge routing: on a craft request, call `directorx_skill_route` first. Read every skill in `skills` and every article id in `articles` (`directorx_knowledge_read 116`, not a new search phrase). `skill_search` / `knowledge_search` hits also carry the other side (`articles` / `skills`). Do not invent a parallel path. 成片任务仍要 `directorx_chengpian`。',
       '- Prompt orchestration: call `directorx_prompt_plan` before `directorx_prompt_craft`. It returns six-element gaps, the physics chain for video, the model copilot to read, and an IP method if names appear. Write the craft yourself. Do not send the canvas one-liner or a canned lens line to generate. Placeholders must already be director crafts (景别/运镜/光线/环境/风格). MiniMax-H3 crafts follow `minimax-h3-prompt-copilot` handbook: name each reference\'s job, write a visible timeline, quote on-screen text, skip role:reference when first/last frames are set, Modelverse 768P/2K (map 1440p→2K) / 4–15s / ≤7000 characters. Other video models may reuse that shape.',
       '- Copyright-safe prompts: if the user names an IP, do not send that name to generate and do not stamp a canned substitute. Call `directorx_ip_scan` (method axes + project memory), `directorx_knowledge_read` 213, write a situation-specific genericization (attributes, not identity), then `directorx_ip_rewrite` to validate and remember. Generate with the rewrite plus `negativeLine`. Cite Nature genericization + arXiv 2406.14526 (rewrite+negative). The canvas underlines those terms in red and hands the rewrite to you.',

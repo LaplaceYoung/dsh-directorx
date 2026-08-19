@@ -29,7 +29,7 @@ interface ClientContext {
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection', 'layout', 'sessions']
+export const inject = ['slots', 'connection', 'layout', 'sessions', 'settingsScope']
 
 function optionalService(ctx: ClientContext, name: string): unknown {
   const rec = ctx as unknown as Record<string, unknown>
@@ -46,17 +46,22 @@ export function apply(ctx: ClientContext): void {
   registerDirectorxSlash(ctx)
 
   const settingsCard = (name: 'settings.section' | 'settings.plugin.item') => {
-    const connection = ctx.get('connection') as { api: { settings: unknown } } | undefined
-    if (connection === undefined) return () => {}
-    // settings.section is a list (id + label). Live settings.plugin.item is
-    // also a list (id + order); older hosts keyed it on the namespace.
+    const connection = ctx.get('connection') as { api?: { settings?: unknown } } | undefined
+    const binder = optionalService(ctx, 'settingsScope') as {
+      bind?: (spec: { namespace: string }) => unknown
+    } | undefined
+    // rc.8 cards read the shared describe mirror via settingsScope. mutate
+    // stays on the connection for nested secret-safe path writes.
     return ctx.slots.register({
       name,
       id: 'directorx',
       key: 'directorx',
       order: 30,
       label: 'DirectorX',
-      inject: () => ({ api: connection.api.settings }),
+      inject: () => ({
+        scope: binder?.bind?.({ namespace: 'directorx' }),
+        api: connection?.api?.settings,
+      }),
     }, DirectorxSettingsSection)
   }
   ctx.slots.inject('settings.section', () => settingsCard('settings.section'))

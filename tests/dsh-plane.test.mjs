@@ -13,7 +13,34 @@ import {
   ProposalStore,
   registerDirectorxCommands,
   runDirectorxCommand,
+  directorxCommandLine,
+  executeDirectorxLine,
 } from '../lib/testing.js'
+
+test('executeDirectorxLine prefers remote.commands then connection.api', async () => {
+  assert.equal(directorxCommandLine('board'), '/directorx board')
+  assert.equal(directorxCommandLine('shotlist'), '/directorx shotlist')
+  const remoteCalls = []
+  const apiCalls = []
+  await executeDirectorxLine({
+    get(name) {
+      if (name === 'remote') {
+        return { commands: { execute: async (sessionId, line, images) => { remoteCalls.push({ sessionId, line, images }) } } }
+      }
+      throw new Error(name)
+    },
+  }, 'sess-1', '/directorx next')
+  assert.deepEqual(remoteCalls, [{ sessionId: 'sess-1', line: '/directorx next', images: [] }])
+  await executeDirectorxLine({
+    get(name) {
+      if (name === 'connection') {
+        return { api: { commands: { execute: async (request) => { apiCalls.push(request) } } } }
+      }
+      throw new Error(name)
+    },
+  }, 'sess-2', '/directorx board')
+  assert.deepEqual(apiCalls, [{ sessionId: 'sess-2', agentId: 'sess-2', line: '/directorx board', images: [] }])
+})
 
 test('parseDirectorxCommand owns the /directorx grammar', () => {
   assert.equal(parseDirectorxCommand(''), 'board')

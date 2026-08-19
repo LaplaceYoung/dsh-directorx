@@ -5,7 +5,7 @@ import { formatCanvasShotlist, type Shotlist } from './shotlist.ts'
 
 /**
  * DSH-native sign-off: build ask() questions from the board, apply the
- * answers to the proposal ledger. The tool pauses on ctx.userInteraction —
+ * answers to the proposal ledger. The tool pauses on ctx.userQuestions —
  * the same seam as ask_user_question — instead of returning a hint.
  */
 

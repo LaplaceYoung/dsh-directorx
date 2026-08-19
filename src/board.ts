@@ -4,7 +4,7 @@ import type { Shotlist } from './shotlist.ts'
 /**
  * Human-facing production board: canvas shot list + proposal ledger.
  * Used by `/directorx` (DSH command plane, zero model tokens) and by
- * `directorx_confirm` (DSH userInteraction) so both surfaces share one view.
+ * `directorx_confirm` (DSH userQuestions) so both surfaces share one view.
  */
 
 export interface BoardCounts {

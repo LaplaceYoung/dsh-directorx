@@ -12,7 +12,8 @@ export {
   assessGenerateReady, classifyGenerateStrategy, commitGenerateReady, detectNamedCharacters,
   parseStrategy, requireReady, GenerateReadyStore,
 } from './generate-ready.ts'
-export { normalizeAskQuestions } from './ask.ts'
+export { normalizeAskQuestions, resolveHostAsk } from './ask.ts'
+export { directorxCommandLine, executeDirectorxLine } from './client/directorx-command.ts'
 export { ProductionStageStore, STAGE_IDS } from './stage.ts'
 export { SkillIndex, skillIndex } from './skill-index.ts'
 export { NoteStore } from './notes.ts'

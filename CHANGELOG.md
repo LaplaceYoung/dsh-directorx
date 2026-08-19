@@ -4,17 +4,18 @@
 
 ## [Unreleased]
 
-### Fixed
-
-- **CI**：Ubuntu runner 补装 ffmpeg；音频 mock 假数据小于 1KB 时不再被 `openaiTts` 当成失败。
-- **audioMix**：侧链闪避先 `asplit` 人声，不再把同一条滤镜标签喂给 compress 和 amix（ffmpeg 7 会当成流选择器）。
-
 ### Changed
 
+- **适配 DeepSeek Harness 0.1.0-rc.8**：提问走官方 `userQuestions`（仍兼容旧名 `userInteraction`）；设置页读 `settingsScope` 共享镜像，不再在冷启动多打一次 `settings.describe`；`/directorx` 斜杠菜单挂 `commandUi` 并通过 `remote.commands.execute` 下发。客户端 `dsh.client.immediately` 开机预取，inject 补上 settings / commands / remotes。
 - **重新生成**：不再弹独立对话框，改为选中节点下方生成坞（带「重新生成」标记），只改这一镜。
 - **智能解析**：先出分镜条（时间窗 / 代表帧），确认后才「应用到画布」。
 - **图片 / 视频编辑台**：顶栏撤销重做与「完成」；图片右侧只显示当前工具；视频拆成剪辑 / 调色，调色只改预览，保存才回写画布。
 - **视频时间线**：片段按播放顺序排在 V1 / A1 轨上，可分割、拖移调序、拉出入点、变速、淡入淡出、静音；导出可选分辨率 / 画质 / 帧率 / 硬切或叠化，并支持保存到画布或下载文件。
+
+### Fixed
+
+- **CI**：Ubuntu runner 补装 ffmpeg；音频 mock 假数据小于 1KB 时不再被 `openaiTts` 当成失败。
+- **audioMix**：侧链闪避先 `asplit` 人声，不再把同一条滤镜标签喂给 compress 和 amix（ffmpeg 7 会当成流选择器）。
 
 ## [0.2.0] - 2026-08-18
 

@@ -43,7 +43,7 @@ export function apply(ctx: Context): void {
     },
   })
 
-  // RC.7 serves every registered settings namespace (`settings.describe`).
+  // Host serves every registered settings namespace (`settings.describe`).
   // Also register the four capability profiles as configurable providers so
   // the Models page can address the same `directorx` namespace.
   const llm = ctx.get('llm') as {

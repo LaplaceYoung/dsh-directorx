@@ -12,7 +12,7 @@
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-0f172a?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
 [![release](https://img.shields.io/github/v/release/LaplaceYoung/dsh-directorx?color=22c55e&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/releases)
-[![dsh-plugin](https://img.shields.io/badge/dsh-0.1.0--rc.7-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+[![dsh-plugin](https://img.shields.io/badge/dsh-0.1.0--rc.8-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![stars](https://img.shields.io/github/stars/LaplaceYoung/dsh-directorx?style=flat&color=f59e0b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![last commit](https://img.shields.io/github/last-commit/LaplaceYoung/dsh-directorx?color=64748b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![node](https://img.shields.io/badge/node-%3E%3D22.19-339933?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
@@ -66,7 +66,7 @@ ingest 收文档和 Key（Key 不进会话）
 | 你要填的 | baseURL + caps | create.body 映射 + poll 或 syncResult |
 | 生成入口 | 仍是 `directorx_generate_image` / `video` / `audio`，可带 `model` | 同左，mode=`generic-rest` |
 
-设置页有「接入新模型」表单；或直接对会话说「接入这个模型」。分叉一律走 **DSH 标准提问**（`directorx_ask` / `userInteraction.ask`），不要在聊天里列 1. 2. 3.
+设置页有「接入新模型」表单；或直接对会话说「接入这个模型」。分叉一律走 **DSH 标准提问**（`directorx_ask` / `userQuestions.ask`），不要在聊天里列 1. 2. 3.
 
 ---
 
@@ -180,7 +180,7 @@ DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent 
 
 ## 快速开始
 
-需要 **DeepSeek Harness 0.1.0-rc.7+** 的 Web 配置，以及 Node.js 22.19+。
+需要 **DeepSeek Harness 0.1.0-rc.8+** 的 Web 配置，以及 Node.js 22.19+。
 
 ```bash
 # 在插件目录里装进 Web 配置
@@ -190,7 +190,7 @@ dsh plugin --profile web add .
 dsh web
 ```
 
-然后打开 **Settings → DirectorX**，四个能力各自开关：Vision / Image / Video / Audio。RC.7 起设置项按命名空间 `directorx` 挂到 Host，不再依赖模型供应商白名单。
+然后打开 **Settings → DirectorX**（或 **Plugins** 里的 DirectorX 卡片），四个能力各自开关：Vision / Image / Video / Audio。设置项按命名空间 `directorx` 挂到 Host，浏览器半侧读 `settingsScope` 镜像，不再单独打 `settings.describe`。
 
 复杂任务的分叉（时长、画幅、提示词、落画布、是否付费测试）一律用 **DSH 标准提问**，不要在正文里写编号菜单。知识用 `directorx_knowledge_search` / `read`（同义词 + 分组），技能用 `directorx_skill_search` / `read` 读全文。阶段产物写入 `directorx_stage`（brief → … → deliver）。
 
@@ -356,7 +356,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 <details>
 <summary><b>要哪一版 DSH？</b></summary>
 
-<strong>0.1.0-rc.7 及以上</strong>。插件同时注册 <code>settings.section</code> 与按命名空间配对的 <code>settings.plugin.item</code>（key=<code>directorx</code>）。
+<strong>0.1.0-rc.8 及以上</strong>。插件同时注册 <code>settings.section</code> 与按命名空间配对的 <code>settings.plugin.item</code>（key=<code>directorx</code>）。提问走 <code>userQuestions</code>，斜杠菜单走 <code>commandUi</code>。
 
 </details>
 

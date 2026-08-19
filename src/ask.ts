@@ -61,3 +61,25 @@ export async function presentAsk(input: {
   })
   return { answers: asked.answers, questions: input.questions }
 }
+
+export interface HostAskService {
+  ask: ConfirmAsk
+}
+
+/**
+ * DSH 0.1.0-rc.8 names the ask seam `userQuestions`. Older hosts and some
+ * forks still expose `userInteraction` with the same `ask()` shape. Prefer
+ * the current name, then the alias, and never throw on a missing service —
+ * callers decide whether the absence is fatal.
+ */
+export function resolveHostAsk(ctx: { get(name: string): unknown }): HostAskService | undefined {
+  for (const name of ['userQuestions', 'userInteraction']) {
+    try {
+      const service = ctx.get(name) as HostAskService | undefined
+      if (service !== undefined && typeof service.ask === 'function') return service
+    } catch {
+      // Cordis `get` throws when the service is not on this fiber.
+    }
+  }
+  return undefined
+}

@@ -28,8 +28,16 @@ interface SettingsApi {
   }): Promise<{ result: RpcResult<NamespaceView> }>
 }
 
-interface ConnectionHandle {
-  api: { settings: SettingsApi }
+interface SettingsScopeSnapshot {
+  status: 'loading' | 'ready' | 'unavailable'
+  value?: Record<string, unknown>
+  revision?: number
+  writable: boolean
+}
+
+interface SettingsScopeFace {
+  getSnapshot(): SettingsScopeSnapshot
+  subscribe(listener: () => void): () => void
 }
 
 interface CapabilityDraft {
@@ -52,7 +60,8 @@ interface Draft {
 }
 
 interface SectionInjected {
-  api: SettingsApi
+  scope?: SettingsScopeFace
+  api?: SettingsApi
 }
 
 const DEFAULT_DRAFT: Draft = {
@@ -229,8 +238,24 @@ function CapabilityCard(props: {
   )
 }
 
+function viewFromScope(snapshot: SettingsScopeSnapshot): { view: NamespaceView; writable: boolean } | undefined {
+  if (snapshot.status !== 'ready' || snapshot.value === undefined) return undefined
+  return {
+    writable: snapshot.writable,
+    view: {
+      ns: 'directorx',
+      schema: undefined,
+      value: snapshot.value,
+      applies: 'live',
+      secrets: [],
+      revision: snapshot.revision ?? 0,
+    },
+  }
+}
+
 export function DirectorxSettingsSection(props: Partial<SectionInjected>): ReactNode {
   const api = props.api
+  const scope = props.scope
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT)
   const [view, setView] = useState<NamespaceView | undefined>(undefined)
@@ -298,7 +323,38 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     }
   }
 
+  function applyNamespace(target: NamespaceView, writableFlag: boolean): void {
+    setView(target)
+    setDraft(readDraft(target.value))
+    const mode = target.value.initiative
+    setInitiative(mode === '严格' || mode === '自动' || mode === '协同' ? mode : '协同')
+    setWritable(writableFlag)
+    setStatus('ready')
+    setError(undefined)
+    void refreshCanvas()
+    void refreshAdapters()
+  }
+
+  function applyScopeSnapshot(snapshot: SettingsScopeSnapshot): void {
+    if (snapshot.status === 'loading') {
+      setStatus(prev => prev === 'idle' ? 'loading' : prev)
+      return
+    }
+    const next = viewFromScope(snapshot)
+    if (next === undefined) {
+      setStatus('ready')
+      setWritable(snapshot.writable)
+      setError('未找到 directorx 设置命名空间。请确认插件已安装并重启 DSH。')
+      return
+    }
+    applyNamespace(next.view, next.writable)
+  }
+
   async function load(): Promise<void> {
+    if (scope !== undefined) {
+      applyScopeSnapshot(scope.getSnapshot())
+      return
+    }
     if (api === undefined) return
     setStatus(prev => prev === 'idle' ? 'loading' : prev)
     setError(undefined)
@@ -312,14 +368,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
         setError('未找到 directorx 设置命名空间。请确认插件已安装并重启 DSH。')
         return
       }
-      setView(target)
-      setDraft(readDraft(target.value))
-      const mode = target.value.initiative
-      setInitiative(mode === '严格' || mode === '自动' || mode === '协同' ? mode : '协同')
-      setWritable(response.result.value.writable)
-      setStatus('ready')
-      void refreshCanvas()
-      void refreshAdapters()
+      applyNamespace(target, response.result.value.writable)
     } catch (loadError) {
       setStatus('error')
       setError(messageOf(loadError))
@@ -327,11 +376,21 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   }
 
   useEffect(() => {
+    if (scope !== undefined) {
+      applyScopeSnapshot(scope.getSnapshot())
+      return scope.subscribe(() => { applyScopeSnapshot(scope.getSnapshot()) })
+    }
     void load()
+    return undefined
   }, [])
 
   async function save(): Promise<void> {
-    if (api === undefined || view === undefined || saving) return
+    if (saving) return
+    const revision = scope?.getSnapshot().revision ?? view?.revision
+    if (api === undefined) {
+      setError('当前 Host 无法按路径写入设置（需要 settings.mutate）。')
+      return
+    }
     setSaving(true)
     setSaved(false)
     setError(undefined)
@@ -360,10 +419,13 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           ops.push({ op: 'set', path: [key, 'auth', 'klingSk'], value: capability.klingSk.trim() })
         }
       }
-      const response = await api.mutate({ ns: 'directorx', ops, expectedRevision: view.revision })
+      const response = await api.mutate({
+        ns: 'directorx',
+        ops,
+        ...(revision === undefined ? {} : { expectedRevision: revision }),
+      })
       if (!response.result.ok) throw new Error(response.result.error?.message ?? 'settings.mutate failed')
-      setView(response.result.value)
-      setDraft(readDraft(response.result.value.value))
+      applyNamespace(response.result.value, writable)
       setSaved(true)
       window.setTimeout(() => setSaved(false), 2500)
     } catch (saveError) {
@@ -373,7 +435,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     }
   }
 
-  if (api === undefined) return null
+  if (api === undefined && scope === undefined) return null
   if (status === 'loading' || status === 'idle') return <div style={{ padding: 18, opacity: .7 }}>正在加载 DirectorX 模型配置…</div>
   if (status === 'error') return (
     <div style={{ padding: 18 }}>
