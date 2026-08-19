@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI**：Ubuntu runner 补装 ffmpeg；音频 mock 假数据小于 1KB 时不再被 `openaiTts` 当成失败。
+
 ### Changed
 
 - **重新生成**：不再弹独立对话框，改为选中节点下方生成坞（带「重新生成」标记），只改这一镜。

@@ -59,7 +59,7 @@ test('OpenAI-compatible provider adapters round-trip through a local endpoint', 
       assert.equal(body.model, 'test-audio')
       assert.equal(body.input, 'hello director')
       response.writeHead(200, { 'content-type': 'audio/mpeg' })
-      return response.end(Buffer.from([0xff, 0xfb, 0x90, 0x00]))
+      return response.end(Buffer.alloc(2048, 0xff))
     }
 
     if (request.method === 'POST' && url.pathname === '/v1/videos') {

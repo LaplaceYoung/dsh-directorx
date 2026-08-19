@@ -25,6 +25,7 @@ const hasFfmpeg = (() => {
   const found = spawnSync('which', ['ffmpeg'], { encoding: 'utf8' })
   return found.status === 0 && found.stdout.trim() !== ''
 })()
+const ff = { skip: !hasFfmpeg }
 
 function makeVideo(dir, name = 'sample.mp4') {
   const path = join(dir, name)
@@ -33,7 +34,7 @@ function makeVideo(dir, name = 'sample.mp4') {
   return path
 }
 
-test('qaCheck gates duration/aspect/audio against the brief', async () => {
+test('qaCheck gates duration/aspect/audio against the brief', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-qa-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -72,7 +73,7 @@ test('openaiTts passes instructions through when provided', async () => {
     server = createServer(async (req, res) => {
       if (req.url === '/audio/speech' && req.method === 'POST') {
         captured = await readJson(req)
-        const bytes = Buffer.from('mp3-bytes')
+        const bytes = Buffer.alloc(2048, 0x41)
         res.writeHead(200, { 'content-type': 'audio/mpeg', 'content-length': bytes.length })
         res.end(bytes)
         return
@@ -97,7 +98,7 @@ test('openaiTts passes instructions through when provided', async () => {
   }
 })
 
-test('videoProcess filter chain, rotate/flip and audio extraction', async () => {
+test('videoProcess filter chain, rotate/flip and audio extraction', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fx-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -118,7 +119,7 @@ test('videoProcess filter chain, rotate/flip and audio extraction', async () => 
   }
 })
 
-test('videoZoom diagonal pans produce valid output', async () => {
+test('videoZoom diagonal pans produce valid output', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-diag-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -133,7 +134,7 @@ test('videoZoom diagonal pans produce valid output', async () => {
   }
 })
 
-test('videoAnalyze detects frozen frames', async () => {
+test('videoAnalyze detects frozen frames', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-freeze-'))
   try {
     const clip = join(dir, 'frozen.mp4')
@@ -149,7 +150,7 @@ test('videoAnalyze detects frozen frames', async () => {
   }
 })
 
-test('videoAnalyze detects luminance flicker', async () => {
+test('videoAnalyze detects luminance flicker', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-flicker-'))
   try {
     const clip = join(dir, 'flicker.mp4')
@@ -163,7 +164,7 @@ test('videoAnalyze detects luminance flicker', async () => {
   }
 })
 
-test('videoProcess restore presets and delogo render', async () => {
+test('videoProcess restore presets and delogo render', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-restore-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -180,7 +181,7 @@ test('videoProcess restore presets and delogo render', async () => {
   }
 })
 
-test('videoProcess applies cinematic grade presets', async () => {
+test('videoProcess applies cinematic grade presets', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-grade-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -195,7 +196,7 @@ test('videoProcess applies cinematic grade presets', async () => {
   }
 })
 
-test('videoProcess renders styled text overlays via drawtext', async () => {
+test('videoProcess renders styled text overlays via drawtext', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-text-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -212,7 +213,7 @@ test('videoProcess renders styled text overlays via drawtext', async () => {
   }
 })
 
-test('freezeStart holds the first frame and per-pair transitions render', async () => {
+test('freezeStart holds the first frame and per-pair transitions render', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fz-'))
   try {
     const make = (name) => {
@@ -232,7 +233,7 @@ test('freezeStart holds the first frame and per-pair transitions render', async 
   }
 })
 
-test('contact sheet tiles midpoint frames into one preview image', async () => {
+test('contact sheet tiles midpoint frames into one preview image', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sheet-'))
   try {
     const clips = []
@@ -251,7 +252,7 @@ test('contact sheet tiles midpoint frames into one preview image', async () => {
   }
 })
 
-test('timeline final output survives after the stale cleanup settles', async () => {
+test('timeline final output survives after the stale cleanup settles', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-keep-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -265,7 +266,7 @@ test('timeline final output survives after the stale cleanup settles', async () 
   }
 })
 
-test('probeMedia parses fractional frame rates to numbers', async () => {
+test('probeMedia parses fractional frame rates to numbers', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fps-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -283,7 +284,7 @@ test('probeMedia parses fractional frame rates to numbers', async () => {
   }
 })
 
-test('timeline fingerprint cache reuses unchanged scenes (revision diff)', async () => {
+test('timeline fingerprint cache reuses unchanged scenes (revision diff)', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-diff-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -303,7 +304,7 @@ test('timeline fingerprint cache reuses unchanged scenes (revision diff)', async
   }
 })
 
-test('timeline golden vector renders with pinned structural invariants', async () => {
+test('timeline golden vector renders with pinned structural invariants', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-golden-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -336,7 +337,7 @@ test('timeline errors carry the stable machine-readable code', async () => {
   }
 })
 
-test('renderTimeline applies fadeIn/fadeOut', async () => {
+test('renderTimeline applies fadeIn/fadeOut', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fade-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -350,7 +351,7 @@ test('renderTimeline applies fadeIn/fadeOut', async () => {
   }
 })
 
-test('videoProcess reverse and freezeEnd work', async () => {
+test('videoProcess reverse and freezeEnd work', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-rev-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -365,7 +366,7 @@ test('videoProcess reverse and freezeEnd work', async () => {
   }
 })
 
-test('intent-driven edit parser turns natural language into a cut list', async () => {
+test('intent-driven edit parser turns natural language into a cut list', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-edit-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -386,7 +387,7 @@ test('intent-driven edit parser turns natural language into a cut list', async (
   }
 })
 
-test('renderTimeline applies scene-level speed (speed ramp building block)', async () => {
+test('renderTimeline applies scene-level speed (speed ramp building block)', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-ramp-'))
   try {
     const a = join(dir, 'a.mp4')
@@ -407,7 +408,7 @@ test('renderTimeline applies scene-level speed (speed ramp building block)', asy
   }
 })
 
-test('smartCut matches script sentences to subtitle cues and assembles', async () => {
+test('smartCut matches script sentences to subtitle cues and assembles', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sc-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -425,7 +426,7 @@ test('smartCut matches script sentences to subtitle cues and assembles', async (
   }
 })
 
-test('videoAnalyze detects a hard cut between two clips', async () => {
+test('videoAnalyze detects a hard cut between two clips', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-va-'))
   try {
     const a = join(dir, 'a.mp4')
@@ -447,7 +448,7 @@ test('videoAnalyze detects a hard cut between two clips', async () => {
   }
 })
 
-test('audioBeats detects energy peaks in a music-like tone', async () => {
+test('audioBeats detects energy peaks in a music-like tone', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-beat-'))
   try {
     const audio = join(dir, 'beat.mp3')
@@ -461,7 +462,7 @@ test('audioBeats detects energy peaks in a music-like tone', async () => {
   }
 })
 
-test('videoUnderstand samples frames and degrades without vision', async () => {
+test('videoUnderstand samples frames and degrades without vision', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-vu-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -477,7 +478,7 @@ test('videoUnderstand samples frames and degrades without vision', async () => {
   }
 })
 
-test('audioMix targetLufs normalizes to the requested loudness', async () => {
+test('audioMix targetLufs normalizes to the requested loudness', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-lufs-'))
   try {
     const make = (name) => {
@@ -504,7 +505,7 @@ test('audioMix targetLufs normalizes to the requested loudness', async () => {
   }
 })
 
-test('audioSync detects narration intervals and mixes with ducking', async () => {
+test('audioSync detects narration intervals and mixes with ducking', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sync-'))
   try {
     const makeVideo = (name) => {
@@ -527,7 +528,7 @@ test('audioSync detects narration intervals and mixes with ducking', async () =>
   }
 })
 
-test('parseSrt and subtitleCut drive caption-based cuts', async () => {
+test('parseSrt and subtitleCut drive caption-based cuts', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-srtcut-'))
   try {
     const cues = parseSrt('1\n00:00:00,000 --> 00:00:01,000\n开场词\n\n2\n00:00:02,000 --> 00:00:03,000\n主体句\n\n')
@@ -547,7 +548,7 @@ test('parseSrt and subtitleCut drive caption-based cuts', async () => {
   }
 })
 
-test('renderTimeline assembles trimmed scenes into a finished cut', async () => {
+test('renderTimeline assembles trimmed scenes into a finished cut', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-tl-'))
   try {
     const make = (name, seconds) => {
@@ -577,7 +578,7 @@ test('renderTimeline assembles trimmed scenes into a finished cut', async () => 
   }
 })
 
-test('videoZoom and videoPip produce valid outputs', async () => {
+test('videoZoom and videoPip produce valid outputs', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-fx-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -596,7 +597,7 @@ test('videoZoom and videoPip produce valid outputs', async () => {
   }
 })
 
-test('videoSubtitle soft-muxes an srt track without libass', async () => {
+test('videoSubtitle soft-muxes an srt track without libass', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-sub-'))
   try {
     const clip = join(dir, 'clip.mp4')
@@ -616,7 +617,7 @@ test('videoSubtitle soft-muxes an srt track without libass', async () => {
   }
 })
 
-test('audioMix overlays BGM onto a video with ducking', async () => {
+test('audioMix overlays BGM onto a video with ducking', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-mix-'))
   try {
     const make = (name, freq, seconds) => {
@@ -669,7 +670,7 @@ test('videoConcat letterboxes mismatched aspect instead of stretching', { skip: 
   }
 })
 
-test('videoProcess trims and speeds up; videoConcat joins with xfade', async () => {
+test('videoProcess trims and speeds up; videoConcat joins with xfade', ff, async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-vp-'))
   try {
     const makeClip = (name, seconds) => {
