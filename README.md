@@ -12,7 +12,7 @@
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-0f172a?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
 [![release](https://img.shields.io/github/v/release/LaplaceYoung/dsh-directorx?color=22c55e&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/releases)
-[![dsh-plugin](https://img.shields.io/badge/dsh-0.1.0--rc.8-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+[![dsh-plugin](https://img.shields.io/badge/dsh-0.1.1--rc.1-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![stars](https://img.shields.io/github/stars/LaplaceYoung/dsh-directorx?style=flat&color=f59e0b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![last commit](https://img.shields.io/github/last-commit/LaplaceYoung/dsh-directorx?color=64748b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
 [![node](https://img.shields.io/badge/node-%3E%3D22.19-339933?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
@@ -62,7 +62,7 @@ ingest 收文档和 Key（Key 不进会话）
 
 | | A 已有协议 | B 新提供商 |
 | --- | --- | --- |
-| 什么时候 | 文档对上 OpenAI 兼容 / ModelVerse / 可灵 / Runway / Vidu / Veo / MiniMax | 对不上任何现成 mode |
+| 什么时候 | 文档对上 DeepSeek 第一方 / OpenAI 兼容 / ModelVerse / 可灵 / Runway / Vidu / Veo / MiniMax | 对不上任何现成 mode |
 | 你要填的 | baseURL + caps | create.body 映射 + poll 或 syncResult |
 | 生成入口 | 仍是 `directorx_generate_image` / `video` / `audio`，可带 `model` | 同左，mode=`generic-rest` |
 
@@ -82,7 +82,7 @@ DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent 
 
 #### 看
 
-拉片、抽帧、成片质检走确定性 ffmpeg，不靠模型「感觉过了」。
+拉片、抽帧、成片质检走确定性 ffmpeg，不靠模型「感觉过了」。视觉问答默认 **DeepSeek 第一方多模态**（`deepseek-chat` 模式，`deepseek-v4-flash-vision-exp`）：图片内联成 data URL 走官方 chat 协议，配 `DEEPSEEK_API_KEY` 即用；也可切 `openai-chat` 走任意 OpenAI 兼容 VL 端点。
 
 </td>
 <td width="50%" valign="top">
@@ -180,7 +180,7 @@ DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent 
 
 ## 快速开始
 
-需要 **DeepSeek Harness 0.1.0-rc.8+** 的 Web 配置，以及 Node.js 22.19+。
+需要 **DeepSeek Harness 0.1.1-rc.1+** 的 Web 配置（`npm i -g @deepseek-ai/dsh@next`，尚未打 `@latest`），以及 Node.js 22.19+。
 
 ```bash
 # 在插件目录里装进 Web 配置
@@ -356,7 +356,7 @@ Sora 2、可灵（新旧协议）、Runway、MiniMax H3、Vidu、Google Veo、�
 <details>
 <summary><b>要哪一版 DSH？</b></summary>
 
-<strong>0.1.0-rc.8 及以上</strong>。插件同时注册 <code>settings.section</code> 与按命名空间配对的 <code>settings.plugin.item</code>（key=<code>directorx</code>）。提问走 <code>userQuestions</code>，斜杠菜单走 <code>commandUi</code>。
+<strong>0.1.1-rc.1 及以上</strong>（<code>@deepseek-ai/dsh@next</code>）。该版起宿主发布第一方多模态模型（<code>deepseek-v4-flash-vision-exp</code>），DirectorX Vision 默认走该模型。插件同时注册 <code>settings.section</code> 与按命名空间配对的 <code>settings.plugin.item</code>（key=<code>directorx</code>）。提问走 <code>userQuestions</code>，斜杠菜单走 <code>commandUi</code>。
 
 </details>
 

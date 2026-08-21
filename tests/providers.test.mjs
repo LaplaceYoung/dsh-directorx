@@ -190,3 +190,61 @@ test('OpenAI-compatible provider adapters round-trip through a local endpoint', 
     assert.equal(request.auth, 'Bearer test-key')
   }
 })
+
+test('deepseek-chat vision inlines images into the first-party chat route', async t => {
+  const seen = []
+  const server = createServer(async (request, response) => {
+    const url = new URL(request.url ?? '/', 'http://127.0.0.1')
+    if (request.method === 'GET' && url.pathname === '/frame.png') {
+      response.writeHead(200, { 'content-type': 'image/png' })
+      return response.end(PNG_1PX)
+    }
+    if (request.method === 'POST' && url.pathname === '/chat/completions') {
+      const body = await readJson(request)
+      seen.push({ auth: request.headers.authorization ?? '', body })
+      return sendJson(response, 200, { choices: [{ message: { content: '第一方视觉：一个红圆' } }] })
+    }
+    return sendJson(response, 404, { error: { message: `unexpected route ${request.method} ${url.pathname}` } })
+  })
+  server.listen(0, '127.0.0.1')
+  await once(server, 'listening')
+  const address = server.address()
+  const port = typeof address === 'object' && address !== null ? address.port : 0
+  const outDir = await mkdtemp(join(tmpdir(), 'directorx-deepseek-vision-test-'))
+  const settings = { outputDir: outDir, timeoutMs: 2000, pollIntervalMs: 10, maxPollAttempts: 5 }
+  const capability = { enabled: true, mode: 'deepseek-chat', baseURL: `http://127.0.0.1:${port}`, apiKey: 'ds-key', model: 'deepseek-v4-flash-vision-exp' }
+  t.after(async () => {
+    server.close()
+    await rm(outDir, { recursive: true, force: true })
+  })
+
+  const fromDataUrl = await runVision(
+    { settings, capability, signal: new AbortController().signal },
+    'data:image/png;base64,AAAA',
+    '这是什么？',
+  )
+  assert.equal(fromDataUrl.answer, '第一方视觉：一个红圆')
+  assert.equal(seen[0].auth, 'Bearer ds-key')
+  assert.equal(seen[0].body.model, 'deepseek-v4-flash-vision-exp')
+  assert.equal(seen[0].body.messages[0].content[1].image_url.url, 'data:image/png;base64,AAAA')
+
+  const address2 = server.address()
+  const activePort = typeof address2 === 'object' && address2 !== null ? address2.port : 0
+  const fromHttp = await runVision(
+    { settings, capability, signal: new AbortController().signal },
+    `http://127.0.0.1:${activePort}/frame.png`,
+    '这是什么？',
+  )
+  assert.equal(fromHttp.answer, '第一方视觉：一个红圆')
+  const inlined = seen[1].body.messages[0].content[1].image_url.url
+  assert.equal(inlined.startsWith(`data:image/png;base64,${PNG_1PX.toString('base64')}`), true)
+
+  await assert.rejects(
+    runVision(
+      { settings, capability, signal: new AbortController().signal },
+      'data:image/bmp;base64,AAAA',
+      '这是什么？',
+    ),
+    /PNG\/JPEG\/WebP\/GIF/,
+  )
+})

@@ -4,6 +4,7 @@ export const ADAPTER_CAPABILITIES = ['vision', 'image', 'video', 'audio'] as con
 export type AdapterCapability = (typeof ADAPTER_CAPABILITIES)[number]
 
 export const BUILTIN_ADAPTER_MODES = [
+  'deepseek-chat',
   'openai-chat',
   'openai-images',
   'openai-videos',
@@ -247,7 +248,7 @@ export function parseAdapterSpec(raw: unknown): { spec?: AdapterSpec; issues: Sp
   }
 
   if (capability === 'vision' && mode === 'generic-rest') {
-    issues.push({ path: 'mode', message: 'vision 只支持 openai-chat / mock' })
+    issues.push({ path: 'mode', message: 'vision 只支持 deepseek-chat / openai-chat / mock' })
   }
   if (mode === 'generic-rest') {
     if (create === undefined) issues.push({ path: 'create', message: 'generic-rest 必须有 create' })
@@ -317,6 +318,7 @@ const FINGERPRINTS: Array<{ mode: AdapterMode; family: 'A'; pattern: RegExp; rea
   { mode: 'openai-images', family: 'A', pattern: /\/images\/generations|images\/edits/i, reason: '文档命中 OpenAI images 协议', path: '/images/generations', authKind: 'bearer' },
   { mode: 'openai-tts', family: 'A', pattern: /\/audio\/speech|openai-tts/i, reason: '文档命中 OpenAI speech 协议', path: '/audio/speech', authKind: 'bearer' },
   { mode: 'openai-videos', family: 'A', pattern: /\/videos\b|openai-videos|sora/i, reason: '文档命中 OpenAI videos 协议', path: '/videos', authKind: 'bearer' },
+  { mode: 'deepseek-chat', family: 'A', pattern: /api\.deepseek\.com|deepseek-official|深度求索官方/i, reason: '文档命中 DeepSeek 第一方 chat 协议（0.1.1-rc.1 起含视觉模型）', path: '/chat/completions', authKind: 'bearer' },
   { mode: 'openai-chat', family: 'A', pattern: /\/chat\/completions|image_url/i, reason: '文档命中 OpenAI chat 协议', path: '/chat/completions', authKind: 'bearer' },
 ]
 

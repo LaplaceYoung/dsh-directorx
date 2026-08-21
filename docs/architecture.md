@@ -74,10 +74,10 @@ directorx:
 
   vision:
     enabled: true
-    mode: openai-chat      # mock
-    baseURL: https://api.openai.com/v1
-    apiKey: sk-…           # secret role
-    model: gpt-4o-mini
+    mode: deepseek-chat    # openai-chat | mock
+    baseURL: https://api.deepseek.com
+    apiKey: sk-…           # secret role；留空回退 DEEPSEEK_API_KEY
+    model: deepseek-v4-flash-vision-exp
 
   image:
     enabled: true
@@ -106,6 +106,7 @@ directorx:
 
 | mode | 请求路径 | 说明 |
 |---|---|---|
+| `deepseek-chat` | `POST {baseURL}/chat/completions` | DeepSeek 第一方多模态（DSH 0.1.1-rc.1）。图片一律内联 data URL（PNG/JPEG/WebP/GIF，≤15 MiB），不发外部 URL；Key 回退 `DEEPSEEK_API_KEY` |
 | `openai-chat` | `POST {baseURL}/chat/completions` | 视觉问答，图片以 data URL 或 http URL 传入 |
 | `openai-images` | `POST {baseURL}/images/generations` | 支持 `b64_json` 与 `url` 返回 |
 | `openai-videos` | `POST {baseURL}/videos` → `GET {baseURL}/videos/{id}` | 异步轮询，支持顶层或嵌套结果 URL |
@@ -114,7 +115,8 @@ directorx:
 | `mock` | 本地生成 | SVG 图 / WAV 音 / ffmpeg 测试视频 |
 
 API Key 解析顺序：WebUI 配置 → `DIRECTORX_<CAPABILITY>_API_KEY` 环境变量 →
-`OPENAI_API_KEY`。本地 `localhost` 端点允许空 Key。
+协议默认 Key（`openai-chat` 为 `OPENAI_API_KEY`，`deepseek-chat` 为 `DEEPSEEK_API_KEY`）。
+本地 `localhost` 端点允许空 Key。
 
 ## 工具执行数据流
 

@@ -51,7 +51,7 @@ export function registerSettingsTestRoute(ctx: Context, getSettings: () => Direc
           return
         }
         const ENV_NAMES: Record<string, string[]> = {
-          vision: ['DIRECTORX_VISION_API_KEY'],
+          vision: ['DIRECTORX_VISION_API_KEY', 'DEEPSEEK_API_KEY'],
           image: ['DIRECTORX_IMAGE_API_KEY'],
           video: ['DIRECTORX_VIDEO_API_KEY'],
           audio: ['DIRECTORX_AUDIO_API_KEY'],

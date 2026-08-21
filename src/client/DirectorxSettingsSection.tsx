@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { MODELVERSE_BY_CAPABILITY } from '../modelverse-catalog.ts'
+import { DEEPSEEK_FIRST_PARTY_VISION, MODELVERSE_BY_CAPABILITY } from '../modelverse-catalog.ts'
 import { projectHeaders, withProject } from './stage/project.ts'
 
 interface RpcResult<T> {
@@ -65,14 +65,14 @@ interface SectionInjected {
 }
 
 const DEFAULT_DRAFT: Draft = {
-  vision: { enabled: true, mode: 'openai-chat', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-5.6-luna', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
+  vision: { enabled: true, mode: 'deepseek-chat', baseURL: 'https://api.deepseek.com', model: 'deepseek-v4-flash-vision-exp', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
   image: { enabled: true, mode: 'openai-images', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-image-2', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
   video: { enabled: true, mode: 'modelverse-tasks', baseURL: 'https://api.modelverse.cn/v1', model: 'MiniMax-H3', resolution: '2K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '2024-11-06' },
   audio: { enabled: true, mode: 'openai-tts', baseURL: 'https://api.modelverse.cn/v1', model: 'gpt-4o-mini-tts', resolution: '1K', apiKey: '', klingAk: '', klingSk: '', runwayVersion: '' },
 }
 
 const MODES: Record<keyof Draft, string[]> = {
-  vision: ['openai-chat', 'mock'],
+  vision: ['deepseek-chat', 'openai-chat', 'mock'],
   image: ['openai-images', 'modelverse-tasks', 'generic-rest', 'mock'],
   video: ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'generic-rest', 'mock'],
   audio: ['openai-tts', 'generic-rest', 'mock'],
@@ -184,7 +184,7 @@ function CapabilityCard(props: {
                 onChange={event => props.onChange({ ...draft, model: event.target.value })}
               />
               <datalist id={`dx-models-${props.capability}`}>
-                {[...MODELVERSE_BY_CAPABILITY[props.capability], ...(props.extraModels ?? [])].filter((id, index, all) => all.indexOf(id) === index).map(id => <option key={id} value={id} />)}
+                {[...(props.capability === 'vision' ? DEEPSEEK_FIRST_PARTY_VISION : []), ...MODELVERSE_BY_CAPABILITY[props.capability], ...(props.extraModels ?? [])].filter((id, index, all) => all.indexOf(id) === index).map(id => <option key={id} value={id} />)}
               </datalist>
             </span>
           </div>

@@ -68,6 +68,16 @@ export const MODELVERSE_AUDIO = [
   'IndexTeam/IndexTTS-2',
 ] as const
 
+/**
+ * DeepSeek first-party (official) endpoint. DSH 0.1.1-rc.1 publishes the
+ * vision model `deepseek-v4-flash-vision-exp` (inputModalities text+image)
+ * on the `deepseek-official` route; DirectorX reaches the same wire model
+ * through its `deepseek-chat` vision mode.
+ */
+export const DEEPSEEK_PUBLIC_BASE_URL = 'https://api.deepseek.com'
+
+export const DEEPSEEK_FIRST_PARTY_VISION = ['deepseek-v4-flash-vision-exp'] as const
+
 export const MODELVERSE_BY_CAPABILITY = {
   vision: MODELVERSE_VISION,
   image: MODELVERSE_IMAGE,

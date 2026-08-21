@@ -3,6 +3,7 @@ import z from 'schemastery'
 export const SETTINGS_NS = 'directorx'
 
 export type CapabilityMode =
+  | 'deepseek-chat'
   | 'openai-chat'
   | 'openai-images'
   | 'openai-videos'
@@ -61,7 +62,7 @@ export interface DirectorxSettings {
   audio: CapabilitySettings
 }
 
-export const VISION_MODES = ['openai-chat', 'mock'] as const
+export const VISION_MODES = ['deepseek-chat', 'openai-chat', 'mock'] as const
 export const IMAGE_MODES = ['openai-images', 'modelverse-tasks', 'generic-rest', 'mock'] as const
 export const VIDEO_MODES = ['openai-videos', 'modelverse-tasks', 'kling', 'kling-v3', 'runway', 'minimax-h3', 'vidu', 'veo', 'generic-rest', 'mock'] as const
 export const AUDIO_MODES = ['openai-tts', 'generic-rest', 'mock'] as const
@@ -93,7 +94,7 @@ export const DirectorxSettings = z.object({
   maxPollAttempts: z.number().step(1).min(1).max(2_000).default(360).description('Maximum async task polling attempts.'),
   persona: z.union(['成片']).default('成片').description('成片 persona：导演角度分析，积极调用知识库与 skill。'),
   initiative: z.union(['严格', '自动', '协同']).default('协同').description('严格：多确认、不生成、二到四个提示词。自动：预算内直接执行生成。协同：提示词和占位，用户审阅后执行生成。'),
-  vision: capability(VISION_MODES, 'openai-chat', 'https://api.modelverse.cn/v1', 'gpt-5.6-luna'),
+  vision: capability(VISION_MODES, 'deepseek-chat', 'https://api.deepseek.com', 'deepseek-v4-flash-vision-exp'),
   image: capability(IMAGE_MODES, 'openai-images', 'https://api.modelverse.cn/v1', 'gpt-image-2'),
   video: capability(VIDEO_MODES, 'modelverse-tasks', 'https://api.modelverse.cn/v1', 'doubao-seedance-2-0-260128', '2K'),
   audio: capability(AUDIO_MODES, 'openai-tts', 'https://api.modelverse.cn/v1', 'qwen3-tts-flash'),

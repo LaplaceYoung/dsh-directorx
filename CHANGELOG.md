@@ -4,8 +4,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- **DeepSeek 第一方多模态（适配 DSH 0.1.1-rc.1）**：Vision 新增 `deepseek-chat` 模式并设为默认，直连官方 `https://api.deepseek.com` chat 协议，默认模型 `deepseek-v4-flash-vision-exp`（宿主 0.1.1-rc.1 在 `deepseek-official` 路由发布的第一方视觉模型，`inputModalities: text+image`）。对齐上游线格式：图片一律内联为 `image_url` data URL（PNG/JPEG/WebP/GIF；15 MiB 原始 ≈ 上游 20 MiB base64 载荷上限），不发外部 URL；Key 回退 `DEEPSEEK_API_KEY`（与 DSH 同一凭据）。接入分诊（classify）新增第一方指纹，设置页 Vision 默认值与模型候选同步更新，连接测试兼容该端点。
+
 ### Changed
 
+- **适配 DeepSeek Harness 0.1.1-rc.1**：核对上游 rc.8 → rc.1 差异，插件 API 无破坏性变更（`tools` / `skills` / `systemPrompt` / `settings` / `llm.registerConfigurableProviders` / `userQuestions` 服务源码未变；webserver 新增结构化 index 注入但 `tapIndex` 保留），宿主最低版本要求提到 0.1.1-rc.1（`@deepseek-ai/dsh@next`）。
 - **适配 DeepSeek Harness 0.1.0-rc.8**：提问走官方 `userQuestions`（仍兼容旧名 `userInteraction`）；设置页读 `settingsScope` 共享镜像，不再在冷启动多打一次 `settings.describe`；`/directorx` 斜杠菜单挂 `commandUi` 并通过 `remote.commands.execute` 下发。客户端 `dsh.client.immediately` 开机预取，inject 补上 settings / commands / remotes。
 - **重新生成**：不再弹独立对话框，改为选中节点下方生成坞（带「重新生成」标记），只改这一镜。
 - **智能解析**：先出分镜条（时间窗 / 代表帧），确认后才「应用到画布」。

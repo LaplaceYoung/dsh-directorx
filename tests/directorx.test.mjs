@@ -72,7 +72,7 @@ test('package metadata declares dsh bundle and dsh-plugin topic', async () => {
   }
   const readme = await readFile(join(root, 'README.md'), 'utf8').catch(() => '')
   assert.match(readme, /dsh-plugin/)
-  assert.match(readme, /0\.1\.0-rc\.8/)
+  assert.match(readme, /0\.1\.1-rc\.1/)
   const client = await readFile(join(root, 'src/client/index.ts'), 'utf8')
   assert.match(client, /settingsScope/)
   assert.match(client, /settings\.plugin\.item/)
