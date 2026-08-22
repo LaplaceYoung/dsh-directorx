@@ -4,29 +4,21 @@ import { Stage } from './stage/Stage.tsx'
 import type { SessionClient, WorkspaceClient } from './stage/session-fold.ts'
 
 const handle: CSSProperties = {
-  position: 'fixed',
-  right: 0,
-  top: '42%',
-  padding: '14px 9px',
-  writingMode: 'vertical-rl',
-  letterSpacing: 1.4,
-  border: '1px solid rgba(255,255,255,.12)',
-  borderRight: 'none',
-  borderRadius: '12px 0 0 12px',
-  background: 'rgba(16,16,16,.78)',
-  backdropFilter: 'blur(16px)',
+  width: '100%',
+  height: '100%',
+  display: 'grid',
+  placeItems: 'center',
+  border: 0,
+  background: '#080808',
   color: '#f2f2f2',
-  fontSize: 12,
-  fontWeight: 500,
+  fontSize: 14,
   cursor: 'pointer',
-  zIndex: 60,
-  pointerEvents: 'auto',
 }
 
 const overlay: CSSProperties = {
-  position: 'fixed',
+  position: 'absolute',
   inset: 0,
-  zIndex: 80,
+  zIndex: 10,
   background: '#000',
 }
 
@@ -75,7 +67,7 @@ export function EditorDock(props: EditorDockProps): ReactNode {
 
   return (
     <button style={handle} onClick={onToggle} title="打开 DirectorX 画布">
-      DirectorX 画布
+      打开 DirectorX 画布
     </button>
   )
 }

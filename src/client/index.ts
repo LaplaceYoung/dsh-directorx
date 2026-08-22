@@ -29,13 +29,12 @@ interface ClientContext {
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection', 'layout', 'sessions', 'settingsScope']
+export const inject = ['slots', 'connection', 'layout', 'sessions', 'command']
 
 function optionalService(ctx: ClientContext, name: string): unknown {
-  const rec = ctx as unknown as Record<string, unknown>
-  if (rec[name] !== undefined) return rec[name]
   try {
-    return ctx.get(name)
+    const rec = ctx as unknown as Record<string, unknown>
+    return rec[name] ?? ctx.get(name)
   } catch {
     return undefined
   }
@@ -79,11 +78,10 @@ export function apply(ctx: ClientContext): void {
       for (const dispose of disposers) dispose()
     }
   })
-
-  ctx.slots.inject('shell.overlay', () =>
+  ctx.slots.inject('conversation.view', () =>
     ctx.slots.register({
-      name: 'shell.overlay',
-      id: 'directorx-editor',
+      name: 'conversation.view',
+      id: 'directorx-canvas',
       order: 40,
       label: 'DirectorX 画布',
       inject: () => ({
