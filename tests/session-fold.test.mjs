@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   answerQuestion, createdSessionId, dockItemsFromSnapshot, foldSessionHistory, mediaFromToolResult, parseSessionList,
-  parseWorkspaceList, pickWorkspaceSession, resolveLiveSession, rpcOk, sessionRunningFromList,
+  parseWorkspaceList, pickWorkspaceSession, resolveLiveSession, rpcOk, sessionRunningFromList, sessionTextNeedsFold,
   summarizeToolName, textFromBlocks, toolCaption, wantsCharacterSheet, withCharacterSheetSpec,
 } from '../lib/testing.js'
 
@@ -14,6 +14,13 @@ test('textFromBlocks skips reasoning and joins visible text', () => {
     { type: 'text', text: 'line' },
   ]), 'visible\nline')
 })
+
+test('assistant long text folds while user text remains visible', () => {
+  assert.equal(sessionTextNeedsFold({ kind: 'assistant', text: '长'.repeat(421) }), true)
+  assert.equal(sessionTextNeedsFold({ kind: 'assistant', text: '短'.repeat(420) }), false)
+  assert.equal(sessionTextNeedsFold({ kind: 'user', text: '长'.repeat(500) }), false)
+})
+
 
 test('summarizeToolName maps canvas tools', () => {
   assert.equal(summarizeToolName('directorx_canvas_add'), '画布：添加')

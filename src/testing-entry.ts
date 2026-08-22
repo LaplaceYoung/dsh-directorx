@@ -93,6 +93,7 @@ export {
   createdSessionId, foldSessionHistory, parseArchivedIds, parseSessionList, parseWorkspaceList,
   pickWorkspaceSession, rpcOk, sessionRunningFromList, summarizeToolName, textFromBlocks, toolCaption,
 } from './client/stage/session-fold.ts'
+export { sessionTextNeedsFold } from './client/stage/session-fold.ts'
 export {
   answerQuestion, dockItemsFromSnapshot, resolveLiveSession, linesFromFold,
 } from './client/stage/session-live.ts'

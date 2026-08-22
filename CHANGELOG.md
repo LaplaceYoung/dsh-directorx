@@ -7,6 +7,8 @@
 ### Added
 
 - **DeepSeek 第一方多模态（适配 DSH 0.1.1-rc.1）**：Vision 新增 `deepseek-chat` 模式并设为默认，直连官方 `https://api.deepseek.com` chat 协议，默认模型 `deepseek-v4-flash-vision-exp`（宿主 0.1.1-rc.1 在 `deepseek-official` 路由发布的第一方视觉模型，`inputModalities: text+image`）。对齐上游线格式：图片一律内联为 `image_url` data URL（PNG/JPEG/WebP/GIF；15 MiB 原始 ≈ 上游 20 MiB base64 载荷上限），不发外部 URL；Key 回退 `DEEPSEEK_API_KEY`（与 DSH 同一凭据）。接入分诊（classify）新增第一方指纹，设置页 Vision 默认值与模型候选同步更新，连接测试兼容该端点。
+- **一句话视频工作坊**：画布会话坞新增六步工作坊、参考视频分析、一键粗剪和一键交付快捷入口；长 assistant 回复默认折叠，运行状态改为导演语义。
+- **高频生产工具**：新增 `directorx_media_scene_split`、`directorx_media_auto_cut`、`directorx_media_batch`、`directorx_media_package`，复用现有 FFmpeg、`smart_cut`、`video_process`、`video_concat` 和抽帧管线，覆盖检查帧、区间/脚本粗剪、批量拼接/标准化、预告与封面交付。
 
 ### Changed
 

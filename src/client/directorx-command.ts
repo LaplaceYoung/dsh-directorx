@@ -49,10 +49,9 @@ interface InjectContext {
 }
 
 function optionalService(ctx: InjectContext, name: string): unknown {
-  const rec = ctx as unknown as Record<string, unknown>
-  if (rec[name] !== undefined) return rec[name]
   try {
-    return ctx.get(name)
+    const rec = ctx as unknown as Record<string, unknown>
+    return rec[name] ?? ctx.get(name)
   } catch {
     return undefined
   }
@@ -86,14 +85,14 @@ function decorateDirectorx(ctx: InjectContext, command: CommandFace): void {
 
 export function registerDirectorxSlash(ctx: InjectContext): void {
   const attach = (host: InjectContext): boolean => {
-    const command = (optionalService(host, 'commandUi') ?? optionalService(host, 'command')) as CommandFace | undefined
+    const command = (optionalService(host, 'command') ?? optionalService(host, 'commandUi')) as CommandFace | undefined
     if (command === undefined || typeof command.decorate !== 'function') return false
     decorateDirectorx(host, command)
     return true
   }
   if (attach(ctx)) return
   if (typeof ctx.inject !== 'function') return
-  // rc.8+ web profile. Do not wait on the retired `command` name — that fiber
-  // would hang forever on a host that only exposes `commandUi`.
-  ctx.inject(['commandUi'], attach)
+  // Current WebUI publishes `command`; retain commandUi as an eager alias only
+  // for older hosts where attach(ctx) can already see it.
+  ctx.inject(['command'], attach)
 }

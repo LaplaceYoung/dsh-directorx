@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { dx, dxChrome, dxGhostBtn, dxPill } from '../canvas-theme.ts'
 import { IconClose, IconLeave, IconSend, IconStop } from './icons.tsx'
 import { MarkdownView } from './MarkdownView.tsx'
 import {
-  errorMessage, foldSessionHistory, rpcOk, sessionRunningFromList,
+  errorMessage, foldSessionHistory, rpcOk, sessionRunningFromList, sessionTextNeedsFold,
   type SessionClient, type SessionFold,
 } from './session-fold.ts'
 import {
@@ -43,7 +43,8 @@ export function SessionDock(props: SessionDockProps): ReactNode {
   const [liveTick, setLiveTick] = useState(0)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
-  const [loadError, setLoadError] = useState<string>()
+  const [loadError, setLoadError] = useState<string | undefined>()
+  const [expandedLines, setExpandedLines] = useState<Set<string>>(() => new Set())
   const [confirmFirst, setConfirmFirst] = useState(false)
   const [starting, setStarting] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
@@ -203,7 +204,7 @@ export function SessionDock(props: SessionDockProps): ReactNode {
     setLoadError(undefined)
     try {
       const id = await props.onNewSession()
-      setFold({ lines: [], running: false, blocked: false })
+      setExpandedLines(new Set())
       setDraft('')
       setListRunning(false)
       if (id === '') throw new Error('无法创建新会话')
@@ -248,8 +249,15 @@ export function SessionDock(props: SessionDockProps): ReactNode {
           running={running}
           blocked={blocked}
           error={loadError}
-          missing={missing}
+          expandedLines={expandedLines}
+          onToggleLine={id => setExpandedLines(current => {
+            const next = new Set(current)
+            if (next.has(id)) next.delete(id)
+            else next.add(id)
+            return next
+          })}
           noSession={noSession}
+          missing={missing}
           draft={draft}
           busy={busy}
           logRef={logRef}
@@ -309,6 +317,22 @@ const SESSION_CHIPS = [
   {
     label: '检索导演知识',
     text: '请用 directorx_skill_route 或 directorx_knowledge_search 检索与当前画布相关的导演知识。对 route.articles 和命中里的 id 做 directorx_knowledge_read，对命中里的 skills 做 directorx_skill_read。不要另起一套检索词，不要生成媒体。',
+  },
+  {
+    label: '进入视频工作坊',
+    text: '请调用 directorx_creative_suite action:workshop-step workshopStep:script，以当前项目进入六步视频工作坊：剧本→拆解→资产→镜头提示词→生成→交付。先只返回当前步骤、检查项和建议下一步，不生成媒体。',
+  },
+  {
+    label: '分析参考视频',
+    text: '请先 directorx_media_scene_split 从我提供或当前选中的视频提取最多 12 个检查帧，再 directorx_video_understand 做时间线、镜头、声音和节奏分析。把分析要点钉到画布，不生成媒体。',
+  },
+  {
+    label: '一键粗剪',
+    text: '请对当前选中的视频调用 directorx_media_auto_cut。若已有 SRT 和口播稿就按脚本精剪；否则先读取媒体时长，再问我保留的起止区间。完成后把输出加入画布。',
+  },
+  {
+    label: '一键交付',
+    text: '请对当前成片调用 directorx_media_package，生成 15 秒预告和封面；再用 directorx_creative_suite action:copy-harness kind:commercial 取得写作约束，并为目标平台提出 3 个标题。把全部交付物加入画布并用 directorx_stage 记录 deliver。',
   },
   {
     label: '检索导演技能',
@@ -379,12 +403,14 @@ function SessionPanel(props: {
   running: boolean
   blocked: boolean
   error?: string
-  missing: boolean
+  expandedLines: Set<string>
+  onToggleLine: (id: string) => void
   noSession: boolean
   draft: string
   busy: boolean
-  logRef: { current: HTMLDivElement | null }
-  inputRef: { current: HTMLTextAreaElement | null }
+  missing: boolean
+  logRef: RefObject<HTMLDivElement>
+  inputRef: RefObject<HTMLTextAreaElement>
   onDraft: (value: string) => void
   onSend: () => void
   onStop: () => void
@@ -426,13 +452,13 @@ function SessionPanel(props: {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 10px 10px 14px', borderBottom: `1px solid ${dx.hairline}`, flexShrink: 0 }}>
         <img src="/favicon.svg" width={18} height={18} alt="" draggable={false} />
-        <strong style={{ fontSize: 13, letterSpacing: -0.2 }}>DSH</strong>
+        <strong style={{ fontSize: 13, letterSpacing: -0.2 }}>DirectorX</strong>
         <span style={{
           fontSize: 11,
           color: props.running ? '#8ee0a0' : dx.mute,
           fontWeight: 500,
         }}>
-          {props.running ? '进行中' : '已就绪'}
+          {props.running ? '导演处理中…' : '已就绪'}
         </span>
         <span style={{ flex: 1 }} />
         {props.onNewSession !== undefined ? (
@@ -467,7 +493,7 @@ function SessionPanel(props: {
           <EmptyLine text="这个工作区还没有 DSH 会话。发一条消息会在此工作区开谈。" />
         ) : props.lines.length === 0 ? (
           <EmptyLine text="和 DSH 说话，编排这一画布。生成仍走底部输入框。" />
-        ) : props.lines.map(line => <LineView key={line.id} line={line} onAddMedia={props.onAddMedia} />)}
+        ) : props.lines.map(line => <LineView key={line.id} line={line} expanded={props.expandedLines.has(line.id)} onToggle={() => props.onToggleLine(line.id)} onAddMedia={props.onAddMedia} />)}
         {props.running && props.lines.at(-1)?.kind !== 'thinking' && props.lines.at(-1)?.status !== 'running' && props.lines.at(-1)?.streaming !== true ? <EmptyLine text="DSH 正在处理…" pulse /> : null}
         {props.blocked ? <EmptyLine text="DSH 在等批准或回答。" /> : null}
         {props.error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12, lineHeight: 1.45 }}>{props.error}</div> : null}
@@ -490,25 +516,18 @@ function SessionPanel(props: {
           ))}
           <button
             type="button"
-            className="dx-hit"
             title="生成前先确认"
             onClick={() => props.onConfirmFirst(!props.confirmFirst)}
-            style={{
-              ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0,
-              background: props.confirmFirst ? 'rgba(255,255,255,.12)' : 'transparent',
-            }}
+            className="dx-hit"
+            style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0, background: props.confirmFirst ? 'rgba(255,255,255,.12)' : 'transparent' }}
           >
             手动确认
           </button>
         </div>
         {props.selectedNode !== undefined ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 6px', fontSize: 11, color: dx.mute }}>
-            <span style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(255,255,255,.08)', maxWidth: '70%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {props.selectedNode.label || props.selectedNode.id}
-            </span>
-            <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 22, height: 22 }} onClick={props.onClearSelected} title="取消引用">
-              <IconClose size={11} />
-            </button>
+            <span style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(255,255,255,.08)', maxWidth: '70%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{props.selectedNode.label || props.selectedNode.id}</span>
+            <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 22, height: 22 }} onClick={props.onClearSelected} title="取消引用"><IconClose size={11} /></button>
           </div>
         ) : null}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minWidth: 0 }}>
@@ -525,42 +544,14 @@ function SessionPanel(props: {
               node.style.height = `${Math.min(120, Math.max(40, node.scrollHeight))}px`
             }}
             onKeyDown={event => {
-              if (event.key === 'Escape') {
-                event.preventDefault()
-                props.onClose()
-                return
-              }
-              if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') {
-                event.preventDefault()
-                props.onClose()
-                return
-              }
-              if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault()
-                props.onSend()
-              }
+              if (event.key === 'Escape') { event.preventDefault(); props.onClose(); return }
+              if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); props.onClose(); return }
+              if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); props.onSend() }
             }}
             style={composerStyle}
           />
-          {props.running ? (
-            <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 36, height: 36, flexShrink: 0 }} onClick={props.onStop} title="停止">
-              <IconStop size={14} />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            disabled={props.missing || props.busy || props.draft.trim() === ''}
-            onClick={props.onSend}
-            className="dx-cta"
-            title={props.running ? '插话' : '发送到 DSH'}
-            style={{
-              ...dxPill,
-              width: 36,
-              height: 36,
-              flexShrink: 0,
-              opacity: props.missing || props.busy || props.draft.trim() === '' ? .4 : 1,
-            }}
-          >
+          {props.running ? <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 36, height: 36, flexShrink: 0 }} onClick={props.onStop} title="停止"><IconStop size={14} /></button> : null}
+          <button type="button" disabled={props.missing || props.busy || props.draft.trim() === ''} onClick={props.onSend} className="dx-cta" title={props.running ? '插话' : '发送到 DSH'} style={{ ...dxPill, width: 36, height: 36, flexShrink: 0, opacity: props.missing || props.busy || props.draft.trim() === '' ? .4 : 1 }}>
             {props.busy ? <span className="dx-spin" /> : <IconSend size={15} />}
           </button>
         </div>
@@ -568,40 +559,14 @@ function SessionPanel(props: {
     </div>
   )
 }
-
-function LineView(props: { line: DockLine; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
+function LineView(props: { line: DockLine; expanded: boolean; onToggle: () => void; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
   if (props.line.kind === 'tool') return <ToolLine line={props.line} onAddMedia={props.onAddMedia} />
-  if (props.line.kind === 'notice') {
-    return <div style={{ fontSize: 12, color: dx.mute, lineHeight: 1.45 }}>{props.line.text}</div>
-  }
-  if (props.line.kind === 'thinking') {
-    return (
-      <div data-dx-thinking="" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: 1.5, color: dx.mute, fontStyle: 'italic', letterSpacing: 0.2 }}>
-        {props.line.streaming === true ? <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.18)', borderTopColor: 'rgba(255,255,255,.7)' }} /> : null}
-        思考中
-      </div>
-    )
-  }
+  if (props.line.kind === 'notice') return <div style={{ fontSize: 12, color: dx.mute, lineHeight: 1.45 }}>{props.line.text}</div>
+  if (props.line.kind === 'thinking') return <div data-dx-thinking="" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: 1.5, color: dx.mute, fontStyle: 'italic', letterSpacing: 0.2 }}>{props.line.streaming === true ? <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.18)', borderTopColor: 'rgba(255,255,255,.7)' }} /> : null}思考中</div>
   const mine = props.line.kind === 'user'
-  return (
-    <div
-      data-dx-md-line={props.line.kind}
-      style={{
-        alignSelf: mine ? 'flex-end' : 'stretch',
-        maxWidth: mine ? '88%' : '100%',
-        padding: mine ? '8px 12px' : '2px 2px',
-        borderRadius: mine ? 16 : 0,
-        background: mine ? 'rgba(255,255,255,.10)' : 'transparent',
-        color: dx.ink,
-        fontSize: 13.5,
-        lineHeight: 1.6,
-        wordBreak: 'break-word',
-      }}
-    >
-      <MarkdownView text={props.line.text} />
-      {props.line.streaming === true ? <span className="dx-stream-caret" aria-hidden="true" /> : null}
-    </div>
-  )
+  const fold = props.line.kind === 'assistant' && sessionTextNeedsFold(props.line)
+  const text = fold && !props.expanded ? `${props.line.text.slice(0, 180).trimEnd()}…` : props.line.text
+  return <div data-dx-md-line={props.line.kind} style={{ alignSelf: mine ? 'flex-end' : 'stretch', maxWidth: mine ? '88%' : '100%', padding: mine ? '8px 12px' : '2px 2px', borderRadius: mine ? 16 : 0, background: mine ? 'rgba(255,255,255,.10)' : 'transparent', color: dx.ink, fontSize: 13.5, lineHeight: 1.6, wordBreak: 'break-word' }}><MarkdownView text={text} />{fold ? <button type="button" className="dx-hit dx-note-fold" onClick={props.onToggle} style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 7px', marginTop: 6, fontSize: 11 }}>{props.expanded ? '收起' : '展开'}</button> : null}{props.line.streaming === true ? <span className="dx-stream-caret" aria-hidden="true" /> : null}</div>
 }
 
 function ToolLine(props: { line: DockLine; onAddMedia?: (media: SessionMedia) => void }): ReactNode {

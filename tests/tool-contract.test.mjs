@@ -26,6 +26,13 @@ test('every tool is a unique directorx_ name with a description', () => {
   }
 })
 
+test('high-value media workflow tools are directly callable', () => {
+  const names = namesOf(defaultContractSettings())
+  for (const name of ['directorx_media_auto_cut', 'directorx_media_scene_split', 'directorx_media_package', 'directorx_media_batch']) {
+    assert.ok(names.includes(name), name)
+  }
+})
+
 test('every required parameter has a description', () => {
   for (const tool of collectToolSpecs()) {
     const parameters = tool.parameters ?? {}

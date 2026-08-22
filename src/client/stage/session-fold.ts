@@ -50,6 +50,11 @@ export interface SessionFold {
   blocked: boolean
 }
 
+export function sessionTextNeedsFold(line: { kind: string; text: string }): boolean {
+  return line.kind === 'assistant' && line.text.length > 420
+}
+
+
 const TOOL_LABEL: Record<string, string> = {
   directorx_generate_image: '生成图片',
   directorx_generate_video: '生成视频',
@@ -79,6 +84,10 @@ const TOOL_LABEL: Record<string, string> = {
   directorx_series: '系列包',
   directorx_revise: '重新生成',
   directorx_blocking: '画布：场面控制表',
+  directorx_media_auto_cut: '一键粗剪',
+  directorx_media_scene_split: '镜头拆解',
+  directorx_media_package: '一键交付',
+  directorx_media_batch: '批量素材处理',
   directorx_confirm: '确认提案',
   directorx_ask: '提问',
   directorx_stage: '阶段',

@@ -2,26 +2,27 @@
 
 <img src="docs/logo.svg" width="88" alt="DirectorX">
 
-# DirectorX
+# DirectorX：第一个以 DeepSeek Harness 为内核的 Video Agent Harness
 
-**AI video director plugin for DeepSeek Harness**
+**The first DeepSeek Harness-native video agent harness for end-to-end AI video production.**
 
-给 DSH 装上取景器、剪辑台和无限分镜板。大脑仍是 DSH，插件只负责手脚。
+DirectorX 是一个运行在 **DeepSeek Harness (DSH)** 里的开源 `dsh-plugin`：让一个真正的 video agent 从需求理解、导演决策、剧本与分镜，到图像 / 视频 / 音频生成、剪辑、质检和交付，沿着同一条可审计的生产链完成工作。
 
-<br>
+> **一句话定位**：DeepSeek Harness 负责 agent loop、上下文、提问、审批与编排；DirectorX 负责 AI video production 的工具、知识、配方、媒体管线和无限分镜画布。
 
-[![license](https://img.shields.io/badge/license-Apache--2.0-0f172a?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/blob/main/LICENSE)
-[![release](https://img.shields.io/github/v/release/LaplaceYoung/dsh-directorx?color=22c55e&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx/releases)
-[![dsh-plugin](https://img.shields.io/badge/dsh-0.1.1--rc.2-0ea5e9?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
-[![stars](https://img.shields.io/github/stars/LaplaceYoung/dsh-directorx?style=flat&color=f59e0b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
-[![last commit](https://img.shields.io/github/last-commit/LaplaceYoung/dsh-directorx?color=64748b&labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
-[![node](https://img.shields.io/badge/node-%3E%3D22.19-339933?labelColor=111827)](https://github.com/LaplaceYoung/dsh-directorx)
+这不是另一个提示词合集，也不是把聊天窗口包成视频生成器。它是 **DeepSeek Harness 的第一个 video agent harness**：让视频 agent 有状态、有工具、有知识、有确认闸门，并能把计划落成可编辑、可重渲染的成片。
 
+**中文关键词**：DeepSeek Harness 视频 Agent、AI 视频 Agent、视频生成工作流、AI 导演、分镜画布、智能剪辑、成片质检、FFmpeg 视频管线。
+
+**English keywords**: DeepSeek Harness video agent, AI video agent harness, AI video generation workflow, text-to-video, image-to-video, storyboard canvas, smart video editing, FFmpeg media pipeline.
+
+一句话进入视频工作坊：DSH 负责导演、审批与编排，DirectorX 提供无限分镜板、生成、镜头拆解、粗剪、批处理和交付工具。
 </div>
 
 <br>
 
 <p align="center">
+  <a href="#为什么是-deepseek-harness-video-agent-harness"><strong>定位</strong></a> ·
   <a href="#自适应接入"><strong>自适应接入</strong></a> ·
   <a href="#它做什么"><strong>能力</strong></a> ·
   <a href="#知识库okf"><strong>知识库</strong></a> ·
@@ -36,7 +37,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/canvas.jpg" alt="DirectorX 无限分镜板：镜头卡片由 DSH 编排，右侧是当前工作区会话" width="100%">
+  <img src="docs/assets/canvas.jpg" alt="DirectorX DeepSeek Harness AI video agent 无限分镜画布：DSH 会话编排镜头与视频生产工作流" width="100%">
 </p>
 
 <p align="center">
@@ -44,6 +45,33 @@
 </p>
 
 ---
+
+## 为什么是 DeepSeek Harness Video Agent Harness
+
+搜索 **DeepSeek Harness video agent**、**AI video agent harness** 或 **DeepSeek Harness 视频 Agent** 时，DirectorX 对应的是一个明确的产品类别：**以 DeepSeek Harness 作为运行时内核的垂直视频生产 harness**。
+
+| 你要解决的问题 | DirectorX 的答案 |
+| --- | --- |
+| 只会生成单张图或单个镜头 | 把 brief、剧本、分镜、角色锚点、生成和交付串成可追踪工作流 |
+| Agent 记不住项目上下文 | 每个项目绑定一份画布和 DSH 工作区会话，节点、阶段和产物可回溯 |
+| 生成前无法控制成本 | `confirm` → 落板 → `propose` → 用户确认 → 生成；先占位，后花钱 |
+| 改剪辑就要重新生成 | 本地 FFmpeg 完成剪辑、调色、混音、字幕和质检，时间线可无限重渲染 |
+| 每接一家模型都要写插件 | 给 DSH 模型 id、API 文档和 Key，已有协议复用，未知 HTTP 走 `generic-rest` |
+
+### 适合谁
+
+- 想在 DeepSeek Harness 中构建可复用 **AI video agent** 的开发者与 AI 工程团队。
+- 需要从文字 brief 交付宣传片、短剧、分镜预演、产品视频或社媒短片的创作者与制作团队。
+- 需要审批、成本控制、知识引用、素材连续性和可审计产物的企业视频工作流。
+
+### 关键事实
+
+- 开源、Apache-2.0、Node.js 22.19+，作为 `dsh-plugin` 安装到 DeepSeek Harness。
+- 原生使用 DSH 的 agent loop、Session、`userQuestions`、工具注册和 Settings；不复制第二套 agent runtime。
+- 默认 Vision 走 DeepSeek 第一方多模态 `deepseek-chat` / `deepseek-v4-flash-vision-exp`，也支持 OpenAI-compatible VL endpoint。
+- 支持 mock 模式：没有 API Key 时也能先验证 brief → 确认 → 画布 → 时间线 → 质检链路。
+- 包含 348 篇 OKF 知识库文章、39 套主技能、12 套配方和 100+ `directorx_*` 工具。
+
 
 ## 自适应接入
 
@@ -72,9 +100,9 @@ ingest 收文档和 Key（Key 不进会话）
 
 ## 它做什么
 
-DirectorX 是 DeepSeek Harness 的 **dsh-plugin**。它不实现第二套 agent loop，也不改画布上的生成节点——DSH 负责想、批、跑；插件提供媒体工具、导演知识、配方和无限画布。
+DirectorX 是 DeepSeek Harness 的 **dsh-plugin**：把一句话需求展开为剧本、镜头、资产、生成、剪辑和交付；它不实现第二套 agent loop，也不改画布上的生成节点——DSH 负责想、批、跑，插件提供媒体工具、导演知识、配方和无限画布。
 
-每个项目一份画布。复杂任务先出脚本 / 分镜 / 角色表，**用户确认后再落到画布、再花钱生成**。改时间线是重渲染，不是重新生成：本地 ffmpeg 剪辑、调色、混音、字幕、质检可以无限重跑。
+每个项目一份画布和工作区会话。右侧会话坞可直接进入六步视频工作坊、分析参考视频、一键粗剪、一键交付；长回复默认折叠。复杂任务先出脚本 / 分镜 / 角色表，**用户确认后再落到画布、再花钱生成**。改时间线是重渲染，不是重新生成：本地 ffmpeg 剪辑、调色、混音、字幕、质检可以无限重跑。
 
 <table>
 <tr>
@@ -255,7 +283,7 @@ flowchart LR
 
 ## 工具箱里有什么
 
-100+ 个 `directorx_*` 工具，按工作面分组：
+100+ 个 `directorx_*` 工具，按工作面分组；高频动作在画布会话坞直接点，不必记工具名：
 
 | 工作面 | 代表工具 | 作用 |
 | --- | --- | --- |
@@ -269,6 +297,7 @@ flowchart LR
 | 检索 | `skill_route` / `skill_search` / `read` · `knowledge_search` / `read` | 路由同时点名技能与文章 id；两边命中互相带对岸 |
 | 阶段 | `directorx_stage` | 成片阶段账本与产物路径，过闸再进下一阶段 |
 | 剪辑 | `edit_plan` / `image_edit` / `video_process` / `edit` / `timeline` / `smart_cut` / `studio` | 先路由再动手；图片几何、单段处理、人话 cut list、时间线、精剪、16 调色；带 nodeId 回写画布 |
+| 快捷生产 | `media_scene_split` / `media_auto_cut` / `media_batch` / `media_package` | 参考视频检查帧、区间/脚本粗剪、批量拼接/标准化、预告与封面交付包 |
 | 质检 | `directorx_qa` / `qa_report` | 时长、画幅、黑场、响度、节奏 |
 | 知识 | `directorx_knowledge_search` / `read` | 348 篇 Google OKF v0.2 语料，可按 type/tag/group 检索 |
 

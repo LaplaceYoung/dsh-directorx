@@ -1,7 +1,7 @@
 {
   "name": "dsh-directorx",
   "version": "0.2.0",
-  "description": "DirectorX：给 DeepSeek Harness 装上 AI 视频导演能力——视频生成、智能剪辑、成片质检、无限画布分镜与 350+ 导演知识库。AI video director plugin for DeepSeek Harness: text-to-video, smart editing, QC, storyboard canvas.",
+  "description": "DirectorX：第一个以 DeepSeek Harness 为内核的 Video Agent Harness——面向端到端 AI 视频生产的开源 dsh-plugin，覆盖视频生成、分镜画布、智能剪辑、FFmpeg 质检与交付。The first DeepSeek Harness-native video agent harness for AI video production.",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -42,6 +42,8 @@
   },
   "keywords": [
     "deepseek-harness",
+    "deepseek-harness-video-agent",
+    "ai-video-agent-harness",
     "dsh-plugin",
     "ai-video",
     "ai-video-generator",
@@ -49,7 +51,7 @@
     "image-to-video",
     "video-agent",
     "video-editing",
-    "storyboard",
+    "storyboard-canvas",
     "directorx",
     "ffmpeg",
     "ai-director"

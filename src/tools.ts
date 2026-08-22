@@ -570,6 +570,92 @@ export function syncTools(ctx: Context, settings: DirectorxSettings, applyCapabi
   })))
 
   disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_media_auto_cut',
+    description: '一键粗剪：按指定时间段裁切，或在已有 SRT 时按脚本重排口播。底层复用 DirectorX 确定性 FFmpeg 与 smart-cut 管线；不会覆盖源文件。',
+    parameters: {
+      input: { type: 'string', required: true, description: 'Input video path.' },
+      start: { type: 'number', description: '裁切起点秒数，默认 0。' },
+      end: { type: 'number', description: '裁切终点秒数。' },
+      srt: { type: 'string', description: '可选 SRT 路径；同时给 script 时按字幕语义重排口播。' },
+      script: { type: 'string', description: '可选目标口播文本；需要同时给 srt。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    async execute(args: any) {
+      if (typeof args.srt === 'string' && typeof args.script === 'string') {
+        return smartCut({ video: String(args.input), srt: args.srt, script: [args.script], outputDir: settings.outputDir })
+      }
+      return videoProcess({
+        outputDir: settings.outputDir,
+        source: String(args.input),
+        start: typeof args.start === 'number' ? args.start : 0,
+        end: typeof args.end === 'number' ? args.end : undefined,
+      })
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_media_scene_split',
+    description: '镜头拆解：从视频均匀提取关键检查帧，返回带时间点文件名的可视素材；用于参考视频分析、镜头规划和素材挑选。场景语义分析继续用 directorx_video_understand。',
+    parameters: {
+      input: { type: 'string', required: true, description: 'Input video path.' },
+      maxFrames: { type: 'number', description: '提取帧数，默认 12，范围 1-24。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any) {
+      return {
+        frames: await extractFrames(String(args.input), settings.outputDir, {
+          count: Math.min(24, Math.max(1, Number(args.maxFrames ?? 12))),
+        }),
+        next: '需要语义场景拆分时调用 directorx_video_understand',
+      }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_media_package',
+    description: '一键交付打包：把成片裁成预告片并提取封面图，返回可下载的成片、预告和封面素材。标题写作约束继续用 directorx_creative_suite 的 copy-harness。',
+    parameters: {
+      input: { type: 'string', required: true, description: 'Finished video path.' },
+      trailerSeconds: { type: 'number', description: '预告长度，默认 15 秒，范围 3-60。' },
+      platform: { type: 'string', enum: ['douyin', 'kuaishou', 'wechat', 'bilibili', 'xiaohongshu'], description: '分发平台，仅用于结果说明。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 300_000,
+    async execute(args: any) {
+      const seconds = Math.min(60, Math.max(3, Number(args.trailerSeconds ?? 15)))
+      const trailer = (await videoProcess({ outputDir: settings.outputDir, source: String(args.input), start: 0, end: seconds })).path
+      const cover = (await extractFrames(String(args.input), settings.outputDir, { count: 1 }))[0]
+      return { input: String(args.input), trailer, cover, platform: args.platform, titleGuidance: { tool: 'directorx_creative_suite', action: 'copy-harness', kind: 'commercial' } }
+    },
+  })))
+
+  disposers.push(ctx.tools.register(safeDefine({
+    name: 'directorx_media_batch',
+    description: '批量素材处理：对一组视频执行统一拼接，或逐个执行确定性标准化转码。拼接复用 DirectorX FFmpeg 管线；不会覆盖源素材。',
+    parameters: {
+      action: { type: 'string', enum: ['concat', 'normalize'], required: true, description: 'concat 将 files 顺序拼接；normalize 逐个标准化为可继续编辑的 MP4。' },
+      files: { type: 'array', items: { type: 'string' }, required: true, description: '视频路径，concat 至少 2 个。' },
+      fadeSec: { type: 'number', description: 'concat 转场秒数，默认 0.35。' },
+    },
+    output: objectOutput(),
+    timeoutMs: 600_000,
+    async execute(args: any) {
+      const files = Array.isArray(args.files) ? args.files.map(String) : []
+      if (args.action === 'concat') {
+        return videoConcat({ outputDir: settings.outputDir, files, fadeSec: Number(args.fadeSec ?? 0.35) })
+      }
+      const outputs = []
+      for (const source of files) {
+        outputs.push((await videoProcess({ outputDir: settings.outputDir, source, start: 0 })).path)
+      }
+      return { files: outputs }
+    },
+  })))
+
+
+  disposers.push(ctx.tools.register(safeDefine({
     name: 'directorx_revise',
     description: '只改画布上这一镜：读该节点的成片、提示词、角色锚和当前系列包，写成改稿计划。不生成。随后仍走 prompt_craft → generate_ready → generate，回写只改这个节点的 path。用户说「表情再生动点」时先调它。',
     parameters: {
