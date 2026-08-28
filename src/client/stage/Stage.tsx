@@ -12,10 +12,10 @@ import { StudioErrorBoundary } from './studio-chrome.tsx'
 import { closestPorts, flowAbsolutePosition, inferContinueKind, sideToHandle } from '../../canvas-generate.ts'
 import { INTER_HREF, dx } from '../canvas-theme.ts'
 import {
-  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet, ParseSheet, ReshootDialog, SCRIPT_STARTER,
+  AddMenu, AssetDrawer, CompareOverlay, ConnectMenu, EdgeMenu, EmptyHero, GenerateDock, InspectorSheet, ParseSheet, ReshootDialog,
   MultiSelectBar, NodeMenu, SearchPalette, ShortcutsSheet, StageRail, Toast, TopBar, ZoomHud, type AddKind,
 } from './chrome.tsx'
-import { cycleShotStatus, defaultSize, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
+import { cycleShotStatus, defaultSize, flowNodeKind, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
 import { displayCardTitle, nextCardLabel } from './card-label.ts'
 import { mediaUrl, stageNodeTypes } from './nodes.tsx'
 import { CropBar, CROP_ASPECTS, type CropAspectId } from './CropOverlay.tsx'
@@ -27,7 +27,7 @@ import {
   type WorkspaceClient,
 } from './session-fold.ts'
 import { createLiveSession } from './session-live.ts'
-import { boxPort, closestHandleId, HiddenConnectionLine, WireDragLayer, WireEdge } from './WireEdge.tsx'
+import { boxPort, closestHandleId, handleScreenPoint, HiddenConnectionLine, WireDragLayer, WireEdge } from './WireEdge.tsx'
 import { getClientProject, pickDefaultProject, projectHeaders, setClientProject, withProject, type ProjectInfo } from './project.ts'
 import {
   alignBoxes, asClipPayload, distributeBoxes, focusViewOptions, groupFrame, nudgeBoxes, nudgeStep,
@@ -42,6 +42,8 @@ export interface StageProps {
   preferredProject?: string
   sessions?: SessionClient
   liveSessions?: unknown
+  /** alpha.1 `uiSession.pendingInteractions` face: pending question/approval carriers. */
+  pending?: unknown
   workspace?: WorkspaceClient
   onAskDsh?: (text: string, sessionId: string) => Promise<void>
   onClose?: () => void
@@ -221,6 +223,17 @@ const STAGE_CSS = `
 .dx-hit { transition: background .14s ease, transform .14s ease; }
 .dx-hit:hover { background: rgba(255,255,255,.08) !important; }
 .dx-hit:active { transform: scale(.97); }
+  .dx-stage.dx-editing-image .react-flow__handle,
+  .dx-stage.dx-editing-image .react-flow__edge,
+  .dx-stage.dx-editing-image .dx-node-toolbar,
+  .dx-stage.dx-editing-image .dx-card-caption,
+  .dx-stage.dx-editing-image .dx-card-dock {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  .dx-stage.dx-session-open .react-flow {
+    width: calc(100% - 420px) !important;
+  }
 .dx-menu-item:hover { background: rgba(255,255,255,.08) !important; }
 .dx-cta { transition: transform .14s ease, opacity .14s ease; }
 .dx-cta:hover { transform: translateY(-1px); }
@@ -270,7 +283,7 @@ const STAGE_CSS = `
 .dx-media-well {
   position: absolute; inset: 0; height: auto; width: auto; background: #111;
 }
-.dx-kind-image .dx-media-well, .dx-kind-video .dx-media-well { background: #111; }
+    .dx-kind-image .dx-media-well, .dx-kind-video .dx-media-well, .dx-kind-audio .dx-media-well { background: #111; }
     .dx-media-fill { background: #1f1f1f; }
 .dx-media-bleed, .dx-media-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -278,6 +291,27 @@ const STAGE_CSS = `
     .dx-media-img, .dx-media-bleed video {
       object-fit: contain; display: block; width: 100%; height: 100%; background: #111;
     }
+    .dx-audio-well {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px; padding: 16px;
+    }
+    .dx-audio-well audio { width: 100%; max-width: 320px; }
+    .dx-audio-bars { display: flex; align-items: flex-end; gap: 3px; height: 28px; }
+    .dx-audio-bars i {
+      display: block; width: 3px; border-radius: 2px; background: rgba(255,255,255,.55);
+      animation: dx-audio-bar .9s ease-in-out infinite;
+    }
+    .dx-audio-bars i:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .dx-audio-bars i:nth-child(2) { height: 16px; animation-delay: .1s; }
+    .dx-audio-bars i:nth-child(3) { height: 24px; animation-delay: .18s; }
+    .dx-audio-bars i:nth-child(4) { height: 14px; animation-delay: .08s; }
+    .dx-audio-bars i:nth-child(5) { height: 10px; animation-delay: .22s; }
+    @keyframes dx-audio-bar { 50% { transform: scaleY(1.7); } }
+    .dx-preview {
+      position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.84);
+      display: grid; place-items: center;
+    }
+    .dx-preview img, .dx-preview video { max-width: 92vw; max-height: 92vh; }
 .dx-film::before, .dx-film::after {
   content: ''; position: absolute; top: 0; bottom: 0; width: 8px; z-index: 2; pointer-events: none;
   background: repeating-linear-gradient(180deg, rgba(255,255,255,.1) 0 3px, transparent 3px 11px);
@@ -499,6 +533,10 @@ function StageInner(props: StageProps): ReactNode {
   } | undefined>(undefined)
   const [cropId, setCropId] = useState<string | undefined>(undefined)
   const [cropAspect, setCropAspect] = useState<CropAspectId>('free')
+  const [maskId, setMaskId] = useState<string | undefined>(undefined)
+  const [maskMode, setMaskMode] = useState<'redraw' | 'erase' | undefined>(undefined)
+  const [expandId, setExpandId] = useState<string | undefined>(undefined)
+  const editRestoreRef = useRef<{ id: string; width: number; height: number } | undefined>(undefined)
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | undefined>(undefined)
   const [compose, setCompose] = useState<GenerateSpec>({
     kind: 'image',
@@ -543,17 +581,19 @@ function StageInner(props: StageProps): ReactNode {
   const selected = useMemo(() => nodes.find(node => node.selected === true), [nodes])
   const selectedNodes = useMemo(() => nodes.filter(node => node.selected === true), [nodes])
   const paintedNodes = useMemo(() => nodes.map(node => {
-    if (cropId !== node.id) return node
+    if (cropId !== node.id && maskId !== node.id && expandId !== node.id) return node
     return {
       ...node,
       draggable: false,
       data: {
         ...node.data,
-        cropping: true,
-        cropAspect: CROP_ASPECTS.find(item => item.id === cropAspect)?.value,
+        ...(cropId === node.id ? { cropping: true, cropAspect: CROP_ASPECTS.find(item => item.id === cropAspect)?.value } : {}),
+        ...(maskId === node.id && maskMode !== undefined ? { maskMode } : {}),
+        ...(expandId === node.id ? { expanding: true } : {}),
       },
     }
-  }), [cropAspect, cropId, nodes])
+  }), [cropAspect, cropId, expandId, maskId, maskMode, nodes])
+  const [previewId, setPreviewId] = useState<string | undefined>(undefined)
   const actionRef = useRef({
     openGenerate: (_id: string) => {},
     openStudioFor: (_id: string) => {},
@@ -572,6 +612,21 @@ function StageInner(props: StageProps): ReactNode {
     crop: (_id: string) => {},
     confirmCrop: (_id: string, _blob: Blob) => {},
     cancelCrop: () => {},
+    preview: (_id: string) => {},
+    redraw: (_id: string) => {},
+    erase: (_id: string) => {},
+    expand: (_id: string) => {},
+    expanded: (_id: string, _padded: Blob, _mask: Blob) => {},
+    annotate: (_id: string) => {},
+    enhance: (_id: string) => {},
+    pixels: (_id: string) => {},
+    cutout: (_id: string) => {},
+    split: (_id: string, _cols?: number, _rows?: number) => {},
+    capture: (_id: string) => {},
+    extend: (_id: string) => {},
+    reshoot: (_id: string) => {},
+    masked: (_id: string, _blob: Blob, _prompt: string, _mode: 'redraw' | 'erase') => {},
+    cancelMask: () => {},
   })
   const attachActions = useCallback((node: StageNode): StageNode => ({
     ...node,
@@ -593,6 +648,20 @@ function StageInner(props: StageProps): ReactNode {
       onPickRef: (id: string) => actionRef.current.pickRef(id),
       onCrop: (id: string) => actionRef.current.crop(id),
       onCropped: (id: string, blob: Blob) => actionRef.current.confirmCrop(id, blob),
+      onPreview: (id: string) => actionRef.current.preview(id),
+      onRedraw: (id: string) => actionRef.current.redraw(id),
+      onErase: (id: string) => actionRef.current.erase(id),
+      onExpand: (id: string) => actionRef.current.expand(id),
+      onExpanded: (id: string, padded: Blob, mask: Blob) => actionRef.current.expanded(id, padded, mask),
+      onAnnotate: (id: string) => actionRef.current.annotate(id),
+      onEnhance: (id: string) => actionRef.current.enhance(id),
+      onPixels: (id: string) => actionRef.current.pixels(id),
+      onCutout: (id: string) => actionRef.current.cutout(id),
+      onSplit: (id: string, cols?: number, rows?: number) => actionRef.current.split(id, cols, rows),
+      onCapture: (id: string) => actionRef.current.capture(id),
+      onExtend: (id: string) => actionRef.current.extend(id),
+      onReshoot: (id: string) => actionRef.current.reshoot(id),
+      onMasked: (id, blob, prompt, mode) => actionRef.current.masked(id, blob, prompt, mode),
       onClearRevise: () => setReviseId(undefined),
       ...(reviseId === node.id ? { revise: true } : {}),
     },
@@ -636,6 +705,11 @@ function StageInner(props: StageProps): ReactNode {
       window.requestAnimationFrame(() => {
         void fitView({ nodes: mapped, padding: 0.2, duration: 280, maxZoom: 0.9, minZoom: 0.18 })
       })
+    }
+    const workspace = editorSnapshot().workspace
+    if (workspace !== null) {
+      const hit = doc.nodes.find(node => node.id === workspace.nodeId)
+      if (hit === undefined || hit.kind !== workspace.kind) closeWorkspace()
     }
   }, [attachActions, fitView])
 
@@ -700,10 +774,13 @@ function StageInner(props: StageProps): ReactNode {
     fittedRef.current = false
     void load()
   }, [project, load])
-
   useEffect(() => {
     let cancelled = false
     const bind = async (): Promise<void> => {
+      if (props.sessionId !== undefined && props.sessionId !== '') {
+        setBoundSessionId(props.sessionId)
+        return
+      }
       if (project === undefined || props.sessions?.list === undefined) {
         setBoundSessionId(undefined)
         return
@@ -716,7 +793,6 @@ function StageInner(props: StageProps): ReactNode {
           sessions: listed,
           workspaces: workspaceRaw === undefined ? [] : parseWorkspaceList(workspaceRaw),
           archivedIds: workspaceRaw === undefined ? [] : parseArchivedIds(workspaceRaw),
-          preferredId: props.sessionId,
         })
         if (!cancelled) setBoundSessionId(picked?.id)
       } catch {
@@ -872,7 +948,7 @@ function StageInner(props: StageProps): ReactNode {
       else if (action === 'reshoot') showToast(body.phase === 'assemble' ? '已拼接' : '已切出重绘区间')
       else if (action === 'pack') showToast('已合成视频')
       else if (action === 'sheet') showToast('已生成九宫格')
-      else if (action === 'split') showToast('已拆分宫格')
+      else if (action === 'split') showToast('已切开')
       else if (action === 'join') showToast('已合并宫格')
       else if (action === 'stack') showToast('已分屏')
       else if (action === 'desub') showToast('已去字幕')
@@ -1059,9 +1135,13 @@ function StageInner(props: StageProps): ReactNode {
     document.getSelection()?.removeAllRanges()
     connectHandledRef.current = false
     connectRef.current = { nodeId: params.nodeId, x: point.x, y: point.y, handleId: params.handleId }
-    const box = nodeAbsBox(params.nodeId)
-    const fromFlow = box !== undefined ? boxPort(box, params.handleId) : screenToFlowPosition(point)
-    setWireDrag({ from: flowToScreenPosition(fromFlow), to: point, handleId: params.handleId })
+    const from = handleScreenPoint(params.nodeId, params.handleId)
+      ?? (() => {
+        const box = nodeAbsBox(params.nodeId)
+        const fromFlow = box !== undefined ? boxPort(box, params.handleId) : screenToFlowPosition(point)
+        return flowToScreenPosition(fromFlow)
+      })()
+    setWireDrag({ from, to: point, handleId: params.handleId })
     setWiring(true)
     setWireMenu(undefined)
   }, [flowToScreenPosition, nodeAbsBox, screenToFlowPosition])
@@ -1112,13 +1192,16 @@ function StageInner(props: StageProps): ReactNode {
       const start = connectRef.current
       if (start === undefined) return
       const to = { x: event.clientX, y: event.clientY }
-      const box = nodeAbsBox(start.nodeId)
-      const fromFlow = box !== undefined ? boxPort(box, start.handleId) : screenToFlowPosition(to)
+      const from = handleScreenPoint(start.nodeId, start.handleId) ?? (() => {
+        const box = nodeAbsBox(start.nodeId)
+        const fromFlow = box !== undefined ? boxPort(box, start.handleId) : screenToFlowPosition(to)
+        return flowToScreenPosition(fromFlow)
+      })()
       const hit = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null
       const targetId = hit?.closest('.react-flow__node')?.getAttribute('data-id') ?? undefined
       const locked = targetId !== undefined && nodesRef.current.find(node => node.id === targetId)?.data.locked === true
       const valid = targetId !== undefined && targetId !== start.nodeId && !locked
-      setWireDrag({ from: flowToScreenPosition(fromFlow), to, handleId: start.handleId, ...(valid ? { targetId } : {}) })
+      setWireDrag({ from, to, handleId: start.handleId, ...(valid ? { targetId } : {}) })
     }
     const blockSelect = (event: Event) => event.preventDefault()
     window.addEventListener('pointermove', onMove, { passive: false })
@@ -1187,8 +1270,7 @@ function StageInner(props: StageProps): ReactNode {
       count: source?.data.count ?? 1,
       aspect: source?.data.aspect ?? '16:9',
       ...(source?.data.model !== undefined ? { model: source.data.model } : {}),
-      ...(source?.data.durationSec !== undefined ? { durationSec: source.data.durationSec } : {}),
-      ...(source !== undefined ? { sourceId: source.id } : {}),
+      ...(source !== undefined ? { sourceId: source.id, targetId: source.id } : {}),
     })
     setGenerateOpen(source === undefined)
     if (source === undefined) focusCompose()
@@ -1196,18 +1278,19 @@ function StageInner(props: StageProps): ReactNode {
 
   const openStudioFor = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
-    if (node?.type === 'director-stage') {
+    const kind = node === undefined ? undefined : flowNodeKind(node)
+    if (kind === 'director-stage') {
       openDirectorStage(id)
       return
     }
-    if (node?.type === 'edit') {
+    if (kind === 'edit') {
       openEdit(id)
       return
     }
     const path = node?.data.path
     if (node === undefined || path === undefined || path === '') return
     openStudio(node.data.kind === 'video' ? 'video' : 'image', path)
-  }, [openDirectorStage, openEdit, openStudio])
+  }, [openStudio])
   const renameNode = useCallback((id: string, label: string) => {
     setNodes(current => current.map(node => node.id === id ? { ...node, data: { ...node.data, label } } : node))
     scheduleSave()
@@ -1234,7 +1317,7 @@ function StageInner(props: StageProps): ReactNode {
         ...(patch.aspect !== undefined ? { aspect: patch.aspect } : {}),
         ...(patch.count !== undefined ? { count: patch.count } : {}),
         ...(patch.durationSec !== undefined ? { durationSec: patch.durationSec } : {}),
-        ...(patch.kind === 'image' || patch.kind === 'video' ? { kind: patch.kind } : {}),
+        ...(patch.kind === 'image' || patch.kind === 'video' || patch.kind === 'audio' ? { kind: patch.kind } : {}),
         ...(patch.characters !== undefined ? { characters: patch.characters } : {}),
       }))
     }
@@ -1338,21 +1421,59 @@ function StageInner(props: StageProps): ReactNode {
     await submitSpec(compose)
   }, [compose, submitSpec])
 
+  const runDirectGenerate = useCallback(async (input: {
+    kind: 'image' | 'video'
+    prompt: string
+    nodeId: string
+    task?: string
+    references?: string[]
+    maskPath?: string
+    model?: string
+    aspect?: string
+    durationSec?: number
+    firstFramePath?: string
+  }) => {
+    patchNode(input.nodeId, { shotStatus: 'generating', lastError: undefined, prompt: input.prompt })
+    try {
+      const response = await fetch(withProject('/directorx/canvas/generate'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...projectHeaders() },
+        body: JSON.stringify(input),
+      })
+      const data = await response.json() as { ok?: boolean; path?: string; message?: string; doc?: CanvasDoc }
+      if (!response.ok || data.ok === false) throw new Error(typeof data.message === 'string' && data.message !== '' ? data.message : '生成失败')
+      if (data.doc !== undefined) applyDoc(data.doc)
+      else if (typeof data.path === 'string') patchNode(input.nodeId, { path: data.path, shotStatus: 'review', lastError: undefined })
+      showToast('已生成')
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause)
+      patchNode(input.nodeId, { shotStatus: 'failed', lastError: message })
+      setError(message)
+    }
+  }, [applyDoc, patchNode, showToast])
+
   const submitReshoot = useCallback(async (input: { start: number; end: number; prompt: string }) => {
     if (reshootId === undefined) return
     const nodeId = reshootId
     setReshootId(undefined)
     const body = await runCraft('reshoot', { nodeId, phase: 'cut', start: input.start, end: input.end, prompt: input.prompt })
     if (body?.midId === undefined) return
-    await submitSpec({
+    const firstPath = typeof body.firstId === 'string'
+      ? nodesRef.current.find(item => item.id === body.firstId)?.data.path
+      : undefined
+    const lastPath = typeof body.lastId === 'string'
+      ? nodesRef.current.find(item => item.id === body.lastId)?.data.path
+      : undefined
+    await runDirectGenerate({
       kind: 'video',
       prompt: typeof body.prompt === 'string' && body.prompt !== '' ? body.prompt : input.prompt,
-      sourceId: body.midId,
-      targetId: body.midId,
-      refIds: [body.firstId, body.lastId].filter((id): id is string => typeof id === 'string' && id !== ''),
+      nodeId: body.midId,
+      task: 'reshoot',
+      references: [firstPath, lastPath].filter((path): path is string => typeof path === 'string' && path !== ''),
+      ...(typeof firstPath === 'string' && firstPath !== '' ? { firstFramePath: firstPath } : {}),
       ...(typeof body.durationSec === 'number' ? { durationSec: body.durationSec } : {}),
     })
-  }, [reshootId, runCraft, submitSpec])
+  }, [reshootId, runCraft, runDirectGenerate])
 
   const openRevise = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
@@ -1403,10 +1524,11 @@ function StageInner(props: StageProps): ReactNode {
     })
   }, [runCraft, showToast])
 
+
   const runNodeGenerate = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
     const spec: GenerateSpec = {
-      kind: node?.data.kind === 'video' ? 'video' : compose.kind,
+      kind: node?.data.kind === 'video' ? 'video' : node?.data.kind === 'audio' ? 'audio' : node?.data.kind === 'image' ? 'image' : compose.kind,
       prompt: (node?.data.prompt && node.data.prompt !== '' ? node.data.prompt : compose.prompt) ?? '',
       count: node?.data.count ?? compose.count ?? 1,
       aspect: node?.data.aspect ?? compose.aspect,
@@ -1423,8 +1545,24 @@ function StageInner(props: StageProps): ReactNode {
       focusCompose()
       return
     }
-    void submitSpec(spec)
-  }, [compose, focusCompose, reviseId, submitSpec])
+    if (spec.kind === 'audio') {
+      void submitSpec(spec)
+      return
+    }
+    const references = (spec.refIds ?? [])
+      .map(refId => nodesRef.current.find(item => item.id === refId)?.data.path)
+      .filter((path): path is string => typeof path === 'string' && path !== '')
+    void runDirectGenerate({
+      kind: spec.kind === 'video' ? 'video' : 'image',
+      prompt: spec.prompt,
+      nodeId: id,
+      task: 'generate',
+      references,
+      ...(spec.model !== undefined ? { model: spec.model } : {}),
+      ...(spec.aspect !== undefined ? { aspect: spec.aspect } : {}),
+      ...(spec.durationSec !== undefined ? { durationSec: spec.durationSec } : {}),
+    })
+  }, [compose, focusCompose, reviseId, runDirectGenerate, submitSpec])
 
   const openPicker = useCallback(async () => {
     setPicker(true)
@@ -1569,6 +1707,130 @@ function StageInner(props: StageProps): ReactNode {
     }
   }, [addNode, cropAspect, linkNodes, showToast])
 
+  const spawnLinkedImage = useCallback((sourceId: string, extra: Partial<StageNode['data']>) => {
+    const source = nodesRef.current.find(node => node.id === sourceId)
+    const width = typeof source?.style?.width === 'number' ? source.style.width : 400
+    const at = source !== undefined ? { x: source.position.x + width + 48, y: source.position.y } : undefined
+    const id = addNode('image', extra, at)
+    linkNodes(sourceId, id)
+    return id
+  }, [addNode, linkNodes])
+
+
+  const restoreEditSize = useCallback(() => {
+    const prev = editRestoreRef.current
+    editRestoreRef.current = undefined
+    if (prev === undefined) return
+    setNodes(current => current.map(node => node.id !== prev.id ? node : {
+      ...node,
+      width: prev.width,
+      height: prev.height,
+      style: { ...node.style, width: prev.width, height: prev.height, overflow: 'visible' },
+    }))
+  }, [])
+
+  const confirmMasked = useCallback(async (id: string, blob: Blob, prompt: string, mode: 'redraw' | 'erase') => {
+    try {
+      const saved = await saveBlob(blob, `mask-${Date.now()}.png`, 'image/png')
+      const sourcePath = nodesRef.current.find(item => item.id === id)?.data.path
+      const targetId = spawnLinkedImage(id, {
+        label: mode === 'erase' ? '擦除' : '局部重绘',
+        prompt,
+        shotStatus: 'generating',
+      })
+      restoreEditSize()
+      setMaskId(undefined)
+      setMaskMode(undefined)
+      await runDirectGenerate({
+        kind: 'image',
+        prompt,
+        nodeId: targetId,
+        task: mode,
+        references: [sourcePath, saved.path].filter((path): path is string => typeof path === 'string' && path !== ''),
+        maskPath: saved.path,
+      })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    }
+  }, [restoreEditSize, runDirectGenerate, spawnLinkedImage])
+
+
+  const focusEditNode = useCallback((id: string) => {
+    const node = nodesRef.current.find(item => item.id === id)
+    if (node === undefined) return
+    const width = typeof node.width === 'number' ? node.width : typeof node.style?.width === 'number' ? node.style.width : 400
+    const height = typeof node.height === 'number' ? node.height : typeof node.style?.height === 'number' ? node.style.height : 220
+    if (editRestoreRef.current === undefined) editRestoreRef.current = { id, width, height }
+    const pane = stageRef.current?.querySelector('.react-flow')?.getBoundingClientRect()
+    const aspect = height / Math.max(1, width)
+    const flowW = Math.max(width, Math.min(1100, Math.round((pane?.width ?? 1100) * 0.74)))
+    const flowH = Math.max(height, Math.round(flowW * aspect))
+    setNodes(current => current.map(item => item.id === id
+      ? { ...item, selected: true, width: flowW, height: flowH, style: { ...item.style, width: flowW, height: flowH, overflow: 'visible' } }
+      : { ...item, selected: item.id === id }))
+    window.requestAnimationFrame(() => {
+      void fitView({
+        nodes: [{ id, position: node.position, width: flowW, height: flowH }],
+        padding: 0.12,
+        duration: 240,
+        maxZoom: 1.45,
+        minZoom: 0.2,
+      })
+    })
+  }, [fitView])
+
+  const startMask = useCallback((id: string, mode: 'redraw' | 'erase') => {
+    if (id === '') {
+      restoreEditSize()
+      setMaskId(undefined)
+      setMaskMode(undefined)
+      return
+    }
+    setCropId(undefined)
+    setExpandId(undefined)
+    focusEditNode(id)
+    setMaskMode(mode)
+    setMaskId(id)
+  }, [focusEditNode, restoreEditSize])
+
+  const startExpand = useCallback((id: string) => {
+    if (id === '') {
+      restoreEditSize()
+      setExpandId(undefined)
+      return
+    }
+    setCropId(undefined)
+    setMaskId(undefined)
+    setMaskMode(undefined)
+    focusEditNode(id)
+    setExpandId(id)
+  }, [focusEditNode, restoreEditSize])
+
+  const confirmExpand = useCallback(async (id: string, padded: Blob, mask: Blob) => {
+    try {
+      const saved = await saveBlob(padded, `expand-${Date.now()}.png`, 'image/png')
+      const maskFile = await saveBlob(mask, `expand-mask-${Date.now()}.png`, 'image/png')
+      restoreEditSize()
+      setExpandId(undefined)
+      const targetId = spawnLinkedImage(id, {
+        path: saved.path,
+        label: '扩图',
+        prompt: '扩展画面，填满新画幅，主体位置与外观保持不变',
+        shotStatus: 'generating',
+      })
+      await runDirectGenerate({
+        kind: 'image',
+        prompt: '扩展画面，填满新画幅，主体位置与外观保持不变',
+        nodeId: targetId,
+        task: 'expand',
+        references: [saved.path],
+        maskPath: maskFile.path,
+      })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    }
+  }, [restoreEditSize, runDirectGenerate, spawnLinkedImage])
+
   const ungroupIds = useCallback((ids: string[]) => {
     const groups = nodesRef.current.filter(node => ids.includes(node.id) && node.type === 'group')
     if (groups.length === 0) return
@@ -1642,22 +1904,24 @@ function StageInner(props: StageProps): ReactNode {
         ? screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
         : { x: 120, y: 120 }
       const created = packed.nodes.map(node => {
-        const kind = node.kind === 'video' || node.kind === 'image' ? node.kind : node.type === 'group' ? 'group' : node.type === 'media' ? 'image' : 'text'
-        const id = newId(kind === 'group' ? 'group' : kind === 'text' ? 'text' : kind)
-        return { clip: node, id }
+        const kind = flowNodeKind({ id: '', type: node.type, data: { kind: node.kind } })
+        const id = newId(kind)
+        return { clip: node, id, kind }
       })
       const nodesToAdd = created.map(entry => attachActions({
         id: entry.id,
-        type: entry.clip.type === 'group' ? 'group' : entry.clip.type === 'text' ? 'text' : 'media',
+        type: entry.kind === 'group' ? 'group' : entry.kind === 'director-stage' ? 'director-stage' : entry.kind === 'edit' ? 'edit' : entry.kind === 'text' ? 'text' : 'media',
         position: { x: origin.x + entry.clip.x - 40, y: origin.y + entry.clip.y - 40 },
         style: {
-          width: entry.clip.width ?? defaultSize(entry.clip.kind ?? entry.clip.type ?? 'text').width,
-          height: entry.clip.height ?? defaultSize(entry.clip.kind ?? entry.clip.type ?? 'text').height,
+          width: entry.clip.width ?? defaultSize(entry.kind).width,
+          height: entry.clip.height ?? defaultSize(entry.kind).height,
           overflow: 'visible',
         },
         selected: true,
         data: {
-          ...(entry.clip.kind === 'image' || entry.clip.kind === 'video' ? { kind: entry.clip.kind, path: entry.clip.path ?? '' } : {}),
+          ...(entry.kind === 'image' || entry.kind === 'video' || entry.kind === 'audio' ? { kind: entry.kind, path: entry.clip.path ?? '' } : {}),
+          ...(entry.kind === 'director-stage' ? { kind: 'director-stage' as const } : {}),
+          ...(entry.kind === 'edit' ? { kind: 'edit' as const } : {}),
           label: entry.clip.label,
           ...(entry.clip.prompt !== undefined ? { prompt: entry.clip.prompt } : {}),
           ...(entry.clip.shotStatus !== undefined ? { shotStatus: entry.clip.shotStatus } : {}),
@@ -1710,8 +1974,58 @@ function StageInner(props: StageProps): ReactNode {
       crop: (id: string) => { setCropAspect('free'); setCropId(id) },
       confirmCrop: (id: string, blob: Blob) => { void confirmCrop(id, blob) },
       cancelCrop: () => setCropId(undefined),
+      preview: (id: string) => setPreviewId(id),
+      redraw: (id: string) => startMask(id, 'redraw'),
+      erase: (id: string) => startMask(id, 'erase'),
+      expand: (id: string) => startExpand(id),
+      expanded: (id: string, padded: Blob, mask: Blob) => { void confirmExpand(id, padded, mask) },
+      annotate: (id: string) => {
+        const sourcePath = nodesRef.current.find(item => item.id === id)?.data.path
+        const prompt = '在画面上添加清晰可读的标注，不改动原主体'
+        const targetId = spawnLinkedImage(id, { label: '标注', prompt, shotStatus: 'generating' })
+        void runDirectGenerate({ kind: 'image', prompt, nodeId: targetId, task: 'annotate', references: typeof sourcePath === 'string' && sourcePath !== '' ? [sourcePath] : [] })
+      },
+      enhance: (id: string) => {
+        const sourcePath = nodesRef.current.find(item => item.id === id)?.data.path
+        const prompt = '高清放大，保持构图与细节'
+        const targetId = spawnLinkedImage(id, { label: '增强', prompt, shotStatus: 'generating' })
+        void runDirectGenerate({ kind: 'image', prompt, nodeId: targetId, task: 'enhance', references: typeof sourcePath === 'string' && sourcePath !== '' ? [sourcePath] : [] })
+      },
+      pixels: (id: string) => { void (async () => {
+        const node = nodesRef.current.find(item => item.id === id)
+        const path = node?.data.path
+        if (path === undefined || path === '') return
+        const image = new Image()
+        image.src = mediaUrl(path)
+        await image.decode()
+        const canvas = document.createElement('canvas')
+        canvas.width = image.naturalWidth * 2
+        canvas.height = image.naturalHeight * 2
+        canvas.getContext('2d')?.drawImage(image, 0, 0, canvas.width, canvas.height)
+        const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
+        if (blob === null) return
+        const saved = await saveBlob(blob, `px-${Date.now()}.png`, 'image/png')
+        spawnLinkedImage(id, { path: saved.path, label: `${canvas.width}×${canvas.height}` })
+      })() },
+      cutout: (id: string) => {
+        const sourcePath = nodesRef.current.find(item => item.id === id)?.data.path
+        const prompt = '抠出主体，透明背景，边缘干净'
+        const targetId = spawnLinkedImage(id, { label: '抠图', prompt, shotStatus: 'generating' })
+        void runDirectGenerate({ kind: 'image', prompt, nodeId: targetId, task: 'cutout', references: typeof sourcePath === 'string' && sourcePath !== '' ? [sourcePath] : [] })
+      },
+      split: (id: string, cols?: number, rows?: number) => { void runCraft('split', { nodeId: id, cols: cols ?? 2, rows: rows ?? 2 }) },
+      capture: (id: string) => { void runCraft('frames', { nodeId: id }) },
+      extend: (id: string) => { void runCraft('extend', { nodeId: id }) },
+      reshoot: (id: string) => setReshootId(id),
+      masked: (id, blob, prompt, mode) => { void confirmMasked(id, blob, prompt, mode) },
+      cancelMask: () => {
+        restoreEditSize()
+        setMaskId(undefined)
+        setMaskMode(undefined)
+        setExpandId(undefined)
+      },
     }
-  }, [adoptTake, confirmCrop, cycleStatus, deleteIds, downloadNode, duplicateNode, focusTake, openGenerate, openPicker, openStudioFor, patchNode, renameNode, runNodeGenerate, toggleLock])
+  }, [adoptTake, confirmCrop, confirmExpand, confirmMasked, cycleStatus, deleteIds, downloadNode, duplicateNode, focusTake, openGenerate, openPicker, openStudioFor, patchNode, renameNode, restoreEditSize, runCraft, runDirectGenerate, runNodeGenerate, spawnLinkedImage, startExpand, startMask, toggleLock])
 
   const groupSelected = useCallback(() => {
     const members = selectedNodes.filter(node => node.type !== 'group' && (node.parentId === undefined || node.parentId === ''))
@@ -1823,6 +2137,15 @@ function StageInner(props: StageProps): ReactNode {
           setCropId(undefined)
           return
         }
+        if (maskId !== undefined) {
+          setMaskId(undefined)
+          setMaskMode(undefined)
+          return
+        }
+        if (previewId !== undefined) {
+          setPreviewId(undefined)
+          return
+        }
         if (parsePreview !== undefined) {
           setParsePreview(undefined)
           return
@@ -1924,7 +2247,7 @@ function StageInner(props: StageProps): ReactNode {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [addMenu, applyPositions, copySelected, cropId, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, parsePreview, pasteClip, pushHistory, redo, reshootId, reviseId, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
+  }, [addMenu, applyPositions, copySelected, cropId, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, maskId, nodeMenu, openGenerate, openStudioFor, parsePreview, pasteClip, previewId, pushHistory, redo, reshootId, reviseId, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -1971,31 +2294,12 @@ function StageInner(props: StageProps): ReactNode {
 
   const pickAdd = useCallback((kind: AddKind, flow?: { x: number; y: number }) => {
     setAddMenu(undefined)
-    if (kind === 'upload') {
-      uploadRef.current?.click()
-      return
-    }
-    if (kind === 'assets') {
-      void openPicker()
-      return
-    }
-    if (kind === 'edit-image' || kind === 'edit-video') {
-      const want = kind === 'edit-video' ? 'video' : 'image'
-      const node = nodesRef.current.find(item => item.selected === true && item.type === 'media' && item.data.kind === want && typeof item.data.path === 'string' && item.data.path !== '')
-        ?? nodesRef.current.find(item => item.type === 'media' && item.data.kind === want && typeof item.data.path === 'string' && item.data.path !== '')
-      if (node === undefined) {
-        showToast(want === 'video' ? '先选中一段有成片的视频' : '先选中一张有成片的图片')
-        return
-      }
-      openStudioFor(node.id)
-      return
-    }
-    if (kind === 'script') {
-      void runCraft('script', { text: SCRIPT_STARTER })
+    if (kind === 'upload' || kind === 'paste') {
+      if (kind === 'upload') uploadRef.current?.click()
       return
     }
     addNode(kind, {}, flow)
-  }, [addNode, openPicker, openStudioFor, runCraft, showToast])
+  }, [addNode])
 
   const setZoom = useCallback((next: number) => {
     const view = getViewport()
@@ -2036,7 +2340,7 @@ function StageInner(props: StageProps): ReactNode {
 
 
   return (
-    <div className={`dx-stage${wiring ? ' dx-wiring' : ''}${hideWires ? ' dx-hide-wires' : ''}${sessionOpen ? ' dx-session-open' : ''}`} style={shell}>
+    <div className={`dx-stage${wiring ? ' dx-wiring' : ''}${hideWires ? ' dx-hide-wires' : ''}${sessionOpen ? ' dx-session-open' : ''}${cropId !== undefined || maskId !== undefined || expandId !== undefined ? ' dx-editing-image' : ''}`} style={shell}>
       <style>{STAGE_CSS}</style>
       <TopBar
         title={title}
@@ -2094,11 +2398,12 @@ function StageInner(props: StageProps): ReactNode {
             const target = event.target as HTMLElement
             if (target.closest('input, textarea, [contenteditable="true"]') !== null) return
             event.preventDefault()
-            if (node.type === 'director-stage') {
+            const kind = flowNodeKind(node)
+            if (kind === 'director-stage') {
               openDirectorStage(node.id)
               return
             }
-            if (node.type === 'edit') {
+            if (kind === 'edit') {
               openEdit(node.id)
               return
             }
@@ -2238,7 +2543,7 @@ function StageInner(props: StageProps): ReactNode {
           <EmptyHero
             onGenerate={() => openGenerate()}
             onAdd={() => setAddMenu({ x: 64, y: Math.max(72, Math.round((typeof window === 'undefined' ? 480 : window.innerHeight) / 2 - 160)), mode: 'full' })}
-            onScript={() => pickAdd('script')}
+            onScript={() => pickAdd('text')}
           />
         ) : null}
         {addMenu !== undefined ? (
@@ -2265,7 +2570,7 @@ function StageInner(props: StageProps): ReactNode {
                 ? { x: source.position.x + width + 48, y: source.position.y }
                 : wireMenu.flow
               const id = addNode(kind, {
-                label: kind === 'director-stage' ? '3D 导演台' : kind === 'edit' ? '剪辑台' : kind === 'video' ? '下游视频' : kind === 'image' ? '下游图片' : '下游文本',
+                label: kind === 'director-stage' ? '3D 导演台' : kind === 'edit' ? '剪辑台' : kind === 'video' ? '下游视频' : kind === 'audio' ? '下游音频' : kind === 'image' ? '下游图片' : '下游文本',
                 prompt: source?.data.prompt ?? '',
                 ...(source?.data.aspect !== undefined ? { aspect: source.data.aspect } : {}),
                 ...(source?.data.model !== undefined ? { model: source.data.model } : {}),
@@ -2300,24 +2605,18 @@ function StageInner(props: StageProps): ReactNode {
             .filter((item): item is NonNullable<typeof item> => item !== undefined)
           const focus = picked[0]
           if (focus === undefined) return null
-          const videos = picked.filter(item => item.type === 'media' && item.data.kind === 'video' && typeof item.data.path === 'string' && item.data.path !== '')
-          const images = picked.filter(item => item.type === 'media' && item.data.kind === 'image' && typeof item.data.path === 'string' && item.data.path !== '')
-          const media = picked.filter(item => item.type === 'media' && typeof item.data.path === 'string' && item.data.path !== '')
+          const focusId = focus.id
           const surface: NodeMenuSurface = {
-            type: focus.type === 'group' ? 'group' : focus.type === 'text' ? 'text' : 'media',
-            kind: focus.data.kind === 'video' || focus.data.kind === 'image' ? focus.data.kind : undefined,
+            type: (() => {
+              const kind = flowNodeKind(focus)
+              return kind === 'group' || kind === 'text' || kind === 'director-stage' || kind === 'edit' ? kind : 'media'
+            })(),
+            kind: focus.data.kind === 'video' || focus.data.kind === 'image' || focus.data.kind === 'audio' ? focus.data.kind : undefined,
             hasPath: typeof focus.data.path === 'string' && focus.data.path !== '',
             locked: picked.every(item => item.data.locked === true),
-            canAssemble: focus.type === 'media' && focus.data.kind === 'video'
-              && (focus.data.continuityRules?.includes('重做中段') === true || /重做中段/.test(focus.data.label)),
             selectedCount: picked.length,
-            canPack: videos.length >= 2,
-            canSheet: media.length >= 1,
-            canJoin: images.length >= 2,
-            canStack: media.length >= 2 && media.length <= 4,
             canUngroup: picked.some(item => item.type === 'group'),
           }
-          const focusId = focus.id
           return (
             <NodeMenu
               x={nodeMenu.x}
@@ -2325,29 +2624,18 @@ function StageInner(props: StageProps): ReactNode {
               surface={surface}
               onAction={id => {
                 setNodeMenu(undefined)
-                if (id === 'generate') { openGenerate(focusId); return }
                 if (id === 'edit') { openStudioFor(focusId); return }
-                if (id === 'script') { void runCraft('script', { nodeId: focusId }); return }
+                if (id === 'crop') { setCropAspect('free'); setCropId(focusId); return }
+                if (id === 'redraw') { openRevise(focusId); return }
                 if (id === 'frames') { void runCraft('frames', { nodeId: focusId }); return }
-                if (id === 'parse') { void openParse(focusId); return }
                 if (id === 'reshoot') { setReshootId(focusId); return }
-                if (id === 'assemble') { void runCraft('reshoot', { nodeId: focusId, phase: 'assemble' }); return }
                 if (id === 'split') { void runCraft('split', { nodeId: focusId }); return }
-                if (id === 'desub') { void runCraft('desub', { nodeId: focusId, method: 'crop', region: 'bottom:15' }); return }
                 if (id === 'extend') { void runCraft('extend', { nodeId: focusId }); return }
-                if (id === 'gif') { void runCraft('gif', { nodeId: focusId }); return }
-                if (id === 'revise') { openRevise(focusId); return }
-                if (id === 'autolink') { void runCraft('autolink', { nodeId: focusId }); return }
                 if (id === 'download') { void downloadNode(focusId); return }
+                if (id === 'preview') { setPreviewId(focusId); return }
                 if (id === 'duplicate') { duplicateNode(focusId); return }
-                if (id === 'lock') { toggleLock(picked.map(item => item.id)); return }
-                if (id === 'disconnect') { disconnectNode(focusId); return }
                 if (id === 'ungroup') { ungroupIds(picked.map(item => item.id)); return }
                 if (id === 'group') { groupSelected(); return }
-                if (id === 'pack') { void runCraft('pack', { nodeIds: videos.map(item => item.id), transition: 'cut' }); return }
-                if (id === 'sheet') { void runCraft('sheet', { nodeIds: media.map(item => item.id) }); return }
-                if (id === 'join') { void runCraft('join', { nodeIds: images.map(item => item.id) }); return }
-                if (id === 'stack') { void runCraft('stack', { nodeIds: media.map(item => item.id) }); return }
                 if (id === 'delete') { deleteIds(picked.map(item => item.id)) }
               }}
             />
@@ -2526,6 +2814,7 @@ function StageInner(props: StageProps): ReactNode {
           sessionId={boundSessionId}
           sessions={props.sessions}
           liveSessions={props.liveSessions}
+          pending={props.pending}
           open={sessionOpen}
           onOpenChange={onSessionOpenChange}
           hidden={studioOpen || searchOpen || compare !== undefined || helpOpen}
@@ -2617,6 +2906,18 @@ function StageInner(props: StageProps): ReactNode {
           )
         ) : null}
       </div>
+      {previewId !== undefined ? (() => {
+        const node = nodes.find(item => item.id === previewId)
+        const path = node?.data.path
+        if (node === undefined || path === undefined || path === '') return null
+        return (
+          <div className="dx-preview" onClick={() => setPreviewId(undefined)}>
+            {node.data.kind === 'video'
+              ? <video src={mediaUrl(path)} controls autoPlay onClick={event => event.stopPropagation()} />
+              : <img src={mediaUrl(path)} alt="" onClick={event => event.stopPropagation()} />}
+          </div>
+        )
+      })() : null}
     </div>
   )
 }
@@ -2624,7 +2925,9 @@ function StageInner(props: StageProps): ReactNode {
 export function Stage(props: StageProps): ReactNode {
   return (
     <ReactFlowProvider>
-      <StageInner {...props} />
+      <StudioErrorBoundary>
+        <StageInner {...props} />
+      </StudioErrorBoundary>
     </ReactFlowProvider>
   )
 }

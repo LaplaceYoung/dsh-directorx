@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
-import { dx, dxChrome, dxGhostBtn, dxPill } from '../canvas-theme.ts'
-import { IconClose, IconLeave, IconSend, IconStop } from './icons.tsx'
+import { dx, dxGhostBtn, dxPill } from '../canvas-theme.ts'
+import { IconClose, IconCopy, IconLeave, IconPlus, IconSend, IconStop } from './icons.tsx'
+import { DIRECTORX_SLASH_OPTIONS, directorxCommandLine } from '../directorx-command.ts'
 import { MarkdownView } from './MarkdownView.tsx'
 import {
-  errorMessage, foldSessionHistory, rpcOk, sessionRunningFromList, sessionTextNeedsFold,
-  type SessionClient, type SessionFold,
+  errorMessage, foldSessionHistory, mintSessionRequestId, parseSessionModels, rpcOk, sessionRunningFromList, sessionTextNeedsFold,
+  type SessionClient, type SessionFold, type SessionModelSelection, type SessionModelsView, type SessionPromptPart,
 } from './session-fold.ts'
 import {
-  answerApproval, answerQuestion, cancelQuestion, dockItemsFromSnapshot, linesFromFold,
-  resolveLiveSession,
-  type AskItem, type AskWait, type ApprovalWait, type DockLine, type LiveWait,
+  answerApproval, answerQuestion, cancelQuestion, dockItemsFromLive, dockItemsFromSnapshot, linesFromFold,
+  resolveLiveBinding, resolveLiveSession, subscribeWaitSource, waitsFromPending,
+  type AskItem, type AskWait, type ApprovalWait, type DockLine, type LiveDockModel, type LiveWait,
 } from './session-live.ts'
 import { mediaFromToolResult, type SessionMedia } from './session-media.ts'
 import { mediaUrl } from './nodes.tsx'
@@ -31,11 +32,21 @@ export interface SessionDockProps {
   selectedNode?: { id: string; label: string; kind?: string; path?: string }
   onClearSelected?: () => void
   onAddMedia?: (media: SessionMedia) => void
+  pending?: unknown
 }
+
+type DraftImage = { id: string; name: string; mediaType: string; data: string; preview: string }
 
 const POLL_OPEN_MS = 1400
 const POLL_RUN_MS = 500
 const POLL_FAB_MS = 3200
+
+/** Pick the read model for the dock: alpha.1 event-window fold, else legacy snapshot fold. */
+function dockingModel(binding: ReturnType<typeof resolveLiveBinding>, live: ReturnType<typeof resolveLiveSession>): LiveDockModel | undefined {
+  const fromEvents = dockItemsFromLive(binding)
+  if (fromEvents !== undefined) return fromEvents
+  return live === undefined ? undefined : dockItemsFromSnapshot(live.getSnapshot())
+}
 
 export function SessionDock(props: SessionDockProps): ReactNode {
   const [fold, setFold] = useState<SessionFold>({ lines: [], running: false, blocked: false })
@@ -47,25 +58,43 @@ export function SessionDock(props: SessionDockProps): ReactNode {
   const [expandedLines, setExpandedLines] = useState<Set<string>>(() => new Set())
   const [confirmFirst, setConfirmFirst] = useState(false)
   const [starting, setStarting] = useState(false)
+  const [images, setImages] = useState<DraftImage[]>([])
+  const [models, setModels] = useState<SessionModelsView | undefined>(undefined)
+  const [modelOpen, setModelOpen] = useState(false)
+  const [modelBusy, setModelBusy] = useState(false)
+  const [modelError, setModelError] = useState<string | undefined>()
   const logRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const foldRef = useRef(fold)
   foldRef.current = fold
 
-  const live = resolveLiveSession(props.liveSessions, props.sessionId)
-  const liveModel = live === undefined ? undefined : dockItemsFromSnapshot(live.getSnapshot())
+  // alpha.1 shrank the binding session snapshot to lifecycle state; the
+  // transcript now folds from binding.eventSource and pending interactions ride
+  // ctx.uiSession.pendingInteractions. Legacy hosts keep the snapshot face.
+  const binding = resolveLiveBinding(props.liveSessions, props.sessionId)
+  const live = binding?.session ?? resolveLiveSession(props.liveSessions, props.sessionId)
+  const liveModel = dockingModel(binding, live)
+  const pendingWaits = props.pending !== undefined ? waitsFromPending(props.pending, props.sessionId) : undefined
   void liveTick
 
   useEffect(() => {
-    if (live === undefined) return
-    void live.open?.()
-    return live.subscribe(() => setLiveTick(tick => tick + 1))
-  }, [live])
+    if (live === undefined && binding?.eventSource === undefined && props.pending === undefined) return
+    void live?.open?.()
+    const disposers = [
+      live?.subscribe(() => setLiveTick(tick => tick + 1)),
+      binding?.eventSource?.subscribe(() => setLiveTick(tick => tick + 1)),
+      subscribeWaitSource(props.pending, () => setLiveTick(tick => tick + 1)),
+    ].filter((dispose): dispose is () => void => typeof dispose === 'function')
+    return () => {
+      for (const dispose of disposers) dispose()
+    }
+  }, [live, binding, props.pending])
 
   const liveReady = liveModel?.ready === true
   const running = (liveReady ? liveModel.running : fold.running) || listRunning
   const lines: DockLine[] = liveReady ? liveModel.lines : linesFromFold(fold.lines)
-  const waits = liveReady ? liveModel.waits : []
+  const waits = pendingWaits ?? (liveReady ? liveModel.waits : [])
   const blocked = !liveReady && fold.blocked && waits.length === 0
 
   const refreshHistory = useCallback(async (sessionId = props.sessionId) => {
@@ -123,7 +152,6 @@ export function SessionDock(props: SessionDockProps): ReactNode {
     if (node === undefined || node === null) return
     node.scrollTop = node.scrollHeight
   }, [lines.length, lines.at(-1)?.text, props.open, waits.length])
-
   useEffect(() => {
     if (props.open && props.hidden !== true) inputRef.current?.focus()
   }, [props.open, props.hidden])
@@ -138,10 +166,16 @@ export function SessionDock(props: SessionDockProps): ReactNode {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [props.hidden, props.open, props.onOpenChange])
+  const addImages = useCallback(async (files: File[]) => {
+    const next = files.filter(file => file.type.startsWith('image/')).slice(0, 8)
+    if (next.length === 0) return
+    const loaded = await Promise.all(next.map(readImageFile))
+    setImages(current => [...current, ...loaded].slice(0, 8))
+  }, [])
 
   const sendText = useCallback(async (raw: string) => {
     const text = raw.trim()
-    if (text === '' || busy) return
+    if ((text === '' && images.length === 0) || busy) return
     setBusy(true)
     try {
       const sessionId = props.sessionId !== undefined && props.sessionId !== ''
@@ -149,35 +183,45 @@ export function SessionDock(props: SessionDockProps): ReactNode {
         : await props.onEnsureSession?.()
       if (sessionId === undefined || sessionId === '') throw new Error('这个工作区还没有 DSH 会话')
       const face = resolveLiveSession(props.liveSessions, sessionId)
-      if (text.startsWith('/') && face?.command !== undefined) {
+      if (text.startsWith('/') && face?.command !== undefined && images.length === 0) {
         const result = await face.command(text)
         throwIfRejected(result, '命令未执行')
         setListRunning(true)
         return
       }
       const chip = props.selectedNode
-      const gated = confirmFirst
+      const gated = confirmFirst && text !== ''
         ? `本条按「手动确认」：先 directorx_confirm / directorx_propose，等我确认后再生成。\n${text}`
         : text
-      const payload = chip === undefined
+      const payload = chip === undefined || gated === ''
         ? gated
         : `[画布节点 ${chip.id}${chip.label !== '' ? ` ${chip.label}` : ''}]\n${gated}`
+      const content: SessionPromptPart[] = [
+        ...(payload !== '' ? [{ type: 'text' as const, text: payload }] : []),
+        ...images.map(image => ({
+          type: 'image' as const,
+          mediaType: image.mediaType,
+          data: image.data,
+          name: image.name,
+        })),
+      ]
+      if (content.length === 0) return
       const mode = (face !== undefined ? liveModel?.running : foldRef.current.running) === true ? 'steer' : 'queue'
       if (face?.prompt !== undefined) {
-        const result = await face.prompt([{ type: 'text', text: payload }], mode)
+        const result = await face.prompt(content, mode)
         throwIfRejected(result, 'DSH 未接受')
       } else {
         const prompt = props.sessions?.prompt
         if (prompt === undefined) throw new Error('当前无法连接 DSH 会话接口')
-        const response = await prompt({
-          sessionId,
-          mode,
-          content: [{ type: 'text', text: payload }],
-        })
+        const response = await prompt({ sessionId, mode, content, requestId: mintSessionRequestId() })
         const parsed = rpcOk<unknown>(response)
         if (!parsed.ok) throw new Error(parsed.message)
       }
       setListRunning(true)
+      setImages(current => {
+        for (const image of current) URL.revokeObjectURL(image.preview)
+        return []
+      })
       await refreshHistory(sessionId)
     } catch (cause) {
       setLoadError(errorMessage(cause instanceof Error ? cause.message : cause))
@@ -185,18 +229,17 @@ export function SessionDock(props: SessionDockProps): ReactNode {
     } finally {
       setBusy(false)
     }
-  }, [busy, confirmFirst, liveModel?.running, props.liveSessions, props.onEnsureSession, props.selectedNode, props.sessionId, props.sessions, refreshHistory])
-
+  }, [busy, confirmFirst, images, liveModel?.running, props.liveSessions, props.onEnsureSession, props.selectedNode, props.sessionId, props.sessions, refreshHistory])
   const send = useCallback(async () => {
     const text = draft.trim()
-    if (text === '') return
+    if (text === '' && images.length === 0) return
     setDraft('')
     try {
       await sendText(text)
     } catch {
       setDraft(text)
     }
-  }, [draft, sendText])
+  }, [draft, images.length, sendText])
 
   const startNew = useCallback(async () => {
     if (starting || props.onNewSession === undefined) return
@@ -233,6 +276,54 @@ export function SessionDock(props: SessionDockProps): ReactNode {
     }
   }, [live, props.sessionId, props.sessions, refreshHistory])
 
+  const refreshModels = useCallback(async () => {
+    const sessionId = props.sessionId
+    const catalogApi = props.sessions?.modelCatalog
+    const modelsApi = props.sessions?.models
+    if (catalogApi === undefined && (modelsApi === undefined || sessionId === undefined || sessionId === '')) {
+      setModels(undefined)
+      return
+    }
+    try {
+      const raw = catalogApi !== undefined
+        ? await catalogApi()
+        : await modelsApi!({ sessionId: sessionId as string })
+      setModels(parseSessionModels(raw))
+      setModelError(undefined)
+    } catch (cause) {
+      setModelError(cause instanceof Error ? cause.message : String(cause))
+    }
+  }, [props.sessionId, props.sessions])
+
+  useEffect(() => {
+    if (props.hidden === true || !props.open) return
+    void refreshModels()
+  }, [props.hidden, props.open, props.sessionId, refreshModels])
+
+  const selectModel = useCallback(async (selection: SessionModelSelection) => {
+    const sessionId = props.sessionId
+    const api = props.sessions?.selectModel
+    if (api === undefined || sessionId === undefined || sessionId === '') return
+    setModelBusy(true)
+    try {
+      const parsed = rpcOk<{ selected?: SessionModelSelection }>(await api({
+        sessionId,
+        provider: selection.provider,
+        model: selection.model,
+        ...(selection.reasoningEffort !== undefined ? { reasoningEffort: selection.reasoningEffort } : {}),
+      }))
+      if (!parsed.ok) throw new Error(parsed.message)
+      setModels(current => current === undefined ? current : { ...current, current: parsed.value.selected ?? selection })
+      setModelOpen(false)
+      setModelError(undefined)
+    } catch (cause) {
+      setModelError(cause instanceof Error ? cause.message : String(cause))
+    } finally {
+      setModelBusy(false)
+    }
+  }, [props.sessionId, props.sessions])
+
+
   if (props.hidden === true) return null
 
   const missing = props.sessions?.prompt === undefined && live?.prompt === undefined
@@ -241,6 +332,18 @@ export function SessionDock(props: SessionDockProps): ReactNode {
   return (
     <>
       <style>{SESSION_CSS}</style>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        onChange={event => {
+          const files = [...(event.target.files ?? [])]
+          event.target.value = ''
+          void addImages(files)
+        }}
+      />
       {props.open ? (
         <SessionPanel
           inspectorOpen={props.inspectorOpen === true}
@@ -248,7 +351,7 @@ export function SessionDock(props: SessionDockProps): ReactNode {
           waits={waits}
           running={running}
           blocked={blocked}
-          error={loadError}
+          error={loadError ?? modelError}
           expandedLines={expandedLines}
           onToggleLine={id => setExpandedLines(current => {
             const next = new Set(current)
@@ -260,6 +363,7 @@ export function SessionDock(props: SessionDockProps): ReactNode {
           missing={missing}
           draft={draft}
           busy={busy}
+          images={images}
           logRef={logRef}
           inputRef={inputRef}
           onDraft={setDraft}
@@ -272,9 +376,22 @@ export function SessionDock(props: SessionDockProps): ReactNode {
           selectedNode={props.selectedNode}
           onClearSelected={props.onClearSelected}
           onAddMedia={props.onAddMedia}
+          onPickImage={() => fileRef.current?.click()}
+          onRemoveImage={id => setImages(current => {
+            const hit = current.find(image => image.id === id)
+            if (hit !== undefined) URL.revokeObjectURL(hit.preview)
+            return current.filter(image => image.id !== id)
+          })}
+          onPasteFiles={files => { void addImages(files) }}
           confirmFirst={confirmFirst}
           onConfirmFirst={setConfirmFirst}
           onChip={text => { void sendText(text).catch(() => {}) }}
+          models={models}
+          modelOpen={modelOpen}
+          modelBusy={modelBusy}
+          modelAvailable={props.sessions?.modelCatalog !== undefined || props.sessions?.models !== undefined}
+          onToggleModels={() => setModelOpen(open => !open)}
+          onSelectModel={selection => { void selectModel(selection) }}
         />
       ) : (
         <button
@@ -312,6 +429,30 @@ function throwIfRejected(result: unknown, fallback: string): void {
     throw new Error(typeof error?.message === 'string' && error.message !== '' ? error.message : fallback)
   }
 }
+
+function readImageFile(file: File): Promise<DraftImage> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('读图失败'))
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result !== 'string') {
+        reject(new Error('读图失败'))
+        return
+      }
+      const comma = result.indexOf(',')
+      resolve({
+        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        mediaType: file.type || 'image/png',
+        data: comma >= 0 ? result.slice(comma + 1) : result,
+        preview: URL.createObjectURL(file),
+      })
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 
 const SESSION_CHIPS = [
   {
@@ -396,6 +537,54 @@ const SESSION_CHIPS = [
   },
 ] as const
 
+type SlashCommand = { line: string; label: string; detail: string; arg?: boolean }
+
+const SLASH_COMMANDS: SlashCommand[] = [
+  { line: '/compact', label: 'compact', detail: '压缩当前会话上下文' },
+  { line: '/permission', label: 'permission', detail: '切换权限预设', arg: true },
+  { line: '/goal', label: 'goal', detail: '设定或查看目标', arg: true },
+  { line: '/model', label: 'model', detail: '切换本会话模型' },
+  { line: '/directorx', label: 'directorx', detail: 'DirectorX 命令', arg: true },
+  ...DIRECTORX_SLASH_OPTIONS.map(option => ({
+    line: directorxCommandLine(option.id),
+    label: `directorx ${option.id}`,
+    detail: option.detail,
+  })),
+]
+
+function slashQuery(draft: string): string | undefined {
+  if (!draft.startsWith('/') || draft.includes('\n')) return undefined
+  return draft.slice(1)
+}
+
+function slashHits(draft: string): SlashCommand[] {
+  const query = slashQuery(draft)
+  if (query === undefined) return []
+  const needle = query.trim().toLowerCase()
+  return SLASH_COMMANDS.filter(command =>
+    needle === ''
+    || command.label.toLowerCase().startsWith(needle)
+    || command.line.slice(1).toLowerCase().startsWith(needle)
+    || command.detail.toLowerCase().includes(needle)
+  ).slice(0, 8)
+}
+
+function modelTriggerLabel(view?: SessionModelsView): string {
+  if (view === undefined) return '模型'
+  for (const group of view.groups) {
+    if (group.id !== view.current.provider) continue
+    const hit = group.models.find(item => item.id === view.current.model)
+    if (hit === undefined) continue
+    const effort = view.current.reasoningEffort
+    const effortName = effort === undefined || hit.reasoning === undefined
+      ? undefined
+      : hit.reasoning.efforts.find(item => item.id === effort)?.name
+    return effortName !== undefined ? `${hit.name} · ${effortName}` : hit.name
+  }
+  return view.current.model
+}
+
+
 function SessionPanel(props: {
   inspectorOpen: boolean
   lines: DockLine[]
@@ -409,6 +598,7 @@ function SessionPanel(props: {
   draft: string
   busy: boolean
   missing: boolean
+  images: DraftImage[]
   logRef: RefObject<HTMLDivElement>
   inputRef: RefObject<HTMLTextAreaElement>
   onDraft: (value: string) => void
@@ -421,13 +611,40 @@ function SessionPanel(props: {
   selectedNode?: { id: string; label: string; kind?: string; path?: string }
   onClearSelected?: () => void
   onAddMedia?: (media: SessionMedia) => void
+  onPickImage: () => void
+  onRemoveImage: (id: string) => void
+  onPasteFiles: (files: File[]) => void
   confirmFirst: boolean
   onConfirmFirst: (value: boolean) => void
   onChip: (text: string) => void
+  models?: SessionModelsView
+  modelOpen: boolean
+  modelBusy: boolean
+  modelAvailable: boolean
+  onToggleModels: () => void
+  onSelectModel: (selection: SessionModelSelection) => void
 }): ReactNode {
-  const right = props.inspectorOpen ? 304 : 18
+  void props.inspectorOpen
   const ask = props.waits.find((item): item is AskWait => item.kind === 'question')
   const approval = props.waits.find((item): item is ApprovalWait => item.kind === 'approval')
+  const canSend = !props.missing && !props.busy && (props.draft.trim() !== '' || props.images.length > 0)
+  const hits = slashHits(props.draft)
+  const [slashIndex, setSlashIndex] = useState(0)
+  useEffect(() => { setSlashIndex(0) }, [props.draft])
+  const activeSlash = hits[Math.min(slashIndex, Math.max(0, hits.length - 1))]
+  const applySlash = (command: SlashCommand) => {
+    if (command.line === '/model') {
+      props.onDraft('')
+      if (props.modelAvailable && !props.modelOpen) props.onToggleModels()
+      return
+    }
+    if (command.arg === true) {
+      props.onDraft(`${command.line} `)
+      return
+    }
+    props.onDraft('')
+    props.onChip(command.line)
+  }
   return (
     <div
       data-dx-session-panel=""
@@ -440,46 +657,37 @@ function SessionPanel(props: {
         right: 0,
         bottom: 0,
         zIndex: 50,
-        width: 480,
-        maxWidth: '42%',
+        width: 420,
+        maxWidth: 'min(420px, 100%)',
         height: '100%',
         maxHeight: '100%',
-        borderRadius: '16px 0 0 16px',
+        borderRadius: 0,
         border: 'none',
-        background: '#141414',
-        color: dx.ink,
-        fontFamily: dx.font,
+        borderLeft: '1px solid var(--dsw-alias-border-l2, rgba(255,255,255,.10))',
+        background: 'var(--dsw-alias-bg-base, #111)',
+        color: 'var(--dsw-alias-label-primary, #f3f3f3)',
+        fontFamily: 'var(--dsw-alias-font, inherit)',
+        boxShadow: 'var(--dsw-shadow-lv2, -12px 0 40px rgba(0,0,0,.28))',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
         pointerEvents: 'auto',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 10px 10px 14px', borderBottom: `1px solid ${dx.hairline}`, flexShrink: 0 }}>
-        <img src="/favicon.svg" width={18} height={18} alt="" draggable={false} />
-        <strong style={{ fontSize: 13, letterSpacing: -0.2 }}>DirectorX</strong>
-        <span style={{
-          fontSize: 11,
-          color: props.running ? '#8ee0a0' : dx.mute,
-          fontWeight: 500,
-        }}>
-          {props.running ? '导演处理中…' : '已就绪'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid var(--dsw-alias-border-l1, rgba(255,255,255,.08))', flexShrink: 0 }}>
+        <img src="/favicon.svg" width={16} height={16} alt="" draggable={false} />
+        <strong style={{ fontSize: 13, fontWeight: 600 }}>对话</strong>
+        <span style={{ fontSize: 11, color: props.running ? 'var(--dsw-alias-state-success-primary, #8ee0a0)' : 'var(--dsw-alias-label-tertiary, rgba(255,255,255,.45))' }}>
+          {props.running ? '生成中' : '已就绪'}
         </span>
         <span style={{ flex: 1 }} />
         {props.onNewSession !== undefined ? (
-          <button
-            type="button"
-            className="dx-hit dx-session-new"
-            disabled={props.starting === true}
-            style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', fontSize: 11, whiteSpace: 'nowrap' }}
-            onClick={props.onNewSession}
-            title="在这个工作区开一个新的 DSH 会话"
-          >
+          <button type="button" className="dx-hit dx-session-new" disabled={props.starting === true} style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', fontSize: 11 }} onClick={props.onNewSession} title="在这个工作区开一个新的 DSH 会话">
             {props.starting === true ? '创建中…' : '新会话'}
           </button>
         ) : null}
         {props.onLeave !== undefined ? (
-          <button type="button" className="dx-hit dx-session-leave" style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', gap: 5, fontSize: 11, whiteSpace: 'nowrap' }} onClick={props.onLeave} title="关闭画布，回到 DSH">
+          <button type="button" className="dx-hit dx-session-leave" style={{ ...dxGhostBtn, width: 'auto', height: 28, padding: '0 8px', gap: 5, fontSize: 11 }} onClick={props.onLeave} title="关闭画布，回到 DSH">
             <IconLeave size={12} />回 DSH
           </button>
         ) : null}
@@ -487,85 +695,217 @@ function SessionPanel(props: {
           <IconClose size={13} />
         </button>
       </div>
-      <div
-        ref={props.logRef}
-        className="dx-session-log"
-        style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}
-      >
+      <div ref={props.logRef} className="dx-session-log" style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '16px 18px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         {props.missing ? (
           <EmptyLine text="当前无法连接 DSH 会话接口。" />
         ) : props.noSession ? (
           <EmptyLine text="这个工作区还没有 DSH 会话。发一条消息会在此工作区开谈。" />
         ) : props.lines.length === 0 ? (
-          <EmptyLine text="和 DSH 说话，编排这一画布。生成仍走底部输入框。" />
+          <EmptyLine text="和 DSH 说话，编排这一画布。" />
         ) : props.lines.map(line => <LineView key={line.id} line={line} expanded={props.expandedLines.has(line.id)} onToggle={() => props.onToggleLine(line.id)} onAddMedia={props.onAddMedia} />)}
         {props.running && props.lines.at(-1)?.kind !== 'thinking' && props.lines.at(-1)?.status !== 'running' && props.lines.at(-1)?.streaming !== true ? <EmptyLine text="DSH 正在处理…" pulse /> : null}
         {props.blocked ? <EmptyLine text="DSH 在等批准或回答。" /> : null}
-        {props.error !== undefined ? <div style={{ color: '#ff9b8f', fontSize: 12, lineHeight: 1.45 }}>{props.error}</div> : null}
+        {props.error !== undefined ? <div style={{ color: 'var(--dsw-alias-state-error-primary, #ff9b8f)', fontSize: 13, lineHeight: 1.45 }}>{props.error}</div> : null}
       </div>
       {approval !== undefined ? <ApprovalCard wait={approval} /> : null}
       {ask !== undefined ? <QuestionCard wait={ask} /> : null}
-      <div style={{ padding: '10px 12px 14px', flexShrink: 0 }}>
+      <div style={{ padding: '8px 12px 12px', flexShrink: 0 }}>
         <div className="dx-session-chips">
           {SESSION_CHIPS.map(chip => (
-            <button
-              key={chip.label}
-              type="button"
-              className="dx-hit"
-              disabled={props.missing || props.busy}
-              onClick={() => props.onChip(chip.text)}
-              style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0 }}
-            >
+            <button key={chip.label} type="button" className="dx-hit" disabled={props.missing || props.busy} onClick={() => props.onChip(chip.text)} style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0, color: 'var(--dsw-alias-label-secondary, #c8c8c8)' }}>
               {chip.label}
             </button>
           ))}
-          <button
-            type="button"
-            title="生成前先确认"
-            onClick={() => props.onConfirmFirst(!props.confirmFirst)}
-            className="dx-hit"
-            style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0, background: props.confirmFirst ? 'rgba(255,255,255,.12)' : 'transparent' }}
-          >
+          <button type="button" title="生成前先确认" onClick={() => props.onConfirmFirst(!props.confirmFirst)} className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 8px', fontSize: 11, flexShrink: 0, background: props.confirmFirst ? 'var(--dsw-alias-interactive-bg-hover, rgba(255,255,255,.12))' : 'transparent' }}>
             手动确认
           </button>
         </div>
-        <div style={{
-          borderRadius: 16,
-          background: 'rgba(255,255,255,.04)',
-          border: '1px solid rgba(255,255,255,.08)',
-          padding: 10,
-        }}>
+        {hits.length > 0 ? (
+          <div className="dx-slash-menu" data-dx-slash-menu="">
+            {hits.map((command, index) => (
+              <button
+                key={command.line}
+                type="button"
+                className="dx-hit"
+                data-active={index === slashIndex || undefined}
+                onMouseDown={event => {
+                  event.preventDefault()
+                  applySlash(command)
+                }}
+              >
+                <code>{command.line}</code>
+                <span>{command.detail}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {props.modelOpen && props.modelAvailable ? (
+          <div className="dx-model-menu" data-dx-model-menu="">
+            {props.models === undefined || props.models.groups.length === 0 ? (
+              <div className="dx-model-empty">{props.modelBusy ? '加载模型…' : '当前会话没有可切换的模型。'}</div>
+            ) : props.models.groups.map(group => (
+              <div key={group.id} className="dx-model-group">
+                <div className="dx-model-group-name">{group.name}</div>
+                {group.models.map(model => {
+                  const on = group.id === props.models!.current.provider && model.id === props.models!.current.model
+                  return (
+                    <button
+                      key={model.id}
+                      type="button"
+                      className="dx-hit"
+                      data-active={on || undefined}
+                      disabled={props.modelBusy}
+                      onMouseDown={event => {
+                        event.preventDefault()
+                        props.onSelectModel({
+                          provider: group.id,
+                          model: model.id,
+                          ...(model.reasoning?.defaultEffort !== undefined ? { reasoningEffort: model.reasoning.defaultEffort } : {}),
+                        })
+                      }}
+                    >
+                      <strong>{model.name}</strong>
+                      {model.description !== undefined && model.description !== '' ? <span>{model.description}</span> : null}
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
+            {props.models !== undefined ? (() => {
+              const current = props.models.groups
+                .find(group => group.id === props.models!.current.provider)
+                ?.models.find(model => model.id === props.models!.current.model)
+              const efforts = current?.reasoning?.efforts ?? []
+              if (efforts.length === 0) return null
+              return (
+                <div className="dx-model-group">
+                  <div className="dx-model-group-name">推理强度</div>
+                  {efforts.map(effort => {
+                    const on = effort.id === props.models!.current.reasoningEffort
+                    return (
+                      <button
+                        key={effort.id}
+                        type="button"
+                        className="dx-hit"
+                        data-active={on || undefined}
+                        disabled={props.modelBusy}
+                        onMouseDown={event => {
+                          event.preventDefault()
+                          props.onSelectModel({
+                            provider: props.models!.current.provider,
+                            model: props.models!.current.model,
+                            reasoningEffort: effort.id,
+                          })
+                        }}
+                      >
+                        <strong>{effort.name}</strong>
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            })() : null}
+          </div>
+        ) : null}
+        <div className="dx-dsh-input">
           {props.selectedNode !== undefined ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 8px', fontSize: 11, color: dx.mute }}>
-              <span style={{ padding: '3px 8px', borderRadius: 8, background: 'rgba(255,255,255,.08)', maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                {props.selectedNode.label || props.selectedNode.id}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', fontSize: 12, color: 'var(--dsw-alias-label-tertiary)' }}>
+              <span style={{ padding: '3px 8px', borderRadius: 8, background: 'var(--dsw-alias-interactive-bg-hover)', maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{props.selectedNode.label || props.selectedNode.id}</span>
               <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 22, height: 22 }} onClick={props.onClearSelected} title="取消引用"><IconClose size={11} /></button>
             </div>
           ) : null}
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minWidth: 0 }}>
-            <textarea
-              ref={props.inputRef}
-              value={props.draft}
-              disabled={props.missing}
-              placeholder={props.running ? '插话引导…' : '随心输入'}
-              rows={2}
-              onChange={event => {
-                props.onDraft(event.target.value)
-                const node = event.target
-                node.style.height = 'auto'
-                node.style.height = `${Math.min(160, Math.max(56, node.scrollHeight))}px`
-              }}
-              onKeyDown={event => {
-                if (event.key === 'Escape') { event.preventDefault(); props.onClose(); return }
-                if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); props.onClose(); return }
-                if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); props.onSend() }
-              }}
-              style={{ ...composerStyle, minHeight: 56, padding: '8px 4px', background: 'transparent' }}
-            />
-            {props.running ? <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 36, height: 36, flexShrink: 0 }} onClick={props.onStop} title="停止"><IconStop size={14} /></button> : null}
-            <button type="button" disabled={props.missing || props.busy || props.draft.trim() === ''} onClick={props.onSend} className="dx-cta" title={props.running ? '插话' : '发送到 DSH'} style={{ ...dxPill, width: 36, height: 36, flexShrink: 0, opacity: props.missing || props.busy || props.draft.trim() === '' ? .4 : 1 }}>
-              {props.busy ? <span className="dx-spin" /> : <IconSend size={15} />}
+          {props.images.length > 0 ? (
+            <div className="dx-dsh-rail">
+              {props.images.map(image => (
+                <button key={image.id} type="button" className="dx-dsh-thumb" title="移除" onClick={() => props.onRemoveImage(image.id)}>
+                  <img src={image.preview} alt={image.name} />
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <textarea
+            ref={props.inputRef}
+            value={props.draft}
+            disabled={props.missing}
+            placeholder={props.running ? '插话引导…' : '有问题，尽管问，或输入 /'}
+            rows={2}
+            onChange={event => {
+              props.onDraft(event.target.value)
+              const node = event.target
+              node.style.height = 'auto'
+              node.style.height = `${Math.min(336, Math.max(48, node.scrollHeight))}px`
+            }}
+            onPaste={event => {
+              const files = [...event.clipboardData.items].map(item => item.getAsFile()).filter((file): file is File => file !== null && file.type.startsWith('image/'))
+              if (files.length === 0) return
+              event.preventDefault()
+              props.onPasteFiles(files)
+            }}
+            onKeyDown={event => {
+              if (hits.length > 0) {
+                if (event.key === 'ArrowDown') {
+                  event.preventDefault()
+                  setSlashIndex(index => (index + 1) % hits.length)
+                  return
+                }
+                if (event.key === 'ArrowUp') {
+                  event.preventDefault()
+                  setSlashIndex(index => (index - 1 + hits.length) % hits.length)
+                  return
+                }
+                if (event.key === 'Tab' || (event.key === 'Enter' && !event.shiftKey)) {
+                  event.preventDefault()
+                  if (activeSlash !== undefined) applySlash(activeSlash)
+                  return
+                }
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  props.onDraft('')
+                  return
+                }
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                if (props.modelOpen) props.onToggleModels()
+                else props.onClose()
+                return
+              }
+              if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); props.onClose(); return }
+              if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); props.onSend() }
+            }}
+            style={composerStyle}
+          />
+          <div className="dx-dsh-bar">
+            <button type="button" className="dx-hit" disabled={props.missing || props.busy} style={{ ...dxGhostBtn, width: 32, height: 32 }} onClick={props.onPickImage} title="添加图片">
+              <IconPlus size={15} />
+            </button>
+            {props.modelAvailable ? (
+              <button
+                type="button"
+                className="dx-hit dx-model-trigger"
+                disabled={props.missing || props.modelBusy}
+                data-open={props.modelOpen || undefined}
+                style={{ ...dxGhostBtn, width: 'auto', maxWidth: 148, height: 32, padding: '0 8px', fontSize: 11 }}
+                onClick={props.onToggleModels}
+                title="切换本会话模型"
+              >
+                {modelTriggerLabel(props.models)}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="dx-hit"
+              disabled={props.missing || props.busy}
+              style={{ ...dxGhostBtn, width: 32, height: 32, fontSize: 16, fontWeight: 600 }}
+              onClick={() => { if (!props.draft.startsWith('/')) props.onDraft('/') }}
+              title="斜杠命令"
+            >
+              /
+            </button>
+            <span style={{ flex: 1 }} />
+            {props.running ? <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 32, height: 32 }} onClick={props.onStop} title="停止"><IconStop size={14} /></button> : null}
+            <button type="button" disabled={!canSend} onClick={props.onSend} className="dx-cta" title={props.running ? '插话' : '发送'} style={{ ...dxPill, width: 32, height: 32, opacity: canSend ? 1 : 0.35 }}>
+              {props.busy ? <span className="dx-spin" /> : <IconSend size={14} />}
             </button>
           </div>
         </div>
@@ -573,28 +913,55 @@ function SessionPanel(props: {
     </div>
   )
 }
+function copyLine(text: string): void {
+  if (text.trim() === '') return
+  void navigator.clipboard.writeText(text).catch(() => {})
+}
+
 function LineView(props: { line: DockLine; expanded: boolean; onToggle: () => void; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
   if (props.line.kind === 'tool') return <ToolLine line={props.line} onAddMedia={props.onAddMedia} />
-  if (props.line.kind === 'notice') return <div style={{ fontSize: 12, color: dx.mute, lineHeight: 1.45 }}>{props.line.text}</div>
-  if (props.line.kind === 'thinking') return <div data-dx-thinking="" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, lineHeight: 1.5, color: dx.mute, fontStyle: 'italic', letterSpacing: 0.2 }}>{props.line.streaming === true ? <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.18)', borderTopColor: 'rgba(255,255,255,.7)' }} /> : null}思考中</div>
+  if (props.line.kind === 'notice') return <div style={{ fontSize: 13, color: 'var(--dsw-alias-label-tertiary)', lineHeight: 1.5 }}>{props.line.text}</div>
+  if (props.line.kind === 'thinking') {
+    return (
+      <div data-dx-thinking="" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, lineHeight: 1.5, color: 'var(--dsw-alias-label-tertiary)', fontStyle: 'italic' }}>
+        {props.line.streaming === true ? <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.18)', borderTopColor: 'rgba(255,255,255,.7)' }} /> : null}
+        思考中
+      </div>
+    )
+  }
   const mine = props.line.kind === 'user'
   const fold = props.line.kind === 'assistant' && sessionTextNeedsFold(props.line)
   const text = fold && !props.expanded ? `${props.line.text.slice(0, 180).trimEnd()}…` : props.line.text
-  return <div data-dx-md-line={props.line.kind} style={{ alignSelf: mine ? 'flex-end' : 'stretch', maxWidth: mine ? '88%' : '100%', padding: mine ? '8px 12px' : '2px 2px', borderRadius: mine ? 16 : 0, background: mine ? 'rgba(255,255,255,.10)' : 'transparent', color: dx.ink, fontSize: 13.5, lineHeight: 1.6, wordBreak: 'break-word' }}><MarkdownView text={text} />{fold ? <button type="button" className="dx-hit dx-note-fold" onClick={props.onToggle} style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 7px', marginTop: 6, fontSize: 11 }}>{props.expanded ? '收起' : '展开'}</button> : null}{props.line.streaming === true ? <span className="dx-stream-caret" aria-hidden="true" /> : null}</div>
+  return (
+    <div data-dx-md-line={props.line.kind} className={mine ? 'dx-dsh-user' : 'dx-dsh-assistant'}>
+      {mine ? (
+        <div className="dx-dsh-bubble">{text}</div>
+      ) : (
+        <MarkdownView text={text} />
+      )}
+      {fold ? <button type="button" className="dx-hit dx-note-fold" onClick={props.onToggle} style={{ ...dxGhostBtn, width: 'auto', height: 24, padding: '0 7px', marginTop: 6, fontSize: 11 }}>{props.expanded ? '收起' : '展开'}</button> : null}
+      {props.line.streaming === true ? <span className="dx-stream-caret" aria-hidden="true" /> : null}
+      {mine || props.line.kind === 'assistant' ? (
+        <button type="button" className="dx-hit dx-dsh-copy" title="复制" onClick={() => copyLine(props.line.text)}>
+          <IconCopy size={13} />
+        </button>
+      ) : null}
+    </div>
+  )
 }
 
 function ToolLine(props: { line: DockLine; onAddMedia?: (media: SessionMedia) => void }): ReactNode {
   const status = props.line.status ?? 'ok'
   const media = status === 'ok' ? mediaFromToolResult(props.line.result, props.line.name) : []
+  const label = status === 'running' ? '进行中…' : status === 'error' ? '失败' : '完成'
   return (
     <div className="dx-tool-line" data-status={status}>
       <div className="dx-tool-line-head">
-        {status === 'running' ? (
-          <span className="dx-spin" style={{ width: 12, height: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.16)', borderTopColor: 'rgba(255,255,255,.75)' }} />
-        ) : (
-          <span className="dx-tool-dot" data-error={status === 'error' || undefined} />
-        )}
-        <span>{props.line.text}</span>
+        <div style={{ minWidth: 0 }}>
+          <div className="dx-tool-name">{(props.line.name ?? 'tool').replace(/^directorx_/, '').replaceAll('_', ' ')}</div>
+          <strong>{props.line.text}</strong>
+        </div>
+        <span className="dx-tool-status" data-status={status}>{label}</span>
       </div>
       {media.length > 0 ? (
         <div className="dx-tool-thumbs">
@@ -630,6 +997,7 @@ function SessionMediaThumb(props: { media: SessionMedia; onAdd?: (media: Session
     </button>
   )
 }
+
 
 function QuestionCard(props: { wait: AskWait }): ReactNode {
   const questions = props.wait.questions
@@ -800,15 +1168,14 @@ const cardStyle: CSSProperties = {
   margin: '0 10px 10px',
   padding: 12,
   borderRadius: 14,
-  border: `1px solid ${dx.hairline}`,
-  background: 'rgba(255,255,255,.04)',
-  flexShrink: 0,
+  background: 'var(--dsw-alias-bg-layer-3, rgba(255,255,255,.05))',
+  border: '1px solid var(--dsw-alias-border-l1, rgba(255,255,255,.08))',
 }
 
 const fabStyle: CSSProperties = {
   position: 'absolute',
-  right: 24,
-  bottom: 24,
+  right: 16,
+  bottom: 16,
   zIndex: 50,
   width: 44,
   height: 44,
@@ -818,26 +1185,26 @@ const fabStyle: CSSProperties = {
   padding: 0,
   cursor: 'pointer',
   pointerEvents: 'auto',
-  border: '1px solid rgba(255,255,255,.10)',
-  background: '#141414',
-  color: dx.ink,
+  border: '1px solid var(--dsw-alias-border-l1, rgba(255,255,255,.10))',
+  background: 'var(--dsw-alias-bg-layer-2, #141414)',
+  color: 'var(--dsw-alias-label-primary, #f3f3f3)',
 }
 
 const composerStyle: CSSProperties = {
-  flex: 1,
+  display: 'block',
+  width: '100%',
   minWidth: 0,
-  minHeight: 72,
-  maxHeight: 160,
+  minHeight: 48,
+  maxHeight: 336,
   resize: 'none',
   border: 'none',
-  borderRadius: 16,
   outline: 'none',
-  background: 'rgba(255,255,255,.04)',
-  color: dx.ink,
-  padding: '14px 14px 40px',
-  fontSize: 14,
-  lineHeight: 1.5,
-  fontFamily: dx.font,
+  background: 'transparent',
+  color: 'var(--dsw-alias-label-primary, #f3f3f3)',
+  padding: '0 16px',
+  fontSize: 16,
+  lineHeight: '24px',
+  fontFamily: 'inherit',
 }
 
 const SESSION_CSS = `
@@ -853,83 +1220,161 @@ const SESSION_CSS = `
   -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent);
 }
 .dx-session-chips::-webkit-scrollbar { display: none; }
-@media (max-width: 760px) {
-  [data-dx-session-panel] {
-    right: 10px !important;
-    left: 62px !important;
-    width: auto !important;
-    height: calc(100% - 76px) !important;
-    max-height: none !important;
-    bottom: 10px !important;
-  }
-  .dx-session-new { display: none !important; }
-}
-.dx-tool-line {
+.dx-slash-menu {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: ${dx.mute};
-  letter-spacing: 0.1px;
+  gap: 2px;
+  margin-bottom: 8px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255,255,255,.10));
+  background: var(--dsw-alias-bg-layer-2, #1a1a1a);
+  max-height: 240px;
+  overflow: auto;
 }
-.dx-tool-line-head { display: flex; align-items: center; gap: 8px; }
-.dx-tool-line[data-status="error"] { color: #ff9b8f; }
-.dx-tool-thumbs { display: flex; flex-wrap: wrap; gap: 6px; }
-.dx-tool-thumb {
-  position: relative;
-  width: 112px;
-  height: 64px;
-  padding: 0;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 8px;
-  overflow: hidden;
-  background: #111;
+.dx-slash-menu button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  text-align: left;
   cursor: pointer;
 }
-.dx-tool-thumb img, .dx-tool-thumb video {
+.dx-slash-menu button[data-active], .dx-slash-menu button:hover {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255,255,255,.08));
+}
+.dx-slash-menu code {
+  font-size: 13px;
+  font-weight: 600;
+}
+.dx-slash-menu span {
+  font-size: 11px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.dx-model-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255,255,255,.10));
+  background: var(--dsw-alias-bg-layer-2, #1a1a1a);
+  max-height: 280px;
+  overflow: auto;
+}
+.dx-model-group { display: flex; flex-direction: column; gap: 2px; }
+.dx-model-group-name, .dx-model-empty {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--dsw-alias-label-tertiary);
+}
+.dx-model-menu button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  text-align: left;
+  cursor: pointer;
 }
+.dx-model-menu button[data-active], .dx-model-menu button:hover {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255,255,255,.08));
+}
+.dx-model-menu strong { font-size: 13px; font-weight: 600; }
+.dx-model-menu span { font-size: 11px; color: var(--dsw-alias-label-tertiary); }
+.dx-model-trigger {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dx-model-trigger[data-open] {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255,255,255,.12));
+}
+.dx-dsh-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0 8px;
+  border: 1px solid var(--dsw-alias-border-l2-darkmode-thin, var(--dsw-alias-border-l2, rgba(255,255,255,.10)));
+  border-radius: 22px;
+  background: var(--dsw-specific-input-major, var(--dsw-alias-bg-layer-2, #1a1a1a));
+  box-shadow: var(--dsw-shadow-lv2, none);
+}
+.dx-dsh-rail { display: flex; gap: 8px; padding: 0 12px; overflow-x: auto; }
+.dx-dsh-thumb {
+  width: 56px; height: 56px; padding: 0; border: none; border-radius: 10px; overflow: hidden; background: #111; cursor: pointer;
+}
+.dx-dsh-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dx-dsh-bar { display: flex; align-items: center; gap: 4px; padding: 0 8px; }
+.dx-dsh-user { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.dx-dsh-bubble {
+  max-width: 82%;
+  background: var(--dsw-specific-bubble, var(--dsw-alias-interactive-bg-hover, rgba(255,255,255,.10)));
+  border-radius: 22px;
+  padding: 10px 16px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.dx-dsh-assistant { position: relative; font-size: 16px; line-height: 24px; color: var(--dsw-alias-label-primary); }
+.dx-dsh-copy {
+  width: 28px; height: 28px; opacity: 0; border: none; background: transparent; color: var(--dsw-alias-label-tertiary); cursor: pointer;
+}
+.dx-dsh-user:hover .dx-dsh-copy, .dx-dsh-assistant:hover .dx-dsh-copy { opacity: 1; }
+.dx-tool-line {
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-primary);
+}
+.dx-tool-line-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dx-tool-name { font-size: 10px; letter-spacing: .65px; text-transform: uppercase; color: var(--dsw-alias-label-caption, var(--dsw-alias-label-tertiary)); }
+.dx-tool-line-head strong { display: block; margin-top: 3px; font-size: 13px; line-height: 1.35; font-weight: 600; }
+.dx-tool-status {
+  flex-shrink: 0; font-size: 11px; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-secondary);
+}
+.dx-tool-status[data-status="running"] { color: var(--dsw-alias-state-warn-primary, #e6c07b); border-color: currentColor; }
+.dx-tool-status[data-status="error"] { color: var(--dsw-alias-state-error-primary, #ff9b8f); border-color: currentColor; }
+.dx-tool-status[data-status="ok"] { color: var(--dsw-alias-state-success-primary, #8ee0a0); border-color: currentColor; }
+.dx-tool-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.dx-tool-thumb {
+  position: relative; width: 100%; max-width: 280px; height: 160px; padding: 0;
+  border: 1px solid var(--dsw-alias-border-l2); border-radius: 8px; overflow: hidden; background: var(--dsw-alias-bg-base); cursor: pointer;
+}
+.dx-tool-thumb img, .dx-tool-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .dx-tool-thumb-kind {
-  position: absolute;
-  left: 5px;
-  bottom: 5px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: rgba(8,8,8,.7);
-  color: #f2f2f2;
-  font-size: 9px;
-  letter-spacing: .2px;
+  position: absolute; left: 6px; bottom: 6px; padding: 1px 6px; border-radius: 4px;
+  background: rgba(8,8,8,.7); color: #f2f2f2; font-size: 10px;
 }
-.dx-tool-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 99px;
-  background: rgba(255,255,255,.28);
-  flex-shrink: 0;
-}
-.dx-tool-dot[data-error] { background: #ff9b8f; }
-.dx-md { font-size: 13.5px; line-height: 1.65; color: ${dx.ink}; }
+.dx-md { font-size: 16px; line-height: 24px; color: var(--dsw-alias-label-primary); }
 .dx-md p { margin: 0 0 .7em; }
 .dx-md p:last-child { margin-bottom: 0; }
 .dx-md hr { display: none; }
+.dx-md pre { padding: 12px; border-radius: 10px; background: var(--dsw-alias-bg-layer-2); overflow: auto; font-size: 13px; line-height: 1.5; }
 .dx-md-table-wrap { overflow-x: auto; margin: 8px 0 10px; max-width: 100%; }
-.dx-md-table { width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.45; }
-.dx-md-table th, .dx-md-table td { border: 1px solid rgba(255,255,255,.12); padding: 6px 8px; text-align: left; vertical-align: top; }
-.dx-md-table th { color: #f3f3f3; background: rgba(255,255,255,.07); font-weight: 600; }
-.dx-md-table td { color: #d0d0d0; }
+.dx-md-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; }
+.dx-md-table th, .dx-md-table td { border: 1px solid var(--dsw-alias-border-l2); padding: 6px 8px; text-align: left; vertical-align: top; }
+.dx-md-table th { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-2); font-weight: 600; }
 .dx-stream-caret {
-  display: inline-block;
-  width: 6px;
-  height: 13px;
-  margin-left: 3px;
-  vertical-align: text-bottom;
-  background: ${dx.ink};
-  animation: dx-blink 1s step-end infinite;
+  display: inline-block; width: 6px; height: 16px; margin-left: 3px; vertical-align: text-bottom;
+  background: var(--dsw-alias-label-primary); animation: dx-blink 1s step-end infinite;
 }
 @keyframes dx-blink { 50% { opacity: 0; } }
 `

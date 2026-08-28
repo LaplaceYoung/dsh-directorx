@@ -27,6 +27,30 @@ export interface EditorSnapshot {
 
 let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null, look: null, workspace: null }
 const listeners = new Set<() => void>()
+const WORKSPACE_KEY = 'directorx-editor-workspace'
+
+function persistWorkspace(workspace: EditorWorkspace | null): void {
+  try {
+    if (typeof sessionStorage === 'undefined') return
+    if (workspace === null) sessionStorage.removeItem(WORKSPACE_KEY)
+    else sessionStorage.setItem(WORKSPACE_KEY, JSON.stringify(workspace))
+  } catch {
+    // Private mode / non-browser — the in-memory snapshot still holds.
+  }
+}
+
+function readPersistedWorkspace(): EditorWorkspace | null {
+  try {
+    if (typeof sessionStorage === 'undefined') return null
+    const raw = sessionStorage.getItem(WORKSPACE_KEY)
+    if (raw === null || raw === '') return null
+    const parsed = JSON.parse(raw) as { kind?: unknown; nodeId?: unknown }
+    if ((parsed.kind !== 'director-stage' && parsed.kind !== 'edit') || typeof parsed.nodeId !== 'string' || parsed.nodeId === '') return null
+    return { kind: parsed.kind, nodeId: parsed.nodeId }
+  } catch {
+    return null
+  }
+}
 
 /** Stable reference until the next update — required by useSyncExternalStore. */
 export function editorSnapshot(): EditorSnapshot {
@@ -42,7 +66,15 @@ export function subscribeEditor(listener: () => void): () => void {
 
 function update(next: Partial<EditorSnapshot>): void {
   snapshot = { ...snapshot, ...next }
+  if ('workspace' in next) persistWorkspace(snapshot.workspace)
   for (const listener of [...listeners]) listener()
+}
+
+/** Restore the last 导演台 / 剪辑台 after the canvas dock remounts. */
+export function hydrateEditorWorkspace(): void {
+  if (snapshot.workspace !== null) return
+  const stored = readPersistedWorkspace()
+  if (stored !== null) update({ workspace: stored })
 }
 
 /** Open the fullscreen stage with one media file queued for editing. */
@@ -72,6 +104,13 @@ export function closeWorkspace(): void {
   update({ workspace: null, tab: 'canvas' })
 }
 
+/** Keep the conversation-view canvas mounted without wiping the last stage. */
+export function ensureEditorOpen(): void {
+  if (snapshot.open && snapshot.tab === 'canvas') return
+  update({ open: true, tab: snapshot.tab === 'image' || snapshot.tab === 'video' ? snapshot.tab : 'canvas' })
+}
+
+
 export function openCanvas(): void {
   update({ open: true, tab: 'canvas', workspace: null })
 }
@@ -86,7 +125,7 @@ export function setEditorTab(tab: EditorTab | 'director-stage' | 'edit'): void {
 }
 
 export function closeEditor(): void {
-  update({ open: false, workspace: null })
+  update({ open: false })
 }
 
 export function toggleEditor(): void {

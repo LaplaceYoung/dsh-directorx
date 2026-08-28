@@ -141,6 +141,19 @@ export function WirePreview(props: ConnectionLineComponentProps): ReactNode {
   )
 }
 
+export function handleScreenPoint(nodeId: string, handleId?: string | null): { x: number; y: number } | undefined {
+  if (typeof document === 'undefined') return undefined
+  const node = document.querySelector(`.react-flow__node[data-id="${CSS.escape(nodeId)}"]`)
+  if (!(node instanceof HTMLElement)) return undefined
+  const wanted = handleId !== null && handleId !== undefined && handleId !== '' ? handleId : 'out'
+  const handle = node.querySelector(`[data-handleid="${wanted}"]`)
+    ?? node.querySelector(wanted === 'in' ? '.react-flow__handle-left' : wanted === 'top' ? '.react-flow__handle-top' : wanted === 'bottom' ? '.react-flow__handle-bottom' : '.react-flow__handle-right')
+  if (!(handle instanceof HTMLElement)) return undefined
+  const rect = handle.getBoundingClientRect()
+  if (rect.width < 1 && rect.height < 1) return undefined
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+}
+
 export function WireDragLayer(props: {
   from: { x: number; y: number }
   to: { x: number; y: number }
@@ -166,6 +179,7 @@ export function WireDragLayer(props: {
     >
       <path d={path} fill="none" stroke="rgba(0,0,0,.5)" strokeWidth={5} />
       <path d={path} fill="none" stroke={props.valid === true ? 'rgba(255,255,255,1)' : 'rgba(243,243,243,.92)'} strokeWidth={2.25} />
+      <circle cx={props.from.x} cy={props.from.y} r={4.5} fill="#f3f3f3" stroke="#111" strokeWidth={1.5} />
       <circle cx={props.to.x} cy={props.to.y} r={5} fill={props.valid === true ? '#fff' : '#f3f3f3'} />
     </svg>,
     document.body,

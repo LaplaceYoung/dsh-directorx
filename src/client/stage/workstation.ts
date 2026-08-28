@@ -27,10 +27,14 @@ export const VIDEO_MODELS = [
   { id: 'viduq3-pro', label: 'Vidu Q3' },
 ] as const
 
+export const AUDIO_MODELS = [
+  { id: 'qwen3-tts-flash', label: 'Qwen TTS' },
+] as const
+
 export const VIDEO_DURATIONS = [4, 5, 6, 8, 10] as const
 
 export interface GenerateSpec {
-  kind: 'image' | 'video'
+  kind: 'image' | 'video' | 'audio'
   prompt: string
   model?: string
   aspect?: string
@@ -69,8 +73,10 @@ export function specPrompt(spec: GenerateSpec): string {
   return extras.length === 0 ? spec.prompt.trim() : `${spec.prompt.trim()}\n${extras.join('\n')}`
 }
 
-export function modelsFor(kind: 'image' | 'video'): ReadonlyArray<{ id: string; label: string }> {
-  return kind === 'video' ? VIDEO_MODELS : IMAGE_MODELS
+export function modelsFor(kind: 'image' | 'video' | 'audio'): ReadonlyArray<{ id: string; label: string }> {
+  if (kind === 'video') return VIDEO_MODELS
+  if (kind === 'audio') return AUDIO_MODELS
+  return IMAGE_MODELS
 }
 
 export function nearestAspect(width: number, height: number): FrameAspect {

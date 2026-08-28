@@ -80,39 +80,33 @@ export async function applyGridSplit(input: {
   if (source.kind !== 'image' || source.path === undefined || source.path === '') {
     throw new Error('宫格切开只接受有成片的图片')
   }
-  const cols = Math.max(2, Math.min(5, Math.round(input.cols ?? 3)))
-  const rows = Math.max(1, Math.min(5, Math.round(input.rows ?? 3)))
+  const cols = Math.max(1, Math.min(8, Math.round(input.cols ?? 2)))
+  const rows = Math.max(1, Math.min(8, Math.round(input.rows ?? 2)))
   const path = resolveLocalVideo(input.outputDir, source.path)
   const dir = resolveOutputDir(input.outputDir)
   const files: string[] = []
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
-      const out = join(dir, `grid-${source.id}-${row}-${col}-${Date.now().toString(36)}.png`)
+      const out = join(dir, `split-${row}-${col}-${Date.now().toString(36)}.png`)
       const result = spawnSync('ffmpeg', [
         '-hide_banner', '-y', '-i', path,
         '-vf', `crop=iw/${cols}:ih/${rows}:${col}*iw/${cols}:${row}*ih/${rows}`,
         '-frames:v', '1', out,
       ], { encoding: 'utf8' })
-      if (result.status !== 0) throw new Error(`宫格切开失败 ${row},${col}: ${result.stderr?.slice(-200)}`)
+      if (result.status !== 0) throw new Error(`切开失败 ${row + 1},${col + 1}: ${result.stderr?.slice(-200)}`)
       files.push(out)
     }
   }
-  const groupId = `group-${Math.random().toString(36).slice(2, 10)}`
-  const cardW = 200
-  const cardH = 120
-  const originX = source.x
-  const originY = source.y + (source.height ?? 158) + 48
-  const nodes: Array<Record<string, unknown>> = [{
-    id: groupId,
-    kind: 'group',
-    label: `${source.label.slice(0, 16)} 宫格`.slice(0, 200),
-    x: originX,
-    y: originY,
-    width: 36 * 2 + cols * cardW + (cols - 1) * 16,
-    height: 56 + rows * cardH + (rows - 1) * 16 + 24,
-    continuityRules: [`切开:${source.id}`],
-  }]
-  const nodeIds = [groupId]
+  const sourceW = source.width ?? 400
+  const sourceH = source.height ?? 220
+  const cardW = Math.max(140, Math.round(sourceW / Math.min(cols, 3)))
+  const cardH = Math.max(90, Math.round(sourceH / Math.min(rows, 3)))
+  const originX = source.x + sourceW + 100
+  const originY = source.y
+  const gap = 16
+  const nodeIds: string[] = []
+  const nodes: Array<Record<string, unknown>> = []
+  const edges: Array<Record<string, unknown>> = []
   files.forEach((file, index) => {
     const id = `image-${Math.random().toString(36).slice(2, 10)}`
     const col = index % cols
@@ -121,17 +115,16 @@ export async function applyGridSplit(input: {
     nodes.push({
       id,
       kind: 'image',
-      label: `格${index + 1}`,
+      label: `图片 ${col + 1},${row + 1}`,
       path: file,
-      parent: groupId,
-      x: originX + 36 + col * (cardW + 16),
-      y: originY + 56 + row * (cardH + 16),
+      x: originX + col * (cardW + gap),
+      y: originY + row * (cardH + gap),
       width: cardW,
       height: cardH,
       shotStatus: 'review',
-      continuityRules: [`切开:${source.id}`],
     })
+    edges.push({ id: `e-${source.id}-${id}`, from: source.id, to: id, sourceHandle: 'out', targetHandle: 'in' })
   })
-  const next = await input.store.batchAdd({ nodes })
-  return { action: 'split', files, nodeIds, groupId, doc: next }
+  const next = await input.store.batchAdd({ nodes, edges })
+  return { action: 'split', files, nodeIds, groupId: source.id, doc: next }
 }

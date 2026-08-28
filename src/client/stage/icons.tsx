@@ -185,6 +185,12 @@ export function IconBox(props: IconProps = {}): ReactNode {
 export function IconAudio(props: IconProps = {}): ReactNode {
   return <Svg {...props}><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4" /></Svg>
 }
+export function IconMore(props: IconProps = {}): ReactNode {
+  return <Svg {...props} filled><circle cx="6" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="18" cy="12" r="1.4" /></Svg>
+}
+export function IconMax(props: IconProps = {}): ReactNode {
+  return <Svg {...props}><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /></Svg>
+}
 
 export function KindGlyph(props: { kind: string; size?: number }): ReactNode {
   if (props.kind === 'video') return <IconVideo size={props.size} />

@@ -2,15 +2,18 @@ import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode, 
 import { Handle, NodeResizer, Position, useStore, type NodeProps } from '@xyflow/react'
 import { dx, dxPill } from '../canvas-theme.ts'
 
-import { IconBox, IconCopy, IconCrop, IconDownload, IconEdit, IconImage, IconLock, IconPlay, IconPlus, IconScissors, IconSpark, IconText, IconTrash, IconUnlock, IconUpload, IconVideo, KindGlyph } from './icons.tsx'
+import { IconAudio, IconBox, IconBrush, IconCopy, IconCrop, IconDownload, IconEdit, IconImage, IconLock, IconMax, IconPlay, IconPlus, IconScissors, IconSpark, IconText, IconTrash, IconUnlock, IconUpload, IconVideo, KindGlyph } from './icons.tsx'
 import { MarkdownView } from './MarkdownView.tsx'
 import { CropBox } from './CropOverlay.tsx'
+import { ImageMore } from './ImageMore.tsx'
+import { MaskOverlay } from './MaskOverlay.tsx'
+import { ExpandOverlay } from './ExpandOverlay.tsx'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { type GenerateSpec } from './workstation.ts'
 import { withProject } from './project.ts'
 import { displayCardTitle } from './card-label.ts'
 
-export type StageKind = 'image' | 'video' | 'text' | 'group'
+export type StageKind = 'image' | 'video' | 'audio' | 'text' | 'group'
 
 export function mediaUrl(path: string): string {
   return /^https?:\/\//i.test(path) ? path : withProject(`/directorx/media?path=${encodeURIComponent(path)}`)
@@ -77,8 +80,24 @@ export type CardActions = {
   onPickRef?: (id: string) => void
   onCrop?: (id: string) => void
   onCropped?: (id: string, blob: Blob) => void
+  onPreview?: (id: string) => void
+  onRedraw?: (id: string) => void
+  onErase?: (id: string) => void
+  onExpand?: (id: string) => void
+  onExpanded?: (id: string, padded: Blob, mask: Blob) => void
+  onAnnotate?: (id: string) => void
+  onEnhance?: (id: string) => void
+  onPixels?: (id: string) => void
+  onCutout?: (id: string) => void
+  onSplit?: (id: string, cols?: number, rows?: number) => void
+  onCapture?: (id: string) => void
+  onExtend?: (id: string) => void
+  onReshoot?: (id: string) => void
+  onMasked?: (id: string, blob: Blob, prompt: string, mode: 'redraw' | 'erase') => void
   cropping?: boolean
+  expanding?: boolean
   cropAspect?: number
+  maskMode?: 'redraw' | 'erase'
 }
 
 function ToolBtn(props: { title: string; onClick: () => void; children: ReactNode }): ReactNode {
@@ -106,6 +125,7 @@ function ToolBtn(props: { title: string; onClick: () => void; children: ReactNod
     </button>
   )
 }
+
 
 function NodeFrame(props: {
   selected?: boolean
@@ -149,7 +169,7 @@ function NodeFrame(props: {
       >
         {props.toolbar}
       </div>
-      {props.title !== undefined ? (
+      {props.title !== undefined && props.cropping !== true ? (
         <div className="nodrag nopan dx-card-caption">
           {props.title}
         </div>
@@ -244,26 +264,36 @@ function VideoPreview(props: { src: string; active?: boolean }): ReactNode {
   )
 }
 
-function GeneratingHud(props: { kind: 'image' | 'video'; prompt?: string }): ReactNode {
-  const video = props.kind === 'video'
+function AudioPreview(props: { src: string }): ReactNode {
+  return (
+    <div className="nodrag nopan dx-audio-well">
+      <span className="dx-audio-bars" aria-hidden><i /><i /><i /><i /><i /></span>
+      <audio src={props.src} controls preload="metadata" />
+    </div>
+  )
+}
+
+function GeneratingHud(props: { kind: 'image' | 'video' | 'audio'; prompt?: string }): ReactNode {
   const line = (props.prompt ?? '').trim()
+  const copy = props.kind === 'video' ? '正在出片' : props.kind === 'audio' ? '正在出声' : '正在出图'
   return (
     <div className="dx-gen-overlay" aria-live="polite">
       <span className="dx-gen-scan" />
       <div className="dx-gen-core">
         <span className="dx-gen-ring" />
-        {video ? <span className="dx-gen-bars"><i /><i /><i /><i /></span> : null}
-        <div className="dx-gen-copy">{video ? '正在出片' : '正在出图'}</div>
+        {props.kind === 'video' ? <span className="dx-gen-bars"><i /><i /><i /><i /></span> : null}
+        {props.kind === 'audio' ? <span className="dx-audio-bars" aria-hidden><i /><i /><i /><i /><i /></span> : null}
+        <div className="dx-gen-copy">{copy}</div>
         {line !== '' ? <div className="dx-gen-prompt">{line.length > 52 ? `${line.slice(0, 52)}…` : line}</div> : null}
       </div>
     </div>
   )
 }
 
-function EmptyPlate(props: { kind: 'image' | 'video'; prompt?: string }): ReactNode {
+function EmptyPlate(props: { kind: 'image' | 'video' | 'audio'; prompt?: string }): ReactNode {
   return (
     <div className="dx-empty-plate">
-      <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={22} /> : <IconImage size={22} />}</span>
+      <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={22} /> : props.kind === 'audio' ? <IconAudio size={22} /> : <IconImage size={22} />}</span>
     </div>
   )
 }
@@ -304,12 +334,12 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       const [id, path, label] = row.split('\t')
       return { id: id ?? '', path: path ?? '', label: label ?? '' }
     }).filter(item => item.id !== '')
-  const kind = data.kind === 'video' ? 'video' as const : 'image' as const
+  const kind = data.kind === 'video' ? 'video' as const : data.kind === 'audio' ? 'audio' as const : 'image' as const
   const generating = data.shotStatus === 'generating'
   const filled = !empty && !generating
   const title = displayCardTitle(data.label, data.prompt, data.shotIndex)
   const spec: GenerateSpec = {
-    kind: data.kind === 'video' ? 'video' : 'image',
+    kind,
     prompt: data.prompt ?? '',
     ...(data.model !== undefined ? { model: data.model } : {}),
     ...(data.aspect !== undefined ? { aspect: data.aspect } : {}),
@@ -327,7 +357,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       failed={data.shotStatus === 'failed'}
       kind={kind}
       filled={filled}
-      cropping={data.cropping === true}
+      cropping={data.cropping === true || data.maskMode !== undefined || data.expanding === true}
       title={(
         <div className="dx-card-meta">
           <KindGlyph kind={kind} size={13} />
@@ -347,7 +377,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
           {data.locked === true ? <span className="dx-card-lock" title="已锁定"><IconLock size={12} /></span> : null}
         </div>
       )}
-      dock={props.selected === true ? (
+      dock={props.selected === true && !filled ? (
         <NodeWorkstation
           spec={spec}
           compact
@@ -369,21 +399,41 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       ) : undefined}
       toolbar={(
         <>
-          <ToolBtn title={generating ? '生成中' : '生成'} onClick={() => { if (!generating) data.onGenerate?.(props.id) }}><IconSpark size={14} /></ToolBtn>
-          {!empty && kind === 'image' && data.onCrop !== undefined ? <ToolBtn title="裁剪" onClick={() => data.onCrop?.(props.id)}><IconCrop size={16} /></ToolBtn> : null}
+          {kind === 'image' && filled ? (
+            <>
+              <ToolBtn title="裁剪" onClick={() => data.onCrop?.(props.id)}><IconCrop size={16} /></ToolBtn>
+              <ToolBtn title="局部重绘" onClick={() => data.onRedraw?.(props.id)}><IconBrush size={14} /></ToolBtn>
+              <ImageMore
+                onExpand={() => data.onExpand?.(props.id)}
+                onErase={() => data.onErase?.(props.id)}
+                onAnnotate={() => data.onAnnotate?.(props.id)}
+                onEnhance={() => data.onEnhance?.(props.id)}
+                onPixels={() => data.onPixels?.(props.id)}
+                onCutout={() => data.onCutout?.(props.id)}
+                onSplit={(cols, rows) => data.onSplit?.(props.id, cols, rows)}
+              />
+            </>
+          ) : null}
+          {kind === 'video' && filled ? (
+            <>
+              <ToolBtn title="剪辑" onClick={() => data.onEdit?.(props.id)}><IconScissors size={14} /></ToolBtn>
+              <ToolBtn title="截帧" onClick={() => data.onCapture?.(props.id)}><IconImage size={14} /></ToolBtn>
+              <ToolBtn title="延长镜头" onClick={() => data.onExtend?.(props.id)}><IconPlus size={14} /></ToolBtn>
+              <ToolBtn title="视频重拍" onClick={() => data.onReshoot?.(props.id)}><IconEdit size={14} /></ToolBtn>
+            </>
+          ) : null}
           {empty && data.onUpload !== undefined ? <ToolBtn title="上传" onClick={() => data.onUpload?.(props.id)}><IconUpload size={14} /></ToolBtn> : null}
-          {empty ? null : <ToolBtn title="编辑" onClick={() => data.onEdit?.(props.id)}><IconEdit size={14} /></ToolBtn>}
-          {empty ? null : <ToolBtn title="下载" onClick={() => data.onDownload?.(props.id)}><IconDownload size={14} /></ToolBtn>}
+          {filled ? <ToolBtn title="下载" onClick={() => data.onDownload?.(props.id)}><IconDownload size={14} /></ToolBtn> : null}
+          {filled && kind !== 'audio' ? <ToolBtn title="全屏" onClick={() => data.onPreview?.(props.id)}><IconMax size={14} /></ToolBtn> : null}
           <ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={14} /></ToolBtn>
-          <ToolBtn title={data.locked === true ? '解锁' : '锁定'} onClick={() => data.onLock?.(props.id)}>{data.locked === true ? <IconUnlock size={14} /> : <IconLock size={14} />}</ToolBtn>
           <ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={14} /></ToolBtn>
         </>
       )}
     >
       <NodeResizer
-        isVisible={props.selected === true && data.cropping !== true}
+        isVisible={props.selected === true && data.cropping !== true && data.maskMode === undefined && data.expanding !== true}
         minWidth={240}
-        minHeight={160}
+        minHeight={kind === 'audio' ? 120 : 160}
         keepAspectRatio={data.aspect !== undefined && data.aspect !== ''}
         color="rgba(255,255,255,.45)"
         lineStyle={{ border: 'none' }}
@@ -392,9 +442,13 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       <div
         ref={shellRef}
         className={`dx-media-well${kind === 'video' && !filled ? ' dx-film' : ''}${filled ? ' dx-media-fill' : ''}`}
-        style={{ overflow: data.cropping === true ? 'visible' : 'hidden' }}
+        style={{ overflow: data.cropping === true || data.maskMode !== undefined || data.expanding === true ? 'visible' : 'hidden' }}
       >
-        {data.cropping === true && kind === 'image' && !empty ? (
+        {data.expanding === true && kind === 'image' && !empty ? (
+          <ExpandOverlay src={src} onCancel={() => data.onExpand?.('')} onConfirm={(padded, mask) => data.onExpanded?.(props.id, padded, mask)} />
+        ) : data.maskMode !== undefined && kind === 'image' && !empty ? (
+          <MaskOverlay src={src} mode={data.maskMode} onCancel={() => data.onRedraw?.('')} onSubmit={(blob, prompt) => data.onMasked?.(props.id, blob, prompt, data.maskMode ?? 'redraw')} />
+        ) : data.cropping === true && kind === 'image' && !empty ? (
           <CropBox src={src} aspect={data.cropAspect} onConfirm={blob => data.onCropped?.(props.id, blob)} />
         ) : empty && !generating ? (
           <EmptyPlate kind={kind} prompt={data.prompt} />
@@ -405,6 +459,14 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             ) : (
               <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
                 <IconVideo size={22} />
+              </div>
+            )}
+          </div>
+        ) : kind === 'audio' ? (
+          <div className="dx-media-bleed" style={{ opacity: generating ? 0.38 : 1 }}>
+            {near ? <AudioPreview src={src} /> : (
+              <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: dx.mute }}>
+                <IconAudio size={22} />
               </div>
             )}
           </div>
@@ -492,15 +554,24 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
       kind="text"
       toolbar={(
         <>
+          <ToolBtn title="H1" onClick={() => data.onRename?.(props.id, `# ${data.label || '标题'}`)}><span style={{ fontSize: 11 }}>H1</span></ToolBtn>
+          <ToolBtn title="H2" onClick={() => data.onRename?.(props.id, `## ${data.label || '标题'}`)}><span style={{ fontSize: 11 }}>H2</span></ToolBtn>
+          <ToolBtn title="H3" onClick={() => data.onRename?.(props.id, `### ${data.label || '标题'}`)}><span style={{ fontSize: 11 }}>H3</span></ToolBtn>
           <ToolBtn title="粗体" onClick={() => wrap('**')}><span style={{ fontWeight: 700, fontSize: 12 }}>B</span></ToolBtn>
           <ToolBtn title="斜体" onClick={() => wrap('*')}><span style={{ fontStyle: 'italic', fontSize: 12 }}>I</span></ToolBtn>
-          <ToolBtn title="标题" onClick={() => data.onRename?.(props.id, `## ${data.label || '标题'}`)}><span style={{ fontSize: 11 }}>H</span></ToolBtn>
           <ToolBtn title="列表" onClick={() => data.onRename?.(props.id, `- ${data.label || '条目'}`)}><span style={{ fontSize: 12 }}>≡</span></ToolBtn>
-          <ToolBtn title="生成" onClick={() => data.onGenerate?.(props.id)}><IconSpark size={14} /></ToolBtn>
           <ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={14} /></ToolBtn>
           <ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={14} /></ToolBtn>
         </>
       )}
+      dock={props.selected === true ? (
+        <NodeWorkstation
+          spec={{ kind: 'image', prompt: data.label ?? '' }}
+          compact
+          onChange={next => data.onRename?.(props.id, next.prompt)}
+          onSubmit={() => data.onGenerate?.(props.id)}
+        />
+      ) : undefined}
     >
       <NodeResizer
         isVisible={props.selected === true}
@@ -611,7 +682,7 @@ export const DirectorStageCard = memo(function DirectorStageCard(props: NodeProp
       selected={props.selected}
       kind="director-stage"
       title={<div className="dx-card-meta"><KindGlyph kind="director-stage" size={13} /><span className="dx-shot-no" style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.label ?? '3D 导演台'}</span>{data.locked === true ? <span className="dx-card-lock"><IconLock size={12} /></span> : null}</div>}
-      toolbar={<><ToolBtn title="打开 3D 导演台" onClick={() => data.onEdit?.(props.id)}><IconBox size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title={data.locked === true ? '解锁' : '锁定'} onClick={() => data.onLock?.(props.id)}>{data.locked === true ? <IconUnlock size={16} /> : <IconLock size={16} />}</ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
+      toolbar={<><ToolBtn title="进入片场" onClick={() => data.onEdit?.(props.id)}><IconBox size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
     >
       <div className="dx-empty-plate">
         <span className="dx-empty-glyph"><IconBox size={26} /></span>
@@ -628,7 +699,7 @@ export const EditStageCard = memo(function EditStageCard(props: NodeProps): Reac
       selected={props.selected}
       kind="edit"
       title={<div className="dx-card-meta"><KindGlyph kind="edit" size={13} /><span className="dx-shot-no" style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.label ?? '剪辑台'}</span>{data.locked === true ? <span className="dx-card-lock"><IconLock size={12} /></span> : null}</div>}
-      toolbar={<><ToolBtn title="打开剪辑台" onClick={() => data.onEdit?.(props.id)}><IconScissors size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title={data.locked === true ? '解锁' : '锁定'} onClick={() => data.onLock?.(props.id)}>{data.locked === true ? <IconUnlock size={16} /> : <IconLock size={16} />}</ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
+      toolbar={<><ToolBtn title="打开剪辑" onClick={() => data.onEdit?.(props.id)}><IconScissors size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
     >
       <div className="dx-empty-plate">
         <span className="dx-empty-glyph"><IconScissors size={26} /></span>

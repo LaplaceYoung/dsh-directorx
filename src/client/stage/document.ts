@@ -1,10 +1,13 @@
 import { type Edge, type Node } from '@xyflow/react'
 import { displayCardTitle } from '../../card-label.ts'
+import { canvasNodeKind } from '../../canvas-kind.ts'
 import { tidyOverlappingGroups } from '../../canvas-generate.ts'
 import { sizeFromAspect } from './workstation.ts'
 
 export const MEDIA_W = 400
 export const MEDIA_H = 220
+export const AUDIO_W = 400
+export const AUDIO_H = 140
 export const TEXT_W = 250
 export const TEXT_H = 250
 export const GROUP_W = 640
@@ -106,8 +109,24 @@ export type StageData = {
   onPickRef?: (id: string) => void
   onCrop?: (id: string) => void
   onCropped?: (id: string, blob: Blob) => void
+  onPreview?: (id: string) => void
+  onRedraw?: (id: string) => void
+  onErase?: (id: string) => void
+  onExpand?: (id: string) => void
+  onExpanded?: (id: string, padded: Blob, mask: Blob) => void
+  onAnnotate?: (id: string) => void
+  onEnhance?: (id: string) => void
+  onPixels?: (id: string) => void
+  onCutout?: (id: string) => void
+  onSplit?: (id: string, cols?: number, rows?: number) => void
+  onCapture?: (id: string) => void
+  onExtend?: (id: string) => void
+  onReshoot?: (id: string) => void
+  onMasked?: (id: string, blob: Blob, prompt: string, mode: 'redraw' | 'erase') => void
   cropping?: boolean
+  expanding?: boolean
   cropAspect?: number
+  maskMode?: 'redraw' | 'erase'
 }
 
 export type StageNode = Node<StageData>
@@ -119,11 +138,21 @@ export function newId(prefix: string): string {
 export function defaultSize(kind: string, aspect?: string): { width: number; height: number } {
   if (kind === 'group') return { width: GROUP_W, height: GROUP_H }
   if (kind === 'director-stage' || kind === 'edit') return { width: 560, height: 360 }
-  if (kind === 'image' || kind === 'video' || kind === 'audio' || kind === 'media') {
+  if (kind === 'audio') return { width: AUDIO_W, height: AUDIO_H }
+  if (kind === 'image' || kind === 'video' || kind === 'media') {
     return aspect !== undefined && aspect !== '' ? sizeFromAspect(aspect, MEDIA_W) : { width: MEDIA_W, height: MEDIA_H }
   }
   return { width: TEXT_W, height: TEXT_H }
 }
+
+export function flowNodeKind(node: { id: string; type?: string; data?: { kind?: string } }): ReturnType<typeof canvasNodeKind> {
+  return canvasNodeKind({
+    kind: node.type === 'media' ? node.data?.kind : node.type,
+    id: node.id,
+    dataKind: node.data?.kind,
+  })
+}
+
 
 export function toFlowNodes(doc: CanvasDoc): StageNode[] {
   const nodes = tidyOverlappingGroups(doc.nodes)
@@ -196,11 +225,7 @@ export function fromFlow(nodes: StageNode[], edges: Edge[], title: string, updat
       const absolute = node.parentId !== undefined && node.parentId !== ''
         ? { x: node.position.x + (parentPos.get(node.parentId)?.x ?? 0), y: node.position.y + (parentPos.get(node.parentId)?.y ?? 0) }
         : { x: node.position.x, y: node.position.y }
-      const kind = node.type === 'media' ? (node.data.kind ?? 'image')
-        : node.type === 'group' ? 'group'
-        : node.type === 'director-stage' ? 'director-stage'
-        : node.type === 'edit' ? 'edit'
-        : 'text'
+      const kind = flowNodeKind(node)
       const width = typeof node.style?.width === 'number' ? node.style.width : undefined
       const height = typeof node.style?.height === 'number' ? node.style.height : undefined
       return {

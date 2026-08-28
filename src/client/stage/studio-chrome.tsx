@@ -142,8 +142,9 @@ export class StudioErrorBoundary extends Component<{ children: ReactNode }, { me
     super(props)
     this.state = { message: '' }
   }
-  static getDerivedStateFromError(error: Error): { message: string } {
-    return { message: error.message || String(error) }
+  static getDerivedStateFromError(error: unknown): { message: string } {
+    const text = error instanceof Error ? (error.stack ?? error.message) : String(error)
+    return { message: text || String(error) }
   }
   override componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('DirectorX studio', error, info.componentStack)
@@ -151,9 +152,9 @@ export class StudioErrorBoundary extends Component<{ children: ReactNode }, { me
   override render(): ReactNode {
     if (this.state.message !== '') {
       return (
-        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#ff9b8f', fontFamily: dx.font, fontSize: 13, padding: 24, textAlign: 'center' }}>
-          编辑台无法打开：{this.state.message}
-        </div>
+        <pre data-stage-crash="1" style={{ position: 'absolute', inset: 0, overflow: 'auto', color: '#ff9b8f', fontFamily: dx.font, fontSize: 12, padding: 24, whiteSpace: 'pre-wrap', background: '#111', margin: 0 }}>
+          {this.state.message}
+        </pre>
       )
     }
     return this.props.children

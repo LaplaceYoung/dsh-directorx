@@ -4,18 +4,18 @@ import { SHOT_STATUS_COLOR, SHOT_STATUS_LABEL, SHOT_STATUSES, asShotStatus, type
 import {
   IconAlign, IconCheck, IconChevron, IconClose, IconCompare, IconCopy, IconDownload, IconEdit, IconFit,
   IconFolder, IconGrid, IconGroup, IconHelp, IconImage, IconLink, IconLock, IconMinus, IconPlus, IconRedo, IconScissors, IconSearch,
-  IconSend, IconSpark, IconText, IconTrash, IconUndo, IconUnlink, IconUnlock, IconUpload, IconVideo, KindGlyph,
+  IconSend, IconSpark, IconText, IconTrash, IconUndo, IconUnlink, IconUnlock, IconUpload, IconVideo, IconAudio, KindGlyph,
 } from './icons.tsx'
 import { clampMenu, type AlignKind } from './layout.ts'
 import {
   addMenuRows, groupMenuRows, nodeMenuRows, shouldNestCraft,
-  type AddMode, type MenuRow, type NodeMenuSurface,
+  type AddKind, type AddMode, type MenuRow, type NodeMenuSurface,
 } from './menus.ts'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { PromptIpField } from './ip-prompt.tsx'
 import { mediaUrl } from './nodes.tsx'
 
-export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'director-stage' | 'edit' | 'upload' | 'assets' | 'edit-image' | 'edit-video'
+export type { AddKind }
 
 export const SCRIPT_STARTER = `第一场 咖啡馆 日内
 镜头1：近景，推门进来，5s
@@ -353,17 +353,18 @@ function MenuRowButton(props: { row: MenuRow; icon?: ReactNode; onClick: () => v
 export function ConnectMenu(props: {
   x: number
   y: number
-  onPick: (kind: 'image' | 'video' | 'text' | 'director-stage' | 'edit') => void
+  onPick: (kind: 'image' | 'video' | 'audio' | 'text' | 'director-stage' | 'edit') => void
 }): ReactNode {
-  const rows: Array<{ kind: 'image' | 'video' | 'text' | 'director-stage' | 'edit'; label: string; icon: ReactNode }> = [
+  const rows: Array<{ kind: 'image' | 'video' | 'audio' | 'text' | 'director-stage' | 'edit'; label: string; icon: ReactNode }> = [
     { kind: 'image', label: '图片', icon: <IconImage size={15} /> },
     { kind: 'video', label: '视频', icon: <IconVideo size={15} /> },
+    { kind: 'audio', label: '音频', icon: <IconAudio size={15} /> },
     { kind: 'text', label: '文本', icon: <IconText size={15} /> },
     { kind: 'director-stage', label: '3D 导演台', icon: <IconSpark size={15} /> },
     { kind: 'edit', label: '剪辑台', icon: <IconScissors size={15} /> },
   ]
   return (
-    <MenuShell x={props.x} y={props.y} height={200}>
+    <MenuShell x={props.x} y={props.y} height={236}>
       <div style={{ padding: '6px 10px 8px', fontSize: 11, color: dx.mute }}>添加节点</div>
       {rows.map(row => (
         <button type="button" key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
@@ -378,6 +379,7 @@ export function ConnectMenu(props: {
 const ADD_ICON: Partial<Record<string, ReactNode>> = {
   image: <IconImage size={15} />,
   video: <IconVideo size={15} />,
+  audio: <IconAudio size={15} />,
   text: <IconText size={15} />,
   script: <IconText size={15} />,
   group: <IconGroup size={15} />,
@@ -750,7 +752,7 @@ export function EmptyHero(props: {
           {props.onScript !== undefined ? (
             <button className="dx-hit" onClick={props.onScript} style={ghost}>
               <IconText size={14} />
-              先写剧本
+              添加文本
             </button>
           ) : null}
         </div>

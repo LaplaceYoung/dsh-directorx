@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { dx, dxChrome, dxGhostBtn, dxPill } from '../canvas-theme.ts'
-import { IconClose, IconImage, IconPlus, IconSend, IconSpark, IconVideo } from './icons.tsx'
+import { IconAudio, IconClose, IconImage, IconPlus, IconSend, IconSpark, IconVideo } from './icons.tsx'
 import {
   FRAME_ASPECTS, VIDEO_DURATIONS, modelsFor, type GenerateSpec,
 } from './workstation.ts'
@@ -80,14 +80,18 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
         <>
           <button
             className="dx-hit"
-            title={props.spec.kind === 'video' ? '视频' : '图片'}
+            title={props.spec.kind === 'video' ? '视频' : props.spec.kind === 'audio' ? '音频' : '图片'}
             style={{
               ...dxGhostBtn, width: 28, height: 26,
               background: 'rgba(255,255,255,.06)',
             }}
-            onClick={() => props.onChange({ ...props.spec, kind: props.spec.kind === 'video' ? 'image' : 'video', model: undefined })}
+            onClick={() => props.onChange({
+              ...props.spec,
+              kind: props.spec.kind === 'image' ? 'video' : props.spec.kind === 'video' ? 'audio' : 'image',
+              model: undefined,
+            })}
           >
-            {props.spec.kind === 'video' ? <IconVideo size={12} /> : <IconImage size={12} />}
+            {props.spec.kind === 'video' ? <IconVideo size={12} /> : props.spec.kind === 'audio' ? <IconAudio size={12} /> : <IconImage size={12} />}
           </button>
           {props.onPickRef !== undefined ? (
             <button
@@ -109,7 +113,7 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
           </button>
         </>
       ) : (
-        (['image', 'video'] as const).map(kind => (
+        (['image', 'video', 'audio'] as const).map(kind => (
           <button
             key={kind}
             className="dx-hit"
@@ -119,8 +123,8 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
             }}
             onClick={() => props.onChange({ ...props.spec, kind, model: undefined })}
           >
-            {kind === 'image' ? <IconImage size={12} /> : <IconVideo size={12} />}
-            {kind === 'image' ? '图片' : '视频'}
+            {kind === 'image' ? <IconImage size={12} /> : kind === 'video' ? <IconVideo size={12} /> : <IconAudio size={12} />}
+            {kind === 'image' ? '图片' : kind === 'video' ? '视频' : '音频'}
           </button>
         ))
       )}
@@ -130,25 +134,27 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
           <button key={item.id} className="dx-menu-item" style={row} onClick={() => { props.onChange({ ...props.spec, model: item.id }); setOpen(undefined) }}>{item.label}</button>
         ))}
       </PopTrigger>
-      <PopTrigger label={props.spec.aspect ?? '画幅'} open={open === 'aspect'} onToggle={() => setOpen(open === 'aspect' ? undefined : 'aspect')}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 56px)', gap: 4, padding: 4 }}>
-          {FRAME_ASPECTS.map(item => (
-            <button
-              key={item.id}
-              className="dx-hit"
-              title={item.id}
-              style={{
-                ...dxGhostBtn, width: 56, height: 44, flexDirection: 'column', gap: 4, fontSize: 10,
-                background: props.spec.aspect === item.id ? 'rgba(255,255,255,.12)' : 'transparent',
-              }}
-              onClick={() => { props.onChange({ ...props.spec, aspect: item.id }); setOpen(undefined) }}
-            >
-              <AspectMark w={item.w} h={item.h} />
-              {item.id}
-            </button>
-          ))}
-        </div>
-      </PopTrigger>
+      {props.spec.kind !== 'audio' ? (
+        <PopTrigger label={props.spec.aspect ?? '画幅'} open={open === 'aspect'} onToggle={() => setOpen(open === 'aspect' ? undefined : 'aspect')}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 56px)', gap: 4, padding: 4 }}>
+            {FRAME_ASPECTS.map(item => (
+              <button
+                key={item.id}
+                className="dx-hit"
+                title={item.id}
+                style={{
+                  ...dxGhostBtn, width: 56, height: 44, flexDirection: 'column', gap: 4, fontSize: 10,
+                  background: props.spec.aspect === item.id ? 'rgba(255,255,255,.12)' : 'transparent',
+                }}
+                onClick={() => { props.onChange({ ...props.spec, aspect: item.id }); setOpen(undefined) }}
+              >
+                <AspectMark w={item.w} h={item.h} />
+                {item.id}
+              </button>
+            ))}
+          </div>
+        </PopTrigger>
+      ) : null}
       {props.spec.kind === 'video' ? (
         <PopTrigger label={`${props.spec.durationSec ?? 5}s`} open={open === 'duration'} onToggle={() => setOpen(open === 'duration' ? undefined : 'duration')}>
           {VIDEO_DURATIONS.map(sec => (

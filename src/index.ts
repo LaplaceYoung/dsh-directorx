@@ -9,6 +9,7 @@ import type {} from '@deepseek-ai/dsh-system-prompt'
 import { DirectorxSettings, SETTINGS_NS, type DirectorxSettings as DirectorxSettingsType } from './config.ts'
 import { corpus } from './corpus.ts'
 import { registerCanvasCraftRoute, registerCanvasIntentRoute, registerCanvasResetRoute, registerCanvasRestoreRoute, registerCanvasRoute, registerCanvasSnapshotsRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProjectsRoute, registerProposalsRoute, registerProposalUpdateRoute, registerStudioRoute, registerVendorRoute } from './media-server.ts'
+import { registerCanvasGenerateRoute } from './canvas-job.ts'
 import { registerBundledSkills } from './skills.ts'
 import { registerSettingsTestRoute } from './settings-test.ts'
 import { registerMcpRoute } from './mcp.ts'
@@ -103,6 +104,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerCanvasRestoreRoute(ctx, () => scope.get().outputDir), 'directorx canvas restore route')
   ctx.effect(() => registerCanvasIntentRoute(ctx, () => scope.get().outputDir), 'directorx canvas intent route')
   ctx.effect(() => registerCanvasCraftRoute(ctx, () => scope.get().outputDir), 'directorx canvas craft route')
+  ctx.effect(() => registerCanvasGenerateRoute(ctx, () => scope.get() as DirectorxSettingsType), 'directorx canvas generate route')
   ctx.effect(() => registerCharactersRoute(ctx, () => scope.get().outputDir), 'directorx characters route')
   ctx.effect(() => registerStudioRoute(ctx, () => scope.get().outputDir), 'directorx studio route')
   ctx.effect(() => registerVendorRoute(ctx), 'directorx vendor assets route')

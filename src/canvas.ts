@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { resolveStoredLabel } from './card-label.ts'
+import { canvasNodeKind, type CanvasNodeKind } from './canvas-kind.ts'
 import { resolveOutputDir } from './support.ts'
 import { planContinueGenerate, type ContinueGenerateKind } from './canvas-generate.ts'
 
@@ -11,7 +12,7 @@ import { planContinueGenerate, type ContinueGenerateKind } from './canvas-genera
  * cannot clobber a newer agent edit.
  */
 
-export type CanvasNodeKind = 'image' | 'video' | 'audio' | 'text' | 'group' | 'director-stage' | 'edit'
+export type { CanvasNodeKind }
 
 export interface CanvasNode {
   id: string
@@ -152,7 +153,7 @@ function layoutStoryboard(nodes: CanvasNode[]): void {
 }
 
 function sanitizeNode(input: Record<string, unknown>): CanvasNode {
-  const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'audio' || input.kind === 'text' || input.kind === 'group' || input.kind === 'director-stage' || input.kind === 'edit' ? input.kind : 'text'
+  const kind = canvasNodeKind({ kind: input.kind, id: input.id })
   const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
   const rawParent = input.parent
   const prompt = typeof input.prompt === 'string' && input.prompt !== '' ? input.prompt.slice(0, 2000) : undefined

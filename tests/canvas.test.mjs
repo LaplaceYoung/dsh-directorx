@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { CanvasIntentStore, CharacterStore, DirectorxCanvasStore, formatDshCanvasPrompt, ProjectStyleStore, ProposalStore, TermStore, closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portsForHandles, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerProposalsRoute, routeDisplayPorts, runInProject, tidyOverlappingGroups } from '../lib/testing.js'
+import { CanvasIntentStore, CharacterStore, DirectorxCanvasStore, canvasNodeKind, formatDshCanvasPrompt, ProjectStyleStore, ProposalStore, TermStore, closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portsForHandles, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerProposalsRoute, routeDisplayPorts, runInProject, tidyOverlappingGroups } from '../lib/testing.js'
 
 test('canvas store CRUD: add, connect, update, remove, arrange', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -245,6 +245,35 @@ test('canvas store keeps director-stage and edit node kinds', async () => {
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+test('canvasNodeKind recovers director-stage and edit after a text collapse', () => {
+  assert.equal(canvasNodeKind({ kind: 'text', id: 'director-stage-ab12cd34' }), 'director-stage')
+  assert.equal(canvasNodeKind({ kind: 'text', id: 'edit-zz99yy88' }), 'edit')
+  assert.equal(canvasNodeKind({ kind: 'text', id: 'text-aa11bb22', dataKind: 'director-stage' }), 'director-stage')
+  assert.equal(canvasNodeKind({ kind: 'text', id: 'text-aa11bb22' }), 'text')
+  assert.equal(canvasNodeKind({ kind: 'director-stage', id: 'n1' }), 'director-stage')
+})
+
+test('canvas store restores collapsed director-stage and edit nodes on read', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    await writeFile(join(dir, 'canvas.json'), JSON.stringify({
+      version: 1,
+      updatedAt: 1,
+      nodes: [
+        { id: 'director-stage-ab12cd34', kind: 'text', label: '3D 导演台', x: 10, y: 20, width: 560, height: 360 },
+        { id: 'edit-zz99yy88', kind: 'text', label: '剪辑台', x: 600, y: 20, width: 560, height: 360 },
+      ],
+      edges: [],
+    }), 'utf8')
+    const again = await new DirectorxCanvasStore(dir).read()
+    assert.equal(again.nodes.find(node => node.id === 'director-stage-ab12cd34')?.kind, 'director-stage')
+    assert.equal(again.nodes.find(node => node.id === 'edit-zz99yy88')?.kind, 'edit')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 
 test('canvas search / batch / dissolve / title / hierarchy', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
@@ -781,23 +810,21 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(chromeFile, /应用到画布/)
   assert.match(chromeFile, /添加节点/)
   assert.match(chromeFile, /data-dx-menu/)
-  assert.match(menusFile, /剧本/)
-  assert.match(menusFile, /生成分镜/)
-  assert.match(menusFile, /提取帧/)
-  assert.match(menusFile, /自动连线/)
-  assert.match(menusFile, /智能解析/)
+  assert.match(menusFile, /音频/)
+  assert.match(menusFile, /裁剪/)
   assert.match(menusFile, /局部重绘/)
-  assert.match(menusFile, /拼接/)
+  assert.match(menusFile, /快速切分/)
+  assert.match(menusFile, /截帧/)
+  assert.match(menusFile, /延长镜头/)
+  assert.match(menusFile, /视频重拍/)
+  assert.doesNotMatch(menusFile, /生成分镜/)
+  assert.doesNotMatch(menusFile, /去字幕/)
+  assert.doesNotMatch(menusFile, /导出 GIF/)
   assert.match(chromeFile, /合成视频/)
   assert.match(chromeFile, /九宫格/)
-  assert.match(menusFile, /拆分宫格/)
   assert.match(chromeFile, /合并宫格/)
   assert.match(chromeFile, /分屏/)
-  assert.match(menusFile, /去字幕/)
-  assert.match(menusFile, /视频延长/)
-  assert.match(menusFile, /导出 GIF/)
-  assert.match(menusFile, /重新生成/)
-  assert.match(chromeFile, /先写剧本/)
+  assert.match(chromeFile, /添加文本/)
   assert.match(chromeFile, /节点/)
   assert.match(chromeFile, /导入/)
   const imageStudio = await readFile(new URL('../src/client/stage/ImageStudio.tsx', import.meta.url), 'utf8')
@@ -900,6 +927,14 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.doesNotMatch(sessionDock, /dx-tool-fold/)
   assert.match(stage, /liveSessions/)
   assert.doesNotMatch(sessionDock, /conversation\.session/)
+  assert.match(sessionDock, /--dsw-alias-bg-layer-2/)
+  assert.match(sessionDock, /dx-dsh-input/)
+  assert.match(sessionDock, /dx-dsh-bubble/)
+  assert.match(sessionDock, /type: 'image'/)
+  assert.match(sessionDock, /right: 16/)
+  assert.match(sessionDock, /dx-slash-menu/)
+  assert.match(sessionDock, /\/compact/)
+  assert.match(sessionDock, /directorxCommandLine/)
   assert.doesNotMatch(stage, /CanvasLeftRail/)
   assert.doesNotMatch(stage, /CanvasCommandPalette/)
   const submitAt = stage.indexOf('const submitSpec')
@@ -921,7 +956,7 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(chrome, /对齐/)
   assert.match(chrome, /登记为角色/)
   assert.match(chrome, /搜索资源/)
-  assert.match(menusFile, /编辑图片/)
+  assert.match(menusFile, /3D 导演台/)
   const ipPrompt = await readFile(new URL('../src/client/stage/ip-prompt.tsx', import.meta.url), 'utf8')
   assert.match(ipPrompt, /可能存在版权风险/)
   assert.match(ipPrompt, /交给 DSH 改写/)
@@ -929,11 +964,24 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(ipPrompt, /textDecorationStyle: 'wavy'/)
   assert.doesNotMatch(ipPrompt, /sanitizeIpPrompt/)
   assert.match(await readFile(new URL('../src/client/stage/NodeWorkstation.tsx', import.meta.url), 'utf8'), /PromptIpField/)
-  assert.match(menusFile, /编辑视频/)
+  assert.match(menusFile, /剪辑台/)
   assert.match(chrome, /风格/)
   assert.match(chrome, /当作参考/)
   assert.match(nodes, /title="上传"/)
-  assert.match(stage, /edit-image/)
+  assert.match(nodes, /title="截帧"/)
+  assert.match(nodes, /AudioPreview/)
+  assert.match(nodes, /MaskOverlay/)
+  assert.match(nodes, /ImageMore/)
+  const mask = await readFile(new URL('../src/client/stage/MaskOverlay.tsx', import.meta.url), 'utf8')
+  assert.match(mask, /描述你想改变什么/)
+  assert.match(mask, /绘制蒙版以重绘/)
+  assert.match(mask, /绘制蒙版以擦除/)
+  const more = await readFile(new URL('../src/client/stage/ImageMore.tsx', import.meta.url), 'utf8')
+  assert.match(more, /快速切分/)
+  assert.match(more, /item\.c\}×\{item\.r/)
+  assert.match(more, /aria-label/)
+  assert.match(stage, /startMask/)
+  assert.match(stage, /confirmMasked/)
   assert.match(stage, /onUseAsRef/)
   assert.match(stage, /\/directorx\/studio/)
   const tools = await readFile(new URL('../src/tools.ts', import.meta.url), 'utf8')
@@ -1002,15 +1050,16 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.doesNotMatch(nodes, /function GroupCard[\s\S]*?<Ports/)
   const dock = await readFile(new URL('../src/client/EditorDock.tsx', import.meta.url), 'utf8')
   assert.match(dock, /from '\.\/stage\/Stage\.tsx'/)
-  assert.match(dock, /position: 'fixed'/)
-  assert.match(dock, /inset: 0/)
-  assert.match(dock, /sessions=\{props\.connection\?\.api\?\.sessions\}/)
-  assert.match(dock, /workspace=\{props\.connection\?\.api\?\.workspace\}/)
+  assert.match(dock, /data-directorx-editor="open"/)
+  assert.match(dock, /ensureEditorOpen/)
+  assert.match(dock, /props\.remote\?\.session \?\? props\.connection\?\.api\?\.sessions/)
+  assert.match(dock, /props\.remote\?\.workspace \?\? props\.connection\?\.api\?\.workspace/)
   assert.match(dock, /这个工作区还没有 DSH 会话/)
   assert.doesNotMatch(dock, /CanvasTab/)
   assert.doesNotMatch(dock, /CanvasLeftRail/)
   const client = await readFile(new URL('../src/client/index.ts', import.meta.url), 'utf8')
   assert.match(client, /EditorDock/)
+  assert.match(client, /remote: optionalService\(ctx, 'remote'\)/)
   assert.doesNotMatch(client, /DirectorxDetailsDock/)
 })
 

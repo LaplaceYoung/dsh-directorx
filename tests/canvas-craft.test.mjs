@@ -290,8 +290,10 @@ test('sheet pins a contact image; split crops a still into cards', { skip: !hasF
     assert.equal(split.action, 'split')
     assert.equal((split.files ?? []).length, 4)
     assert.ok((split.files ?? []).every(file => existsSync(file)))
-    assert.ok(split.doc.nodes.some(node => node.kind === 'group' && /宫格/.test(node.label)))
-    assert.equal(split.doc.nodes.filter(node => node.kind === 'image' && node.parent === split.groupId).length, 4)
+    assert.ok(split.doc.nodes.some(node => node.kind === 'image' && node.label === '图片 1,1'))
+    assert.equal(split.doc.nodes.filter(node => node.kind === 'image' && /^图片 \d+,\d+$/.test(node.label)).length, 4)
+    assert.equal(split.doc.edges.filter(edge => edge.from === 'hero').length, 4)
+    assert.ok(!split.doc.nodes.some(node => node.kind === 'group' && /宫格/.test(node.label)))
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
