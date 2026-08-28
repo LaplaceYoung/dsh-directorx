@@ -10,8 +10,9 @@ test('CI workflow pins node 22.19, npm ci, npm test, and lib/ sync', () => {
   assert.match(text, /node-version:\s*'22\.19'/)
   assert.match(text, /npm ci/)
   assert.match(text, /npm test/)
+  assert.match(text, /git diff --quiet lib\//)
+  assert.match(text, /stale lib\//)
   assert.match(text, /apt-get install -y ffmpeg/)
-  assert.match(text, /git diff --exit-code lib\//)
 })
 
 test('release workflow publishes a GitHub Release on v* tags', () => {
