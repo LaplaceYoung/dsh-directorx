@@ -3601,12 +3601,16 @@ export function registerSystemPrompt(ctx: Context, settings: DirectorxSettings):
   const initiative = parseInitiative(settings.initiative)
   const disposePersona = ctx.systemPrompt.section({
     name: 'directorx:chengpian',
+    // After deployment persona (0), before plan policy (500) on both scales.
     order: 5,
     text: [DIRECTORX_RUNTIME_PRESET.systemPrompt, chengpianPersonaText(initiative)].join('\n\n'),
   })
   const disposeTools = ctx.systemPrompt.section({
     name: 'tool:directorx',
-    order: 117,
+    // alpha.1 first-party scale: identity -1000, persona 0, tool guidance
+    // 1000-2900, SDK 5000. 3000 parks DirectorX right after the built-in
+    // tools (rc-era 117 sat inside the old 100-199 tool band).
+    order: 3000,
     text: [
       '## DirectorX media tools',
       '- DirectorX is the 成片 plugin. DSH owns the agent loop. Load skill `directorx-chengpian` and call `directorx_chengpian` before generate/ask. Any choice the user must own goes through `directorx_ask` (DSH standard `userQuestions.ask`). NEVER write a numbered 1. 2. 3. menu in assistant text. Sign the board with `directorx_confirm`. Track stages with `directorx_stage`. After deliver (or when the user says the cut is done), call `directorx_skill_capture` `{ action: "offer", present: true }` so DSH asks: save as 「xx」 skill / rename / skip. If they save, write the SKILL.md from harvest + `directorx_note` feedback, then `action:save`. Same deliver: if this show has locked cast/look, also `directorx_series` save. Next episode `directorx_series apply` before craft. Never write into the plugin `skills/` folder. The user can inspect the board with `/directorx` without spending tokens.',

@@ -3,12 +3,12 @@
  * put; the canvas dock only reads the same live snapshot and answers waits.
  */
 
-import { textFromBlocks, toolCaption, type SessionLine } from './session-fold.ts'
+import { textFromBlocks, toolCaption, type SessionLine, type SessionPromptPart } from './session-fold.ts'
 
 export interface LiveSessionHandle {
   subscribe: (listener: () => void) => () => void
   getSnapshot: () => unknown
-  prompt?: (content: Array<{ type: 'text'; text: string }>, mode: 'queue' | 'steer') => Promise<unknown>
+  prompt?: (content: SessionPromptPart[], mode: 'queue' | 'steer') => Promise<unknown>
   cancel?: () => Promise<unknown>
   open?: () => Promise<void>
   command?: (line: string) => Promise<unknown>
@@ -409,4 +409,382 @@ export async function answerApproval(wait: ApprovalWait, outcome: 'allowed-once'
   })
   const rec = asRecord(receipt)
   if (rec?.accepted === false) throw new Error(asString(rec.reason) ?? '审批提交被拒绝')
+}
+
+/* ------------------------------------------------------------------ */
+/* DSH 0.1.2-alpha.1 read model: the binding's session snapshot shrank  */
+/* to lifecycle state; conversation content rides binding.eventSource   */
+/* (SessionEventSource = ObservableSnapshot<SessionEventWindow>), and    */
+/* pending question/approval interactions ride ctx.uiSession's          */
+/* pendingInteractions map. Legacy hosts keep the snapshot face above.  */
+/* ------------------------------------------------------------------ */
+
+export interface LiveEventSource {
+  subscribe: (listener: () => void) => () => void
+  getSnapshot: () => unknown
+}
+
+export interface LiveBinding {
+  session?: LiveSessionHandle
+  eventSource?: LiveEventSource
+}
+
+/** Resolve the full session binding (lifecycle face + event window). */
+export function resolveLiveBinding(service: unknown, sessionId?: string): LiveBinding | undefined {
+  const session = resolveLiveSession(service, sessionId)
+  if (session === undefined) return undefined
+  const rec = asRecord(service)
+  const binding = typeof rec?.binding === 'function' ? asRecord(rec.binding.call(service, sessionId)) : undefined
+  const eventSource = asRecord(binding?.eventSource)
+  const source: LiveEventSource | undefined =
+    eventSource !== undefined && typeof eventSource.subscribe === 'function' && typeof eventSource.getSnapshot === 'function'
+      ? {
+        subscribe: listener => (eventSource.subscribe as (fn: () => void) => () => void)(listener),
+        getSnapshot: () => (eventSource.getSnapshot as () => unknown)(),
+      }
+      : undefined
+  return {
+    session,
+    ...(source !== undefined ? { eventSource: source } : {}),
+  }
+}
+
+interface ChunkLine { key: string; line: DockLine }
+
+function chunkTextOf(value: unknown): { text: string; reasoning: boolean } {
+  const chunk = asRecord(value)
+  if (chunk === undefined) return { text: '', reasoning: false }
+  if (chunk.type === 'text-delta') return { text: asString(chunk.text) ?? '', reasoning: false }
+  if (chunk.type === 'reasoning-delta') return { text: '', reasoning: true }
+  if (chunk.type === 'block-end') {
+    const block = asRecord(chunk.block)
+    return block?.type === 'text' ? { text: asString(block.text) ?? '', reasoning: false } : { text: '', reasoning: false }
+  }
+  return { text: '', reasoning: false }
+}
+
+/**
+ * Fold one event window (alpha.1 bindings) into dock lines. Chunks aggregate
+ * into a streamed assistant line per (turn,step); a settled assistant/message
+ * replaces them; tool/call pairs with tool/result; command/run pairs with
+ * command/done. Unknown event kinds are skipped, so future vocabulary is safe.
+ */
+export function dockItemsFromWindow(raw: unknown, input?: { running?: boolean; openState?: string }): Omit<LiveDockModel, 'waits'> {
+  const window = asRecord(raw)
+  if (window === undefined) return { lines: [], running: false, ready: false }
+  const openState = input?.openState
+  const ready = openState === 'open' || openState === 'loading' || openState === 'error'
+  const running = input?.running === true
+  const entries = Array.isArray(window.entries) ? window.entries : []
+  const lines: DockLine[] = []
+  const calls = new Map<string, { name: string; argsRaw?: string }>()
+  const chunkLines = new Map<string, ChunkLine>()
+  const chunkCallLines = new Map<string, ChunkLine>()
+
+  const pushChunkText = (key: string, seq: number | string, text: string): void => {
+    const found = chunkLines.get(key)
+    if (found !== undefined) {
+      found.line.text += text
+      return
+    }
+    const line: DockLine = { id: `chunk-${key}`, kind: 'assistant', text, streaming: true }
+    chunkLines.set(key, { key, line })
+    lines.push(line)
+  }
+  const dropChunks = (prefix: string): void => {
+    for (const [key, chunk] of chunkLines) {
+      if (!key.startsWith(prefix)) continue
+      const at = lines.indexOf(chunk.line)
+      if (at >= 0) lines.splice(at, 1)
+      chunkLines.delete(key)
+    }
+  }
+  const pushChunkCall = (id: string, name: string | undefined, argsDelta: string): void => {
+    const found = chunkCallLines.get(id)
+    if (found !== undefined) {
+      found.line.text = toolCaption(found.line.name ?? 'tool', (found.line.args ?? '') + argsDelta)
+      found.line.args = (found.line.args ?? '') + argsDelta
+      return
+    }
+    const line: DockLine = {
+      id: `chunkcall-${id}`, kind: 'tool', name: name ?? 'tool', text: toolCaption(name ?? 'tool', argsDelta), args: argsDelta, status: 'running',
+    }
+    chunkCallLines.set(id, { key: id, line })
+    lines.push(line)
+  }
+  const dropChunkCall = (id: string): void => {
+    const chunk = chunkCallLines.get(id)
+    if (chunk === undefined) return
+    const at = lines.indexOf(chunk.line)
+    if (at >= 0) lines.splice(at, 1)
+    chunkCallLines.delete(id)
+  }
+
+  for (const entry of entries) {
+    const rec = asRecord(entry)
+    if (rec === undefined) continue
+    if (rec.type === 'chunks') {
+      const event = asRecord(rec.event)
+      if (event === undefined || typeof event.type !== 'string') continue
+      const data = asRecord(event.data)
+      if (data === undefined) continue
+      const turn = data.turn
+      const step = data.step
+      const key = `${String(turn)}:${String(step)}:${String(data.index)}`
+      const firstSeq = typeof event.seq === 'number' ? event.seq : lines.length
+      if (event.type === 'chunkrow/text-chunks') {
+        const texts = Array.isArray(data.texts) ? data.texts.filter((part): part is string => typeof part === 'string') : []
+        if (texts.length > 0) pushChunkText(key, firstSeq, texts.join(''))
+      } else if (event.type === 'chunkrow/tool-call-chunks') {
+        const id = asString(data.id)
+        const args = Array.isArray(data.args) ? data.args.filter((part): part is string => typeof part === 'string') : []
+        const name = asString(data.name)
+        if (id !== undefined && id !== '' && args.length > 0) {
+          const call = calls.get(id)
+          if (call !== undefined && call.argsRaw === undefined) call.argsRaw = args.join('')
+          else if (call === undefined) pushChunkCall(id, name, args.join(''))
+        }
+      }
+      continue
+    }
+    const event = asRecord(rec.event)
+    if (event === undefined) continue
+    const type = asString(event.type)
+    const data = asRecord(event.data)
+    const seq = typeof event.seq === 'number' ? event.seq : lines.length
+    if (type === 'user/message') {
+      const parts: string[] = []
+      const content = Array.isArray(data?.content) ? data.content : []
+      for (const block of content) {
+        const blockRec = asRecord(block)
+        if (blockRec === undefined) continue
+        if (blockRec.type === 'image') parts.push('〔图片〕')
+        else if (blockRec.type === 'text' && typeof blockRec.text === 'string' && blockRec.text.trim() !== '') parts.push(blockRec.text.trim())
+      }
+      const text = parts.join('\n')
+      if (text !== '') lines.push({ id: `user-${seq}`, kind: 'user', text })
+      continue
+    }
+    if (type === 'assistant/chunk') {
+      if (data === undefined) continue
+      const turn = data.turn
+      const step = data.step
+      const chunk = data.chunk
+      const chunkRec = asRecord(chunk)
+      if (chunkRec?.type === 'tool-call-delta') {
+        const id = asString(chunkRec.id)
+        if (id !== undefined && id !== '') {
+          const name = asString(chunkRec.name)
+          pushChunkCall(id, name, asString(chunkRec.argumentsDelta) ?? '')
+        }
+        continue
+      }
+      const delta = chunkTextOf(chunk)
+      if (delta.text !== '') pushChunkText(`${String(turn)}:${String(step)}:${String(chunkRec?.index ?? 0)}`, seq, delta.text)
+      continue
+    }
+    if (type === 'assistant/message') {
+      if (data === undefined) continue
+      dropChunks(`${String(data.turn)}:${String(data.step)}:`)
+      const message = asRecord(data.message)
+      const text = textOfBlocks(message?.content ?? message?.blocks)
+      if (text !== '') {
+        lines.push({
+          id: `asst-${seq}`,
+          kind: 'assistant',
+          text,
+          ...(data.interrupted === true ? { streaming: false } : {}),
+        })
+      }
+      continue
+    }
+    if (type === 'tool/call') {
+      if (data === undefined) continue
+      const callId = asString(data.callId) ?? `call-${seq}`
+      const name = asString(data.name) ?? 'tool'
+      const argsRaw = asString(data.arguments)
+      calls.set(callId, { name, ...(argsRaw !== undefined ? { argsRaw } : {}) })
+      dropChunkCall(callId)
+      lines.push({
+        id: `call-${callId}`, kind: 'tool', name, text: toolCaption(name, argsRaw), ...(argsRaw !== undefined ? { args: pretty(argsRaw) } : {}), status: 'running',
+      })
+      continue
+    }
+    if (type === 'tool/result') {
+      if (data === undefined) continue
+      const message = asRecord(data.message)
+      const first = Array.isArray(message?.content) ? asRecord(message.content[0]) : undefined
+      const callId = asString(first?.toolCallId) ?? `result-${seq}`
+      const call = calls.get(callId)
+      const name = call?.name ?? 'tool'
+      dropChunkCall(callId)
+      const err = first?.isError === true || data.error !== undefined
+      const result = textOfBlocks(first?.content)
+      const running = lines.find(line => line.id === `call-${callId}`)
+      if (running !== undefined) {
+        running.status = err ? 'error' : 'ok'
+        if (result !== '') running.result = result
+      } else {
+        lines.push({
+          id: `tool-${seq}`,
+          kind: 'tool',
+          name,
+          text: toolCaption(name, call?.argsRaw),
+          ...(call?.argsRaw !== undefined ? { args: pretty(call.argsRaw) } : {}),
+          ...(result !== '' ? { result } : {}),
+          status: err ? 'error' : 'ok',
+        })
+      }
+      continue
+    }
+    if (type === 'command/run') {
+      const commandId = asString(data?.commandId) ?? `command-${seq}`
+      const name = asString(data?.name) ?? 'command'
+      lines.push({ id: `cmd-${commandId}`, kind: 'tool', name, text: `${name}：`, status: 'running' })
+      continue
+    }
+    if (type === 'command/done') {
+      const commandId = asString(data?.commandId)
+      const kind = asString(data?.kind)
+      const text = asString(data?.text)
+      const running = commandId !== undefined ? lines.find(line => line.id === `cmd-${commandId}`) : undefined
+      if (running !== undefined) {
+        running.status = kind === 'error' ? 'error' : 'ok'
+        if (text !== undefined && text !== '') running.result = text
+      } else {
+        lines.push({
+          id: `cmd-${seq}`, kind: 'tool', name: 'command', text: 'command：',
+          ...(text !== undefined && text !== '' ? { result: text } : {}), status: kind === 'error' ? 'error' : 'ok',
+        })
+      }
+      continue
+    }
+    if (type === 'turn/end') {
+      const reason = asRecord(data?.reason)
+      if (reason?.kind === 'error') {
+        const error = asRecord(reason.error)
+        const message = asString(error?.message) ?? '本轮失败'
+        lines.push({ id: `err-${seq}`, kind: 'notice', text: message })
+      }
+      continue
+    }
+    if (type === 'llm/retry' || type === 'llm/retry-started') {
+      const message = asString(data?.message)
+      lines.push({ id: `retry-${seq}`, kind: 'notice', text: message ?? '模型将重试' })
+      continue
+    }
+  }
+
+  if (running) {
+    const last = lines.at(-1)
+    const streamingBody = last?.kind === 'assistant' && last.streaming === true
+    const runningTool = last?.kind === 'tool' && last.status === 'running'
+    if (!streamingBody && !runningTool) {
+      lines.push({ id: 'thinking', kind: 'thinking', text: '思考中', streaming: true })
+    }
+  }
+  return { lines, running, ready }
+}
+
+/** Fold one live binding into the dock model on alpha.1 hosts; undefined on legacy snapshots. */
+export function dockItemsFromLive(binding: LiveBinding | undefined): LiveDockModel | undefined {
+  if (binding?.session === undefined || binding.eventSource === undefined) return undefined
+  const snapshot = asRecord(binding.session.getSnapshot())
+  return {
+    ...dockItemsFromWindow(binding.eventSource.getSnapshot(), {
+      running: snapshot?.running === true,
+      ...(typeof snapshot?.openState === 'string' ? { openState: snapshot.openState } : {}),
+    }),
+    waits: [],
+  }
+}
+
+interface PendingCarrier {
+  kind: string
+  key: string
+  sessionId: string
+  raw: Record<string, unknown>
+}
+
+/**
+ * Subscribe to the alpha.1 pending-interaction map face; undefined when absent.
+ */
+export function subscribeWaitSource(pending: unknown, listener: () => void): (() => void) | undefined {
+  const face = asRecord(pending)
+  const subscribe = face?.subscribe
+  if (typeof subscribe !== 'function') return undefined
+  try {
+    const off = subscribe.call(pending, listener)
+    return typeof off === 'function' ? off as () => void : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Project the α.1 pending-interaction map (ctx.uiSession.pendingInteractions)
+ * into the dock's wait vocabulary. respond() keeps the legacy wire envelope so
+ * answerQuestion/answerApproval/cancelQuestion stay host-version agnostic.
+ */
+export function waitsFromPending(pending: unknown, sessionId?: string): LiveWait[] {
+  const face = asRecord(pending)
+  const getSnapshot = face?.getSnapshot
+  if (typeof getSnapshot !== 'function' || sessionId === undefined || sessionId === '') return []
+  let snapshot: unknown
+  try {
+    snapshot = getSnapshot.call(pending)
+  } catch {
+    return []
+  }
+  if (!(snapshot instanceof Map)) return []
+  const raw = snapshot.get(sessionId) ?? [...snapshot.values()].find(value => asRecord(value)?.sessionId === sessionId)
+  const rec = asRecord(raw)
+  if (rec === undefined) return []
+  const kind = asString(rec.kind)
+  const key = asString(rec.key) ?? kind ?? 'wait'
+  const carrier = rec as { answer?: (value: unknown) => Promise<unknown>; cancel?: () => Promise<unknown> }
+  if (kind === 'approval') {
+    return [{
+      kind: 'approval',
+      key,
+      sessionId,
+      approvalId: asString(rec.approvalId) ?? asString(rec.callId) ?? key,
+      toolName: asString(rec.toolName) ?? 'tool',
+      ...(asString(rec.reason) !== undefined ? { reason: asString(rec.reason) } : {}),
+      respond: async (result: unknown) => {
+        const body = asRecord(result)
+        const value = asRecord(body?.value)
+        if (body?.ok === false) {
+          if (typeof carrier.cancel === 'function') await carrier.cancel()
+          return { accepted: true }
+        }
+        if (typeof carrier.answer !== 'function') return { accepted: false, reason: 'no-answerer' }
+        await carrier.answer(asString(value?.outcome) ?? 'allowed-once')
+        return { accepted: true }
+      },
+    }]
+  }
+  if (kind === 'question' || kind === 'plan-review') {
+    const questions = parseAskItems(rec.questions)
+    if (questions.length === 0) return []
+    return [{
+      kind: 'question',
+      key,
+      sessionId,
+      questions,
+      respond: async (result: unknown): Promise<unknown> => {
+        const body = asRecord(result)
+        const value = asRecord(body?.value)
+        if (body?.ok === false) {
+          if (typeof carrier.cancel === 'function') await carrier.cancel()
+          return { accepted: true }
+        }
+        if (typeof carrier.answer !== 'function') return { accepted: false, reason: 'no-answerer' }
+        const answer = asRecord(value?.answer)
+        await carrier.answer({ answers: Array.isArray(answer?.answers) ? answer.answers : [] })
+        return { accepted: true }
+      },
+    }]
+  }
+  return []
 }

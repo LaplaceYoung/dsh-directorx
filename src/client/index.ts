@@ -29,7 +29,22 @@ interface ClientContext {
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection', 'layout', 'sessions']
+// alpha.1 gates scoped Remote namespaces behind their own service names
+// (reading remote.session without injecting it throws "without inject").
+export const inject = [
+  'slots',
+  'connection',
+  'layout',
+  'sessions',
+  'remote',
+  'remote.settings',
+  'remote.session',
+  'remote.workspace',
+  'remote.commands',
+  'settingsScope',
+  'uiSession',
+  'workspaces',
+]
 
 function optionalService(ctx: ClientContext, name: string): unknown {
   try {
@@ -40,17 +55,46 @@ function optionalService(ctx: ClientContext, name: string): unknown {
   }
 }
 
+/**
+ * Normalize the settings wire onto one face. alpha.1 hosts mount
+ * `remote.settings` as a Typert Remote (positional args, direct values or
+ * thrown TypertRemoteFailure); rc-era hosts served `connection.api.settings`
+ * (single-request object wrapped in the {rpcId,result:{ok,value}} envelope).
+ */
+function adaptSettings(face: unknown, flavor: 'typert' | 'legacy'): unknown {
+  const rec = face as {
+    describe?: (...args: unknown[]) => Promise<unknown>
+    mutate?: (...args: unknown[]) => Promise<unknown>
+  } | undefined
+  if (rec === undefined || typeof rec.describe !== 'function') return undefined
+  if (flavor === 'typert') {
+    return {
+      describe: async () => rec.describe!(),
+      mutate: async (request: { ns: string; ops: Array<{ op: string; path: string[]; value?: unknown }>; expectedRevision?: number }) =>
+        rec.mutate!(request.ns, request.ops, request.expectedRevision),
+    }
+  }
+  return rec
+}
+
 export function apply(ctx: ClientContext): void {
   const layout = (): LayoutFace | undefined => ctx.get('layout') as LayoutFace | undefined
   registerDirectorxSlash(ctx)
+  const uiSession = optionalService(ctx, 'uiSession') as { pendingInteractions?: unknown } | undefined
+  const pending = uiSession?.pendingInteractions
 
   const settingsCard = (name: 'settings.section' | 'settings.plugin.item') => {
+    const remote = optionalService(ctx, 'remote') as { settings?: unknown } | undefined
     const connection = ctx.get('connection') as { api?: { settings?: unknown } } | undefined
     const binder = optionalService(ctx, 'settingsScope') as {
       bind?: (spec: { namespace: string }) => unknown
     } | undefined
-    // rc.8 cards read the shared describe mirror via settingsScope. mutate
-    // stays on the connection for nested secret-safe path writes.
+    // Cards read the shared describe mirror via settingsScope on both host
+    // generations. Writes prefer the alpha.1 Typert face, keeping the legacy
+    // envelope seam for rc-era hosts.
+    const api = remote?.settings !== undefined
+      ? adaptSettings(remote.settings, 'typert')
+      : adaptSettings(connection?.api?.settings, 'legacy')
     return ctx.slots.register({
       name,
       id: 'directorx',
@@ -59,7 +103,7 @@ export function apply(ctx: ClientContext): void {
       label: 'DirectorX',
       inject: () => ({
         scope: binder?.bind?.({ namespace: 'directorx' }),
-        api: connection?.api?.settings,
+        api,
       }),
     }, DirectorxSettingsSection)
   }
@@ -85,8 +129,11 @@ export function apply(ctx: ClientContext): void {
       order: 40,
       label: 'DirectorX 画布',
       inject: () => ({
-        connection: ctx.get('connection'),
+        connection: optionalService(ctx, 'connection'),
         liveSessions: optionalService(ctx, 'sessions'),
+        remote: optionalService(ctx, 'remote'),
+        workspaces: optionalService(ctx, 'workspaces'),
+        pending,
       }),
     }, EditorDock),
   )

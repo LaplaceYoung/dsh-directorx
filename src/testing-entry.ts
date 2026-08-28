@@ -67,6 +67,7 @@ export { klingV3Video } from './providers/kling-v3.ts'
 export { viduVideo } from './providers/vidu.ts'
 export { veoVideo } from './providers/veo.ts'
 export { DirectorxCanvasStore, canvasEdgeAllowed } from './canvas.ts'
+export { canvasNodeKind } from './canvas-kind.ts'
 export { parseScriptBeats, SCRIPT_STARTER, applyScriptRows } from './canvas-script.ts'
 export {
   pinTextCard, pinCharacterSetting, formatCharacterSetting, formatStoryboardText,
@@ -94,12 +95,13 @@ export { applyGrade, inferMediaKind, isGradeLook, listGradeLabels, resolveGradeL
 export { StudioTicketStore } from './studio-intent.ts'
 export { closestPorts, edgeHandlePoints, flowAbsolutePosition, handleToSide, hitTestAbsolute, inferContinueKind, planContinueFromFlowNode, planContinueGenerate, portPoint, portsForHandles, routeDisplayPorts, sideToHandle, tidyOverlappingGroups } from './canvas-generate.ts'
 export {
-  createdSessionId, foldSessionHistory, parseArchivedIds, parseSessionList, parseWorkspaceList,
+  createdSessionId, foldSessionHistory, parseArchivedIds, parseSessionList, parseSessionModels, parseWorkspaceList,
   pickWorkspaceSession, rpcOk, sessionRunningFromList, summarizeToolName, textFromBlocks, toolCaption,
 } from './client/stage/session-fold.ts'
 export { sessionTextNeedsFold } from './client/stage/session-fold.ts'
 export {
-  answerQuestion, dockItemsFromSnapshot, resolveLiveSession, linesFromFold,
+  answerQuestion, dockItemsFromSnapshot, dockItemsFromLive, dockItemsFromWindow, resolveLiveBinding, resolveLiveSession,
+  linesFromFold, subscribeWaitSource, waitsFromPending,
 } from './client/stage/session-live.ts'
 export { mediaFromToolResult, mediaKindOf } from './client/stage/session-media.ts'
 export { wantsCharacterSheet, withCharacterSheetSpec } from './providers/sheet-prompt.ts'
@@ -121,6 +123,7 @@ export {
 } from './client/stage/timeline-edit.ts'
 export { displayCardTitle, isAssetSlug, nextCardLabel, resolveStoredLabel, shotMark } from './card-label.ts'
 export { registerSubagentSetup } from './subagents.ts'
+export { CANVAS_GENERATE_ROUTE_PATH, registerCanvasGenerateRoute } from './canvas-job.ts'
 export { CANVAS_ROUTE_PATH, EDIT_SUBDIR, MEDIA_TYPE_EXT, MEDIA_EDITS_ROUTE_PATH, MEDIA_LIST_ROUTE_PATH, MEDIA_TASKS_ROUTE_PATH, STUDIO_ROUTE_PATH, inspectMediaFile, mediaTypeExt, MEDIA_ROUTE_PATH, registerCanvasCraftRoute, registerCanvasIntentRoute, registerCanvasRoute, registerCharactersRoute, registerMediaEditsRoute, registerMediaListRoute, registerMediaRoute, registerMediaTasksRoute, registerProposalsRoute, registerStudioRoute } from './media-server.ts'
 export { losslessJsonObject, MAX_MEDIA_BYTES, parseMediaQuery, parseRangeHeader, resolveMediaPath, resolveOutputDir } from './support.ts'
 export { currentProjectRoot, runInProject } from './project.ts'

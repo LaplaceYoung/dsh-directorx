@@ -1,12 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { DEEPSEEK_FIRST_PARTY_VISION, MODELVERSE_BY_CAPABILITY } from '../modelverse-catalog.ts'
+import { rpcOk } from './stage/session-fold.ts'
 import { projectHeaders, withProject } from './stage/project.ts'
-
-interface RpcResult<T> {
-  ok: boolean
-  value: T
-  error?: { code?: string; message?: string }
-}
 
 interface NamespaceView {
   ns: string
@@ -19,13 +14,19 @@ interface NamespaceView {
   revision: number
 }
 
+interface SettingsDescribe {
+  writable: boolean
+  hasDocument: boolean
+  namespaces: NamespaceView[]
+}
+
 interface SettingsApi {
-  describe(request: object): Promise<{ result: RpcResult<{ writable: boolean; hasDocument: boolean; namespaces: NamespaceView[] }> }>
+  describe(request: object): Promise<unknown>
   mutate(request: {
     ns: string
     ops: Array<{ op: 'set' | 'unset'; path: string[]; value?: unknown }>
     expectedRevision?: number
-  }): Promise<{ result: RpcResult<NamespaceView> }>
+  }): Promise<unknown>
 }
 
 interface SettingsScopeSnapshot {
@@ -38,6 +39,8 @@ interface SettingsScopeSnapshot {
 interface SettingsScopeFace {
   getSnapshot(): SettingsScopeSnapshot
   subscribe(listener: () => void): () => void
+  /** alpha.1 seam (settings-contract): path ops with the snapshot revision fence. */
+  mutate?: (ops: Array<{ op: 'set' | 'unset'; path: string[]; value?: unknown }>, expectedRevision?: number) => Promise<unknown>
 }
 
 interface CapabilityDraft {
@@ -437,16 +440,16 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     setStatus(prev => prev === 'idle' ? 'loading' : prev)
     setError(undefined)
     try {
-      const response = await api.describe({})
-      if (!response.result.ok) throw new Error(response.result.error?.message ?? 'settings.describe failed')
-      const target = response.result.value.namespaces.find(entry => entry.ns === 'directorx')
+      const parsed = rpcOk<SettingsDescribe>(await api.describe({}))
+      if (!parsed.ok) throw new Error(parsed.message)
+      const target = parsed.value.namespaces.find(entry => entry.ns === 'directorx')
       if (target === undefined) {
         setStatus('ready')
-        setWritable(response.result.value.writable)
+        setWritable(parsed.value.writable)
         setError('未找到 directorx 设置命名空间。请确认插件已安装并重启 DSH。')
         return
       }
-      applyNamespace(target, response.result.value.writable)
+      applyNamespace(target, parsed.value.writable)
     } catch (loadError) {
       setStatus('error')
       setError(messageOf(loadError))
@@ -465,7 +468,7 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   async function save(): Promise<void> {
     if (saving) return
     const revision = scope?.getSnapshot().revision ?? view?.revision
-    if (api === undefined) {
+    if (scope?.mutate === undefined && api === undefined) {
       setError('当前 Host 无法按路径写入设置（需要 settings.mutate）。')
       return
     }
@@ -497,13 +500,23 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           ops.push({ op: 'set', path: [key, 'auth', 'klingSk'], value: capability.klingSk.trim() })
         }
       }
-      const response = await api.mutate({
-        ns: 'directorx',
-        ops,
-        ...(revision === undefined ? {} : { expectedRevision: revision }),
-      })
-      if (!response.result.ok) throw new Error(response.result.error?.message ?? 'settings.mutate failed')
-      applyNamespace(response.result.value, writable)
+      // Call as a method — scope.mutate uses `this.writeGeneration`.
+      if (scope?.mutate !== undefined) {
+        // Official scope seam (0.1.2): applies ops, the mirror accepts the new
+        // view, and the card re-reads the snapshot. Wire failures recover by
+        // reloading the last host view.
+        await scope.mutate(ops, revision)
+        if (scope !== undefined) applyScopeSnapshot(scope.getSnapshot())
+      } else {
+        if (api === undefined) throw new Error('当前 Host 无法按路径写入设置（需要 settings.mutate）。')
+        const parsed = rpcOk<NamespaceView>(await api.mutate({
+          ns: 'directorx',
+          ops,
+          ...(revision === undefined ? {} : { expectedRevision: revision }),
+        }))
+        if (!parsed.ok) throw new Error(parsed.message)
+        applyNamespace(parsed.value, writable)
+      }
       setSaved(true)
       window.setTimeout(() => setSaved(false), 2500)
     } catch (saveError) {
@@ -513,7 +526,15 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
     }
   }
 
-  if (api === undefined && scope === undefined) return null
+  if (api === undefined && scope === undefined) return (
+    <div style={settingsRoot}>
+      <div style={eyebrow}>DIRECTORX / SETTINGS</div>
+      <h2 style={sectionTitle}>DirectorX 模型</h2>
+      <div style={notice} role="status">
+        Host 没有把 settings 面注入进来。把插件切到 SettingsScope 驱动的版本，它就不会走这条分路。
+      </div>
+    </div>
+  )
   if (status === 'loading' || status === 'idle') return <div style={{ ...settingsRoot, color: 'var(--dsw-alias-label-tertiary)' }} role="status">正在加载 DirectorX 模型配置…</div>
   if (status === 'error') return (
     <div style={settingsRoot}>

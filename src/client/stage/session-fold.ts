@@ -3,16 +3,59 @@
  * The official conversation stays in its own seat — this is a read model only.
  */
 
+export type SessionPromptPart =
+  | { type: 'text'; text: string }
+  | { type: 'image'; mediaType: string; data: string; name?: string }
+
 export interface SessionClient {
   list?: (payload?: Record<string, unknown>) => Promise<unknown>
   create?: (payload: { cwd?: string; workspaceId?: string; agentPreset?: string }) => Promise<unknown>
+  /** Pre-0.1.2 history page. */
   history?: (payload: { sessionId: string; maxMessages?: number; beforeSeq?: number }) => Promise<unknown>
+  /** DSH 0.1.2 journal page (`session.page`). */
+  page?: (payload: {
+    address: { kind: 'session'; sessionId: string }
+    throughSeq: number
+    maxMessages?: number
+    beforeSeq?: number
+  }) => Promise<unknown>
   prompt?: (payload: {
     sessionId: string
     mode: 'queue' | 'steer'
-    content: Array<{ type: 'text'; text: string }>
+    content: SessionPromptPart[]
+    /** Required by the 0.1.2 session.prompt wire; minted client-side per prompt. */
+    requestId?: string
   }) => Promise<unknown>
   cancel?: (payload: { sessionId: string }) => Promise<unknown>
+  /** Pre-0.1.2 combined directory. Current hosts expose `modelCatalog`. */
+  models?: (payload: { sessionId: string }) => Promise<unknown>
+  modelCatalog?: () => Promise<unknown>
+  selectModel?: (payload: { sessionId: string; provider: string; model: string; reasoningEffort?: string }) => Promise<unknown>
+}
+
+export interface SessionModelSelection {
+  provider: string
+  model: string
+  reasoningEffort?: string
+}
+
+export interface SessionModelRow {
+  id: string
+  name: string
+  description?: string
+  reasoning?: { efforts: Array<{ id: string; name: string }>; defaultEffort?: string }
+}
+
+export interface SessionModelGroup {
+  id: string
+  name: string
+  models: SessionModelRow[]
+}
+
+export interface SessionModelsView {
+  current: SessionModelSelection
+  routable: boolean
+  groups: SessionModelGroup[]
 }
 
 export interface WorkspaceClient {
@@ -30,6 +73,11 @@ export interface WorkspaceRow {
   id?: string
   path?: string
   sessionIds: string[]
+}
+
+/** Mint one client request identity for the 0.1.2 session.prompt wire. */
+export function mintSessionRequestId(): string {
+  return `directorx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 export type SessionLineKind = 'user' | 'assistant' | 'tool' | 'notice'
@@ -176,6 +224,77 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value as Record<string, unknown>
 }
 
+function parseReasoning(input: unknown): SessionModelRow['reasoning'] {
+  const rec = asRecord(input)
+  if (rec === undefined || !Array.isArray(rec.efforts)) return undefined
+  const efforts = rec.efforts.flatMap(item => {
+    const row = asRecord(item)
+    if (row === undefined || typeof row.id !== 'string' || row.id === '' || typeof row.name !== 'string') return []
+    return [{ id: row.id, name: row.name }]
+  })
+  if (efforts.length === 0) return undefined
+  return {
+    efforts,
+    ...(typeof rec.defaultEffort === 'string' && rec.defaultEffort !== '' ? { defaultEffort: rec.defaultEffort } : {}),
+  }
+}
+
+/** Unwrap `session.modelCatalog` or a combined `session.models` directory. */
+export function parseSessionModels(input: unknown): SessionModelsView | undefined {
+  const parsed = rpcOk<unknown>(input)
+  if (!parsed.ok) return undefined
+  const rec = asRecord(parsed.value)
+  if (rec === undefined) return undefined
+  const currentRec = asRecord(rec.current) ?? asRecord(rec.default)
+  const provider = typeof currentRec?.provider === 'string' ? currentRec.provider : ''
+  const model = typeof currentRec?.model === 'string' ? currentRec.model : ''
+  if (provider === '' || model === '') return undefined
+  const groups: SessionModelGroup[] = []
+  if (Array.isArray(rec.groups)) {
+    for (const item of rec.groups) {
+      const group = asRecord(item)
+      if (group === undefined || typeof group.id !== 'string' || group.id === '') continue
+      const models: SessionModelRow[] = []
+      if (Array.isArray(group.models)) {
+        for (const raw of group.models) {
+          const row = asRecord(raw)
+          if (row === undefined || typeof row.id !== 'string' || row.id === '') continue
+          const reasoning = parseReasoning(row.reasoning)
+          models.push({
+            id: row.id,
+            name: typeof row.name === 'string' && row.name !== '' ? row.name : row.id,
+            ...(typeof row.description === 'string' && row.description !== '' ? { description: row.description } : {}),
+            ...(reasoning !== undefined ? { reasoning } : {}),
+          })
+        }
+      }
+      groups.push({
+        id: group.id,
+        name: typeof group.name === 'string' && group.name !== '' ? group.name : group.id,
+        models,
+      })
+    }
+  }
+  const routableProviders = Array.isArray(rec.routableProviders)
+    ? rec.routableProviders.filter((value): value is string => typeof value === 'string')
+    : undefined
+  return {
+    current: {
+      provider,
+      model,
+      ...(typeof currentRec?.reasoningEffort === 'string' && currentRec.reasoningEffort !== '' ? { reasoningEffort: currentRec.reasoningEffort } : {}),
+    },
+    routable: rec.routable === false
+      ? false
+      : routableProviders === undefined
+        ? rec.routable !== false
+        : routableProviders.includes(provider),
+    groups,
+  }
+}
+
+
+
 function unwrapEvent(item: unknown): Record<string, unknown> | undefined {
   const rec = asRecord(item)
   if (rec === undefined) return undefined
@@ -191,6 +310,7 @@ function extractEvents(input: unknown): unknown[] {
   if (Array.isArray(body)) return body
   const rec = asRecord(body)
   if (rec === undefined) return []
+  if (Array.isArray(rec.records)) return rec.records
   if (Array.isArray(rec.events)) return rec.events
   if (Array.isArray(rec.items)) return rec.items
   return []

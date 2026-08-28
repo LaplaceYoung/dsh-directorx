@@ -1,9 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  answerQuestion, createdSessionId, dockItemsFromSnapshot, foldSessionHistory, mediaFromToolResult, parseSessionList,
-  parseWorkspaceList, pickWorkspaceSession, resolveLiveSession, rpcOk, sessionRunningFromList, sessionTextNeedsFold,
-  summarizeToolName, textFromBlocks, toolCaption, wantsCharacterSheet, withCharacterSheetSpec,
+  answerQuestion, createdSessionId, dockItemsFromSnapshot, dockItemsFromWindow, foldSessionHistory, mediaFromToolResult,
+  parseSessionList, parseSessionModels, parseWorkspaceList, pickWorkspaceSession, resolveLiveSession, rpcOk,
+  sessionRunningFromList, sessionTextNeedsFold, summarizeToolName, textFromBlocks, toolCaption, waitsFromPending,
+  wantsCharacterSheet, withCharacterSheetSpec,
 } from '../lib/testing.js'
 
 test('textFromBlocks skips reasoning and joins visible text', () => {
@@ -288,4 +289,158 @@ test('resolveLiveSession reads a duck-typed binding', () => {
   assert.equal(resolveLiveSession(service, 's1'), session)
   assert.equal(resolveLiveSession(service, 'missing'), undefined)
   assert.equal(resolveLiveSession({}, 's1'), undefined)
+})
+
+test('parseSessionModels reads the 0.1.2 modelCatalog envelope', () => {
+  const view = parseSessionModels({
+    ok: true,
+    value: {
+      default: { provider: 'deepseek-official', model: 'deepseek-v4-flash', reasoningEffort: 'high' },
+      routableProviders: ['deepseek-official'],
+      groups: [{
+        id: 'deepseek-official',
+        name: 'DeepSeek',
+        models: [{
+          id: 'deepseek-v4-flash',
+          name: 'DeepSeek-V4-Flash',
+          description: 'Fast',
+          reasoning: { efforts: [{ id: 'high', name: 'High' }], defaultEffort: 'high' },
+        }],
+      }],
+      failures: [],
+    },
+  })
+  assert.deepEqual(view?.current, { provider: 'deepseek-official', model: 'deepseek-v4-flash', reasoningEffort: 'high' })
+  assert.equal(view?.routable, true)
+  assert.equal(view?.groups[0]?.models[0]?.name, 'DeepSeek-V4-Flash')
+})
+
+test('parseSessionModels still unwraps a combined session.models payload', () => {
+  const view = parseSessionModels({
+    result: {
+      ok: true,
+      value: {
+        current: { provider: 'openai', model: 'gpt-5' },
+        groups: [{ id: 'openai', name: 'OpenAI', models: [{ id: 'gpt-5', name: 'GPT-5' }] }],
+      },
+    },
+  })
+  assert.deepEqual(view?.current, { provider: 'openai', model: 'gpt-5' })
+  assert.equal(view?.groups[0]?.id, 'openai')
+})
+
+test('foldSessionHistory reads session.page records', () => {
+  const folded = foldSessionHistory({
+    ok: true,
+    value: {
+      records: [
+        { type: 'event', event: { type: 'user/message', seq: 1, time: 1, data: { content: [{ type: 'text', text: '切模型' }], source: { kind: 'user' } } } },
+        { type: 'event', event: { type: 'assistant/message', seq: 2, time: 2, data: { message: { content: [{ type: 'text', text: '已切到 Flash' }] } } } },
+      ],
+      hasMore: false,
+    },
+  })
+  assert.deepEqual(folded.lines.map(line => [line.kind, line.text]), [
+    ['user', '切模型'],
+    ['assistant', '已切到 Flash'],
+  ])
+})
+
+test('dockItemsFromWindow folds 0.1.2 events into dock lines', () => {
+  const model = dockItemsFromWindow({
+    entries: [
+      { type: 'event', event: { type: 'user/message', seq: 1, time: 1, data: { content: [{ type: 'text', text: '画一只猫' }], source: { kind: 'user' } } } },
+      { type: 'event', event: { type: 'assistant/chunk', seq: 2, time: 2, data: { turn: 1, step: 0, chunk: { type: 'text-delta', index: 0, text: '好' } } } },
+      { type: 'event', event: { type: 'assistant/chunk', seq: 3, time: 3, data: { turn: 1, step: 0, chunk: { type: 'text-delta', index: 0, text: '，这就画' } } } },
+      { type: 'event', event: { type: 'assistant/message', seq: 4, time: 4, data: { turn: 1, step: 0, message: { content: [{ type: 'text', text: '好，这就画' }] } } } },
+      { type: 'event', event: { type: 'tool/call', seq: 5, time: 5, data: { turn: 1, step: 0, callId: 'c1', name: 'directorx_generate_image', arguments: '{"prompt":"cat"}' } } },
+      { type: 'event', event: { type: 'tool/result', seq: 6, time: 6, data: { turn: 1, step: 0, message: { content: [{ type: 'tool-result', toolCallId: 'c1', content: [{ type: 'text', text: '{"done":true}' }] }] } } } },
+    ],
+    hasMore: false,
+    revision: 1,
+    change: { kind: 'replace', entries: [] },
+  }, { running: false, openState: 'open' })
+
+  assert.equal(model.ready, true)
+  assert.deepEqual(model.lines.map(line => [line.kind, line.text, line.status ?? '']), [
+    ['user', '画一只猫', ''],
+    ['assistant', '好，这就画', ''],
+    ['tool', 'generate image：', 'ok'],
+  ])
+  assert.equal(model.lines[2]?.result, '{"done":true}')
+})
+
+test('dockItemsFromWindow keeps streaming text and running call markers alive mid-turn', () => {
+  const model = dockItemsFromWindow({
+    entries: [
+      { type: 'event', event: { type: 'assistant/chunk', seq: 1, time: 1, data: { turn: 2, step: 0, chunk: { type: 'text-delta', index: 0, text: '还在生成' } } } },
+      { type: 'event', event: { type: 'tool/call', seq: 2, time: 2, data: { turn: 2, step: 0, callId: 'c9', name: 'directorx_generate_video', arguments: '{}' } } },
+    ],
+    hasMore: false,
+    revision: 1,
+    change: { kind: 'append', entries: [] },
+  }, { running: true, openState: 'open' })
+
+  assert.equal(model.running, true)
+  const kinds = model.lines.map(line => [line.kind, line.status ?? (line.streaming ? 'streaming' : '')])
+  assert.deepEqual(kinds, [
+    ['assistant', 'streaming'],
+    ['tool', 'running'],
+  ])
+})
+
+test('dockItemsFromWindow expands packed chunk rows when no message settles', () => {
+  const model = dockItemsFromWindow({
+    entries: [
+      { type: 'chunks', event: { type: 'chunkrow/text-chunks', seq: 10, time: 10, data: { turn: 3, step: 1, index: 0, dt: [], texts: ['前面', '部分'] } } },
+    ],
+    hasMore: false,
+    revision: 0,
+    change: { kind: 'replace', entries: [] },
+  }, { running: false, openState: 'open' })
+  assert.deepEqual(model.lines.map(line => [line.kind, line.text, line.streaming === true]), [
+    ['assistant', '前面部分', true],
+  ])
+})
+
+test('waitsFromPending maps alpha.1 question and approval carriers', async () => {
+  const carried = []
+  const pending = {
+    getSnapshot() {
+      return new Map([
+        ['s1', {
+          kind: 'approval', key: 'k1', sessionId: 's1', toolName: 'bash', reason: '写入',
+          answer: async outcome => { carried.push(['approve', outcome]) },
+        }],
+        ['s2', undefined],
+      ])
+    },
+    subscribe() { return () => {} },
+  }
+  const waits = waitsFromPending(pending, 's1')
+  assert.equal(waits.length, 1)
+  assert.equal(waits[0].kind, 'approval')
+  assert.equal(waits[0].toolName, 'bash')
+  await waits[0].respond({ ok: true, value: { sessionId: 's1', approvalId: 'k1', outcome: 'allowed-once' } })
+  assert.deepEqual(carried, [['approve', 'allowed-once']])
+  assert.deepEqual(waitsFromPending(pending, 'nope'), [])
+})
+
+test('waitsFromPending answers question carriers with the answers batch', async () => {
+  let answered
+  const pending = {
+    getSnapshot() {
+      return new Map([['s1', {
+        kind: 'question', key: 'q1', sessionId: 's1',
+        questions: [{ id: 'q', question: '选哪个？', options: [{ label: 'A' }, { label: 'B' }] }],
+        answer: async batch => { answered = batch },
+      }]])
+    },
+    subscribe() { return () => {} },
+  }
+  const waits = waitsFromPending(pending, 's1')
+  assert.equal(waits.length, 1)
+  assert.equal(waits[0].questions[0]?.question, '选哪个？')
+  await answerQuestion(waits[0], [{ id: 'q', selected: ['A'] }])
+  assert.deepEqual(answered, { answers: [{ id: 'q', selected: ['A'] }] })
 })
