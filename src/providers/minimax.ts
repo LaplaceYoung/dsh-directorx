@@ -1,6 +1,6 @@
 import { downloadToFile, readJsonResponse } from '../support.ts'
 import type { ProviderContext, VideoResult } from './types.ts'
-
+import { clampH3Duration, clipH3Prompt, h3SkipReferences, limitH3Refs } from './h3-contract.ts'
 /**
  * MiniMax H3 (api.minimaxi.com) official v2 protocol, per the official
  * OpenAPI spec (v2-video-generation.json): multimodal content[] create,
@@ -33,22 +33,24 @@ export async function minimaxH3Video(
   const base = ctx.capability.baseURL.replace(/\/+$/, '')
   const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }
 
+  const text = clipH3Prompt(prompt).prompt
   const content: Array<Record<string, unknown>> = []
   const pushImage = async (url: string, role: string) => {
     content.push({ type: 'image_url', image_url: { url }, role })
   }
   if (options.firstFramePath !== undefined) await pushImage(options.firstFramePath, 'first_frame')
   if (options.lastFramePath !== undefined) await pushImage(options.lastFramePath, 'last_frame')
-  if (options.referenceImagePaths !== undefined) {
-    for (const reference of options.referenceImagePaths) await pushImage(reference, 'reference_image')
+  const skipRefs = h3SkipReferences(options.firstFramePath, options.lastFramePath)
+  if (!skipRefs && options.referenceImagePaths !== undefined) {
+    for (const reference of limitH3Refs(options.referenceImagePaths)) await pushImage(reference, 'reference_image')
   }
-  content.push({ type: 'text', text: prompt })
+  content.push({ type: 'text', text })
   const hasImages = content.length > 1
   const payload: Record<string, unknown> = {
     model: ctx.capability.model !== '' ? ctx.capability.model : 'MiniMax-H3',
     content,
     resolution: ctx.capability.resolution ?? '768P',
-    duration: options.seconds !== undefined && options.seconds > 0 ? Math.min(15, Math.max(4, Math.round(options.seconds))) : 6,
+    duration: clampH3Duration(options.seconds),
     ...(hasImages ? {} : { ratio: options.aspectRatio ?? '16:9' }),
   }
   const createResponse = await fetch(`${base}/v2/video_generation`, {

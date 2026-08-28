@@ -2,9 +2,9 @@
   "schema_version": 2,
   "okf_version": "0.2",
   "generated_at": "2026-08-18T00:00:00Z",
-  "active_article_count": 348,
+  "active_article_count": 355,
   "legacy_redirect_count": 90,
-  "max_id": 418,
+  "max_id": 425,
   "missing_ids": [
     34,
     49,
@@ -118,7 +118,7 @@
       "label": "专业创作深化",
       "min": 401,
       "max": 500,
-      "count": 14
+      "count": 21
     }
   ],
   "articles": [
@@ -7187,12 +7187,12 @@
         "231-shot-size-emotion/shot-size-emotion.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 2817,
-      "bytes": 6136,
+      "chars": 3186,
+      "bytes": 6810,
       "section_count": 14,
       "external_url_count": 5,
       "source_status": "linked",
-      "sha256": "8f31f4fc66e8b39eccd299203091e375ac97f5526040c3a4ef0c9fd72c0714fa",
+      "sha256": "aba44b02f2a58fe0eb08c917f3423c47bbbda86ff5d928c408836a801e013ee4",
       "flags": []
     },
     {
@@ -11082,12 +11082,218 @@
         "117-ai-consistency-system/ai-consistency-system.md"
       ],
       "stale_after": "2027-08-18",
-      "chars": 14348,
-      "bytes": 30454,
+      "chars": 14427,
+      "bytes": 30615,
       "section_count": 34,
       "external_url_count": 12,
       "source_status": "linked",
-      "sha256": "eb4b8d8a62d1fde999eae20e81ad3446c1f4b27ce5ec4ea3285337854431fc5f",
+      "sha256": "8d0c09c5f01f7348eab734bf18d1c54cc0c2d3d33b925cad82f8b3af02f00dce",
+      "flags": []
+    },
+    {
+      "number": 419,
+      "id": "419",
+      "slug": "mv-master-clock",
+      "title": "MV 音乐主时钟与七阶段交接（MV Master Clock & Stage Handoff）",
+      "path": "knowledge/419-mv-master-clock/mv-master-clock.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "把最终主音乐设为 MV 唯一时间权威，覆盖输入、音乐就绪、逐句时间轴、分镜、口型代理、后期替换与交付的可恢复交接合同",
+      "tags": [
+        "craft",
+        "storyboard"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "07-directing/directing-techniques.md",
+        "25-visualization-previz/visualization-previz.md",
+        "35-animatic-practice/animatic-practice.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 3529,
+      "bytes": 7341,
+      "section_count": 10,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "a588cb10a4b5e3e7c6ba7940b72e76f7d9bb6b7c211edd4e8870dc89c45a13ec",
+      "flags": []
+    },
+    {
+      "number": 420,
+      "id": "420",
+      "slug": "ass-safe-area",
+      "title": "ASS 字幕安全区与渲染合同（ASS Safe-Area Contract）",
+      "path": "knowledge/420-ass-safe-area/ass-safe-area.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "规定 ASS/字幕的画幅换算、Title Safe/Action Safe、对齐锚点、边距、动态字体冲突和 ffmpeg/libass 验收，避免平台裁切",
+      "tags": [
+        "craft",
+        "continuity",
+        "platform"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "195-brand-visual-asset/brand-visual-asset.md",
+        "423-jianying-delivery/jianying-delivery.md",
+        "02-editing-transitions/editing-transitions.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 4272,
+      "bytes": 8245,
+      "section_count": 12,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "69546e1032e627d70006cd3bffbe27df251afb5a29fedc9189ef5a23d969cb10",
+      "flags": []
+    },
+    {
+      "number": 421,
+      "id": "421",
+      "slug": "asset-anchors",
+      "title": "角色与场景资产锚点、六视图和连续性（Asset Anchors & Six-View Identity）",
+      "path": "knowledge/421-asset-anchors/asset-anchors.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "按跨镜头依赖创建角色/场景锚点，规定六视图身份板、条件场景板、普通场景描述、引用角色和资产替换连续性",
+      "tags": [
+        "craft",
+        "camera",
+        "character",
+        "continuity"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "70-on-camera-acting/on-camera-acting.md",
+        "86-storyboard-drawing/storyboard-drawing.md",
+        "212-expression-library/expression-library.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 4476,
+      "bytes": 9027,
+      "section_count": 14,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "e7519d5c4fbb2fc459b7081ce0d6592cdd2c972f4893f25e0e50f3d827bfa37e",
+      "flags": []
+    },
+    {
+      "number": 422,
+      "id": "422",
+      "slug": "sfx-noise-limits",
+      "title": "SFX 使用边界、降噪保真与混音限制（SFX & Noise Limits）",
+      "path": "knowledge/422-sfx-noise-limits/sfx-noise-limits.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "规定 SFX/环境声何时可用、降噪证据与保真边界、代理音轨清理、对白 ducking、响度和削波验收",
+      "tags": [
+        "craft"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [],
+      "stale_after": "2028-08-25",
+      "chars": 2573,
+      "bytes": 5319,
+      "section_count": 8,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "72539b07a90ca37c96ed217d306741af48f9e988f3b293e86872fa840b259fd3",
+      "flags": []
+    },
+    {
+      "number": 423,
+      "id": "423",
+      "slug": "jianying-delivery",
+      "title": "剪映草稿与平台交付包（Jianying Draft & Platform Delivery）",
+      "path": "knowledge/423-jianying-delivery/jianying-delivery.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "把 DirectorX master 转为可复核的平台版本与剪映草稿：媒体引用、字幕/音轨层、画幅安全区、时间线连续性和失败回退",
+      "tags": [
+        "craft",
+        "continuity",
+        "platform"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "195-brand-visual-asset/brand-visual-asset.md",
+        "420-ass-safe-area/ass-safe-area.md",
+        "02-editing-transitions/editing-transitions.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 3873,
+      "bytes": 7285,
+      "section_count": 10,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "1d161c25d32d786d513aee57e130ecc5f9b40a8fa080b471278438cf0307f65b",
+      "flags": []
+    },
+    {
+      "number": 424,
+      "id": "424",
+      "slug": "cinematic-motion-language",
+      "title": "电影运动语言五支柱（Cinematic Motion Language）",
+      "path": "knowledge/424-cinematic-motion-language/cinematic-motion-language.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "将相机契约、运动物理、空间分区、镜头对焦序列和负空间编译为可执行视频 prompt 与验收规则",
+      "tags": [
+        "craft",
+        "camera",
+        "prompt"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "40-storyboard-generation/storyboard-generation.md",
+        "53-shotlist-to-prompt/shotlist-to-prompt.md",
+        "73-ai-prompt-quickref/ai-prompt-quickref.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 2849,
+      "bytes": 5295,
+      "section_count": 12,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "f2d4c057c21c735c04a5b44429b278df01dfa593e9a5a4456e97853f56922b4c",
+      "flags": []
+    },
+    {
+      "number": 425,
+      "id": "425",
+      "slug": "beat-sync-editing",
+      "title": "Beat Sync 卡点剪辑与节拍证据（Beat-Sync Editing）",
+      "path": "knowledge/425-beat-sync-editing/beat-sync-editing.md",
+      "group": "craft",
+      "type": "Reference",
+      "description": "用真实音频峰值和用户切点生成连续混剪时间轴，规定 every-N、onset、segment、素材循环、原声策略和确定性后期验收",
+      "tags": [
+        "craft",
+        "editing",
+        "sound",
+        "continuity",
+        "narrative"
+      ],
+      "status": "stable",
+      "aliases": [],
+      "related": [
+        "88-sound-image-on-set/sound-image-on-set.md",
+        "48-ai-drama-studio/ai-drama-studio.md",
+        "282-narrative-av-genre/narrative-av-genre.md"
+      ],
+      "stale_after": "2028-08-25",
+      "chars": 2303,
+      "bytes": 4900,
+      "section_count": 8,
+      "external_url_count": 0,
+      "source_status": "internal",
+      "sha256": "4b864742fb3a3afcd473821a945f338f88a2f1788b1e6e86396110a654caa28a",
       "flags": []
     }
   ]

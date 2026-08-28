@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # DirectorX 知识库
 
-348 篇有效文章，90 个已合并旧编号。此文件是 OKF v0.2 根索引，由 `npm run knowledge:audit` 生成。
+355 篇有效文章，90 个已合并旧编号。此文件是 OKF v0.2 根索引，由 `npm run knowledge:audit` 生成。
 
 使用方式：先 `directorx_knowledge_search`（可按 type / tag / group 过滤），再 `directorx_knowledge_read` 读规范文章。旧编号与占位 slug 会重定向到合并后的文章。
 
@@ -354,7 +354,7 @@ okf_version: "0.2"
 * [电商信息流爆款素材逐镜拆解（E-commerce Ad Creative Case — Hook, Structure & Data）](./399-ecommerce-creative-case/ecommerce-creative-case.md) - (Case) 三个 2025 年真实电商素材案例（TikTok 美区 7 秒减脂粉、口播六段式指尖玩具、淘宝 AI 数字人直播）的逐镜/钩子/数据拆解，以及电商素材钩子类型学、字幕口播协同与 AI 批量生产映射
 * [AI 视频交付规格总表（AI Video Delivery Spec Matrix — 2026）](./400-ai-delivery-spec/ai-delivery-spec.md) - (Spec) AI 生成视频的交付规格速查：全平台上传规格（2026 官方文档数值）、音频响度（LUFS/dBTP）、色彩空间与母版格式、导出三杠杆、AI 生成物交付注意（抽帧质检/响度校准/格式转换）
 
-# 专业创作深化（401-500，14 篇）
+# 专业创作深化（401-500，21 篇）
 
 * [追逐/追车场景镜头级方案（Chase & Vehicle Scene — Shot-by-Shot Design + AI）](./401-chase-scene/chase-scene.md) - (Reference) 追逐场景的镜头级方案：节拍→镜头序列表、7 类关键镜头画面构成（车轮低角度/过肩/追尾/航拍俯冲/护栏擦过/杂物碰撞/隧道灯影）、速度感营造、节奏与转场、常见错误与 AI 生成工作流，每个镜头给出中英 AI 提示词与生成后检查
 * [悬疑推理场景镜头级方案（Mystery & Reveal Scene — Information Control + AI）](./402-mystery-reveal-scene/mystery-reveal-scene.md) - (Reference) 悬疑推理场景的镜头级方案：信息控制本质、线索发现→误导→逼近→reveal 的节拍镜头表、关键镜头画面构成（主观视线/特写/走廊纵深/阴影遮挡/镜面/惊鸿一瞥）、信息保留技巧与 reveal 时刻设计，全部落到可执行的 AI 提示词与生成后检查
@@ -370,6 +370,13 @@ okf_version: "0.2"
 * [战争/冲突场景镜头级方案（War & Battle Scene — Chaos & Order + AI）](./413-war-battle-scene/war-battle-scene.md) - (Reference) 战争/冲突场景的镜头级方案：宏观战略与个体挣扎双视角、节拍→镜头序列表、8 类关键镜头（炮火大远景/士兵过肩/尘土硝烟/慢动作牺牲/主观奔跑/战壕纵深/正面冲锋/战后静场）的中英提示词与生成后检查、混乱与秩序平衡、慢动作与高速交替、常见错误与 AI 编排工作流
 * [生成参数控制实战（Parameters — Seed, CFG, Steps, Negative & Tuning + AI）](./417-parameters-tuning/parameters-tuning.md) - (Method) AI 视频/图像生成参数的镜头级控制实战：Seed/CFG/Steps/分辨率/时长/运动强度/负面提示词/风格强度/参考权重 × 组合策略（一致性/运动/质量）× seed 复现迭代与常见错误表
 * [长镜与一镜到底续接（One-Shot & Long Take Chaining — Seamless Continuity + AI）](./418-one-shot-chaining/one-shot-chaining.md) - (Reference) AI 伪一镜到底的分段续接方法：首尾帧衔接、运动矢量延续、场景卡、隐藏剪辑点，穿过门/遮挡/转场动作/同构图延续四类无缝转场，长镜内角色场景光一致性维持，接缝校验与修复
+* [MV 音乐主时钟与七阶段交接（MV Master Clock & Stage Handoff）](./419-mv-master-clock/mv-master-clock.md) - (Reference) 把最终主音乐设为 MV 唯一时间权威，覆盖输入、音乐就绪、逐句时间轴、分镜、口型代理、后期替换与交付的可恢复交接合同
+* [ASS 字幕安全区与渲染合同（ASS Safe-Area Contract）](./420-ass-safe-area/ass-safe-area.md) - (Reference) 规定 ASS/字幕的画幅换算、Title Safe/Action Safe、对齐锚点、边距、动态字体冲突和 ffmpeg/libass 验收，避免平台裁切
+* [角色与场景资产锚点、六视图和连续性（Asset Anchors & Six-View Identity）](./421-asset-anchors/asset-anchors.md) - (Reference) 按跨镜头依赖创建角色/场景锚点，规定六视图身份板、条件场景板、普通场景描述、引用角色和资产替换连续性
+* [SFX 使用边界、降噪保真与混音限制（SFX & Noise Limits）](./422-sfx-noise-limits/sfx-noise-limits.md) - (Reference) 规定 SFX/环境声何时可用、降噪证据与保真边界、代理音轨清理、对白 ducking、响度和削波验收
+* [剪映草稿与平台交付包（Jianying Draft & Platform Delivery）](./423-jianying-delivery/jianying-delivery.md) - (Reference) 把 DirectorX master 转为可复核的平台版本与剪映草稿：媒体引用、字幕/音轨层、画幅安全区、时间线连续性和失败回退
+* [电影运动语言五支柱（Cinematic Motion Language）](./424-cinematic-motion-language/cinematic-motion-language.md) - (Reference) 将相机契约、运动物理、空间分区、镜头对焦序列和负空间编译为可执行视频 prompt 与验收规则
+* [Beat Sync 卡点剪辑与节拍证据（Beat-Sync Editing）](./425-beat-sync-editing/beat-sync-editing.md) - (Reference) 用真实音频峰值和用户切点生成连续混剪时间轴，规定 every-N、onset、segment、素材循环、原声策略和确定性后期验收
 
 # 已合并旧编号
 

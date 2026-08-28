@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { BaseEdge, ViewportPortal, getBezierPath, Position, useInternalNode, type ConnectionLineComponentProps, type EdgeProps } from '@xyflow/react'
 import { handleToSide, portPoint, routeDisplayPorts, type PortSide } from '../../canvas-generate.ts'
 import { dx } from '../canvas-theme.ts'
@@ -118,6 +119,9 @@ export function WireEdge(props: EdgeProps): ReactNode {
     </>
   )
 }
+export function HiddenConnectionLine(_props: ConnectionLineComponentProps): null {
+  return null
+}
 
 export function WirePreview(props: ConnectionLineComponentProps): ReactNode {
   const [path] = getBezierPath({
@@ -152,14 +156,19 @@ export function WireDragLayer(props: {
     targetY: props.to.y,
     targetPosition: Position.Left,
   })
-  return (
-    <ViewportPortal>
-      <svg className="dx-wire-drag" width={1} height={1} style={{ position: 'absolute', overflow: 'visible', pointerEvents: 'none', left: 0, top: 0, zIndex: 6 }}>
-        <path d={path} fill="none" stroke="rgba(0,0,0,.5)" strokeWidth={5} />
-        <path d={path} fill="none" stroke={props.valid === true ? 'rgba(255,255,255,1)' : 'rgba(243,243,243,.92)'} strokeWidth={2.25} />
-        <circle cx={props.to.x} cy={props.to.y} r={5} fill={props.valid === true ? '#fff' : '#f3f3f3'} />
-      </svg>
-    </ViewportPortal>
+  if (typeof document === 'undefined') return null
+  return createPortal(
+    <svg
+      className="dx-wire-drag"
+      width="100%"
+      height="100%"
+      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2147483000, overflow: 'visible' }}
+    >
+      <path d={path} fill="none" stroke="rgba(0,0,0,.5)" strokeWidth={5} />
+      <path d={path} fill="none" stroke={props.valid === true ? 'rgba(255,255,255,1)' : 'rgba(243,243,243,.92)'} strokeWidth={2.25} />
+      <circle cx={props.to.x} cy={props.to.y} r={5} fill={props.valid === true ? '#fff' : '#f3f3f3'} />
+    </svg>,
+    document.body,
   )
 }
 

@@ -1,13 +1,14 @@
 import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { Handle, NodeResizer, Position, useStore, type NodeProps } from '@xyflow/react'
 import { dx, dxPill } from '../canvas-theme.ts'
-import { SHOT_STATUS_COLOR, SHOT_STATUS_LABEL, asShotStatus } from './document.ts'
-import { IconCopy, IconDownload, IconEdit, IconImage, IconLock, IconPlay, IconPlus, IconSpark, IconText, IconTrash, IconUnlock, IconUpload, IconVideo, KindGlyph } from './icons.tsx'
+
+import { IconBox, IconCopy, IconCrop, IconDownload, IconEdit, IconImage, IconLock, IconPlay, IconPlus, IconScissors, IconSpark, IconText, IconTrash, IconUnlock, IconUpload, IconVideo, KindGlyph } from './icons.tsx'
 import { MarkdownView } from './MarkdownView.tsx'
+import { CropBox } from './CropOverlay.tsx'
 import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { type GenerateSpec } from './workstation.ts'
 import { withProject } from './project.ts'
-import { displayCardTitle, shotMark } from './card-label.ts'
+import { displayCardTitle } from './card-label.ts'
 
 export type StageKind = 'image' | 'video' | 'text' | 'group'
 
@@ -20,25 +21,25 @@ const card: CSSProperties = {
   height: '100%',
   borderRadius: dx.radiusCard,
   overflow: 'hidden',
-  background: 'rgba(14,14,14,.96)',
-  border: `1px solid ${dx.hairline}`,
+  background: '#1f1f1f',
+  border: 'none',
   color: dx.ink,
   fontFamily: dx.font,
-  boxShadow: '0 16px 40px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05)',
+  boxShadow: 'none',
 }
 
 const handleBox: CSSProperties = {
   position: 'absolute',
-  width: 22,
-  height: 22,
+  width: 28,
+  height: 28,
   background: 'transparent',
   border: 'none',
   zIndex: 6,
 }
-const handleLeft: CSSProperties = { ...handleBox, left: -20, right: 'auto', top: '50%', transform: 'translateY(-50%)' }
-const handleRight: CSSProperties = { ...handleBox, right: -20, left: 'auto', top: '50%', transform: 'translateY(-50%)' }
-const handleTop: CSSProperties = { ...handleBox, top: -18, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' }
-const handleBottom: CSSProperties = { ...handleBox, bottom: -18, top: 'auto', left: '50%', transform: 'translateX(-50%)' }
+const handleLeft: CSSProperties = { ...handleBox, left: -22, right: 'auto', top: '50%', transform: 'translateY(-50%)' }
+const handleRight: CSSProperties = { ...handleBox, right: -22, left: 'auto', top: '50%', transform: 'translateY(-50%)' }
+const handleTop: CSSProperties = { ...handleBox, top: -20, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' }
+const handleBottom: CSSProperties = { ...handleBox, bottom: -20, top: 'auto', left: '50%', transform: 'translateX(-50%)' }
 
 function Ports(): ReactNode {
   return (
@@ -74,6 +75,10 @@ export type CardActions = {
   onDelete?: (id: string) => void
   onUpload?: (id: string) => void
   onPickRef?: (id: string) => void
+  onCrop?: (id: string) => void
+  onCropped?: (id: string, blob: Blob) => void
+  cropping?: boolean
+  cropAspect?: number
 }
 
 function ToolBtn(props: { title: string; onClick: () => void; children: ReactNode }): ReactNode {
@@ -84,16 +89,17 @@ function ToolBtn(props: { title: string; onClick: () => void; children: ReactNod
       data-tip={props.title}
       onClick={event => { event.stopPropagation(); props.onClick() }}
       style={{
-        width: 30,
-        height: 30,
+        width: 40,
+        height: 40,
         border: 'none',
-        borderRadius: 9,
+        borderRadius: 9999,
         background: 'transparent',
-        color: '#f2f2f2',
+        color: 'rgba(245,245,245,.9)',
         cursor: 'pointer',
         display: 'grid',
         placeItems: 'center',
         padding: 0,
+        flexShrink: 0,
       }}
     >
       {props.children}
@@ -107,13 +113,14 @@ function NodeFrame(props: {
   failed?: boolean
   kind?: string
   filled?: boolean
+  cropping?: boolean
   title?: ReactNode
   dock?: ReactNode
   children: ReactNode
   toolbar: ReactNode
 }): ReactNode {
   const [hot, setHot] = useState(false)
-  const active = props.selected === true || hot
+  const active = props.cropping !== true && (props.selected === true || hot)
   const faceClass = [
     'dx-card-face',
     props.kind !== undefined ? `dx-kind-${props.kind}` : '',
@@ -133,7 +140,7 @@ function NodeFrame(props: {
         style={{
           position: 'absolute',
           left: '50%',
-          top: -40,
+          top: -80,
           transform: 'translateX(-50%)',
           zIndex: 7,
           opacity: active ? 1 : 0,
@@ -142,22 +149,23 @@ function NodeFrame(props: {
       >
         {props.toolbar}
       </div>
+      {props.title !== undefined ? (
+        <div className="nodrag nopan dx-card-caption">
+          {props.title}
+        </div>
+      ) : null}
       <div
         className={faceClass}
         style={{
           ...card,
-          boxShadow: props.selected === true ? dx.glow : card.boxShadow,
-          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.generating === true ? 'rgba(240,195,106,.62)' : props.selected === true ? 'rgba(255,244,228,.62)' : dx.hairline,
+          outline: props.selected === true ? `2px solid ${dx.selected}` : 'none',
+          outlineOffset: 0,
+          borderColor: props.failed === true ? 'rgba(255,155,143,.7)' : props.generating === true ? 'rgba(240,195,106,.62)' : 'transparent',
         }}
       >
         {props.children}
-        {props.title !== undefined ? (
-          <div className="nodrag nopan dx-card-caption">
-            {props.title}
-          </div>
-        ) : null}
       </div>
-      {props.dock !== undefined && props.selected === true ? (
+      {props.dock !== undefined && props.selected === true && props.cropping !== true ? (
         <div className="nodrag nopan dx-card-dock">
           {props.dock}
         </div>
@@ -253,13 +261,9 @@ function GeneratingHud(props: { kind: 'image' | 'video'; prompt?: string }): Rea
 }
 
 function EmptyPlate(props: { kind: 'image' | 'video'; prompt?: string }): ReactNode {
-  const line = (props.prompt ?? '').trim()
   return (
     <div className="dx-empty-plate">
-      <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={18} /> : <IconImage size={18} />}</span>
-      {line !== '' ? <div className="dx-empty-intent">{line}</div> : (
-        <div className="dx-empty-hint">{props.kind === 'video' ? '写下这一镜的动作' : '写下这一镜的画面'}</div>
-      )}
+      <span className="dx-empty-glyph">{props.kind === 'video' ? <IconVideo size={22} /> : <IconImage size={22} />}</span>
     </div>
   )
 }
@@ -323,9 +327,10 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       failed={data.shotStatus === 'failed'}
       kind={kind}
       filled={filled}
+      cropping={data.cropping === true}
       title={(
         <div className="dx-card-meta">
-          {shotMark(data.shotIndex) !== '' ? <span className="dx-shot-no">{shotMark(data.shotIndex)}</span> : null}
+          <KindGlyph kind={kind} size={13} />
           <input
             className="dx-node-title nodrag nopan"
             value={title}
@@ -334,13 +339,12 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
             style={{
               flex: 1, minWidth: 0, height: 22, padding: '0 2px', borderRadius: 6,
               border: '1px solid transparent', background: 'transparent',
-              color: '#f2f2f2', fontSize: 12.5, fontWeight: 500, letterSpacing: -0.15,
+              color: 'rgba(245,245,245,.92)', fontSize: 12, fontWeight: 500, letterSpacing: -0.2,
               fontFamily: dx.font, outline: 'none',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
           />
-          {data.locked === true ? <span className="dx-card-lock" title="已锁定"><IconLock size={11} /></span> : null}
-          <StatusChip status={data.shotStatus} onClick={() => data.onCycleStatus?.(props.id)} />
+          {data.locked === true ? <span className="dx-card-lock" title="已锁定"><IconLock size={12} /></span> : null}
         </div>
       )}
       dock={props.selected === true ? (
@@ -366,6 +370,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       toolbar={(
         <>
           <ToolBtn title={generating ? '生成中' : '生成'} onClick={() => { if (!generating) data.onGenerate?.(props.id) }}><IconSpark size={14} /></ToolBtn>
+          {!empty && kind === 'image' && data.onCrop !== undefined ? <ToolBtn title="裁剪" onClick={() => data.onCrop?.(props.id)}><IconCrop size={16} /></ToolBtn> : null}
           {empty && data.onUpload !== undefined ? <ToolBtn title="上传" onClick={() => data.onUpload?.(props.id)}><IconUpload size={14} /></ToolBtn> : null}
           {empty ? null : <ToolBtn title="编辑" onClick={() => data.onEdit?.(props.id)}><IconEdit size={14} /></ToolBtn>}
           {empty ? null : <ToolBtn title="下载" onClick={() => data.onDownload?.(props.id)}><IconDownload size={14} /></ToolBtn>}
@@ -376,7 +381,7 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       )}
     >
       <NodeResizer
-        isVisible={props.selected === true}
+        isVisible={props.selected === true && data.cropping !== true}
         minWidth={240}
         minHeight={160}
         keepAspectRatio={data.aspect !== undefined && data.aspect !== ''}
@@ -387,9 +392,11 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
       <div
         ref={shellRef}
         className={`dx-media-well${kind === 'video' && !filled ? ' dx-film' : ''}${filled ? ' dx-media-fill' : ''}`}
-        style={{ overflow: 'hidden' }}
+        style={{ overflow: data.cropping === true ? 'visible' : 'hidden' }}
       >
-        {empty && !generating ? (
+        {data.cropping === true && kind === 'image' && !empty ? (
+          <CropBox src={src} aspect={data.cropAspect} onConfirm={blob => data.onCropped?.(props.id, blob)} />
+        ) : empty && !generating ? (
           <EmptyPlate kind={kind} prompt={data.prompt} />
         ) : empty ? null : kind === 'video' ? (
           <div className="dx-media-bleed" style={{ opacity: generating ? 0.38 : 1 }}>
@@ -413,6 +420,14 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
           </div>
         )}
         {generating ? <GeneratingHud kind={kind} prompt={data.prompt} /> : null}
+        {data.onUpload !== undefined && !generating && data.cropping !== true ? (
+          <button
+            type="button"
+            className="nodrag nopan dx-hit dx-replace-chip"
+            title="替换"
+            onClick={event => { event.stopPropagation(); data.onUpload?.(props.id) }}
+          >替换</button>
+        ) : null}
         {kind === 'video' && data.durationSec !== undefined ? (
           <span className="dx-kind-badge dx-kind-time">{data.durationSec}s</span>
         ) : null}
@@ -453,38 +468,6 @@ export const MediaCard = memo(function MediaCard(props: NodeProps): ReactNode {
   )
 })
 
-function StatusChip(props: { status?: string; onClick: () => void }): ReactNode {
-  const status = asShotStatus(props.status) ?? 'idea'
-  return (
-    <button
-      className="nodrag nopan dx-status-chip"
-      title="循环镜头状态"
-      onClick={event => { event.stopPropagation(); props.onClick() }}
-      style={{
-        flexShrink: 0,
-        padding: '2px 8px',
-        borderRadius: 999,
-        border: `1px solid ${SHOT_STATUS_COLOR[status]}33`,
-        background: `${SHOT_STATUS_COLOR[status]}14`,
-        color: SHOT_STATUS_COLOR[status],
-        fontSize: 10.5,
-        fontWeight: 500,
-        cursor: 'pointer',
-        fontFamily: dx.font,
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 5,
-      }}
-    >
-      {status === 'generating' ? (
-        <span className="dx-spin" style={{ width: 8, height: 8, borderWidth: 1.4, borderColor: 'rgba(240,195,106,.25)', borderTopColor: '#f0c36a' }} />
-      ) : (
-        <span className="dx-status-dot" style={{ background: SHOT_STATUS_COLOR[status] }} />
-      )}
-      {SHOT_STATUS_LABEL[status]}
-    </button>
-  )
-}
 
 export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
   const data = props.data as { label?: string } & CardActions
@@ -527,10 +510,7 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
         lineStyle={{ border: 'none' }}
         handleStyle={{ width: 7, height: 7, borderRadius: 2, background: '#f3f3f3', border: 'none' }}
       />
-      <div className="dx-text-sheet" style={{ padding: '14px 16px 16px', height: '100%', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#c8b896', fontSize: 10, letterSpacing: 0.4, marginBottom: 10, textTransform: 'uppercase' }}>
-          <IconText size={11} />文本 / 剧本
-        </div>
+      <div className="dx-text-sheet" style={{ padding: 16, height: '100%', boxSizing: 'border-box' }}>
         {editing ? (
           <textarea
             ref={textRef}
@@ -541,9 +521,10 @@ export const TextCard = memo(function TextCard(props: NodeProps): ReactNode {
               data.onRename?.(props.id, event.target.value)
               setEditing(false)
             }}
+            placeholder="双击开始编辑..."
             style={{
               width: '100%',
-              height: 'calc(100% - 22px)',
+              height: '100%',
               resize: 'none',
               border: 'none',
               background: 'transparent',
@@ -623,4 +604,38 @@ export const GroupCard = memo(function GroupCard(props: NodeProps): ReactNode {
   )
 })
 
-export const stageNodeTypes = { media: MediaCard, text: TextCard, group: GroupCard }
+export const DirectorStageCard = memo(function DirectorStageCard(props: NodeProps): ReactNode {
+  const data = props.data as { label?: string; locked?: boolean } & CardActions
+  return (
+    <NodeFrame
+      selected={props.selected}
+      kind="director-stage"
+      title={<div className="dx-card-meta"><KindGlyph kind="director-stage" size={13} /><span className="dx-shot-no" style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.label ?? '3D 导演台'}</span>{data.locked === true ? <span className="dx-card-lock"><IconLock size={12} /></span> : null}</div>}
+      toolbar={<><ToolBtn title="打开 3D 导演台" onClick={() => data.onEdit?.(props.id)}><IconBox size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title={data.locked === true ? '解锁' : '锁定'} onClick={() => data.onLock?.(props.id)}>{data.locked === true ? <IconUnlock size={16} /> : <IconLock size={16} />}</ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
+    >
+      <div className="dx-empty-plate">
+        <span className="dx-empty-glyph"><IconBox size={26} /></span>
+        <button type="button" className="nodrag nopan dx-hit dx-enter-chip" onClick={event => { event.stopPropagation(); data.onEdit?.(props.id) }}>进入片场</button>
+      </div>
+    </NodeFrame>
+  )
+})
+
+export const EditStageCard = memo(function EditStageCard(props: NodeProps): ReactNode {
+  const data = props.data as { label?: string; locked?: boolean } & CardActions
+  return (
+    <NodeFrame
+      selected={props.selected}
+      kind="edit"
+      title={<div className="dx-card-meta"><KindGlyph kind="edit" size={13} /><span className="dx-shot-no" style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.label ?? '剪辑台'}</span>{data.locked === true ? <span className="dx-card-lock"><IconLock size={12} /></span> : null}</div>}
+      toolbar={<><ToolBtn title="打开剪辑台" onClick={() => data.onEdit?.(props.id)}><IconScissors size={16} /></ToolBtn><ToolBtn title="复制" onClick={() => data.onDuplicate?.(props.id)}><IconCopy size={16} /></ToolBtn><ToolBtn title={data.locked === true ? '解锁' : '锁定'} onClick={() => data.onLock?.(props.id)}>{data.locked === true ? <IconUnlock size={16} /> : <IconLock size={16} />}</ToolBtn><ToolBtn title="删除" onClick={() => data.onDelete?.(props.id)}><IconTrash size={16} /></ToolBtn></>}
+    >
+      <div className="dx-empty-plate">
+        <span className="dx-empty-glyph"><IconScissors size={26} /></span>
+        <button type="button" className="nodrag nopan dx-hit dx-enter-chip" onClick={event => { event.stopPropagation(); data.onEdit?.(props.id) }}>打开剪辑</button>
+      </div>
+    </NodeFrame>
+  )
+})
+
+export const stageNodeTypes = { media: MediaCard, text: TextCard, group: GroupCard, 'director-stage': DirectorStageCard, edit: EditStageCard }

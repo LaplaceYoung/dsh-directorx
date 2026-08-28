@@ -52,6 +52,61 @@ export interface ShotPlanOutput {
   notes: string[]
 }
 
+export interface MvStoryboardSegment {
+  id?: string
+  start?: number
+  duration?: number
+  characters?: string[]
+  scene?: string
+  type?: 'narrative' | 'performance'
+}
+
+export interface MvStoryboardValidation {
+  ok: boolean
+  errors: string[]
+  warnings: string[]
+  segments: Array<{ id: string; start: number; duration: number; type: 'narrative' | 'performance' }>
+  totalSeconds: number
+}
+
+/** Validate MV timing/reference constraints without writing state or calling providers. */
+export function validateMvStoryboard(input: {
+  segments: MvStoryboardSegment[]
+  characters?: string[]
+  scenes?: string[]
+}): MvStoryboardValidation {
+  const errors: string[] = []
+  const warnings: string[] = []
+  const segments = Array.isArray(input.segments) ? input.segments : []
+  const normalized = segments.map((segment, index) => ({
+    id: String(segment.id ?? `segment-${index + 1}`),
+    start: typeof segment.start === 'number' && Number.isFinite(segment.start) ? segment.start : NaN,
+    duration: typeof segment.duration === 'number' && Number.isFinite(segment.duration) ? segment.duration : NaN,
+    type: segment.type === 'performance' ? 'performance' as const : 'narrative' as const,
+    characters: Array.isArray(segment.characters) ? segment.characters.map(String) : [],
+    scene: typeof segment.scene === 'string' ? segment.scene : undefined,
+  }))
+  if (normalized.length === 0) errors.push('segments must contain at least one segment')
+  let expectedStart = 0
+  let totalSeconds = 0
+  let performanceSeconds = 0
+  for (const [index, segment] of normalized.entries()) {
+    if (!Number.isFinite(segment.start) || !Number.isFinite(segment.duration)) errors.push(`${segment.id}: start and duration are required numbers`)
+    if (Number.isFinite(segment.duration) && (segment.duration < 3 || segment.duration > 15)) errors.push(`${segment.id}: duration must be between 3 and 15 seconds`)
+    if (Number.isFinite(segment.start) && Math.abs(segment.start - expectedStart) > 0.001) errors.push(`${segment.id}: start ${segment.start} is not contiguous; expected ${expectedStart}`)
+    if (segment.characters.length > 2) errors.push(`${segment.id}: no more than two characters are allowed`)
+    for (const character of segment.characters) if (input.characters !== undefined && !input.characters.includes(character)) errors.push(`${segment.id}: unknown character reference ${character}`)
+    if (segment.scene !== undefined && input.scenes !== undefined && !input.scenes.includes(segment.scene)) errors.push(`${segment.id}: unknown scene reference ${segment.scene}`)
+    if (segment.type === 'performance') {
+      performanceSeconds += Number.isFinite(segment.duration) ? segment.duration : 0
+      if (index > 0 && normalized[index - 1].type === 'performance') errors.push(`${segment.id}: performance segments cannot be consecutive`)
+    }
+    if (Number.isFinite(segment.duration)) { expectedStart += segment.duration; totalSeconds += segment.duration }
+  }
+  if (totalSeconds > 0 && performanceSeconds / totalSeconds > 0.5) warnings.push('performance segments exceed 50% of total duration')
+  return { ok: errors.length === 0, errors, warnings, segments: normalized.map(({ id, start, duration, type }) => ({ id, start, duration, type })), totalSeconds: Number(totalSeconds.toFixed(3)) }
+}
+
 export function planStoryboard(input: ShotPlanInput): ShotPlanOutput {
   const minShot = input.minShotSeconds ?? 1
   const maxShot = input.maxShotSeconds ?? 10

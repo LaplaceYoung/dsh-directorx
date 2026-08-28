@@ -1,9 +1,10 @@
 import { build } from 'esbuild'
 import { cp, mkdir, readFile, rm, writeFile, appendFile } from 'node:fs/promises'
+import { buildStage } from './build-stage.mjs'
 
 const HOST_EXTERNALS = [
-  'cordis',
-  'schemastery',
+  '@deepseek-ai/cordis',
+  '@deepseek-ai/schemastery',
   '@deepseek-ai/dsh-tools',
   '@deepseek-ai/dsh-skill',
   '@deepseek-ai/dsh-settings',
@@ -30,7 +31,7 @@ await build({
   format: 'esm',
   target: 'node22',
   sourcemap: true,
-  external: HOST_EXTERNALS,
+  external: [...HOST_EXTERNALS, 'node:*'],
   logLevel: 'info',
 })
 
@@ -42,6 +43,7 @@ await build({
   format: 'esm',
   target: 'node22',
   sourcemap: true,
+  external: ['node:*'],
   logLevel: 'info',
 })
 
@@ -96,5 +98,9 @@ try {
 } catch {
   // No vendor directory — nothing to ship.
 }
+// 3D 导演台：恢复版应用 + 引擎源码锥打进 lib/stage（宿主 web 直接伺服）。
+await buildStage()
+await rm('lib/edit', { recursive: true, force: true })
+await cp('assets/edit', 'lib/edit', { recursive: true })
 
-console.log('dsh-directorx built: lib/index.js, lib/client.js (+ lib/vendor)')
+console.log('dsh-directorx built: lib/index.js, lib/client.js (+ lib/vendor, lib/stage, lib/edit)')

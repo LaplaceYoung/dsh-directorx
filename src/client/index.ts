@@ -2,7 +2,7 @@ import { DirectorxSettingsSection } from './DirectorxSettingsSection.tsx'
 import { DirectorxToolRow, DIRECTORX_TOOLVIEW_KEYS } from './DirectorxToolRow.tsx'
 import { EditorDock } from './EditorDock.tsx'
 import { registerDirectorxSlash } from './directorx-command.ts'
-import { closeEditor, editorSnapshot, openCanvas, openEditor, setEditorTab } from './editor.ts'
+import { closeEditor, editorSnapshot, openCanvas, openDirectorStage, openEditor, setEditorTab } from './editor.ts'
 
 interface LayoutFace {
   openDetails(): void
@@ -29,7 +29,7 @@ interface ClientContext {
 }
 
 export const name = 'directorx-client'
-export const inject = ['slots', 'connection', 'layout', 'sessions', 'command']
+export const inject = ['slots', 'connection', 'layout', 'sessions']
 
 function optionalService(ctx: ClientContext, name: string): unknown {
   try {
@@ -91,18 +91,19 @@ export function apply(ctx: ClientContext): void {
     }, EditorDock),
   )
 
-  // Debug/automation hook: lets console users (and browser tests) drive the
-  // dock directly without a generation card.
   if (typeof window !== 'undefined' && window.__directorxEditor === undefined) {
     window.__directorxEditor = {
       open: (kind?: 'image' | 'video', path?: string) => {
         if (kind === 'image' || kind === 'video') openEditor(kind, path ?? '')
         else openCanvas()
       },
+      openDirectorStage,
       close: () => { closeEditor() },
-      setTab: (tab) => { setEditorTab(tab) },
-      snapshot: editorSnapshot,
-      // Debug probes.
+      setTab: (tab: 'image' | 'video' | 'canvas') => { setEditorTab(tab) },
+      snapshot: () => {
+        const current = editorSnapshot()
+        return { open: current.open, tab: current.tab, kind: current.kind, path: current.path }
+      },
       layoutKind: () => String(typeof layout()),
       openDetailsNow: () => layout()?.openDetails(),
       toggleSidebarNow: () => layout()?.toggleSidebar(),

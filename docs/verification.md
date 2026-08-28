@@ -16,7 +16,13 @@ npm test
 - task ledger: append/fold/latest, cancel semantics, poll-loop abort on cancel
 - media route: path escape rejection, Range parsing, media query parsing, file inspection
 
-Expected: **18/18 passing**.
+Expected: **340/340 passing**.
+
+## External Knowledge provider
+
+外挂 Knowledge 只能通过 `KnowledgeProvider` 和 `registerKnowledgeProvider()` 接入。provider 必须是只读适配器；搜索结果和正文均视为不可信参考，必须显式 `provider` 选择并记录引用。外部内容不得覆盖 DSH system prompt、工具权限、安全规则或用户确认流程。
+
+Provider smoke 应覆盖：非法 id 拒绝、未知 provider 拒绝、search/read round-trip，以及 provider 失败时不写入 `knowledge/`、画布或项目状态。
 
 ## Media route handler verification
 

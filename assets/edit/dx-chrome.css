@@ -1,0 +1,104 @@
+/* DirectorX clip-studio chrome — tokens + pane rhythm only. NLE engine is untouched. */
+
+:root,
+[data-theme='light'] {
+  --bg: #fbfbfa;
+  --bg-1: #ffffff;
+  --bg-2: #f2f2ee;
+  --bg-3: #eaeae5;
+  --bg-elev: #ffffff;
+  --border: #e6e5e0;
+  --border-strong: #d5d4cd;
+  --fg: #1a1a18;
+  --fg-2: #3d3d39;
+  --fg-3: #6b6b64;
+  --fg-muted: #9b9b92;
+  --hover: #f2f2ee;
+  --selected: rgb(26 26 24 / 6%);
+  --brand-accent: 217 79 34;
+  --brand-accent-foreground: 255 255 255;
+  --track-bg: #f5f5f2;
+  --tl-bg: #f5f5f2;
+  --stage-bg: #ecece7;
+  --screen-bg: #11110f;
+  --accent: #d94f22;
+  --accent-strong: #c44519;
+  --accent-soft: #fdefe9;
+  --accent-fg: #ffffff;
+  --accent-glow: rgb(217 79 34 / 16%);
+  --d-text: 12.5px;
+  --d-text-sm: 11px;
+  --topbar-h: 44px;
+}
+
+html,
+body,
+#root {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+header.h-10 {
+  height: 44px;
+  padding: 0 16px;
+  background: rgb(251 251 250 / 88%);
+  border-bottom-color: var(--border);
+}
+
+header.h-10::before {
+  content: '剪辑台';
+  margin-right: auto;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+[data-tour='assets'],
+[data-tour='preview'],
+[style*='grid-area: timeline'] {
+  background: var(--bg-1);
+}
+
+[data-tour='assets'] {
+  border-right: 0;
+}
+
+[data-tour='preview'] {
+  background: var(--stage-bg);
+}
+
+[data-tour='preview'] .bg-card {
+  background: transparent;
+}
+
+[data-tour='inspector'] {
+  background: var(--bg-1);
+}
+
+.w-\[360px\].h-\[min\(70vh\,680px\)\] {
+  border-radius: 14px;
+  border-color: var(--border);
+  box-shadow: 0 18px 48px rgb(28 25 23 / 14%), 0 0 0 1px var(--border);
+  background: #fff;
+}
+
+.flex-1.min-h-0.min-w-0.grid.gap-px {
+  background: var(--border);
+}
+
+[style*='grid-area: media'],
+[style*='grid-area: stage'],
+[style*='grid-area: timeline'] {
+  background: var(--bg-1);
+}
+
+button.h-8.inline-flex.items-center.gap-1\.5.px-3.rounded-md.bg-muted {
+  background: #d94f22;
+  color: #fff;
+}
+
+input[type='range'] {
+  accent-color: #d94f22;
+}

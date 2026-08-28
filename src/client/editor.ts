@@ -7,6 +7,12 @@
 
 export type EditorKind = 'image' | 'video'
 export type EditorTab = 'canvas' | EditorKind
+export type WorkspaceKind = 'director-stage' | 'edit'
+
+export interface EditorWorkspace {
+  kind: WorkspaceKind
+  nodeId: string
+}
 
 export interface EditorSnapshot {
   open: boolean
@@ -15,9 +21,11 @@ export interface EditorSnapshot {
   /** Local media path under the output dir; may be null while the dock is empty. */
   path: string | null
   look?: string | null
+  /** Canvas-node workspace (3D 导演台 / 剪辑台). Isolated per nodeId. */
+  workspace: EditorWorkspace | null
 }
 
-let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null, look: null }
+let snapshot: EditorSnapshot = { open: false, tab: 'canvas', kind: null, path: null, look: null, workspace: null }
 const listeners = new Set<() => void>()
 
 /** Stable reference until the next update — required by useSyncExternalStore. */
@@ -39,24 +47,48 @@ function update(next: Partial<EditorSnapshot>): void {
 
 /** Open the fullscreen stage with one media file queued for editing. */
 export function openEditor(kind: EditorKind, path: string, extras?: { look?: string }): void {
-  update({ open: true, tab: kind, kind, path, look: extras?.look ?? null })
+  update({ open: true, tab: kind, kind, path, look: extras?.look ?? null, workspace: null })
 }
 
-/** Open the canvas overlay without changing the editor tab. */
+/** Open a 3D 导演台 canvas node. Each nodeId is an isolated project. */
+export function openDirectorStage(nodeId?: string): void {
+  if (nodeId === undefined || nodeId === '') {
+    update({ open: true, tab: 'canvas' })
+    return
+  }
+  update({ open: true, tab: 'canvas', kind: null, path: null, look: null, workspace: { kind: 'director-stage', nodeId } })
+}
+
+/** Open a 剪辑台 canvas node. Each nodeId is an isolated timeline. */
+export function openEdit(nodeId?: string): void {
+  if (nodeId === undefined || nodeId === '') {
+    update({ open: true, tab: 'canvas' })
+    return
+  }
+  update({ open: true, tab: 'canvas', kind: null, path: null, look: null, workspace: { kind: 'edit', nodeId } })
+}
+
+export function closeWorkspace(): void {
+  update({ workspace: null, tab: 'canvas' })
+}
+
 export function openCanvas(): void {
-  update({ open: true, tab: snapshot.tab === 'image' || snapshot.tab === 'video' ? 'canvas' : snapshot.tab })
+  update({ open: true, tab: 'canvas', workspace: null })
 }
 
 /** Switch the active dock tab (canvas / image editor / video editor). */
-export function setEditorTab(tab: EditorTab): void {
-  update({ open: true, tab })
+export function setEditorTab(tab: EditorTab | 'director-stage' | 'edit'): void {
+  if (tab === 'director-stage' || tab === 'edit') {
+    update({ open: true, tab: 'canvas' })
+    return
+  }
+  update({ open: true, tab, workspace: tab === 'canvas' ? null : snapshot.workspace })
 }
 
 export function closeEditor(): void {
-  update({ open: false })
+  update({ open: false, workspace: null })
 }
 
-/** Toggle from the floating handle: reopen with the last session when available. */
 export function toggleEditor(): void {
   update({ open: !snapshot.open })
 }

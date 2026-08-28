@@ -4,7 +4,7 @@ import { addMenuRows, groupMenuRows, nodeMenuRows, shouldNestCraft } from '../li
 
 test('quick add menu is only node types; full add includes import', () => {
   const quick = addMenuRows('quick')
-  assert.deepEqual(quick.map(row => row.id), ['image', 'video', 'text', 'script', 'group'])
+  assert.deepEqual(quick.map(row => row.id), ['image', 'video', 'text', 'script', 'group', 'director-stage', 'edit'])
   const full = addMenuRows('full')
   assert.ok(full.some(row => row.id === 'upload'))
   assert.ok(full.some(row => row.id === 'paste'))

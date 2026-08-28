@@ -5,21 +5,21 @@ import type { CSSProperties } from 'react'
  * Agent work stays in DSH — these tokens are visual only.
  */
 export const dx = {
-  black: '#070707',
-  field: 'radial-gradient(980px 620px at 50% 32%, #161412 0%, #0c0b0a 48%, #060606 100%)',
-  chrome: 'rgba(18,17,16,.78)',
-  ink: '#f4f4f4',
+  black: '#000000',
+  field: '#000000',
+  chrome: 'rgba(20, 20, 20, .92)',
+  ink: '#f5f5f5',
   mute: '#9a9a9a',
   dim: '#6a6a6a',
   ghost: 'rgba(255,255,255,.06)',
   ghostStrong: 'rgba(255,255,255,.11)',
   hairline: 'rgba(255,255,255,.10)',
   hairlineStrong: 'rgba(255,255,255,.16)',
-  selected: 'rgba(255,244,228,.92)',
-  glow: '0 0 0 1px rgba(255,236,210,.55), 0 16px 36px rgba(0,0,0,.48)',
+  selected: 'rgb(122,122,122)',
+  glow: 'none',
   radiusCard: 16,
   radiusBtn: 10,
-  radiusRail: 22,
+  radiusRail: 9999,
   font: '"Inter", "SF Pro Text", "PingFang SC", system-ui, sans-serif',
   mediaW: 400,
   mediaH: 220,
@@ -28,8 +28,8 @@ export const dx = {
   textH: 250,
   groupW: 640,
   groupH: 460,
-  minZoom: 0.1,
-  maxZoom: 2.5,
+  minZoom: 0.15,
+  maxZoom: 2,
 } as const
 
 export const dxZ = {
@@ -43,11 +43,11 @@ export const dxZ = {
 export const dxChrome: CSSProperties = {
   background: dx.chrome,
   border: `1px solid ${dx.hairline}`,
-  boxShadow: '0 22px 56px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,244,228,.06)',
+  boxShadow: 'none',
   color: dx.ink,
   fontFamily: dx.font,
-  backdropFilter: 'blur(22px) saturate(1.35)',
-  WebkitBackdropFilter: 'blur(22px) saturate(1.35)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
 }
 
 export const dxGhostBtn: CSSProperties = {

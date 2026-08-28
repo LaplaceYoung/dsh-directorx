@@ -1,4 +1,4 @@
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { DirectorxSettings } from './config.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
@@ -6,14 +6,14 @@ import { ProposalStore } from './proposals.ts'
 import { preflight } from './providers/preflight.ts'
 import { audioMix, videoConcat, videoProcess, videoSubtitle } from './providers/video-process.ts'
 import { corpus } from './corpus.ts'
+import { DirectorService } from './director/mcp-server/service.ts'
+import { ProjectRepository } from './director/mcp-server/repository.ts'
 import { runCanvasCraft } from './canvas-craft.ts'
-
+import { latestStageSnapshot, stageProjectRoot } from './stage-server.ts'
 /**
  * Minimal MCP (Model Context Protocol) surface over the DirectorX tool
- * backend: external agents (Claude Desktop / ChatGPT / Cursor) drive the
- * same deterministic production tools through a Streamable-HTTP-style
- * JSON-RPC endpoint. This mirrors the ecosystem pattern (e.g. Runway MCP)
- * of exposing a media studio to external assistants.
+ * backend: external agents drive the same deterministic production tools
+ * through a Streamable-HTTP-style JSON-RPC endpoint.
  */
 
 const MCP_ROUTE_PATH = '/directorx/mcp'
@@ -65,11 +65,26 @@ const MCP_TOOLS: Array<{ name: string; description: string; inputSchema: Record<
   { name: 'directorx_canvas_batch', readOnly: false, description: 'Batch add nodes and edges in one write.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
   { name: 'directorx_canvas_replace', readOnly: false, description: 'Replace the entire canvas document.', inputSchema: { type: 'object', properties: { nodes: { type: 'array' }, edges: { type: 'array' } } } },
   { name: 'directorx_canvas_arrange', readOnly: false, description: 'Auto-layout the canvas (grid/row).', inputSchema: { type: 'object', properties: { layout: { type: 'string' } } } },
-  { name: 'directorx_propose', readOnly: false, description: 'Queue a generation proposal placeholder (no API spend).', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, prompt: { type: 'string' }, count: { type: 'number' }, duration: { type: 'number' } } } },
+  { name: 'directorx_director_get_state', description: 'Read the complete project, evaluated frame, stable IDs, templates and locks.', inputSchema: { type: 'object', properties: {} }, readOnly: true },
+  { name: 'directorx_director_create_project', description: 'Create a clean local Director project.', inputSchema: { type: 'object', properties: { name: { type: 'string' } } }, readOnly: false },
+  { name: 'directorx_director_select', description: 'Select a shot or exact integer frame at 24fps.', inputSchema: { type: 'object', properties: { shot_id: { type: 'string' }, frame: { type: 'number' } } }, readOnly: false },
+  { name: 'directorx_director_add_element', description: 'Add a stable-ID actor, crowd or greybox prop.', inputSchema: { type: 'object', properties: { kind: { type: 'string' }, preset: { type: 'string' }, name: { type: 'string' } } }, readOnly: false },
+  { name: 'directorx_director_update_element', description: 'Update a stage element by exact ID.', inputSchema: { type: 'object', properties: { element_id: { type: 'string' }, shot_id: { type: 'string' }, position: { type: 'object' }, rotation_deg: { type: 'object' }, scale: { type: 'object' }, name: { type: 'string' } }, required: ['element_id'] }, readOnly: false },
+  { name: 'directorx_director_apply_action', description: 'Apply an actor motion template.', inputSchema: { type: 'object', properties: { element_id: { type: 'string' }, action: { type: 'string' }, shot_id: { type: 'string' } }, required: ['element_id', 'action'] }, readOnly: false },
+  { name: 'directorx_director_set_motion_keyframe', description: 'Set an actor motion keyframe.', inputSchema: { type: 'object', properties: { action_id: { type: 'string' }, frame: { type: 'number' }, shot_id: { type: 'string' } }, required: ['action_id', 'frame'] }, readOnly: false },
+  { name: 'directorx_director_apply_camera', description: 'Apply a camera move template.', inputSchema: { type: 'object', properties: { move: { type: 'string' }, shot_id: { type: 'string' } }, required: ['move'] }, readOnly: false },
+  { name: 'directorx_director_set_camera_keyframe', description: 'Set a camera keyframe.', inputSchema: { type: 'object', properties: { frame: { type: 'number' }, shot_id: { type: 'string' }, keyframe_id: { type: 'string' } }, required: ['frame'] }, readOnly: false },
+  { name: 'directorx_director_manage_shot', description: 'Add, duplicate, rename, reorder or delete a shot.', inputSchema: { type: 'object', properties: { operation: { type: 'string' }, shot_id: { type: 'string' }, name: { type: 'string' } }, required: ['operation'] }, readOnly: false },
+  { name: 'directorx_director_set_lock', description: 'Lock or unlock an action or keyframe.', inputSchema: { type: 'object', properties: { target: { type: 'string' }, id: { type: 'string' }, locked: { type: 'boolean' } }, required: ['target', 'id'] }, readOnly: false },
+  { name: 'directorx_director_delete', description: 'Delete an element, action or keyframe.', inputSchema: { type: 'object', properties: { target: { type: 'string' }, id: { type: 'string' }, shot_id: { type: 'string' } }, required: ['target', 'id'] }, readOnly: false },
+  { name: 'directorx_director_undo', description: 'Undo one Director edit.', inputSchema: { type: 'object', properties: {} }, readOnly: false },
+  { name: 'directorx_director_redo', description: 'Redo one Director edit.', inputSchema: { type: 'object', properties: {} }, readOnly: false },
+  { name: 'directorx_director_validate', description: 'Validate the Director project.', inputSchema: { type: 'object', properties: {} }, readOnly: true },
+  { name: 'directorx_stage_snapshot', description: 'Read the latest browser-rendered Director Stage snapshot path.', inputSchema: { type: 'object', properties: {} }, readOnly: true },
+  { name: 'directorx_video_process', readOnly: false, description: 'Deterministic trim/speed/scale/volume/mute/fps via ffmpeg.', inputSchema: { type: 'object', properties: { source: { type: 'string' }, start: { type: 'number' }, end: { type: 'number' }, speed: { type: 'number' }, scale: { type: 'string' }, volume: { type: 'number' }, mute: { type: 'boolean' }, fps: { type: 'number' } } } },
   { name: 'directorx_proposals', description: 'List generation proposals.', inputSchema: { type: 'object', properties: { status: { type: 'string' } } }, readOnly: true },
   { name: 'directorx_preflight', description: 'Four-gate pre-generation audit.', inputSchema: { type: 'object', properties: { prompt: { type: 'string' }, type: { type: 'string' } } }, readOnly: true },
   { name: 'directorx_style', description: 'Grounded style/camera-language injection from the corpus.', inputSchema: { type: 'object', properties: { style: { type: 'string' } } }, readOnly: true },
-  { name: 'directorx_video_process', readOnly: false, description: 'Deterministic trim/speed/scale/volume/mute/fps via ffmpeg.', inputSchema: { type: 'object', properties: { source: { type: 'string' }, start: { type: 'number' }, end: { type: 'number' }, speed: { type: 'number' }, scale: { type: 'string' }, volume: { type: 'number' }, mute: { type: 'boolean' }, fps: { type: 'number' } } } },
   { name: 'directorx_video_concat', readOnly: false, description: 'Concatenate clips (cut or xfade).', inputSchema: { type: 'object', properties: { files: { type: 'array' }, transition: { type: 'string' }, fadeSec: { type: 'number' }, scale: { type: 'string' } } } },
   { name: 'directorx_audio_mix', readOnly: false, description: 'Mix tracks onto a video with ducking.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, tracks: { type: 'array' }, duckUnder: { type: 'number' } } } },
   { name: 'directorx_video_subtitle', readOnly: false, description: 'Mux or burn subtitles.', inputSchema: { type: 'object', properties: { video: { type: 'string' }, srt: { type: 'string' }, mode: { type: 'string' } } } },
@@ -125,9 +140,29 @@ export function registerMcpRoute(ctx: Context, getSettings: () => DirectorxSetti
           const name = String(rpc.params?.name ?? '')
           const args = (rpc.params?.arguments ?? {}) as Record<string, unknown>
           const settings = getSettings()
+          const repository = new ProjectRepository(stageProjectRoot(settings.outputDir))
+          const director = new DirectorService(repository)
+          if (name === 'directorx_stage_snapshot') {
+            const path = latestStageSnapshot(settings.outputDir)
+            respond(envelope({ ok: path !== undefined, ...(path !== undefined ? { path } : {}) }))
+            return
+          }
+          if (name.startsWith('directorx_director_')) {
+            if (args.override_locked === true) {
+              fail(-32602, 'override_locked=true requires explicit user confirmation')
+              return
+            }
+            respond(envelope(await director.execute(name.slice('directorx_'.length), args)))
+            return
+          }
           const canvas = new DirectorxCanvasStore(settings.outputDir)
           const proposals = new ProposalStore(settings.outputDir)
+          const stageSnapshot = () => {
+            const path = latestStageSnapshot(settings.outputDir)
+            respond(envelope({ ok: path !== undefined, ...(path !== undefined ? { path } : {}) }))
+          }
           switch (name) {
+            case 'directorx_stage_snapshot': stageSnapshot(); return
             case 'directorx_canvas_get': respond(envelope(await canvas.read())); return
             case 'directorx_canvas_add': respond(envelope(await canvas.addNode(args as never))); return
             case 'directorx_canvas_node': respond(envelope(await canvas.getNode(String(args.id ?? '')))); return

@@ -60,9 +60,9 @@ export function listWorkspaceRoots(ctx: { get(name: string): unknown }): Array<{
 
 export function resolveRequestProject(ctx: { get(name: string): unknown }, request: IncomingMessage): string {
   const requested = projectFromRequest(request)
-  if (requested === undefined) return process.cwd()
-  const resolved = resolve(requested)
   const allowed = listWorkspaceRoots(ctx).map(item => resolve(item.path))
+  if (requested === undefined) return allowed[0] ?? process.cwd()
+  const resolved = resolve(requested)
   if (allowed.includes(resolved)) return resolved
   if (allowed.length === 0) return resolved
   throw new Error('unknown project')

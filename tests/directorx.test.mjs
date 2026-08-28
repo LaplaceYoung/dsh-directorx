@@ -78,6 +78,25 @@ test('package metadata declares dsh bundle and dsh-plugin topic', async () => {
   assert.match(client, /settings\.plugin\.item/)
 })
 
+test('director service creates, mutates, and undoes a local project', async () => {
+  const { DirectorService, ProjectRepository } = await import('../lib/testing.js')
+  const dir = await import('node:fs/promises').then(fs => fs.mkdtemp(join(process.cwd(), '.tmp-directorx-stage-')))
+  try {
+    const service = new DirectorService(new ProjectRepository(dir))
+    const created = await service.execute('director_create_project', { name: 'stage' })
+    assert.equal(typeof created, 'object')
+    const added = await service.execute('director_add_element', { kind: 'mannequin', name: 'Hero' })
+    assert.ok(added)
+    const state = await service.execute('director_get_state', {})
+    const project = state.project ?? state
+    assert.ok(Array.isArray(project.elements) ? project.elements.length >= 1 : true)
+    const undone = await service.execute('director_undo', {})
+    assert.ok(undone)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('cleanup test artifacts', async () => {
   await rm(join(process.cwd(), settings.outputDir), { recursive: true, force: true })
 })

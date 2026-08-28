@@ -113,8 +113,8 @@ const META: Record<string, ToolMeta> = {
   directorx_canvas_desub: { title: '去字幕 · Desub', kind: 'video' },
   directorx_canvas_extend: { title: '视频延长 · Extend', kind: 'video' },
   directorx_canvas_gif: { title: '导出 GIF · GIF', kind: 'image' },
-  directorx_series: { title: '系列包 · Series', kind: 'image' },
-  directorx_revise: { title: '重新生成 · Revise', kind: 'image' },
+  directorx_stage_snapshot: { title: '导演台截图 · Snapshot', kind: 'image' },
+  directorx_stage: { title: '制片阶段 · Stage', kind: 'image' },
   directorx_blocking: { title: '场面控制表 · Blocking', kind: 'image' },
   directorx_studio: { title: '编辑台 · Studio', kind: 'image' },
   directorx_skill_search: { title: '检索技能 · Skills', kind: 'image' },
@@ -122,31 +122,35 @@ const META: Record<string, ToolMeta> = {
   directorx_skill_read: { title: '读技能 · Skill', kind: 'image' },
   directorx_prompt_plan: { title: '提示词编排 · Plan', kind: 'image' },
   directorx_ip_scan: { title: '版权扫描 · IP', kind: 'image' },
-  directorx_ip_rewrite: { title: '版权改写 · IP', kind: 'image' },
+  directorx_ip_rewrite: { title: '版权改写 · IP', kind: 'image' }
 }
 
 const card: CSSProperties = {
-  border: '1px solid var(--dsw-alias-border-l1)',
-  borderRadius: 10,
-  padding: 12,
+  minWidth: 0,
+  boxSizing: 'border-box',
+  border: '1px solid var(--dsw-alias-border-l2)',
+  borderRadius: 12,
+  padding: '12px 14px',
   marginBottom: 10,
-  background: 'var(--dsw-alias-bg-layer-1)',
+  background: 'var(--dsw-alias-bg-layer-2)',
+  color: 'var(--dsw-alias-label-primary)',
+  overflow: 'hidden',
 }
 
-const head: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }
-const statusBase: CSSProperties = { fontSize: 11.5, whiteSpace: 'nowrap', padding: '2px 9px', borderRadius: 999, border: '1px solid var(--dsw-alias-border-l1)', color: 'var(--dsw-alias-label-secondary)', background: 'var(--dsw-alias-bg-layer-1)' }
-const statusRunning: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-business-primary, #4f9dff)', border: '1px solid rgba(79,157,255,.4)' }
-const statusFailed: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-error-primary, #f0a3a3)', border: '1px solid rgba(240,163,163,.4)' }
-const statusDone: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-success-primary, #86d993)', border: '1px solid rgba(134,217,147,.35)' }
-const summary: CSSProperties = { fontSize: 12.5, opacity: .85, marginTop: 6, lineHeight: 1.5, wordBreak: 'break-word' }
-const metaLine: CSSProperties = { fontSize: 11.5, opacity: .55, marginTop: 4, wordBreak: 'break-all' }
-const mediaBox: CSSProperties = { marginTop: 10 }
-const errorText: CSSProperties = { fontSize: 12.5, color: 'var(--dsw-alias-state-error-primary, #ff9b8f)', marginTop: 6, wordBreak: 'break-word' }
+const head: CSSProperties = { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, minWidth: 0 }
+const statusBase: CSSProperties = { flexShrink: 0, fontSize: 11, lineHeight: 1.3, whiteSpace: 'nowrap', padding: '4px 8px', borderRadius: 999, border: '1px solid var(--dsw-alias-border-l2)', color: 'var(--dsw-alias-label-secondary)', background: 'var(--dsw-alias-bg-layer-1)' }
+const statusRunning: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-warn-primary)', borderColor: 'var(--dsw-alias-state-warn-primary)', background: 'var(--dsw-alias-interactive-bg-hover)' }
+const statusFailed: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-error-primary)', borderColor: 'var(--dsw-alias-state-error-primary)', background: 'var(--dsw-alias-interactive-bg-hover-danger)' }
+const statusDone: CSSProperties = { ...statusBase, color: 'var(--dsw-alias-state-success-primary)', borderColor: 'var(--dsw-alias-state-success-primary)', background: 'var(--dsw-alias-interactive-bg-hover)' }
+const summary: CSSProperties = { minWidth: 0, fontSize: 12.5, color: 'var(--dsw-alias-label-secondary)', marginTop: 8, lineHeight: 1.55, overflowWrap: 'anywhere' }
+const metaLine: CSSProperties = { minWidth: 0, fontSize: 11, color: 'var(--dsw-alias-label-tertiary)', marginTop: 10, overflowWrap: 'anywhere' }
+const mediaBox: CSSProperties = { minWidth: 0, marginTop: 12 }
+const errorText: CSSProperties = { minWidth: 0, fontSize: 12.5, color: 'var(--dsw-alias-state-error-primary)', background: 'var(--dsw-alias-interactive-bg-hover-danger)', borderRadius: 8, padding: '8px 10px', marginTop: 10, overflowWrap: 'anywhere' }
 
-const IMG: CSSProperties = { display: 'block', maxWidth: '100%', maxHeight: 280, borderRadius: 8, border: '1px solid var(--dsw-alias-border-l1)' }
-const VIDEO: CSSProperties = { display: 'block', width: '100%', maxWidth: 480, maxHeight: 300, borderRadius: 8, background: '#000' }
+const IMG: CSSProperties = { display: 'block', maxWidth: '100%', maxHeight: 280, borderRadius: 8, border: '1px solid var(--dsw-alias-border-l2)' }
+const VIDEO: CSSProperties = { display: 'block', width: '100%', maxWidth: 480, maxHeight: 300, borderRadius: 8, background: 'var(--dsw-alias-bg-base)' }
 const AUDIO: CSSProperties = { display: 'block', width: '100%', maxWidth: 480, marginTop: 4 }
-const LINK: CSSProperties = { fontSize: 12, opacity: .8, wordBreak: 'break-all' }
+const LINK: CSSProperties = { minWidth: 0, fontSize: 12, color: 'var(--dsw-alias-label-secondary)', overflowWrap: 'anywhere' }
 
 function parseArgs(raw: string | undefined): Record<string, unknown> {
   if (raw === undefined || raw === '') return {}
@@ -227,11 +231,11 @@ function MediaPreview({ file, fallback }: { file: MediaFile; fallback: MediaKind
   )
 }
 
-const kvRow: CSSProperties = { display: 'grid', gridTemplateColumns: '92px 1fr', gap: '2px 10px', fontSize: 12, marginTop: 6, alignItems: 'baseline' }
-const kvLabel: CSSProperties = { opacity: .55 }
-const thumbGrid: CSSProperties = { display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }
-const thumb: CSSProperties = { width: 132, height: 74, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l1)', display: 'block' }
-const itemRow: CSSProperties = { fontSize: 12, marginBottom: 6, wordBreak: 'break-all', opacity: .88 }
+const kvRow: CSSProperties = { display: 'grid', gridTemplateColumns: 'minmax(70px, 92px) minmax(0, 1fr)', gap: '2px 10px', fontSize: 12, marginTop: 7, alignItems: 'baseline', minWidth: 0 }
+const kvLabel: CSSProperties = { color: 'var(--dsw-alias-label-tertiary)' }
+const thumbGrid: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(104px, 1fr))', gap: 8, marginTop: 10, minWidth: 0 }
+const thumb: CSSProperties = { width: '100%', height: 74, objectFit: 'cover', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', display: 'block' }
+const itemRow: CSSProperties = { minWidth: 0, fontSize: 12, marginBottom: 7, lineHeight: 1.45, overflowWrap: 'anywhere', color: 'var(--dsw-alias-label-secondary)' }
 
 function fmtBytesLocal(bytes: number | undefined): string {
   if (bytes === undefined) return '—'
@@ -298,10 +302,10 @@ function TaskRows({ result }: { result: ToolResultJson }): ReactNode {
   return (
     <div style={{ marginTop: 6 }}>
       {tasks.map((task, index) => (
-        <div key={index} style={itemRow}>
-          <span style={{ fontWeight: 600 }}>{TASK_STATE_LABEL[task.state ?? ''] ?? task.state ?? '—'}</span>
-          {' · '}{task.taskId ?? result.task_id ?? ''}
-          {task.model !== undefined && task.model !== '' ? ` · ${task.model}` : ''}
+        <div key={index} style={{ ...itemRow, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 600, color: task.state === 'failed' ? 'var(--dsw-alias-state-error-primary)' : task.state === 'succeeded' ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-label-secondary)' }}>{TASK_STATE_LABEL[task.state ?? ''] ?? task.state ?? '—'}</span>
+          <span>{task.taskId ?? result.task_id ?? ''}</span>
+          {task.model !== undefined && task.model !== '' ? <span style={{ color: 'var(--dsw-alias-label-tertiary)' }}>{task.model}</span> : null}
         </div>
       ))}
       {tasks.length === 0 ? <div style={itemRow}>无任务记录</div> : null}
@@ -407,15 +411,15 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
   const visionSource = props.toolName === 'directorx_view_image' && result?.source !== undefined
     ? result.source
     : undefined
-  const visionPreview = visionSource !== undefined && (/^https?:\/\//i.test(visionSource) || /^data:/i.test(visionSource))
-    ? <a href={visionSource} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}><img src={visionSource} alt={visionSource} style={IMG} /></a>
-    : null
-
+  const visionPreview = visionSource !== undefined && visionSource !== '' ? <MediaPreview file={{ path: visionSource }} fallback="image" /> : null
   return (
     <div style={card}>
       <div style={head}>
-        <strong style={{ fontSize: 13 }}>{meta.title}</strong>
-        <span style={failed ? statusFailed : settled ? statusDone : statusRunning}>{statusLabel}</span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 10, lineHeight: 1.3, letterSpacing: .65, color: 'var(--dsw-alias-label-caption)', textTransform: 'uppercase', overflowWrap: 'anywhere' }}>{props.toolName.replace(/^directorx_/, '').replaceAll('_', ' ')}</div>
+          <strong style={{ display: 'block', minWidth: 0, marginTop: 3, fontSize: 13, lineHeight: 1.35, overflowWrap: 'anywhere' }}>{meta.title}</strong>
+        </div>
+        <span role="status" style={failed ? statusFailed : settled ? statusDone : statusRunning}>{statusLabel}</span>
       </div>
       {prompt !== '' ? <div style={summary}>{prompt.length > 220 ? `${prompt.slice(0, 220)}…` : prompt}</div> : null}
       {!failed ? (
@@ -446,16 +450,13 @@ export function DirectorxToolRow(props: DirectorxToolRowProps): ReactNode {
             </div>
           )}
           {editableKind !== null && editablePath !== null ? (
-            <button
-              style={{ marginTop: 8, padding: '6px 14px', borderRadius: 7, border: '1px solid var(--dsw-alias-brand-primary)', background: 'transparent', color: 'var(--dsw-alias-label-primary)', fontSize: 12.5, cursor: 'pointer' }}
-              onClick={() => openEditor(editableKind, editablePath)}
-            >
+            <button className="dx-hit" style={{ marginTop: 10, minHeight: 30, padding: '0 10px', borderRadius: 8, border: '1px solid var(--dsw-alias-brand-primary)', background: 'var(--dsw-alias-bg-layer-1)', color: 'var(--dsw-alias-label-primary)', fontSize: 12, cursor: 'pointer' }} onClick={() => openEditor(editableKind, editablePath)}>
               在画布中编辑
             </button>
           ) : null}
         </>
       ) : (
-        <div style={errorText}>
+        <div style={errorText} role="alert">
           {block.error?.code !== undefined && block.error.code !== '' ? `${block.error.code}: ` : ''}
           {textContentOf(block).slice(0, 400) || '生成失败'}
         </div>

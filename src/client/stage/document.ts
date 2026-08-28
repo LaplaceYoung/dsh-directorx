@@ -74,7 +74,7 @@ export interface CanvasDoc {
 }
 
 export type StageData = {
-  kind?: 'image' | 'video'
+  kind?: 'image' | 'video' | 'audio' | 'director-stage' | 'edit'
   label: string
   path?: string
   prompt?: string
@@ -104,6 +104,10 @@ export type StageData = {
   onDelete?: (id: string) => void
   onUpload?: (id: string) => void
   onPickRef?: (id: string) => void
+  onCrop?: (id: string) => void
+  onCropped?: (id: string, blob: Blob) => void
+  cropping?: boolean
+  cropAspect?: number
 }
 
 export type StageNode = Node<StageData>
@@ -114,7 +118,8 @@ export function newId(prefix: string): string {
 
 export function defaultSize(kind: string, aspect?: string): { width: number; height: number } {
   if (kind === 'group') return { width: GROUP_W, height: GROUP_H }
-  if (kind === 'image' || kind === 'video' || kind === 'media') {
+  if (kind === 'director-stage' || kind === 'edit') return { width: 560, height: 360 }
+  if (kind === 'image' || kind === 'video' || kind === 'audio' || kind === 'media') {
     return aspect !== undefined && aspect !== '' ? sizeFromAspect(aspect, MEDIA_W) : { width: MEDIA_W, height: MEDIA_H }
   }
   return { width: TEXT_W, height: TEXT_H }
@@ -124,8 +129,10 @@ export function toFlowNodes(doc: CanvasDoc): StageNode[] {
   const nodes = tidyOverlappingGroups(doc.nodes)
   const byId = new Map(nodes.map(node => [node.id, node]))
   return nodes.map(node => {
-    const isMedia = node.kind === 'image' || node.kind === 'video'
+    const isMedia = node.kind === 'image' || node.kind === 'video' || node.kind === 'audio'
     const isGroup = node.kind === 'group'
+    const isDirectorStage = node.kind === 'director-stage'
+    const isEdit = node.kind === 'edit'
     const parent = node.parent !== undefined ? byId.get(node.parent) : undefined
     const size = {
       width: node.width ?? defaultSize(node.kind, node.aspect).width,
@@ -133,17 +140,17 @@ export function toFlowNodes(doc: CanvasDoc): StageNode[] {
     }
     return {
       id: node.id,
-      type: isGroup ? 'group' : isMedia ? 'media' : 'text',
+      type: isGroup ? 'group' : isDirectorStage ? 'director-stage' : isEdit ? 'edit' : isMedia ? 'media' : 'text',
       draggable: node.locked !== true,
-      position: parent !== undefined
-        ? { x: node.x - parent.x, y: node.y - parent.y }
-        : { x: node.x, y: node.y },
+      position: parent !== undefined ? { x: node.x - parent.x, y: node.y - parent.y } : { x: node.x, y: node.y },
       width: size.width,
       height: size.height,
       style: { ...size, overflow: 'visible' },
       ...(parent !== undefined ? { parentId: parent.id, extent: 'parent' as const } : {}),
       data: {
-        ...(isMedia ? { kind: node.kind as 'image' | 'video', path: node.path ?? '' } : {}),
+        ...(isMedia ? { kind: node.kind as 'image' | 'video' | 'audio', path: node.path ?? '' } : {}),
+        ...(isDirectorStage ? { kind: 'director-stage' as const } : {}),
+        ...(isEdit ? { kind: 'edit' as const } : {}),
         label: node.label,
         ...(node.prompt !== undefined ? { prompt: node.prompt } : {}),
         ...(node.shotIndex !== undefined ? { shotIndex: node.shotIndex } : {}),
@@ -189,14 +196,18 @@ export function fromFlow(nodes: StageNode[], edges: Edge[], title: string, updat
       const absolute = node.parentId !== undefined && node.parentId !== ''
         ? { x: node.position.x + (parentPos.get(node.parentId)?.x ?? 0), y: node.position.y + (parentPos.get(node.parentId)?.y ?? 0) }
         : { x: node.position.x, y: node.position.y }
-      const kind = node.type === 'media' ? (node.data.kind ?? 'image') : node.type === 'group' ? 'group' : 'text'
+      const kind = node.type === 'media' ? (node.data.kind ?? 'image')
+        : node.type === 'group' ? 'group'
+        : node.type === 'director-stage' ? 'director-stage'
+        : node.type === 'edit' ? 'edit'
+        : 'text'
       const width = typeof node.style?.width === 'number' ? node.style.width : undefined
       const height = typeof node.style?.height === 'number' ? node.style.height : undefined
       return {
         id: node.id,
         kind,
         label: displayCardTitle(node.data.label, node.data.prompt, node.data.shotIndex) || node.data.label,
-        ...(kind === 'image' || kind === 'video' ? { path: node.data.path ?? '' } : {}),
+        ...(kind === 'image' || kind === 'video' || kind === 'audio' ? { path: node.data.path ?? '' } : {}),
         ...(node.data.prompt !== undefined ? { prompt: node.data.prompt } : {}),
         ...(node.data.shotIndex !== undefined ? { shotIndex: node.data.shotIndex } : {}),
         ...(node.data.locked === true ? { locked: true } : {}),

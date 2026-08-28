@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { resolveRequestProject, runInProject } from './project.ts'
 import { AdapterStore, publicRecord } from './providers/adapter-store.ts'
 import { ingestProvider } from './providers/provider-onboard.ts'

@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { extractFrames, probeMedia, type MediaProbe } from './ffmpeg.ts'
+import { parseSrt } from './timeline.ts'
 import { runVision } from './vision.ts'
 import type { CapabilitySettings, DirectorxSettings } from '../config.ts'
 
@@ -17,6 +19,8 @@ export interface VideoAnalyzeInput {
   cutThreshold?: number
   minShotSec?: number
   describe?: boolean
+  srtPath?: string
+  highlightWindowSec?: number
 }
 
 export interface ShotSegment {
@@ -52,7 +56,55 @@ export interface VideoAnalyzeOutput {
   /** volumedetect 的 mean/peak dBFS。 */
   volumeDbfs?: { mean: number; peak: number }
   audioLoudness?: { meanLu: number; peakLu: number }
+  audioHighlights?: AudioHighlightAnalysis
   note?: string
+}
+
+export interface AudioHighlightSegment {
+  start: number
+  end: number
+  rmsDb: number
+  peakDb: number
+  speechRate: number
+  isSilence: boolean
+}
+
+export interface AudioHighlightAnalysis {
+  segments: AudioHighlightSegment[]
+  duration: number
+}
+
+/**
+ * 用 ffmpeg ebur128 的短窗响度生成音频高光窗口；不引入浏览器 AudioBuffer
+ * 或 WASM。字幕词速只统计词起点落入当前窗口的 cue。
+ */
+export function analyzeAudioForHighlights(source: string, srtPath?: string, segmentDuration = 5): AudioHighlightAnalysis {
+  const duration = Math.max(0, probeMedia(source).durationSec)
+  const window = Number.isFinite(segmentDuration) && segmentDuration > 0 ? segmentDuration : 5
+  const samples: Array<{ time: number; db: number; peak: number }> = []
+  const result = spawnSync('ffmpeg', ['-hide_banner', '-i', source, '-af', 'ebur128=peak=true', '-vn', '-f', 'null', '-'], { encoding: 'utf8' })
+  let currentTime: number | undefined
+  for (const line of (result.stderr ?? '').split('\n')) {
+    const time = line.match(/t:\s*([\d.]+)/)
+    if (time !== null) currentTime = Number(time[1])
+    const loudness = line.match(/M:\s*(-?[\d.]+)/)
+    if (loudness !== null && currentTime !== undefined) {
+      const peakMatch = line.match(/(?:Peak|S):\s*(-?[\d.]+)/)
+      samples.push({ time: currentTime, db: Number(loudness[1]), peak: peakMatch === null ? Number(loudness[1]) : Number(peakMatch[1]) })
+    }
+  }
+  const transcript = srtPath === undefined || srtPath === '' ? [] : parseSrt(readFileSync(srtPath, 'utf8')).flatMap(cue => cue.text.split(/\s+/).filter(Boolean).map(text => ({ text, start: cue.start, end: cue.end })))
+  const segments: AudioHighlightSegment[] = []
+  for (let start = 0; start < duration || (duration === 0 && start === 0); start += window) {
+    const end = Math.min(duration, start + window)
+    const inWindow = samples.filter(sample => sample.time >= start && sample.time < end)
+    const rmsDb = inWindow.length > 0 ? Number((inWindow.reduce((sum, sample) => sum + sample.db, 0) / inWindow.length).toFixed(1)) : -120
+    const peakDb = inWindow.length > 0 ? Number(Math.max(...inWindow.map(sample => sample.peak)).toFixed(1)) : -120
+    const words = transcript.filter(word => word.start >= start && word.start < end).length
+    segments.push({ start: Number(start.toFixed(3)), end: Number(end.toFixed(3)), rmsDb, peakDb, speechRate: Number((words / Math.max(0.001, end - start)).toFixed(3)), isSilence: peakDb <= -60 })
+    if (duration === 0) break
+  }
+  return { segments, duration }
 }
 
 export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnalyzeOutput> {
@@ -217,6 +269,9 @@ export async function videoAnalyze(input: VideoAnalyzeInput): Promise<VideoAnaly
     ...(blackSegments.length > 0 ? { blackSegments } : {}),
     ...(volumeDbfs !== undefined ? { volumeDbfs } : {}),
     ...(audioLoudness !== undefined ? { audioLoudness } : {}),
+    ...(input.highlightWindowSec !== undefined || input.srtPath !== undefined
+      ? { audioHighlights: analyzeAudioForHighlights(input.source, input.srtPath, input.highlightWindowSec) }
+      : {}),
     ...(visionAvailable ? {} : { note: 'vision 未配置：分镜描述为 null（帧路径可用），配置 DirectorX vision 后以 describe=true 重跑可获得逐镜描述。' }),
   }
 }

@@ -115,14 +115,17 @@ two-tone shadow, top-left key light"
 | 点名工作室 | 版权风险 | 属性化（213） |
 | 帧无镜头感 | 非截帧 | 镜头提示 |
 
-## 工作流应用（AI 映射）
+## DirectorX 生产映射
 
-动漫帧（衔接 213/224/231/238）：
+动画帧是视觉参考资产，不是自动的视频风格权威。生产时把角色、场景、风格、排版和动作贡献拆开；只有用户确认的 `style_authority` 才能进入视频参考合同。若需要把角色素材转成视觉权威图，先生成、抽帧检查，再进入 `storyboard → prompt → ready → approval → video`。
 
 ```text
-子类型 → 风格锁定 → 镜头感 → 光照
-  → 生成 → 系列一致（238）→ 版权复核（213）
+intake → subject/style authority gate → cel-shading contract
+  → shot/panel continuity → image or video craft → ready/preflight
+  → approval → generate → frame QA → deterministic delivery
 ```
+
+检查门：硬边墨线、平面色块、两级阴影和显式光向必须可见；镜头必须有景别、主体动作和主运镜；角色身份跨帧稳定；专名和受保护作品名走 213 版权安全提示词；实际生成帧未检查前不得声称风格命中。
 
 **DirectorX 纪律**：赛璐璐语法完整；子类型引导比例表情；帧有截帧感；属性化防侵权。
 

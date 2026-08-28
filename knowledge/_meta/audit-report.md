@@ -4,8 +4,8 @@
 
 ## 结论
 
-- 有效文章：348
-- OKF 类型分布：Reference 268，Playbook 30，Case 15，Spec 8，Method 27
+- 有效文章：355
+- OKF 类型分布：Reference 275，Playbook 30，Case 15，Spec 8，Method 27
 - 已合并旧编号：90
 - 精确重复正文：0 组
 - 结构错误：0

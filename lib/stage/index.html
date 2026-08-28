@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <title>3D 导演台</title>
+    <link rel="icon" type="image/svg+xml" href="/directorx/stage/favicon.svg" />
+    <link rel="stylesheet" href="/directorx/stage/index-D7VV03Tb.css" />
+    <script>
+      window.__DIRECTOR_API_HOST__ = "/directorx/stage";
+      window.__dxBoot = [];
+      window.addEventListener("error", (e) => {
+        const msg = String(e.message || (e.error && e.error.message) || "");
+        if (!msg) return;
+        window.__dxBoot.push({ type: "error", msg, src: String(e.filename || ""), line: e.lineno, stack: String((e.error && e.error.stack) || "") });
+      }, true);
+      window.addEventListener("unhandledrejection", (e) => {
+        window.__dxBoot.push({ type: "rej", msg: String((e.reason && (e.reason.stack || e.reason.message || e.reason)) || e.reason) });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/directorx/stage/dsh-host.js"></script>
+    <script src="/directorx/stage/possess-mode.js"></script>
+    <script src="/directorx/stage/camera-optics.js"></script>
+    <script src="/directorx/stage/agent-bus.js"></script>
+    <script type="module" src="/directorx/stage/app.js"></script>
+    <script type="module" src="/directorx/stage/stage-look.js"></script>
+    <script src="/directorx/stage/stage-review.js"></script>
+    <script type="module" src="/directorx/stage/stage-multicam.js"></script>
+    <script type="module" src="/directorx/stage/stage-contact.js"></script>
+    <script type="module" src="/directorx/stage/stage-studio.js"></script>
+    <script src="/directorx/stage/stage-trim.js"></script>
+    <script src="/directorx/stage/stage-keys.js"></script>
+    <script type="module" src="/directorx/stage/stage-viewfinder.js"></script>
+    <script type="module" src="/directorx/stage/stage-env.js"></script>
+    <script>
+      window.addEventListener("wheel", (e) => {
+        if (e.ctrlKey || e.metaKey) e.preventDefault();
+      }, { passive: false });
+      window.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && ["+", "-", "=", "0"].includes(e.key)) e.preventDefault();
+      });
+      ["gesturestart", "gesturechange", "gestureend"].forEach((evt) => window.addEventListener(evt, (e) => e.preventDefault()));
+    </script>
+  </body>
+</html>

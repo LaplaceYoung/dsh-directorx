@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>VCam 虚拟摄像机</title>
+    <!-- 必须先于 module 执行：手机端无法方便地看控制台，启动失败时不能只留下黑屏。 -->
+    <script>
+      (function () {
+        var reported = false;
+
+        function text(value) {
+          if (value == null) return "未知错误";
+          if (value instanceof Error) return value.stack || value.message || String(value);
+          if (typeof value === "object") {
+            try { return JSON.stringify(value); } catch (_) { /* ignore */ }
+          }
+          return String(value);
+        }
+
+        function safeResourceUrl(value) {
+          if (!value) return "";
+          try {
+            var url = new URL(value, location.href);
+            return url.pathname;
+          } catch (_) {
+            return String(value).split("#")[0].split("?")[0];
+          }
+        }
+
+        function reportToHub(message) {
+          try {
+            var credentials = new URLSearchParams(location.hash.replace(/^#/, ""));
+            var session = credentials.get("s");
+            var token = credentials.get("t");
+            if (!session || !token) return;
+            // 用 header 而非 query，避免会话凭据与错误栈进入 URL / 代理 access log。
+            // 单条 header 控制在 5 KB 内，兼容常见 WebView / 代理的请求头上限。
+            var encoded = encodeURIComponent(message);
+            if (encoded.length > 5000) encoded = encoded.slice(0, 5000);
+            fetch("/vcam-log", {
+              method: "GET",
+              cache: "no-store",
+              keepalive: true,
+              headers: {
+                "X-VCam-Session": session,
+                "X-VCam-Token": token,
+                "X-VCam-Log": encoded
+              }
+            }).catch(function () { /* 页面仍会显示可截图诊断 */ });
+          } catch (_) { /* 页面仍会显示可截图诊断 */ }
+        }
+
+        function showBootError(title, detail) {
+          if (reported) return;
+          reported = true;
+          var diagnostic = "[phone-boot] " + title + "\n" + detail +
+            "\n页面：" + location.origin + location.pathname +
+            "\n安全上下文：" + String(window.isSecureContext) +
+            "\n网络状态：" + (navigator.onLine ? "online" : "offline") +
+            "\n浏览器：" + navigator.userAgent;
+          reportToHub(diagnostic);
+          var root = document.getElementById("root");
+          if (!root) return;
+          root.textContent = "";
+
+          var box = document.createElement("div");
+          box.style.cssText = "box-sizing:border-box;min-height:100%;padding:32px 24px;background:#000;color:#fff;font:14px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;overflow:auto";
+          var heading = document.createElement("div");
+          heading.style.cssText = "font-size:18px;font-weight:600;margin-bottom:12px;color:#ff8a8a";
+          heading.textContent = title;
+          var hint = document.createElement("div");
+          hint.style.cssText = "margin-bottom:16px;color:rgba(255,255,255,.72)";
+          hint.textContent = "请截图本页并反馈给开发人员。可先点下方按钮重试。";
+          var info = document.createElement("pre");
+          info.style.cssText = "margin:0 0 20px;padding:12px;border-radius:8px;background:#171717;color:#ddd;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-all";
+          info.textContent = diagnostic.replace(/^\[phone-boot\] /, "");
+          var retry = document.createElement("button");
+          retry.type = "button";
+          retry.style.cssText = "border:0;border-radius:999px;padding:11px 24px;background:#fff;color:#000;font-size:14px";
+          retry.textContent = "重新加载";
+          retry.onclick = function () { location.reload(); };
+          box.appendChild(heading);
+          box.appendChild(hint);
+          box.appendChild(info);
+          box.appendChild(retry);
+          root.appendChild(box);
+        }
+
+        window.addEventListener("error", function (event) {
+          var target = event.target;
+          var isCriticalResource = target && (
+            target.tagName === "SCRIPT" ||
+            (target.tagName === "LINK" && String(target.rel).toLowerCase() !== "icon")
+          );
+          if (isCriticalResource && (target.src || target.href)) {
+            showBootError("VCam 资源加载失败", "无法加载：" + safeResourceUrl(target.src || target.href));
+            return;
+          }
+          // 图片等非关键资源失败不应覆盖已可操作的控制页。
+          if (target && target !== window) return;
+          showBootError(
+            "VCam 启动失败",
+            text(event.error || event.message) +
+              (event.filename ? "\n位置：" + safeResourceUrl(event.filename) + ":" + event.lineno + ":" + event.colno : "")
+          );
+        }, true);
+
+        window.addEventListener("unhandledrejection", function (event) {
+          showBootError("VCam 异步启动失败", text(event.reason));
+        });
+
+        // 某些 WebView 会静默拒绝 module 脚本，既不执行也不派发可读错误。
+        // React 启动后会替换 #vcam-boot；若 10 秒后仍存在，给出可截图诊断。
+        window.setTimeout(function () {
+          if (document.getElementById("vcam-boot")) {
+            showBootError("VCam 脚本未启动", "手机浏览器没有执行控制页的 JavaScript 模块（等待 10 秒后仍未启动）。");
+          }
+        }, 10000);
+      })();
+    </script>
+    <script type="module" crossorigin src="./phone-DyeVK3Rl.js"></script>
+    <link rel="modulepreload" crossorigin href="./index-Bt3LoRYv.js">
+    <link rel="stylesheet" crossorigin href="./index-D7VV03Tb.css">
+  </head>
+  <body>
+    <div id="root">
+      <div id="vcam-boot" style="min-height:100%;display:grid;place-items:center;padding:24px;background:#000;color:rgba(255,255,255,.65);font:14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;text-align:center">
+        正在启动 VCam…
+      </div>
+    </div>
+  </body>
+</html>

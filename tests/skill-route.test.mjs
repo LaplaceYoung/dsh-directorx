@@ -129,6 +129,26 @@ test('toolsForSkill lists the tools DSH should call after reading a skill', () =
   assert.deepEqual(toolsForSkill('unknown-skill'), [])
 })
 
+test('routeSkills maps migrated dx-design production skills', () => {
+  const title = routeSkills('做一条带演员姓名和片名落版的 15 秒片头')
+  assert.equal(title.mode, 'generate')
+  assert.ok(title.skills.includes('cinematic-title-sequence'))
+  assert.ok(title.tools.includes('directorx_confirm'))
+
+  const anime = routeSkills('做一条二次元游戏角色 PV')
+  assert.ok(anime.skills.includes('anime-game-pv'))
+  assert.ok(anime.tools.includes('directorx_generate_ready'))
+
+  const stage = routeSkills('设计一个 3D Director Stage 场景')
+  assert.ok(stage.skills.includes('3d-director-stage'))
+  assert.ok(stage.tools.includes('directorx_blocking'))
+
+  const deconstruct = routeSkills('逐镜拆解这个参考视频')
+  assert.equal(deconstruct.mode, 'research')
+  assert.ok(deconstruct.skills.includes('video-deconstruct'))
+  assert.ok(deconstruct.tools.includes('directorx_extract_frames'))
+})
+
 test('H3 copilot ships official mode fields and no foreign form gate', async () => {
   const { readFile } = await import('node:fs/promises')
   const { join, dirname } = await import('node:path')
@@ -152,6 +172,19 @@ test('H3 copilot ships official mode fields and no foreign form gate', async () 
   const ref = await readFile(join(root, 'skills/minimax-h3-prompt-copilot/references/ref-mode.md'), 'utf8')
   assert.match(ref, /subject_definitions/)
   assert.match(ref, /retention_analysis/)
+})
+
+test('migrated skills keep DSH-native contracts', async () => {
+  const { readFile } = await import('node:fs/promises')
+  const { join, dirname } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+  const title = await readFile(join(root, 'skills/cinematic-title-sequence/SKILL.md'), 'utf8').catch(() => '')
+  const anime = await readFile(join(root, 'skills/anime-game-pv/SKILL.md'), 'utf8').catch(() => '')
+  assert.match(title, /question|确认|15 秒/)
+  assert.match(anime, /style|画风|Storyboard|分镜/i)
+  assert.match(toolsForSkill('cinematic-title-sequence').join(','), /directorx_generate_video/)
+  assert.match(toolsForSkill('anime-game-pv').join(','), /directorx_generate_ready/)
 })
 
 test('skill and knowledge ids point at each other', () => {

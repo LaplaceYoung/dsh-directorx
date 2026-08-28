@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 
 const CN_NAME_TO_SLUG: Record<string, string> = {
   '导演风格致敬': 'director-style',
@@ -159,21 +159,6 @@ export async function registerBundledSkills(ctx: Context): Promise<void> {
       invocation: { modelInvocable: true, userInvocable: true },
     })
   }
-
-  ctx.skills.register({
-    name: 'directorx-knowledge',
-    description: 'Search and read the bundled DirectorX film/AI-video knowledge corpus (350+ Chinese craft articles, model matrixes, prompt engineering, workflows). Use directorx_knowledge_search and directorx_knowledge_read instead of guessing domain facts.',
-    content: [
-      '# DirectorX Knowledge Corpus',
-      '',
-      'Use the `directorx_knowledge_search` tool with a focused Chinese or English query before making a filmmaking, prompting, model-selection, or workflow decision. Inspect the returned `id` / `slug` / `path`, then call `directorx_knowledge_read` for the full article.',
-      'The corpus covers: camera language, editing, screenplay, AI video/image prompting, model matrix, first/last-frame control, consistency systems, sound design, vertical drama, ad/e-commerce workflows, platform delivery specs, and copyright-safe prompting.',
-      'Prefer corpus facts over guessed model capabilities. Cite the article id when you use its guidance.',
-    ].join('\n'),
-    source: 'runtime',
-    provider: 'directorx',
-    invocation: { modelInvocable: true, userInvocable: true },
-  })
 
   ctx.skills.register({
     name: 'directorx-recipes',

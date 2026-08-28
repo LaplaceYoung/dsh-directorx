@@ -187,3 +187,20 @@ test('compose sign-off stage uses directorx_confirm on the DSH ask seam', () => 
   assert.ok(promo.nextActions.some(line => line.includes('directorx_confirm')))
   assert.ok(promo.nextActions.some(line => line.includes('/directorx')))
 })
+
+test('director service preserves edits and undo on a project root', async () => {
+  const { DirectorService, ProjectRepository } = await import('../lib/testing.js')
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-stage-'))
+  try {
+    const service = new DirectorService(new ProjectRepository(dir))
+    await service.execute('director_create_project', { name: 'plane' })
+    await service.execute('director_add_element', { kind: 'box', name: 'Prop' })
+    const before = await service.execute('director_get_state', { detail: 'full' })
+    assert.ok(before)
+    await service.execute('director_undo', {})
+    const after = await service.execute('director_get_state', { detail: 'full' })
+    assert.ok(after)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})

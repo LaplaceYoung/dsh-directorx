@@ -1,4 +1,4 @@
-import z from 'schemastery'
+import z from '@deepseek-ai/schemastery'
 
 export const SETTINGS_NS = 'directorx'
 

@@ -51,7 +51,6 @@ const SKILL_TOOLS: Record<string, string[]> = {
   'seedance-2-prompt-copilot': ['directorx_prompt_craft', 'directorx_generate_video'],
   'seedance-2-5-prompt-copilot': ['directorx_prompt_craft', 'directorx_generate_video'],
   'minimax-h3-prompt-copilot': ['directorx_prompt_craft', 'directorx_generate_video'],
-  'gpt-image2-prompt-copilot': ['directorx_prompt_craft', 'directorx_generate_image'],
   'banana-prompt-copilot': ['directorx_prompt_craft', 'directorx_generate_image'],
   'cinematic-style': ['directorx_style', 'directorx_knowledge_search'],
   'continuous-video': ['directorx_generate_ready', 'directorx_extract_frames', 'directorx_canvas_connect'],
@@ -62,6 +61,16 @@ const SKILL_TOOLS: Record<string, string[]> = {
   'thumbnail-cover': ['directorx_generate_image', 'directorx_view_image'],
   'script-writing': ['directorx_storyboard', 'directorx_brief'],
   'short-video': ['directorx_chengpian', 'directorx_brief', 'directorx_qa'],
+  'cinematic-title-sequence': ['directorx_ask', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_confirm', 'directorx_generate_video', 'directorx_extract_frames', 'directorx_view_image'],
+  'anime-game-pv': ['directorx_ask', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_confirm', 'directorx_generate_image', 'directorx_generate_video', 'directorx_extract_frames', 'directorx_view_image'],
+  '3d-director-stage': ['directorx_blocking', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_extract_frames', 'directorx_view_image', 'directorx_qa'],
+  'video-deconstruct': ['directorx_probe_media', 'directorx_video_analyze', 'directorx_extract_frames', 'directorx_view_image', 'directorx_storyboard'],
+  'visual-design': ['directorx_style', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_image', 'directorx_generate_video', 'directorx_qa'],
+  'brand-ad': ['directorx_brief', 'directorx_style', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_image', 'directorx_generate_video', 'directorx_qa'],
+  'cool-music-video': ['directorx_brief', 'directorx_audio_analyze_music', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_video', 'directorx_audio_sync', 'directorx_qa'],
+  'education-studio': ['directorx_brief', 'directorx_storyboard', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_video', 'directorx_transcribe_audio', 'directorx_qa'],
+  'koc-video': ['directorx_brief', 'directorx_storyboard', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_video', 'directorx_qa'],
+  'ui-motion': ['directorx_brief', 'directorx_style', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_generate_video', 'directorx_qa'],
 }
 
 interface Rule {
@@ -75,6 +84,42 @@ interface Rule {
 }
 
 const RULES: Rule[] = [
+  {
+    id: 'cinematic-title-sequence',
+    match: /片头|片名|卡司|演员姓名|opening\s*(title|credits)|title\s*sequence|film\s+teaser/i,
+    mode: 'generate',
+    reason: '影视片头/单条概念预告：先确认范围、视觉载体、准确文字与参考用途，再编译一条完整成片。',
+    skills: ['cinematic-title-sequence', 'directorx-production-lead', 'directorx-chengpian'],
+    knowledge: ['片头 字体 转场', '视频提示词 镜头语言'],
+    extraTools: ['directorx_ask', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_confirm'],
+  },
+  {
+    id: 'anime-game-pv',
+    match: /二次元|动漫|漫画|游戏角色|角色PV|anime\s*(pv|trailer)|manga\s*pv|game\s*pv/i,
+    mode: 'generate',
+    reason: '二次元/游戏 PV：先锁身份与唯一视觉权威，确认分镜和完整 Prompt 后只交付一条成片。',
+    skills: ['anime-game-pv', 'directorx-production-lead', 'directorx-chengpian'],
+    knowledge: ['二次元 角色一致性', '分镜 角色设定', '视频提示词'],
+    extraTools: ['directorx_ask', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_confirm'],
+  },
+  {
+    id: '3d-stage',
+    match: /3d\s*(stage|director)|三维舞台|3D场景|campath|motion\s*dsl|空间阻挡/i,
+    mode: 'generate',
+    reason: '3D 舞台工艺：先确认兼容能力，再做阻挡、镜头与视觉验证；没有真实 3D 能力不得假装交付。',
+    skills: ['3d-director-stage', 'directorx-blocking-craft', 'directorx-production-lead'],
+    knowledge: ['场面调度 空间', '镜头语言 运镜', '角色动作 控制'],
+    extraTools: ['directorx_blocking', 'directorx_prompt_plan', 'directorx_prompt_craft', 'directorx_generate_ready', 'directorx_qa'],
+  },
+  {
+    id: 'video-deconstruct',
+    match: /拉片|逐镜拆解|拆解参考视频|复刻参考视频|video\s*deconstruct|shot-by-shot/i,
+    mode: 'research',
+    reason: '参考视频拆解：先探测、抽帧并看实际画面，再产出可执行镜头表；不把拆解结果当作生成结果。',
+    skills: ['video-deconstruct', 'frame-qa', 'directorx-methodology'],
+    knowledge: ['拉片 镜头拆解', '成片质检'],
+    extraTools: ['directorx_probe_media', 'directorx_video_analyze', 'directorx_extract_frames', 'directorx_view_image'],
+  },
   {
     id: 'blocking',
     match: /场面控制|场面锁|作战板|完全控制|多人连续|单镜长拍|世界状态|空间台账|控球权|状态机/i,

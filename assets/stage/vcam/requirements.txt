@@ -1,0 +1,4 @@
+websockets>=13,<16
+cryptography>=42
+psutil>=5.9
+Pillow>=10

@@ -169,15 +169,19 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
       className="nowheel nopan nodrag"
       onPointerDown={event => event.stopPropagation()}
       style={{
-        ...dxChrome,
-        width: '100%',
-        minWidth: 0,
-        maxWidth: compact ? 'none' : 520,
-        padding: compact ? 8 : 10,
+        width: compact ? 640 : '100%',
+        minWidth: compact ? 640 : 0,
+        maxWidth: compact ? 650 : 520,
+        padding: compact ? 12 : 10,
         borderRadius: 16,
+        background: '#1f1f1f',
+        border: '1px solid rgba(255,255,255,.10)',
+        color: dx.ink,
+        fontFamily: dx.font,
         display: 'flex',
         flexDirection: 'column',
-        gap: 6,
+        gap: 8,
+        boxSizing: 'border-box',
       }}
     >
       {props.spec.revise === true || props.sourceLabel !== undefined || (props.spec.refIds ?? []).length > 0 || (props.spec.characters ?? []).length > 0 ? (
@@ -196,13 +200,23 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
           {chips}
         </div>
       ) : null}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        {compact && props.onPickRef !== undefined ? (
+          <button
+            className="dx-hit"
+            title="添加参考"
+            style={{ ...dxGhostBtn, width: 38, height: 38, borderRadius: 10, background: 'rgba(255,255,255,.08)', flexShrink: 0 }}
+            onClick={props.onPickRef}
+          >
+            <IconPlus size={16} />
+          </button>
+        ) : null}
         <PromptIpField
           compact={compact}
           inputRef={props.inputRef}
           value={props.spec.prompt}
-          placeholder={props.spec.revise === true ? '改哪里，或直接沿用当前提示词再生成' : '这一镜的意图（DSH 会先检索再写成稿）'}
-          rows={2}
+          placeholder={props.spec.revise === true ? '改哪里，或直接沿用当前提示词再生成' : '描述任何你想要生成的内容'}
+          rows={3}
           onChange={value => props.onChange({ ...props.spec, prompt: value })}
           onKeyDown={event => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -211,8 +225,8 @@ export function NodeWorkstation(props: NodeWorkstationProps): ReactNode {
             }
           }}
           style={{
-            flex: 1, minHeight: compact ? 36 : 40, maxHeight: 96, resize: 'none', border: 'none', outline: 'none',
-            background: 'transparent', color: dx.ink, fontSize: 13, lineHeight: 1.45, fontFamily: dx.font,
+            flex: 1, minHeight: compact ? 80 : 40, maxHeight: 120, resize: 'none', border: 'none', outline: 'none',
+            background: 'transparent', color: dx.ink, fontSize: 14, lineHeight: 1.5, fontFamily: dx.font,
           }}
         />
         {compact ? null : send}

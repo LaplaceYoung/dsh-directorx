@@ -1,7 +1,7 @@
 /** Context-menu catalogs for the canvas. One open menu, kind-specific rows. */
 
 export type AddMode = 'quick' | 'full'
-export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'upload' | 'assets' | 'edit-image' | 'edit-video' | 'paste'
+export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'director-stage' | 'edit' | 'upload' | 'assets' | 'edit-image' | 'edit-video' | 'paste'
 
 export type MenuSectionId = 'create' | 'import' | 'primary' | 'craft' | 'edit' | 'arrange' | 'danger'
 
@@ -44,6 +44,8 @@ export function addMenuRows(mode: AddMode): MenuRow[] {
     { id: 'text', label: '文本', section: 'create' },
     { id: 'script', label: '剧本', section: 'create' },
     { id: 'group', label: '编组', section: 'create' },
+    { id: 'director-stage', label: '3D 导演台', section: 'create' },
+    { id: 'edit', label: '剪辑台', section: 'create' },
   ]
   if (mode === 'quick') return create
   return [

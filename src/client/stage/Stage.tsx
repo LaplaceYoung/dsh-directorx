@@ -5,7 +5,7 @@ import {
   type Connection, type Edge, type EdgeChange, type NodeChange, type OnConnectStartParams,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { editorSnapshot, openEditor, setEditorTab, subscribeEditor } from '../editor.ts'
+import { closeWorkspace, editorSnapshot, openDirectorStage, openEdit, openEditor, setEditorTab, subscribeEditor } from '../editor.ts'
 import { ImageStudio } from './ImageStudio.tsx'
 import { VideoStudio } from './VideoStudio.tsx'
 import { StudioErrorBoundary } from './studio-chrome.tsx'
@@ -18,13 +18,16 @@ import {
 import { cycleShotStatus, defaultSize, fromFlow, newId, toFlowEdges, toFlowNodes, type CanvasDoc, type ShotStatus, type StageNode } from './document.ts'
 import { displayCardTitle, nextCardLabel } from './card-label.ts'
 import { mediaUrl, stageNodeTypes } from './nodes.tsx'
+import { CropBar, CROP_ASPECTS, type CropAspectId } from './CropOverlay.tsx'
+import { DirectorStage } from './DirectorStage.tsx'
+import { EditStage } from './EditStage.tsx'
 import { SessionDock, type SessionClient } from './SessionDock.tsx'
 import {
   createdSessionId, parseArchivedIds, parseSessionList, parseWorkspaceList, pickWorkspaceSession,
   type WorkspaceClient,
 } from './session-fold.ts'
 import { createLiveSession } from './session-live.ts'
-import { boxPort, closestHandleId, WireDragLayer, WireEdge, WirePreview } from './WireEdge.tsx'
+import { boxPort, closestHandleId, HiddenConnectionLine, WireDragLayer, WireEdge } from './WireEdge.tsx'
 import { getClientProject, pickDefaultProject, projectHeaders, setClientProject, withProject, type ProjectInfo } from './project.ts'
 import {
   alignBoxes, asClipPayload, distributeBoxes, focusViewOptions, groupFrame, nudgeBoxes, nudgeStep,
@@ -68,12 +71,12 @@ const STAGE_CSS = `
   border: none !important;
   box-shadow: none !important;
 }
-.dx-stage .react-flow__handle {
-  position: absolute !important;
-  width: 22px !important; height: 22px !important; min-width: 22px; min-height: 22px;
-  background: transparent !important; border: none !important; opacity: 1;
-  pointer-events: all !important; z-index: 6;
-}
+    .dx-stage .react-flow__handle {
+      position: absolute !important;
+      width: 24px !important; height: 24px !important; min-width: 24px; min-height: 24px;
+      background: transparent !important; border: none !important; opacity: 1;
+      pointer-events: all !important; z-index: 6;
+    }
 .dx-stage .react-flow__handle.react-flow__handle-left {
   left: -20px !important; right: auto !important; top: 50% !important;
   transform: translate(0, -50%) !important;
@@ -103,11 +106,11 @@ const STAGE_CSS = `
   background: #f3f3f3; border: 2px solid #111;
   opacity: 0; transition: opacity .15s ease, transform .15s ease;
 }
-.dx-port-plus {
-  display: grid; place-items: center; width: 16px; height: 16px; border-radius: 99px;
-  background: #f3f3f3; color: #141414; box-shadow: 0 4px 14px rgba(0,0,0,.35);
-  opacity: 0; transition: opacity .15s ease, transform .15s ease;
-}
+    .dx-port-plus {
+      display: grid; place-items: center; width: 24px; height: 24px; border-radius: 99px;
+      background: #f3f3f3; color: #141414; box-shadow: 0 4px 14px rgba(0,0,0,.35);
+      opacity: 0; transition: opacity .15s ease, transform .15s ease;
+    }
 .dx-stage .react-flow__node:hover .dx-port-plus,
 .dx-stage .react-flow__node.selected .dx-port-plus,
 .dx-stage .react-flow__handle-connecting .dx-port-plus { opacity: 1; }
@@ -115,9 +118,14 @@ const STAGE_CSS = `
 .dx-stage .react-flow__node.selected .react-flow__handle-right .dx-port-dot,
 .dx-stage .react-flow__node:hover .react-flow__handle-left .dx-port-dot,
 .dx-stage .react-flow__node:hover .react-flow__handle-right .dx-port-dot { opacity: 1; }
-.dx-stage.dx-wiring .dx-port-dot,
-.dx-stage.dx-wiring .dx-port-plus { opacity: 1; }
-.dx-stage.dx-wiring .react-flow__node { cursor: crosshair; }
+    .dx-stage.dx-wiring .dx-port-dot,
+    .dx-stage.dx-wiring .dx-port-plus { opacity: 1; }
+    .dx-stage.dx-wiring,
+    .dx-stage.dx-wiring * {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+    .dx-stage.dx-wiring .react-flow__node { cursor: crosshair; }
 .dx-stage.dx-wiring .react-flow__node.dx-can-connect .dx-card-face,
 .dx-stage.dx-wiring .react-flow__node:hover .dx-card-face {
   border-color: rgba(255,255,255,.88) !important;
@@ -174,12 +182,12 @@ const STAGE_CSS = `
   border: 1px solid rgba(255,255,255,.1);
   box-shadow: 0 10px 28px rgba(0,0,0,.4);
 }
-.dx-node-toolbar {
-  display: flex; gap: 2px; padding: 4px;
-  background: rgba(16,16,16,.78); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.45);
-  backdrop-filter: blur(18px);
-}
+    .dx-node-toolbar {
+      display: flex; align-items: center; gap: 4px; padding: 4px; height: 48px; box-sizing: border-box;
+      background: rgba(31,31,31,.80); border: 1px solid rgba(255,255,255,.10);
+      border-radius: 9999px; box-shadow: none;
+      backdrop-filter: blur(16px);
+    }
 .dx-hit[data-tip]:not(.dx-session-fab) { position: relative; }
 [data-tip]::after {
   content: attr(data-tip);
@@ -223,34 +231,35 @@ const STAGE_CSS = `
   border-color: rgba(255,255,255,.16) !important;
   background: rgba(12,12,12,.72) !important;
 }
-.dx-card-caption {
-  pointer-events: auto;
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
-}
-.dx-card-dock {
-  position: absolute; left: 0; right: 0; top: 100%; margin-top: 14px; z-index: 8;
-}
-.dx-card-meta {
-  display: flex; align-items: center; gap: 6px; width: 100%; min-height: 22px;
-  padding: 20px 8px 7px;
-  background: linear-gradient(180deg, transparent 0%, rgba(8,6,4,.8) 58%);
-}
-.dx-shot-no {
-  flex-shrink: 0; min-width: 28px; color: #fff; font-size: 11px; font-weight: 600;
-  font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
-}
-.dx-card-lock { color: rgba(255,255,255,.72); display: grid; place-items: center; flex-shrink: 0; }
-.dx-face-fill { background: #0a0a0a !important; }
-.dx-kind-badge {
-  position: absolute; top: 8px; left: 8px; height: 22px; min-width: 22px; padding: 0 7px;
-  border-radius: 7px; display: inline-flex; align-items: center; gap: 5px;
-  color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.2px;
-  background: rgba(10,10,10,.55); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px);
-}
-.dx-kind-time { left: auto; right: 8px; }
-.dx-kind-image { background: #121214; }
-.dx-kind-video { background: #121110; }
-.dx-kind-text { background: linear-gradient(180deg, #17140f 0%, #100e0c 100%); }
+    .dx-card-caption {
+      pointer-events: auto;
+      position: absolute; left: 0; right: 0; top: -28px; bottom: auto; z-index: 6;
+    }
+    .dx-card-dock {
+      position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 12px; z-index: 8;
+      width: 640px;
+    }
+    .dx-card-meta {
+      display: flex; align-items: center; gap: 6px; width: 100%; min-height: 22px;
+      padding: 0 2px;
+      background: none;
+    }
+    .dx-shot-no {
+      flex-shrink: 0; min-width: 28px; color: #fff; font-size: 11px; font-weight: 600;
+      font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
+    }
+    .dx-card-lock { color: rgba(255,255,255,.72); display: grid; place-items: center; flex-shrink: 0; }
+    .dx-face-fill { background: #1f1f1f !important; }
+    .dx-kind-badge {
+      position: absolute; top: 8px; left: 8px; height: 22px; min-width: 22px; padding: 0 7px;
+      border-radius: 7px; display: inline-flex; align-items: center; gap: 5px;
+      color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.2px;
+      background: rgba(10,10,10,.55); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(8px);
+    }
+    .dx-kind-time { left: auto; right: 8px; }
+    .dx-kind-image { background: #1f1f1f; }
+    .dx-kind-video { background: #1f1f1f; }
+    .dx-kind-text { background: #1f1f1f; }
 .dx-stage .react-flow__node .dx-card-face {
   position: relative;
   transition: border-color .16s ease, box-shadow .16s ease;
@@ -262,43 +271,44 @@ const STAGE_CSS = `
   position: absolute; inset: 0; height: auto; width: auto; background: #111;
 }
 .dx-kind-image .dx-media-well, .dx-kind-video .dx-media-well { background: #111; }
-.dx-media-fill { background: #0a0a0a; }
+    .dx-media-fill { background: #1f1f1f; }
 .dx-media-bleed, .dx-media-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
 }
-.dx-media-img, .dx-media-bleed video {
-  object-fit: cover; display: block; width: 100%; height: 100%;
-}
+    .dx-media-img, .dx-media-bleed video {
+      object-fit: contain; display: block; width: 100%; height: 100%; background: #111;
+    }
 .dx-film::before, .dx-film::after {
   content: ''; position: absolute; top: 0; bottom: 0; width: 8px; z-index: 2; pointer-events: none;
   background: repeating-linear-gradient(180deg, rgba(255,255,255,.1) 0 3px, transparent 3px 11px);
   opacity: .28;
 }
 .dx-film::before { left: 0; }
-.dx-film::after { right: 0; }
-.dx-empty-plate {
-  position: absolute; inset: 10px 10px 46px; height: auto;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 8px; padding: 16px 14px; color: rgba(255,255,255,.28); box-sizing: border-box;
-  border: 1px dashed rgba(255,236,210,.16); border-radius: 12px;
-  background: radial-gradient(80% 70% at 50% 42%, rgba(255,244,228,.045), transparent 72%);
-}
-.dx-empty-glyph { display: grid; place-items: center; color: rgba(255,244,228,.38); }
-.dx-empty-glyph svg { width: 26px; height: 26px; }
-.dx-empty-title { color: #c8c8c8; font-size: 12px; }
-.dx-empty-hint { color: #8a8278; font-size: 11.5px; }
-.dx-empty-intent {
-  max-width: 88%; color: #e6ddd0; font-size: 12.5px; line-height: 1.45; text-align: center;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
+    .dx-empty-plate {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      border: none; border-radius: 16px;
+      background: #1f1f1f;
+    }
+    .dx-empty-glyph { display: grid; place-items: center; color: rgba(255,255,255,.28); }
+    .dx-empty-glyph svg { width: 26px; height: 26px; }
+    .dx-replace-chip {
+      position: absolute; top: 8px; right: 8px; z-index: 5;
+      height: 26px; padding: 0 10px; border-radius: 10px; border: none;
+      background: rgba(20,20,20,.82); color: #f5f5f5; font-size: 12px; font-family: inherit;
+      opacity: 0; pointer-events: none;
+    }
+    .dx-stage .react-flow__node:hover .dx-replace-chip,
+    .dx-stage .react-flow__node.selected .dx-replace-chip { opacity: 1; pointer-events: auto; }
+    .dx-enter-chip {
+      height: 28px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.08); color: #f5f5f5; font-size: 12px; font-family: inherit; cursor: pointer;
+    }
 .dx-status-dot { width: 6px; height: 6px; border-radius: 99px; display: inline-block; flex-shrink: 0; }
 .dx-multibar { scrollbar-width: none; }
 .dx-multibar::-webkit-scrollbar { display: none; }
-.dx-text-sheet {
-  background:
-    linear-gradient(180deg, rgba(232,214,176,.06), transparent 38%),
-    repeating-linear-gradient(180deg, transparent 0 27px, rgba(232,214,176,.05) 27px 28px);
-}
+    .dx-text-sheet {
+      background: #1f1f1f;
+    }
 .dx-act-frame { position: relative; }
 .dx-act-frame::before {
   content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 99px;
@@ -444,7 +454,7 @@ async function saveBlob(blob: Blob, name: string, mediaType: string): Promise<{ 
 
 function StageInner(props: StageProps): ReactNode {
   const snapshot = useSyncExternalStore(subscribeEditor, editorSnapshot)
-  const { fitView, zoomIn, zoomOut, screenToFlowPosition, setViewport, getViewport } = useReactFlow()
+  const { fitView, zoomIn, zoomOut, screenToFlowPosition, flowToScreenPosition, setViewport, getViewport } = useReactFlow()
   const { zoom } = useViewport()
   const [nodes, setNodes] = useState<StageNode[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
@@ -487,6 +497,8 @@ function StageInner(props: StageProps): ReactNode {
     script: string
     shots: Array<{ index: number; start: number; end: number; durationSec: number; framePath?: string; description: string | null }>
   } | undefined>(undefined)
+  const [cropId, setCropId] = useState<string | undefined>(undefined)
+  const [cropAspect, setCropAspect] = useState<CropAspectId>('free')
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | undefined>(undefined)
   const [compose, setCompose] = useState<GenerateSpec>({
     kind: 'image',
@@ -494,6 +506,7 @@ function StageInner(props: StageProps): ReactNode {
     count: 1,
     aspect: '16:9',
   })
+  const [generateOpen, setGenerateOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
@@ -529,6 +542,18 @@ function StageInner(props: StageProps): ReactNode {
 
   const selected = useMemo(() => nodes.find(node => node.selected === true), [nodes])
   const selectedNodes = useMemo(() => nodes.filter(node => node.selected === true), [nodes])
+  const paintedNodes = useMemo(() => nodes.map(node => {
+    if (cropId !== node.id) return node
+    return {
+      ...node,
+      draggable: false,
+      data: {
+        ...node.data,
+        cropping: true,
+        cropAspect: CROP_ASPECTS.find(item => item.id === cropAspect)?.value,
+      },
+    }
+  }), [cropAspect, cropId, nodes])
   const actionRef = useRef({
     openGenerate: (_id: string) => {},
     openStudioFor: (_id: string) => {},
@@ -544,6 +569,9 @@ function StageInner(props: StageProps): ReactNode {
     runGenerate: (_id: string) => {},
     upload: (_id: string) => {},
     pickRef: (_id: string) => {},
+    crop: (_id: string) => {},
+    confirmCrop: (_id: string, _blob: Blob) => {},
+    cancelCrop: () => {},
   })
   const attachActions = useCallback((node: StageNode): StageNode => ({
     ...node,
@@ -563,6 +591,8 @@ function StageInner(props: StageProps): ReactNode {
       onDelete: (id: string) => actionRef.current.remove(id),
       onUpload: (id: string) => actionRef.current.upload(id),
       onPickRef: (id: string) => actionRef.current.pickRef(id),
+      onCrop: (id: string) => actionRef.current.crop(id),
+      onCropped: (id: string, blob: Blob) => actionRef.current.confirmCrop(id, blob),
       onClearRevise: () => setReviseId(undefined),
       ...(reviseId === node.id ? { revise: true } : {}),
     },
@@ -907,7 +937,7 @@ function StageInner(props: StageProps): ReactNode {
     restoreGraph(next)
   }, [restoreGraph, snapshotGraph])
 
-  const addNode = useCallback((kind: 'image' | 'video' | 'text' | 'group', extra: Partial<StageNode['data']> = {}, position?: { x: number; y: number }) => {
+  const addNode = useCallback((kind: 'image' | 'video' | 'audio' | 'text' | 'group' | 'director-stage' | 'edit', extra: Partial<StageNode['data']> = {}, position?: { x: number; y: number }) => {
     pushHistory()
     const aspect = kind === 'image' || kind === 'video'
       ? (typeof extra.aspect === 'string' && extra.aspect !== '' ? extra.aspect : '16:9')
@@ -916,25 +946,23 @@ function StageInner(props: StageProps): ReactNode {
     const id = newId(kind)
     const pane = stageRef.current?.querySelector('.react-flow')
     const rect = pane?.getBoundingClientRect()
-    const origin = rect !== undefined
-      ? screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-      : { x: 200, y: 160 }
+    const origin = rect !== undefined ? screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }) : { x: 200, y: 160 }
     const stack = nodesRef.current.length % 5
-    const at = position ?? {
-      x: origin.x - size.width / 2 + stack * 32,
-      y: origin.y - size.height / 2 + stack * 32,
-    }
+    const at = position ?? { x: origin.x - size.width / 2 + stack * 32, y: origin.y - size.height / 2 + stack * 32 }
+    const nodeType = kind === 'group' ? 'group' : kind === 'director-stage' ? 'director-stage' : kind === 'edit' ? 'edit' : kind === 'text' ? 'text' : 'media'
     const node: StageNode = {
       id,
-      type: kind === 'group' ? 'group' : kind === 'text' ? 'text' : 'media',
+      type: nodeType,
       position: at,
       width: size.width,
       height: size.height,
       style: { ...size, overflow: 'visible' },
       selected: true,
       data: {
-        ...(kind === 'image' || kind === 'video' ? { kind, path: extra.path ?? '' } : {}),
-        label: extra.label ?? (kind === 'group' ? '分组' : kind === 'text' ? '文本' : kind === 'video' ? '视频' : '图片'),
+        ...(kind === 'image' || kind === 'video' || kind === 'audio' ? { kind, path: extra.path ?? '' } : {}),
+        ...(kind === 'director-stage' ? { kind: 'director-stage' as const } : {}),
+        ...(kind === 'edit' ? { kind: 'edit' as const } : {}),
+        label: extra.label ?? (kind === 'group' ? '分组' : kind === 'text' ? '文本' : kind === 'director-stage' ? '3D 导演台' : kind === 'edit' ? '剪辑台' : kind === 'video' ? '视频' : kind === 'audio' ? '音频' : '图片'),
         ...(aspect !== undefined ? { aspect } : {}),
         ...extra,
       },
@@ -1028,14 +1056,15 @@ function StageInner(props: StageProps): ReactNode {
   const onConnectStart = useCallback((event: MouseEvent | TouchEvent, params: OnConnectStartParams) => {
     const point = pointerOf(event)
     if (params.nodeId === null || params.nodeId === '' || point === undefined) return
+    document.getSelection()?.removeAllRanges()
     connectHandledRef.current = false
     connectRef.current = { nodeId: params.nodeId, x: point.x, y: point.y, handleId: params.handleId }
     const box = nodeAbsBox(params.nodeId)
-    const from = box !== undefined ? boxPort(box, params.handleId) : screenToFlowPosition(point)
-    setWireDrag({ from, to: screenToFlowPosition(point), handleId: params.handleId })
+    const fromFlow = box !== undefined ? boxPort(box, params.handleId) : screenToFlowPosition(point)
+    setWireDrag({ from: flowToScreenPosition(fromFlow), to: point, handleId: params.handleId })
     setWiring(true)
     setWireMenu(undefined)
-  }, [nodeAbsBox, screenToFlowPosition])
+  }, [flowToScreenPosition, nodeAbsBox, screenToFlowPosition])
 
   const focusCompose = useCallback(() => {
     window.requestAnimationFrame(() => composeRef.current?.focus())
@@ -1079,20 +1108,28 @@ function StageInner(props: StageProps): ReactNode {
   useEffect(() => {
     if (!wiring) return
     const onMove = (event: PointerEvent) => {
+      event.preventDefault()
       const start = connectRef.current
       if (start === undefined) return
-      const flow = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      const to = { x: event.clientX, y: event.clientY }
       const box = nodeAbsBox(start.nodeId)
-      const from = box !== undefined ? boxPort(box, start.handleId) : flow
-      const hit = (event.target as HTMLElement | null)?.closest('.react-flow__node')
-      const targetId = hit?.getAttribute('data-id') ?? undefined
+      const fromFlow = box !== undefined ? boxPort(box, start.handleId) : screenToFlowPosition(to)
+      const hit = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null
+      const targetId = hit?.closest('.react-flow__node')?.getAttribute('data-id') ?? undefined
       const locked = targetId !== undefined && nodesRef.current.find(node => node.id === targetId)?.data.locked === true
       const valid = targetId !== undefined && targetId !== start.nodeId && !locked
-      setWireDrag({ from, to: flow, handleId: start.handleId, ...(valid ? { targetId } : {}) })
+      setWireDrag({ from: flowToScreenPosition(fromFlow), to, handleId: start.handleId, ...(valid ? { targetId } : {}) })
     }
-    window.addEventListener('pointermove', onMove)
-    return () => window.removeEventListener('pointermove', onMove)
-  }, [nodeAbsBox, screenToFlowPosition, wiring])
+    const blockSelect = (event: Event) => event.preventDefault()
+    window.addEventListener('pointermove', onMove, { passive: false })
+    document.addEventListener('selectstart', blockSelect, true)
+    document.addEventListener('dragstart', blockSelect, true)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      document.removeEventListener('selectstart', blockSelect, true)
+      document.removeEventListener('dragstart', blockSelect, true)
+    }
+  }, [flowToScreenPosition, nodeAbsBox, screenToFlowPosition, wiring])
 
   const patchSelected = useCallback((patch: Partial<StageNode['data']>) => {
     if (selected === undefined) return
@@ -1153,16 +1190,24 @@ function StageInner(props: StageProps): ReactNode {
       ...(source?.data.durationSec !== undefined ? { durationSec: source.data.durationSec } : {}),
       ...(source !== undefined ? { sourceId: source.id } : {}),
     })
-    focusCompose()
+    setGenerateOpen(source === undefined)
+    if (source === undefined) focusCompose()
   }, [focusCompose])
 
   const openStudioFor = useCallback((id: string) => {
     const node = nodesRef.current.find(item => item.id === id)
+    if (node?.type === 'director-stage') {
+      openDirectorStage(id)
+      return
+    }
+    if (node?.type === 'edit') {
+      openEdit(id)
+      return
+    }
     const path = node?.data.path
     if (node === undefined || path === undefined || path === '') return
     openStudio(node.data.kind === 'video' ? 'video' : 'image', path)
-  }, [openStudio])
-
+  }, [openDirectorStage, openEdit, openStudio])
   const renameNode = useCallback((id: string, label: string) => {
     setNodes(current => current.map(node => node.id === id ? { ...node, data: { ...node.data, label } } : node))
     scheduleSave()
@@ -1508,6 +1553,22 @@ function StageInner(props: StageProps): ReactNode {
     }
   }, [])
 
+  const confirmCrop = useCallback(async (id: string, blob: Blob) => {
+    try {
+      const saved = await saveBlob(blob, `crop-${Date.now()}.jpg`, 'image/jpeg')
+      const source = nodesRef.current.find(node => node.id === id)
+      const width = typeof source?.style?.width === 'number' ? source.style.width : 400
+      const at = source !== undefined ? { x: source.position.x + width + 48, y: source.position.y } : undefined
+      const aspect = cropAspect === 'free' ? undefined : cropAspect
+      const nextId = addNode('image', { path: saved.path, label: saved.name || '裁剪', ...(aspect !== undefined ? { aspect } : {}) }, at)
+      linkNodes(id, nextId)
+      setCropId(undefined)
+      showToast('已接到下游')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+    }
+  }, [addNode, cropAspect, linkNodes, showToast])
+
   const ungroupIds = useCallback((ids: string[]) => {
     const groups = nodesRef.current.filter(node => ids.includes(node.id) && node.type === 'group')
     if (groups.length === 0) return
@@ -1646,8 +1707,11 @@ function StageInner(props: StageProps): ReactNode {
         setLibraryTab('history')
         void openPicker()
       },
+      crop: (id: string) => { setCropAspect('free'); setCropId(id) },
+      confirmCrop: (id: string, blob: Blob) => { void confirmCrop(id, blob) },
+      cancelCrop: () => setCropId(undefined),
     }
-  }, [adoptTake, cycleStatus, deleteIds, downloadNode, duplicateNode, focusTake, openGenerate, openPicker, openStudioFor, patchNode, renameNode, runNodeGenerate, toggleLock])
+  }, [adoptTake, confirmCrop, cycleStatus, deleteIds, downloadNode, duplicateNode, focusTake, openGenerate, openPicker, openStudioFor, patchNode, renameNode, runNodeGenerate, toggleLock])
 
   const groupSelected = useCallback(() => {
     const members = selectedNodes.filter(node => node.type !== 'group' && (node.parentId === undefined || node.parentId === ''))
@@ -1755,6 +1819,10 @@ function StageInner(props: StageProps): ReactNode {
           setHelpOpen(false)
           return
         }
+        if (cropId !== undefined) {
+          setCropId(undefined)
+          return
+        }
         if (parsePreview !== undefined) {
           setParsePreview(undefined)
           return
@@ -1776,6 +1844,7 @@ function StageInner(props: StageProps): ReactNode {
         setSearchOpen(false)
         setCompare(undefined)
         setCompose(current => ({ kind: current.kind, prompt: current.prompt }))
+        setGenerateOpen(false)
         if (snapshot.tab !== 'canvas') setEditorTab('canvas')
       }
       if (event.key.toLowerCase() === 'e' && !event.metaKey && !event.ctrlKey) {
@@ -1855,7 +1924,7 @@ function StageInner(props: StageProps): ReactNode {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [addMenu, applyPositions, copySelected, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, parsePreview, pasteClip, pushHistory, redo, reshootId, reviseId, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
+  }, [addMenu, applyPositions, copySelected, cropId, cycleStatus, deleteIds, duplicateNode, edgeMenu, fitView, groupSelected, helpOpen, nodeMenu, openGenerate, openStudioFor, parsePreview, pasteClip, pushHistory, redo, reshootId, reviseId, scheduleSave, selectAdjacent, sessionOpen, snap, snapshot.tab, toggleLock, undo, wireMenu, zoomIn, zoomOut])
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -1876,6 +1945,7 @@ function StageInner(props: StageProps): ReactNode {
     setNodeMenu(undefined)
     setEdgeMenu(undefined)
     setWireMenu(undefined)
+    setGenerateOpen(false)
   }, [])
 
   useEffect(() => {
@@ -1940,6 +2010,30 @@ function StageInner(props: StageProps): ReactNode {
   const sourceNode = compose.sourceId !== undefined ? nodes.find(node => node.id === compose.sourceId) : undefined
   const mediaSelected = selectedNodes.filter(node => node.type === 'media' && node.data.path)
   const multi = selectedNodes.length >= 2 && !studioOpen
+  const workspace = snapshot.workspace
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; channel?: string; nodeId?: string; path?: string; name?: string; kind?: string } | null
+      if (data?.type !== 'directorx:insert-media' || typeof data.path !== 'string' || data.path === '') return
+      const sourceId = data.nodeId || workspace?.nodeId
+      const kind = data.kind === 'video' ? 'video' : data.kind === 'audio' ? 'audio' : 'image'
+      const source = sourceId !== undefined && sourceId !== '' ? nodesRef.current.find(node => node.id === sourceId) : undefined
+      const at = source !== undefined
+        ? { x: source.position.x + (typeof source.style?.width === 'number' ? source.style.width : 560) + 48, y: source.position.y }
+        : undefined
+      const id = addNode(kind, { path: data.path, label: data.name || (kind === 'video' ? '导出视频' : kind === 'audio' ? '导出音频' : '导出图片') }, at)
+      if (sourceId !== undefined && sourceId !== '') linkNodes(sourceId, id)
+      if (event.source instanceof Window) {
+        event.source.postMessage({ type: 'directorx:insert-media:ack', channel: data.channel }, event.origin || window.location.origin)
+      }
+      closeWorkspace()
+      showToast('已接到画布下游')
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [addNode, linkNodes, showToast, workspace?.nodeId])
+
 
   return (
     <div className={`dx-stage${wiring ? ' dx-wiring' : ''}${hideWires ? ' dx-hide-wires' : ''}${sessionOpen ? ' dx-session-open' : ''}`} style={shell}>
@@ -1979,7 +2073,7 @@ function StageInner(props: StageProps): ReactNode {
           <div style={{ position: 'absolute', top: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 25, color: '#ff9b8f', fontSize: 12, ...{ background: 'rgba(40,16,14,.9)', padding: '6px 12px', borderRadius: 999 } }}>{error}</div>
         ) : null}
         <ReactFlow
-          nodes={wireDrag?.targetId === undefined ? nodes : nodes.map(node => (
+          nodes={wireDrag?.targetId === undefined ? paintedNodes : paintedNodes.map(node => (
             node.id === wireDrag.targetId ? { ...node, className: 'dx-can-connect' } : node.className !== undefined ? { ...node, className: undefined } : node
           ))}
           edges={edges}
@@ -1995,16 +2089,20 @@ function StageInner(props: StageProps): ReactNode {
             return nodesRef.current.find(node => node.id === connection.target)?.data.locked !== true
           }}
           edgeTypes={edgeTypes}
-          connectionLineComponent={WirePreview}
+          connectionLineComponent={HiddenConnectionLine}
           onNodeDoubleClick={(event, node) => {
             const target = event.target as HTMLElement
             if (target.closest('input, textarea, [contenteditable="true"]') !== null) return
             event.preventDefault()
+            if (node.type === 'director-stage') {
+              openDirectorStage(node.id)
+              return
+            }
+            if (node.type === 'edit') {
+              openEdit(node.id)
+              return
+            }
             focusNode(node.id)
-          }}
-          onPaneClick={() => {
-            setPicker(false)
-            dismissMenus()
           }}
           onPaneContextMenu={event => {
             event.preventDefault()
@@ -2057,7 +2155,7 @@ function StageInner(props: StageProps): ReactNode {
           }}
           onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy' }}
           onNodeDragStart={() => { dismissMenus(); pushHistory() }}
-          nodesDraggable
+          nodesDraggable={cropId === undefined}
           nodesConnectable
           elementsSelectable
           edgesReconnectable={false}
@@ -2074,7 +2172,7 @@ function StageInner(props: StageProps): ReactNode {
           panOnDrag={[1, 2]}
           panActivationKeyCode="Space"
           snapToGrid={snap}
-          snapGrid={[16, 16]}
+          snapGrid={[15, 15]}
           selectionMode={SelectionMode.Partial}
           elevateNodesOnSelect
           zoomOnScroll={false}
@@ -2083,8 +2181,8 @@ function StageInner(props: StageProps): ReactNode {
           zoomOnPinch
           zoomOnDoubleClick={false}
           preventScrolling
-          minZoom={0.1}
-          maxZoom={3}
+          minZoom={dx.minZoom}
+          maxZoom={dx.maxZoom}
           connectionLineType={ConnectionLineType.Bezier}
           connectionLineStyle={{ stroke: 'rgba(255,255,255,.5)', strokeWidth: 1.8 }}
           style={{
@@ -2098,7 +2196,7 @@ function StageInner(props: StageProps): ReactNode {
           }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={snap ? 16 : 24} size={1.05} color="rgba(255,255,255,.07)" />
+          <Background variant={BackgroundVariant.Dots} gap={20} size={0.5} color="rgba(255,255,255,.30)" bgColor="#000000" />
           {box.width > 1080 && !sessionOpen ? (
             <MiniMap pannable zoomable position="bottom-left" style={{ background: '#121212', width: 132, height: 84 }} />
           ) : null}
@@ -2167,16 +2265,17 @@ function StageInner(props: StageProps): ReactNode {
                 ? { x: source.position.x + width + 48, y: source.position.y }
                 : wireMenu.flow
               const id = addNode(kind, {
-                label: kind === 'video' ? '下游视频' : kind === 'image' ? '下游图片' : '下游文本',
+                label: kind === 'director-stage' ? '3D 导演台' : kind === 'edit' ? '剪辑台' : kind === 'video' ? '下游视频' : kind === 'image' ? '下游图片' : '下游文本',
                 prompt: source?.data.prompt ?? '',
                 ...(source?.data.aspect !== undefined ? { aspect: source.data.aspect } : {}),
                 ...(source?.data.model !== undefined ? { model: source.data.model } : {}),
                 ...(source?.data.durationSec !== undefined ? { durationSec: source.data.durationSec } : {}),
                 ...(source?.data.characters !== undefined ? { characters: source.data.characters } : {}),
-                ...(kind !== 'text' ? { shotStatus: 'idea' } : {}),
+                ...(kind !== 'text' && kind !== 'director-stage' && kind !== 'edit' ? { shotStatus: 'idea' } : {}),
               }, at)
               linkNodes(wireMenu.sourceId, id, { sourceHandle: wireMenu.handleId ?? 'out', targetHandle: 'in' })
               setWireMenu(undefined)
+              if (kind === 'director-stage' || kind === 'edit') return
               if (kind !== 'text') {
                 setCompose({
                   kind,
@@ -2326,17 +2425,28 @@ function StageInner(props: StageProps): ReactNode {
             />
           )
         })() : null}
-        {!studioOpen && compare === undefined && !searchOpen && parsePreview === undefined && !multi && selected?.type !== 'media' && !(sessionOpen && box.width > 0 && box.width < 900) ? (
+        {generateOpen && !studioOpen && compare === undefined && !searchOpen && parsePreview === undefined && !multi && selected === undefined && !(sessionOpen && box.width > 0 && box.width < 900) ? (
           <GenerateDock
             spec={compose}
             busy={askBusy}
-            reserveRight={sessionOpen ? (selected !== undefined && !multi && selected.type !== 'media' ? 700 : 428) : 24}
+            reserveRight={sessionOpen ? 428 : 24}
             sourceLabel={sourceNode?.data.label}
             inputRef={composeRef}
             onChange={setCompose}
             onSubmit={() => { void submitAsk() }}
-            onClose={() => composeRef.current?.blur()}
+            onClose={() => { setGenerateOpen(false); composeRef.current?.blur() }}
             onClearSource={() => setCompose(current => ({ kind: current.kind, prompt: current.prompt, count: current.count, aspect: current.aspect }))}
+          />
+        ) : null}
+        {cropId !== undefined && !studioOpen ? (
+          <CropBar
+            aspect={cropAspect}
+            onAspect={setCropAspect}
+            onCancel={() => setCropId(undefined)}
+            onConfirm={() => {
+              const apply = document.querySelector('.dx-crop-apply')
+              if (apply instanceof HTMLButtonElement) apply.click()
+            }}
           />
         ) : null}
         {multi ? (
@@ -2383,28 +2493,34 @@ function StageInner(props: StageProps): ReactNode {
             onDelete={() => deleteIds(selectedNodes.map(node => node.id))}
           />
         ) : null}
-        {selected !== undefined && !studioOpen && !multi && selected.type !== 'media' ? (
+        {selected !== undefined && !studioOpen && !multi && selected.type === 'group' ? (
           <InspectorSheet
-            kind={selected.data.kind ?? selected.type ?? 'text'}
-            kindLabel={selected.type === 'media' ? selected.data.kind === 'video' ? '视频' : '图片' : selected.type === 'group' ? '分组' : '文本'}
+            kind="text"
+            kindLabel="分组"
             label={selected.data.label}
             prompt={selected.data.prompt ?? ''}
-            path={selected.type === 'media' ? selected.data.path : undefined}
             status={selected.data.shotStatus}
-            canEdit={selected.type === 'media' && typeof selected.data.path === 'string' && selected.data.path !== ''}
-            canCompare={mediaSelected.length >= 2}
-            canDownload={selected.type === 'media' && typeof selected.data.path === 'string' && selected.data.path !== ''}
+            canEdit={false}
+            canCompare={false}
+            canDownload={false}
             locked={selected.data.locked === true}
             onLabel={value => patchSelected({ label: value })}
             onPrompt={value => patchSelected({ prompt: value })}
             onStatus={status => setShotStatus(selected.id, status)}
-            onEdit={() => openStudio(selected.data.kind === 'video' ? 'video' : 'image', selected.data.path ?? '')}
+            onEdit={() => {}}
             onGenerate={() => openGenerate(selected.id)}
-            onCompare={() => setCompare([mediaSelected[0].id, mediaSelected[1].id])}
+            onCompare={() => {}}
             onLock={() => toggleLock([selected.id])}
             onDownload={() => { void downloadNode(selected.id) }}
             onDelete={() => deleteIds([selected.id])}
           />
+        ) : null}
+        {workspace !== null && workspace !== undefined ? (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 40, background: '#111' }}>
+            {workspace.kind === 'edit'
+              ? <EditStage nodeId={workspace.nodeId} onClose={closeWorkspace} />
+              : <DirectorStage nodeId={workspace.nodeId} onClose={closeWorkspace} />}
+          </div>
         ) : null}
         <SessionDock
           sessionId={boundSessionId}

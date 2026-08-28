@@ -11,7 +11,7 @@ import { planContinueGenerate, type ContinueGenerateKind } from './canvas-genera
  * cannot clobber a newer agent edit.
  */
 
-export type CanvasNodeKind = 'image' | 'video' | 'text' | 'group'
+export type CanvasNodeKind = 'image' | 'video' | 'audio' | 'text' | 'group' | 'director-stage' | 'edit'
 
 export interface CanvasNode {
   id: string
@@ -98,15 +98,15 @@ function nextOpenSlot(nodes: CanvasNode[]): { x: number; y: number } {
   return { x: right + SHOT_GAP, y: topY }
 }
 
-const KIND_RANK: Record<CanvasNodeKind, number> = { text: 0, image: 1, video: 2, group: 3 }
+const KIND_RANK: Record<CanvasNodeKind, number> = { text: 0, image: 1, video: 2, audio: 3, group: 4, 'director-stage': 5, edit: 6 }
 
 /** Generation graph: media may feed media; text may feed media; video never feeds image. */
 export function canvasEdgeAllowed(from: CanvasNode, to: CanvasNode): boolean {
   if (to.locked === true) return false
-  if (to.kind === 'text' || to.kind === 'group') return false
+  if (to.kind === 'text' || to.kind === 'group' || to.kind === 'director-stage' || to.kind === 'edit') return false
   if (from.kind === 'group') return false
   if (from.kind === 'video' && to.kind === 'image') return false
-  return to.kind === 'image' || to.kind === 'video'
+  return to.kind === 'image' || to.kind === 'video' || to.kind === 'audio'
 }
 
 function layoutStoryboard(nodes: CanvasNode[]): void {
@@ -152,7 +152,7 @@ function layoutStoryboard(nodes: CanvasNode[]): void {
 }
 
 function sanitizeNode(input: Record<string, unknown>): CanvasNode {
-  const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'text' || input.kind === 'group' ? input.kind : 'text'
+  const kind = input.kind === 'image' || input.kind === 'video' || input.kind === 'audio' || input.kind === 'text' || input.kind === 'group' || input.kind === 'director-stage' || input.kind === 'edit' ? input.kind : 'text'
   const numberOr = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? value : fallback
   const rawParent = input.parent
   const prompt = typeof input.prompt === 'string' && input.prompt !== '' ? input.prompt.slice(0, 2000) : undefined

@@ -15,7 +15,7 @@ import { NodeWorkstation } from './NodeWorkstation.tsx'
 import { PromptIpField } from './ip-prompt.tsx'
 import { mediaUrl } from './nodes.tsx'
 
-export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'upload' | 'assets' | 'edit-image' | 'edit-video'
+export type AddKind = 'image' | 'video' | 'text' | 'script' | 'group' | 'director-stage' | 'edit' | 'upload' | 'assets' | 'edit-image' | 'edit-video'
 
 export const SCRIPT_STARTER = `第一场 咖啡馆 日内
 镜头1：近景，推门进来，5s
@@ -26,9 +26,12 @@ const menu: CSSProperties = {
   ...dxChrome,
   position: 'absolute',
   zIndex: 30,
-  minWidth: 196,
-  padding: 6,
+  minWidth: 240,
+  maxWidth: 'min(280px, calc(100vw - 24px))',
+  padding: 8,
   borderRadius: 16,
+  overflow: 'hidden',
+  background: '#1f1f1f',
 }
 
 const item: CSSProperties = {
@@ -36,15 +39,18 @@ const item: CSSProperties = {
   alignItems: 'center',
   gap: 10,
   width: '100%',
+  minWidth: 0,
+  boxSizing: 'border-box',
   textAlign: 'left',
   padding: '8px 10px',
   border: 'none',
-  borderRadius: 11,
+  borderRadius: 9,
   background: 'transparent',
   color: dx.ink,
   fontSize: 13,
   fontFamily: dx.font,
   cursor: 'pointer',
+  overflowWrap: 'anywhere',
 }
 
 function viewSize(): { w: number; h: number } {
@@ -95,10 +101,11 @@ export function TitlePill(props: {
       onChange={event => props.onChange(event.target.value)}
       className="dx-title"
       style={{
-        width: 220,
-        maxWidth: '42vw',
+        width: 'min(220px, 42vw)',
+        maxWidth: '100%',
         height: 32,
-        padding: '0 14px',
+        boxSizing: 'border-box',
+        padding: '0 12px',
         borderRadius: 999,
         textAlign: 'center',
         fontSize: 13,
@@ -127,13 +134,13 @@ export function TopBar(props: {
   return (
     <div className="dx-topbar" style={{
       position: 'absolute',
-      top: 12,
-      left: 72,
+      top: 16,
+      left: 80,
       right: 14,
       zIndex: 24,
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       pointerEvents: 'none',
     }}>
       <div className="dx-topbar-cluster" style={{
@@ -259,7 +266,6 @@ export function StageRail(props: {
   ]
   return (
     <div className="dx-rail" style={{
-      ...dxChrome,
       position: 'absolute',
       top: '50%',
       left: 16,
@@ -267,20 +273,28 @@ export function StageRail(props: {
       zIndex: 28,
       display: 'flex',
       flexDirection: 'column',
-      gap: 4,
-      padding: 6,
-      borderRadius: dx.radiusRail,
+      gap: 8,
+      padding: 8,
+      width: 54,
+      boxSizing: 'border-box',
+      borderRadius: 9999,
+      background: 'rgba(22,22,22,.82)',
+      border: '1px solid rgba(255,255,255,.10)',
+      backdropFilter: 'blur(40px)',
+      WebkitBackdropFilter: 'blur(40px)',
     }}>
       {rows.map(row => (
         <button
+          type="button"
           key={row.label}
           className="dx-rail-btn dx-hit"
           title={row.label}
+          aria-label={row.label}
           data-tip={row.label}
           data-tip-side="right"
           onClick={row.onClick}
           data-dx-menu-anchor={row.primary === true ? '' : undefined}
-          style={row.primary === true ? { ...dxPill, width: 36, height: 36 } : dxGhostBtn}
+          style={row.primary === true ? { ...dxPill, width: 36, height: 36 } : { ...dxGhostBtn, width: 36, height: 36 }}
         >
           {row.icon}
         </button>
@@ -306,7 +320,9 @@ function MenuShell(props: {
         zIndex: 40,
         left: pos.left,
         top: pos.top,
+        width: 'min(220px, calc(100vw - 24px))',
         minWidth: props.width ?? 196,
+        maxWidth: 'calc(100vw - 24px)',
         maxHeight: 'min(72vh, 560px)',
         overflowY: 'auto',
       }}
@@ -322,8 +338,9 @@ function MenuShell(props: {
 function MenuRowButton(props: { row: MenuRow; icon?: ReactNode; onClick: () => void }): ReactNode {
   return (
     <button
+      type="button"
       className="dx-menu-item"
-      style={{ ...item, ...(props.row.danger === true ? { color: '#ffb4ab' } : {}) }}
+      style={{ ...item, ...(props.row.danger === true ? { color: 'var(--dsw-alias-state-error-primary)' } : {}) }}
       onClick={props.onClick}
     >
       {props.icon !== undefined ? <span style={{ opacity: .7, display: 'flex' }}>{props.icon}</span> : null}
@@ -336,18 +353,20 @@ function MenuRowButton(props: { row: MenuRow; icon?: ReactNode; onClick: () => v
 export function ConnectMenu(props: {
   x: number
   y: number
-  onPick: (kind: 'image' | 'video' | 'text') => void
+  onPick: (kind: 'image' | 'video' | 'text' | 'director-stage' | 'edit') => void
 }): ReactNode {
-  const rows: Array<{ kind: 'image' | 'video' | 'text'; label: string; icon: ReactNode }> = [
+  const rows: Array<{ kind: 'image' | 'video' | 'text' | 'director-stage' | 'edit'; label: string; icon: ReactNode }> = [
     { kind: 'image', label: '图片', icon: <IconImage size={15} /> },
     { kind: 'video', label: '视频', icon: <IconVideo size={15} /> },
     { kind: 'text', label: '文本', icon: <IconText size={15} /> },
+    { kind: 'director-stage', label: '3D 导演台', icon: <IconSpark size={15} /> },
+    { kind: 'edit', label: '剪辑台', icon: <IconScissors size={15} /> },
   ]
   return (
-    <MenuShell x={props.x} y={props.y} height={168}>
+    <MenuShell x={props.x} y={props.y} height={200}>
       <div style={{ padding: '6px 10px 8px', fontSize: 11, color: dx.mute }}>添加节点</div>
       {rows.map(row => (
-        <button key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
+        <button type="button" key={row.kind} className="dx-menu-item" style={item} onClick={() => props.onPick(row.kind)}>
           <span style={{ opacity: .7, display: 'flex' }}>{row.icon}</span>
           {row.label}
         </button>
@@ -362,6 +381,8 @@ const ADD_ICON: Partial<Record<string, ReactNode>> = {
   text: <IconText size={15} />,
   script: <IconText size={15} />,
   group: <IconGroup size={15} />,
+  'director-stage': <IconSpark size={15} />,
+  edit: <IconScissors size={15} />,
   'edit-image': <IconEdit size={15} />,
   'edit-video': <IconVideo size={15} />,
   upload: <IconUpload size={15} />,
@@ -382,7 +403,7 @@ export function AddMenu(props: {
     <MenuShell x={props.x} y={props.y} height={mode === 'quick' ? 240 : 460}>
       {groups.map((group, index) => (
         <div key={group.id}>
-          {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
+          {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'var(--dsw-alias-border-l2)' }} /> : null}
           {group.label !== '' ? <MenuLabel>{group.label}</MenuLabel> : null}
           {group.rows.map(row => (
             <MenuRowButton
@@ -420,8 +441,8 @@ export function NodeMenu(props: {
         if (group.id === 'craft' && nestCraft) {
           return (
             <div key={group.id}>
-              {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
-              <button className="dx-menu-item" style={item} onClick={() => setCraftOpen(open => !open)}>
+              {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'var(--dsw-alias-border-l2)' }} /> : null}
+              <button type="button" className="dx-menu-item" style={item} onClick={() => setCraftOpen(open => !open)}>
                 <span style={{ flex: 1 }}>工具</span>
                 <IconChevron size={12} />
               </button>
@@ -433,7 +454,7 @@ export function NodeMenu(props: {
         }
         return (
           <div key={group.id}>
-            {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'rgba(255,255,255,.08)' }} /> : null}
+            {index > 0 ? <div style={{ height: 1, margin: '6px 8px 2px', background: 'var(--dsw-alias-border-l2)' }} /> : null}
             {group.label !== '' ? <MenuLabel>{group.label}</MenuLabel> : null}
             {group.rows.map(row => (
               <MenuRowButton key={row.id} row={row} onClick={() => props.onAction(row.id)} />
@@ -452,7 +473,7 @@ export function EdgeMenu(props: {
 }): ReactNode {
   return (
     <MenuShell x={props.x} y={props.y} width={160} height={56}>
-      <button className="dx-menu-item" style={{ ...item, color: '#ffb4ab' }} onClick={props.onDelete}><IconTrash size={15} />删除连线</button>
+      <button type="button" className="dx-menu-item" style={{ ...item, color: 'var(--dsw-alias-state-error-primary)' }} onClick={props.onDelete}><IconTrash size={15} />删除连线</button>
     </MenuShell>
   )
 }
@@ -476,22 +497,25 @@ export function ReshootDialog(props: {
         top: '50%',
         transform: 'translate(-50%, -50%)',
         zIndex: 40,
-        width: 360,
+        width: 'min(360px, calc(100vw - 24px))',
+        maxHeight: 'calc(100% - 24px)',
+        boxSizing: 'border-box',
+        overflowY: 'auto',
         padding: 16,
-        borderRadius: 18,
+        borderRadius: 14,
       }}
       onMouseDown={event => event.stopPropagation()}
     >
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>局部重绘</div>
       <div style={{ fontSize: 12, color: dx.mute, marginBottom: 12 }}>切掉头尾，中段重新生成后再拼接。窗长 1–15 秒。</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-        <label style={{ flex: 1, fontSize: 11, color: dx.mute }}>
+        <label style={{ flex: 1, minWidth: 0, fontSize: 11, color: dx.mute }}>
           起点秒
-          <input className="nodrag nopan" value={start} onChange={event => setStart(event.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, height: 32, borderRadius: 10, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
+          <input className="nodrag nopan" value={start} onChange={event => setStart(event.target.value)} style={{ display: 'block', width: '100%', minWidth: 0, boxSizing: 'border-box', marginTop: 4, height: 32, borderRadius: 8, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
         </label>
-        <label style={{ flex: 1, fontSize: 11, color: dx.mute }}>
+        <label style={{ flex: 1, minWidth: 0, fontSize: 11, color: dx.mute }}>
           终点秒
-          <input className="nodrag nopan" value={end} onChange={event => setEnd(event.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, height: 32, borderRadius: 10, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
+          <input className="nodrag nopan" value={end} onChange={event => setEnd(event.target.value)} style={{ display: 'block', width: '100%', minWidth: 0, boxSizing: 'border-box', marginTop: 4, height: 32, borderRadius: 8, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: '0 10px' }} />
         </label>
       </div>
       <textarea
@@ -499,7 +523,7 @@ export function ReshootDialog(props: {
         value={prompt}
         onChange={event => setPrompt(event.target.value)}
         placeholder="这一段要改成什么"
-        style={{ width: '100%', height: 72, resize: 'none', borderRadius: 12, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: 10, fontSize: 13, fontFamily: dx.font, marginBottom: 12 }}
+        style={{ width: '100%', minWidth: 0, boxSizing: 'border-box', height: 72, resize: 'vertical', borderRadius: 10, border: `1px solid ${dx.hairline}`, background: 'rgba(255,255,255,.04)', color: dx.ink, padding: 10, fontSize: 13, fontFamily: dx.font, marginBottom: 12 }}
       />
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 12px' }} onClick={props.onCancel}>取消</button>
@@ -540,9 +564,11 @@ export function ParseSheet(props: {
         style={{
           ...dxChrome,
           width: 'min(720px, 100%)',
+          maxHeight: 'min(520px, calc(100vh - 32px))',
+          boxSizing: 'border-box',
           pointerEvents: 'auto',
           padding: 12,
-          borderRadius: 18,
+          borderRadius: 14,
         }}
         onMouseDown={event => event.stopPropagation()}
       >
@@ -561,13 +587,13 @@ export function ParseSheet(props: {
               key={shot.index}
               style={{
                 flex: '0 0 148px',
-                borderRadius: 12,
+                borderRadius: 10,
                 border: `1px solid ${dx.hairline}`,
                 background: 'rgba(255,255,255,.04)',
                 overflow: 'hidden',
               }}
             >
-              <div style={{ height: 84, background: '#0b0b0b', display: 'grid', placeItems: 'center', color: dx.dim, fontSize: 11 }}>
+              <div style={{ height: 84, background: 'var(--dsw-alias-bg-base)', display: 'grid', placeItems: 'center', color: dx.dim, fontSize: 11 }}>
                 {shot.framePath !== undefined && shot.framePath !== ''
                   ? <img src={`/directorx/media?path=${encodeURIComponent(shot.framePath)}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   : `${shot.start.toFixed(1)}s`}
@@ -603,53 +629,56 @@ export function ZoomHud(props: {
   const percent = Math.round(props.zoom * 100)
   return (
     <div className="dx-zoomhud" style={{
-      ...dxChrome,
       position: 'absolute',
       left: 16,
       bottom: 16,
       zIndex: 22,
       display: 'flex',
       alignItems: 'center',
-      gap: 6,
-      padding: '6px 8px 6px 6px',
+      gap: 4,
+      padding: '6px 10px 6px 6px',
       borderRadius: 999,
       fontSize: 12,
+      background: 'rgba(22,22,22,.82)',
+      border: '1px solid rgba(255,255,255,.10)',
+      backdropFilter: 'blur(16px)',
+      color: dx.ink,
+      fontFamily: dx.font,
     }}>
+      {props.onHideWires !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28, background: props.hideWires === true ? 'rgba(255,255,255,.12)' : 'transparent' }} onClick={props.onHideWires} title="隐藏连线" data-tip="隐藏连线">
+          <IconUnlink size={13} />
+        </button>
+      ) : null}
+      {props.onSnap !== undefined ? (
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28, background: props.snap === true ? 'rgba(255,255,255,.12)' : 'transparent' }} onClick={props.onSnap} title="网格吸附" data-tip="网格吸附">
+          <IconGrid size={13} />
+        </button>
+      ) : null}
+      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={props.onFit} title="适配画布" data-tip="适配画布">
+        <IconFit size={14} />
+      </button>
+      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={() => props.onZoom(Math.max(dx.minZoom, props.zoom / 1.15))} title="缩小" data-tip="缩小">
+        <IconMinus size={14} />
+      </button>
+      <input
+        type="range"
+        min={15}
+        max={200}
+        value={percent}
+        onChange={event => props.onZoom(Number(event.target.value) / 100)}
+        className="dx-range"
+        style={{ width: 84 }}
+      />
+      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={() => props.onZoom(Math.min(dx.maxZoom, props.zoom * 1.15))} title="放大" data-tip="放大">
+        <IconPlus size={14} />
+      </button>
       <button className="dx-hit" disabled={!props.canUndo} style={{ ...dxGhostBtn, width: 28, height: 28, opacity: props.canUndo ? 1 : .35 }} onClick={props.onUndo} title="撤销 ⌘Z" data-tip="撤销 ⌘Z">
         <IconUndo size={14} />
       </button>
       <button className="dx-hit" disabled={!props.canRedo} style={{ ...dxGhostBtn, width: 28, height: 28, opacity: props.canRedo ? 1 : .35 }} onClick={props.onRedo} title="重做 ⇧⌘Z" data-tip="重做 ⇧⌘Z">
         <IconRedo size={14} />
       </button>
-      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={() => props.onZoom(Math.max(0.1, props.zoom / 1.15))} title="缩小" data-tip="缩小">
-        <IconMinus size={14} />
-      </button>
-      <input
-        type="range"
-        min={10}
-        max={300}
-        value={percent}
-        onChange={event => props.onZoom(Number(event.target.value) / 100)}
-        className="dx-range"
-        style={{ width: 84 }}
-      />
-      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={() => props.onZoom(Math.min(3, props.zoom * 1.15))} title="放大" data-tip="放大">
-        <IconPlus size={14} />
-      </button>
-      <span style={{ minWidth: 38, textAlign: 'center', color: dx.mute, fontVariantNumeric: 'tabular-nums', fontSize: 11 }}>{percent}%</span>
-      <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28 }} onClick={props.onFit} title="适配画布" data-tip="适配画布">
-        <IconFit size={14} />
-      </button>
-      {props.onSnap !== undefined ? (
-        <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28, background: props.snap === true ? 'rgba(255,255,255,.12)' : 'transparent' }} onClick={props.onSnap} title="网格吸附" data-tip="网格吸附">
-          <IconGrid size={13} />
-        </button>
-      ) : null}
-      {props.onHideWires !== undefined ? (
-        <button className="dx-hit" style={{ ...dxGhostBtn, width: 28, height: 28, background: props.hideWires === true ? 'rgba(255,255,255,.12)' : 'transparent' }} onClick={props.onHideWires} title="隐藏连线" data-tip="隐藏连线">
-          <IconUnlink size={13} />
-        </button>
-      ) : null}
     </div>
   )
 }
@@ -814,7 +843,7 @@ export function CompareOverlay(props: {
   const pane = (side: { id: string; label: string; path: string; kind: string }): ReactNode => (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ fontSize: 12, color: dx.mute, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>{side.label}</div>
-      <div style={{ flex: 1, minHeight: 220, background: '#080808', borderRadius: 14, overflow: 'hidden', border: `1px solid ${dx.hairline}` }}>
+      <div style={{ flex: 1, minHeight: 220, background: 'var(--dsw-alias-bg-base)', borderRadius: 12, overflow: 'hidden', border: `1px solid ${dx.hairline}` }}>
         {side.kind === 'video'
           ? <video src={side.path} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           : <img src={side.path} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />}
@@ -825,13 +854,13 @@ export function CompareOverlay(props: {
     </div>
   )
   return (
-    <div className="dx-scrim" style={{ position: 'absolute', inset: 0, zIndex: 36, display: 'grid', placeItems: 'center', padding: 24 }}>
-      <div style={{ ...dxChrome, width: 'min(980px, 100%)', height: 'min(660px, 100%)', padding: 18, borderRadius: 20, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+    <div className="dx-scrim" style={{ position: 'absolute', inset: 0, zIndex: 36, display: 'grid', placeItems: 'center', padding: 'clamp(12px, 3vw, 24px)', overflow: 'auto' }}>
+      <div style={{ ...dxChrome, width: 'min(980px, 100%)', maxHeight: 'min(660px, 100%)', boxSizing: 'border-box', padding: 18, borderRadius: 16, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <strong style={{ fontSize: 14, letterSpacing: -0.2 }}>变体对比</strong>
-          <button className="dx-hit" style={{ ...dxGhostBtn, width: 32, height: 32 }} onClick={props.onClose}><IconClose size={14} /></button>
+          <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 32, height: 32 }} onClick={props.onClose}><IconClose size={14} /></button>
         </div>
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 14 }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexWrap: 'wrap', gap: 14, overflow: 'auto' }}>
           {pane(props.left)}
           {pane(props.right)}
         </div>
@@ -984,7 +1013,7 @@ export function MultiSelectBar(props: {
       <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12 }} onClick={props.onGenerate}>
         <IconSpark size={14} />生成
       </button>
-      <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12, color: '#ffb4ab' }} onClick={props.onDelete}>
+      <button className="dx-hit" style={{ ...dxGhostBtn, width: 'auto', height: 32, padding: '0 10px', gap: 6, fontSize: 12, color: 'var(--dsw-alias-state-error-primary)' }} onClick={props.onDelete}>
         <IconTrash size={14} />删除
       </button>
     </div>
@@ -1119,7 +1148,7 @@ export function InspectorSheet(props: {
         <button className="dx-hit" style={{ ...dxGhostBtn, width: 34, height: 34, border: `1px solid ${dx.hairline}` }} onClick={props.onLock} title={props.locked ? '解锁' : '锁定'}>
           {props.locked ? <IconUnlock size={14} /> : <IconLock size={14} />}
         </button>
-        <button className="dx-hit" style={{ ...dxGhostBtn, width: 34, height: 34, border: `1px solid ${dx.hairline}`, color: '#ffb4ab' }} onClick={props.onDelete} title="删除节点">
+        <button className="dx-hit" style={{ ...dxGhostBtn, width: 34, height: 34, border: `1px solid ${dx.hairline}`, color: 'var(--dsw-alias-state-error-primary)' }} onClick={props.onDelete} title="删除节点">
           <IconTrash size={14} />
         </button>
       </div>

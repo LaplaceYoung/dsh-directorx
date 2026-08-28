@@ -2,7 +2,7 @@
 // At runtime the services are provided by the DSH host profile; these
 // declarations keep `npm run typecheck` self-contained without depending on
 // private DSH workspace packages.
-declare module 'cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     tools: {
       register(definition: unknown): () => void
@@ -106,12 +106,18 @@ declare module '@deepseek-ai/dsh-skill' {}
 
 declare module '@deepseek-ai/dsh-system-prompt' {}
 
+declare module 'react-dom' {
+  import type { ReactNode } from 'react'
+  export function createPortal(children: ReactNode, container: Element | DocumentFragment): ReactNode
+}
+
 declare module '@deepseek-ai/dsh-llm' {}
 
 interface Window {
   /** Debug/automation hook driving the DirectorX editor dock (see src/client/index.ts). */
   __directorxEditor?: {
-    open(kind: 'image' | 'video', path: string): void
+    open(kind?: 'image' | 'video', path?: string): void
+    openDirectorStage(): void
     close(): void
     setTab(tab: 'canvas' | 'image' | 'video'): void
     snapshot(): { open: boolean; tab: 'canvas' | 'image' | 'video'; kind: 'image' | 'video' | null; path: string | null }

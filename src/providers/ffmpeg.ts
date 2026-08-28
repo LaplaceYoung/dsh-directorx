@@ -106,3 +106,44 @@ export async function extractFrames(source: string, outputDir: string, options: 
   }
   return files
 }
+
+export interface AudioSubclipInput {
+  source: string
+  outputDir: string
+  segments: Array<{ start: number; end: number }>
+}
+
+export interface AudioSubclipResult {
+  index: number
+  start: number
+  end: number
+  path?: string
+  success: boolean
+  error?: string
+}
+
+/** 批量切出音频片段；单段失败只记录该段，绝不覆盖源文件。 */
+export function audioSubclips(input: AudioSubclipInput): { source: string; segments: AudioSubclipResult[] } {
+  requireBinary('ffmpeg')
+  const duration = probeMedia(input.source).durationSec
+  if (!Array.isArray(input.segments) || input.segments.length === 0) throw new Error('segments 至少包含一个切片')
+  if (input.segments.length > 32) throw new Error('segments 最多 32 个')
+  const root = resolveOutputDir(input.outputDir)
+  const results: AudioSubclipResult[] = []
+  for (const [index, segment] of input.segments.entries()) {
+    const start = Number(segment?.start)
+    const end = Number(segment?.end)
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end <= start || end > duration) {
+      results.push({ index, start, end, success: false, error: `非法区间：${start}–${end}（媒体时长 ${duration}s）` })
+      continue
+    }
+    const out = join(root, `audio-subclip-${Date.now().toString(36)}-${index}.m4a`)
+    const result = spawnSync('ffmpeg', ['-hide_banner', '-y', '-ss', String(start), '-to', String(end), '-i', input.source, '-vn', '-c:a', 'aac', out], { encoding: 'utf8' })
+    if (result.status !== 0) {
+      results.push({ index, start, end, success: false, error: result.stderr?.slice(-400) || `ffmpeg exit ${result.status}` })
+      continue
+    }
+    results.push({ index, start, end, path: out, success: true })
+  }
+  return { source: input.source, segments: results }
+}

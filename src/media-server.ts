@@ -6,7 +6,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Transform } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { join, relative, resolve } from 'node:path'
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { ProposalStore } from './proposals.ts'
 import { CanvasIntentStore, formatDshCanvasPromptForProject } from './canvas-intent.ts'
 import { CharacterStore } from './characters.ts'
@@ -15,7 +15,7 @@ type WebServer = {
   register(route: { kind: 'exact' | 'prefix'; path: string; handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void> }): () => void
 }
 
-function directorxWeb(ctx: Context): WebServer | undefined {
+export function directorxWeb(ctx: Context): WebServer | undefined {
   const webServer = ctx.get('webServer') as WebServer | undefined
   if (webServer === undefined) return undefined
   return {

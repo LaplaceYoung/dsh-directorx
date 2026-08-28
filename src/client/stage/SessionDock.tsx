@@ -356,11 +356,11 @@ const SESSION_CHIPS = [
   },
   {
     label: '精剪当前镜头',
-    text: '请对当前选中的画布节点先 directorx_edit_plan，再按路由调用对应确定性编辑工具（directorx_image_edit / directorx_video_process / directorx_edit / directorx_studio）。必须带 nodeId 回写路径。不要用生成模型重绘来裁切、旋转、调色或变速。做完后 extract_frames + view_image 质检。',
+    text: '请对当前选中的画布节点先 directorx_edit_plan，再按路由调用对应确定性编辑工具（directorx_image_edit / directorx_video_process / directorx_edit / directorx_studio）。必须带 nodeId 回写路径。不要用生成模型重绘来裁切、旋转、调色或变速。做完后 extract_frames，再用宿主 read_image 把帧送进会话质检。',
   },
   {
     label: '质检当前成片',
-    text: '请对当前选中镜头 directorx_extract_frames 抽关键帧，directorx_view_image 对照提示词与连续性，必要时 directorx_qa。不要生成。',
+    text: '请对当前选中镜头 directorx_extract_frames 抽关键帧，用宿主 read_image 对照提示词与连续性，必要时 directorx_qa。不要生成。',
   },
   {
     label: '版权改写当前意图',
@@ -435,15 +435,20 @@ function SessionPanel(props: {
       onWheel={event => event.stopPropagation()}
       onPointerDown={event => event.stopPropagation()}
       style={{
-        ...dxChrome,
         position: 'absolute',
-        right,
-        bottom: 12,
-        zIndex: 33,
-        width: `min(400px, calc(100% - ${props.inspectorOpen ? 320 : 88}px))`,
-        height: 'min(680px, calc(100% - 72px))',
-        maxHeight: 'calc(100% - 72px)',
-        borderRadius: 22,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 50,
+        width: 480,
+        maxWidth: '42%',
+        height: '100%',
+        maxHeight: '100%',
+        borderRadius: '16px 0 0 16px',
+        border: 'none',
+        background: '#141414',
+        color: dx.ink,
+        fontFamily: dx.font,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -500,7 +505,7 @@ function SessionPanel(props: {
       </div>
       {approval !== undefined ? <ApprovalCard wait={approval} /> : null}
       {ask !== undefined ? <QuestionCard wait={ask} /> : null}
-      <div style={{ padding: '8px 10px 10px', borderTop: `1px solid ${dx.hairline}`, flexShrink: 0 }}>
+      <div style={{ padding: '10px 12px 14px', flexShrink: 0 }}>
         <div className="dx-session-chips">
           {SESSION_CHIPS.map(chip => (
             <button
@@ -524,36 +529,45 @@ function SessionPanel(props: {
             手动确认
           </button>
         </div>
-        {props.selectedNode !== undefined ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 6px', fontSize: 11, color: dx.mute }}>
-            <span style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(255,255,255,.08)', maxWidth: '70%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{props.selectedNode.label || props.selectedNode.id}</span>
-            <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 22, height: 22 }} onClick={props.onClearSelected} title="取消引用"><IconClose size={11} /></button>
+        <div style={{
+          borderRadius: 16,
+          background: 'rgba(255,255,255,.04)',
+          border: '1px solid rgba(255,255,255,.08)',
+          padding: 10,
+        }}>
+          {props.selectedNode !== undefined ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 8px', fontSize: 11, color: dx.mute }}>
+              <span style={{ padding: '3px 8px', borderRadius: 8, background: 'rgba(255,255,255,.08)', maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {props.selectedNode.label || props.selectedNode.id}
+              </span>
+              <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 22, height: 22 }} onClick={props.onClearSelected} title="取消引用"><IconClose size={11} /></button>
+            </div>
+          ) : null}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minWidth: 0 }}>
+            <textarea
+              ref={props.inputRef}
+              value={props.draft}
+              disabled={props.missing}
+              placeholder={props.running ? '插话引导…' : '随心输入'}
+              rows={2}
+              onChange={event => {
+                props.onDraft(event.target.value)
+                const node = event.target
+                node.style.height = 'auto'
+                node.style.height = `${Math.min(160, Math.max(56, node.scrollHeight))}px`
+              }}
+              onKeyDown={event => {
+                if (event.key === 'Escape') { event.preventDefault(); props.onClose(); return }
+                if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); props.onClose(); return }
+                if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); props.onSend() }
+              }}
+              style={{ ...composerStyle, minHeight: 56, padding: '8px 4px', background: 'transparent' }}
+            />
+            {props.running ? <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 36, height: 36, flexShrink: 0 }} onClick={props.onStop} title="停止"><IconStop size={14} /></button> : null}
+            <button type="button" disabled={props.missing || props.busy || props.draft.trim() === ''} onClick={props.onSend} className="dx-cta" title={props.running ? '插话' : '发送到 DSH'} style={{ ...dxPill, width: 36, height: 36, flexShrink: 0, opacity: props.missing || props.busy || props.draft.trim() === '' ? .4 : 1 }}>
+              {props.busy ? <span className="dx-spin" /> : <IconSend size={15} />}
+            </button>
           </div>
-        ) : null}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minWidth: 0 }}>
-          <textarea
-            ref={props.inputRef}
-            value={props.draft}
-            disabled={props.missing}
-            placeholder={props.running ? '插话引导…' : '给 DSH 发消息，或输入 / 命令'}
-            rows={1}
-            onChange={event => {
-              props.onDraft(event.target.value)
-              const node = event.target
-              node.style.height = 'auto'
-              node.style.height = `${Math.min(120, Math.max(40, node.scrollHeight))}px`
-            }}
-            onKeyDown={event => {
-              if (event.key === 'Escape') { event.preventDefault(); props.onClose(); return }
-              if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); props.onClose(); return }
-              if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); props.onSend() }
-            }}
-            style={composerStyle}
-          />
-          {props.running ? <button type="button" className="dx-hit" style={{ ...dxGhostBtn, width: 36, height: 36, flexShrink: 0 }} onClick={props.onStop} title="停止"><IconStop size={14} /></button> : null}
-          <button type="button" disabled={props.missing || props.busy || props.draft.trim() === ''} onClick={props.onSend} className="dx-cta" title={props.running ? '插话' : '发送到 DSH'} style={{ ...dxPill, width: 36, height: 36, flexShrink: 0, opacity: props.missing || props.busy || props.draft.trim() === '' ? .4 : 1 }}>
-            {props.busy ? <span className="dx-spin" /> : <IconSend size={15} />}
-          </button>
         </div>
       </div>
     </div>
@@ -792,35 +806,37 @@ const cardStyle: CSSProperties = {
 }
 
 const fabStyle: CSSProperties = {
-  ...dxChrome,
   position: 'absolute',
-  right: 18,
-  bottom: 18,
-  zIndex: 29,
-  width: 52,
-  height: 52,
+  right: 24,
+  bottom: 24,
+  zIndex: 50,
+  width: 44,
+  height: 44,
   borderRadius: 999,
   display: 'grid',
   placeItems: 'center',
   padding: 0,
   cursor: 'pointer',
   pointerEvents: 'auto',
+  border: '1px solid rgba(255,255,255,.10)',
+  background: '#141414',
+  color: dx.ink,
 }
 
 const composerStyle: CSSProperties = {
   flex: 1,
   minWidth: 0,
-  minHeight: 40,
-  maxHeight: 120,
+  minHeight: 72,
+  maxHeight: 160,
   resize: 'none',
-  border: `1px solid ${dx.hairline}`,
-  borderRadius: 12,
+  border: 'none',
+  borderRadius: 16,
   outline: 'none',
   background: 'rgba(255,255,255,.04)',
   color: dx.ink,
-  padding: '8px 10px',
-  fontSize: 13,
-  lineHeight: 1.45,
+  padding: '14px 14px 40px',
+  fontSize: 14,
+  lineHeight: 1.5,
   fontFamily: dx.font,
 }
 

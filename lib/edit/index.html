@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fbfbfa" />
+    <meta
+      name="description"
+      content="DirectorX 剪辑台"
+    />
+    <title>剪辑台</title>
+    <!-- Hub host 注入的 SDK：挂载 window.hub（画布/资源/存储等能力）。
+         iframe 与 gateway 同源，故用根相对路径；独立 dev 预览下该文件 404，
+         window.hub 不存在，插件按无 host 降级运行（导入回退到本地文件选择）。 -->
+    <script src="./hub.js"></script>
+    <script type="module" crossorigin src="./assets/index-BREGmxiN.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/react-C1ONLnaU.js">
+    <link rel="modulepreload" crossorigin href="./assets/radix-DvRciYd-.js">
+    <link rel="modulepreload" crossorigin href="./assets/zustand-DBzUfps7.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-CPJO1wAV.css">
+    <link rel="stylesheet" href="./dx-chrome.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

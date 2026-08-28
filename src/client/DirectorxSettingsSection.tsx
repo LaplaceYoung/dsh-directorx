@@ -112,13 +112,89 @@ function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-const card: CSSProperties = { border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 10, padding: 14, marginBottom: 12, background: 'var(--dsw-alias-bg-layer-1)' }
-const row: CSSProperties = { display: 'grid', gridTemplateColumns: 'minmax(90px, 140px) 1fr', gap: 10, marginBottom: 8, alignItems: 'center' }
-const label: CSSProperties = { fontSize: 12, opacity: .72 }
-const input: CSSProperties = { width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--dsw-alias-border-l2)', background: 'var(--dsw-alias-bg-layer-2)', color: 'inherit' }
-const button: CSSProperties = { padding: '7px 12px', borderRadius: 7, border: '1px solid var(--dsw-alias-brand-primary)', background: 'transparent', color: 'var(--dsw-alias-label-primary)', cursor: 'pointer' }
-const sectionTitle: CSSProperties = { fontSize: 15, fontWeight: 600, margin: '0 0 2px' }
-const hint: CSSProperties = { fontSize: 12, opacity: .62, lineHeight: 1.5 }
+const settingsRoot: CSSProperties = {
+  width: '100%',
+  maxWidth: 1040,
+  boxSizing: 'border-box',
+  padding: 'clamp(14px, 2.2vw, 24px)',
+  color: 'var(--dsw-alias-label-primary)',
+  fontSize: 13,
+  overflowWrap: 'anywhere',
+}
+const card: CSSProperties = {
+  minWidth: 0,
+  boxSizing: 'border-box',
+  border: '1px solid var(--dsw-alias-border-l2)',
+  borderRadius: 12,
+  padding: 'clamp(12px, 1.8vw, 16px)',
+  marginBottom: 12,
+  background: 'var(--dsw-alias-bg-layer-2)',
+}
+const capabilityCard: CSSProperties = { ...card, marginBottom: 0 }
+const capabilityGrid: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+  gap: 12,
+  alignItems: 'start',
+}
+const cardHeader: CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: 12,
+  minWidth: 0,
+  paddingBottom: 10,
+  marginBottom: 12,
+  borderBottom: '1px solid var(--dsw-alias-border-l2)',
+}
+const cardSub: CSSProperties = { display: 'block', marginTop: 3, fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' }
+const row: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'minmax(84px, .42fr) minmax(0, 1fr)',
+  gap: '6px 12px',
+  marginBottom: 10,
+  alignItems: 'center',
+  minWidth: 0,
+}
+const label: CSSProperties = { minWidth: 0, fontSize: 12, color: 'var(--dsw-alias-label-secondary)', overflowWrap: 'anywhere' }
+const input: CSSProperties = {
+  width: '100%',
+  minWidth: 0,
+  minHeight: 32,
+  boxSizing: 'border-box',
+  padding: '6px 9px',
+  borderRadius: 8,
+  border: '1px solid var(--dsw-alias-border-l2)',
+  background: 'var(--dsw-alias-bg-layer-1)',
+  color: 'var(--dsw-alias-label-primary)',
+  font: 'inherit',
+  lineHeight: 1.35,
+  outline: 'none',
+}
+const button: CSSProperties = {
+  minHeight: 32,
+  boxSizing: 'border-box',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+  padding: '0 12px',
+  borderRadius: 8,
+  border: '1px solid var(--dsw-alias-brand-primary)',
+  background: 'var(--dsw-alias-bg-layer-1)',
+  color: 'var(--dsw-alias-label-primary)',
+  font: 'inherit',
+  fontSize: 12,
+  cursor: 'pointer',
+}
+const sectionTitle: CSSProperties = { fontSize: 18, lineHeight: 1.25, fontWeight: 600, letterSpacing: -.2, margin: 0 }
+const hint: CSSProperties = { fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', lineHeight: 1.55, margin: '6px 0 0' }
+const eyebrow: CSSProperties = { fontSize: 10, lineHeight: 1.3, letterSpacing: .8, color: 'var(--dsw-alias-label-caption)', textTransform: 'uppercase' }
+const notice: CSSProperties = { minWidth: 0, boxSizing: 'border-box', padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.45, margin: '0 0 10px' }
+const errorNotice: CSSProperties = { ...notice, color: 'var(--dsw-alias-state-error-primary)', background: 'var(--dsw-alias-interactive-bg-hover-danger)', border: '1px solid var(--dsw-alias-state-error-primary)' }
+const successNotice: CSSProperties = { ...notice, color: 'var(--dsw-alias-state-success-primary)', background: 'var(--dsw-alias-interactive-bg-hover)', border: '1px solid var(--dsw-alias-state-success-primary)' }
+const warningNotice: CSSProperties = { ...notice, color: 'var(--dsw-alias-state-warn-primary)', background: 'var(--dsw-alias-interactive-bg-hover)', border: '1px solid var(--dsw-alias-state-warn-primary)' }
+const danger: CSSProperties = { border: '1px solid var(--dsw-alias-state-error-primary)', background: 'var(--dsw-alias-bg-layer-1)', color: 'var(--dsw-alias-state-error-primary)', cursor: 'pointer' }
 
 function CapabilityCard(props: {
   title: string
@@ -149,12 +225,16 @@ function CapabilityCard(props: {
     }
   }
   return (
-    <div style={card}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <strong>{props.title}</strong>
-        <label style={{ fontSize: 12, display: 'flex', gap: 6, alignItems: 'center' }}>
+    <div style={capabilityCard}>
+      <div style={cardHeader}>
+        <div style={{ minWidth: 0 }}>
+          <div style={eyebrow}>{props.capability} capability</div>
+          <strong style={{ display: 'block', marginTop: 4, fontSize: 14, lineHeight: 1.3 }}>{props.title}</strong>
+          <span style={cardSub}>{draft.enabled ? '已启用 · 配置即时生效' : '已停用 · 不注册对应工具'}</span>
+        </div>
+        <label style={{ flexShrink: 0, display: 'inline-flex', gap: 7, alignItems: 'center', fontSize: 12, color: 'var(--dsw-alias-label-secondary)', cursor: 'pointer' }}>
           <input type="checkbox" checked={draft.enabled} onChange={event => props.onChange({ ...draft, enabled: event.target.checked })} />
-          启用 / Enabled
+          启用
         </label>
       </div>
       {draft.enabled ? (
@@ -175,7 +255,7 @@ function CapabilityCard(props: {
           </div>
           <div style={row}>
             <span style={label}>Model</span>
-            <span>
+            <span style={{ minWidth: 0 }}>
               <input
                 style={input}
                 list={`dx-models-${props.capability}`}
@@ -188,14 +268,12 @@ function CapabilityCard(props: {
               </datalist>
             </span>
           </div>
-          <div style={{ ...row, marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', margin: '2px 0 12px' }}>
             <span style={label}>连接测试</span>
-            <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => void testConnection()} disabled={testState === 'testing'}>
-                {testState === 'testing' ? '测试中…' : '测试连接'}
-              </button>
-              {testMessage !== undefined ? <span style={{ fontSize: 12, color: testState === 'ok' ? '#8fdc9f' : '#e88f8f' }}>{testMessage}</span> : null}
-            </span>
+            <button className="dx-hit" style={{ ...button, minHeight: 30, padding: '0 10px', opacity: testState === 'testing' ? .6 : 1 }} onClick={() => void testConnection()} disabled={testState === 'testing'}>
+              {testState === 'testing' ? '测试中…' : '测试连接'}
+            </button>
+            {testMessage !== undefined ? <span role={testState === 'fail' ? 'alert' : 'status'} style={{ fontSize: 12, color: testState === 'ok' ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-state-error-primary)', overflowWrap: 'anywhere' }}>{testMessage}</span> : null}
           </div>
           {props.title === CAPABILITY_LABEL.video ? (
             <>
@@ -436,22 +514,32 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
   }
 
   if (api === undefined && scope === undefined) return null
-  if (status === 'loading' || status === 'idle') return <div style={{ padding: 18, opacity: .7 }}>正在加载 DirectorX 模型配置…</div>
+  if (status === 'loading' || status === 'idle') return <div style={{ ...settingsRoot, color: 'var(--dsw-alias-label-tertiary)' }} role="status">正在加载 DirectorX 模型配置…</div>
   if (status === 'error') return (
-    <div style={{ padding: 18 }}>
-      <p>{error}</p>
+    <div style={settingsRoot}>
+      <div style={errorNotice} role="alert">{error ?? '加载设置失败'}</div>
       <button style={button} onClick={() => void load()}>重试</button>
     </div>
   )
 
   return (
-    <div style={{ padding: 18 }}>
-      <h2 style={sectionTitle}>DirectorX 模型</h2>
-      <p style={hint}>为视觉、图像生成、视频生成、音频生成分别配置 Base URL、API Key、配置方式与能力开关。配置保存到 DSH settings（`directorx` 命名空间），无需重启即时生效。</p>
+    <div style={settingsRoot}>
+      <div style={{ marginBottom: 18 }}>
+        <div style={eyebrow}>DIRECTORX / SETTINGS</div>
+        <h2 style={sectionTitle}>DirectorX 模型</h2>
+        <p style={hint}>配置视觉、图像、视频与音频能力。设置由 DSH settings 持有，保存后即时更新工具注册。</p>
+      </div>
       <div style={card}>
-        <strong>成片 persona · 主动性</strong>
-        <p style={hint}>分析从导演角度出发，并积极加载知识库与 skill。DSH 持有 agent loop。严格：多确认、不生成、二到四个提示词。自动：预算内直接执行生成。协同：提示词和占位，用户审阅后执行生成。</p>
-        <div style={row}>
+        <div style={cardHeader}>
+          <div style={{ minWidth: 0 }}>
+            <div style={eyebrow}>WORKFLOW CONTROL</div>
+            <strong style={{ display: 'block', marginTop: 4, fontSize: 14 }}>成片 persona · 主动性</strong>
+            <span style={cardSub}>决定 DSH 在生成前后的确认与执行节奏</span>
+          </div>
+          <span style={{ flexShrink: 0, padding: '3px 8px', borderRadius: 999, border: '1px solid var(--dsw-alias-border-l2)', color: 'var(--dsw-alias-label-secondary)', fontSize: 11 }}>DSH loop</span>
+        </div>
+        <p style={{ ...hint, marginTop: -2, marginBottom: 12 }}>严格：多确认、不生成；自动：预算内直接执行；协同：先给提示词与占位，审阅后执行。</p>
+        <div style={{ ...row, marginBottom: 0 }}>
           <span style={label}>主动性</span>
           <select style={input} value={initiative} onChange={event => setInitiative(event.target.value as '严格' | '自动' | '协同')}>
             <option value="严格">严格</option>
@@ -460,26 +548,36 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           </select>
         </div>
       </div>
-      {!writable ? <p style={hint}>当前 settings 后端只读，无法保存修改。</p> : null}
-      {error !== undefined ? <p role="alert" style={{ color: '#ff9b8f', fontSize: 12 }}>{error}</p> : null}
-      {saved ? <p role="status" style={{ color: '#8fdc9f', fontSize: 12 }}>已保存并热更新工具注册。</p> : null}
-      {Object.keys(draft).map(key => {
-        const capabilityKey = key as keyof Draft
-        return (
-          <CapabilityCard
-            key={capabilityKey}
-            title={CAPABILITY_LABEL[capabilityKey]}
-            capability={capabilityKey}
-            draft={draft[capabilityKey]}
-            modes={MODES[capabilityKey]}
-            extraModels={adapters.filter(item => item.capability === capabilityKey).map(item => item.model)}
-            onChange={(next) => { setDraft(current => ({ ...current, [capabilityKey]: next })) }}
-          />
-        )
-      })}
-      <div style={{ ...card, marginTop: 12 }}>
-        <strong>接入新模型</strong>
-        <p style={hint}>给模型 id、API 文档、Key。这里只收料；DSH 按 ingest → classify → draft → smoke → commit 配完。提交后请到会话说「继续接入」该 id。</p>
+      {!writable ? <div style={warningNotice} role="status">当前 settings 后端只读，无法保存修改。</div> : null}
+      {error !== undefined ? <div style={errorNotice} role="alert">{error}</div> : null}
+      {saved ? <div style={successNotice} role="status">已保存并热更新工具注册。</div> : null}
+      <div style={{ ...card, padding: 0, border: 0, background: 'transparent' }}>
+        <div style={{ ...eyebrow, margin: '2px 0 8px' }}>CAPABILITIES</div>
+        <div style={capabilityGrid}>
+          {Object.keys(draft).map(key => {
+            const capabilityKey = key as keyof Draft
+            return (
+              <CapabilityCard
+                key={capabilityKey}
+                title={CAPABILITY_LABEL[capabilityKey]}
+                capability={capabilityKey}
+                draft={draft[capabilityKey]}
+                modes={MODES[capabilityKey]}
+                extraModels={adapters.filter(item => item.capability === capabilityKey).map(item => item.model)}
+                onChange={(next) => { setDraft(current => ({ ...current, [capabilityKey]: next })) }}
+              />
+            )
+          })}
+        </div>
+      </div>
+      <div style={card}>
+        <div style={cardHeader}>
+          <div style={{ minWidth: 0 }}>
+            <div style={eyebrow}>ADAPTER INTAKE</div>
+            <strong style={{ display: 'block', marginTop: 4, fontSize: 14 }}>接入新模型</strong>
+            <span style={cardSub}>这里只收料；DSH 按 ingest → classify → draft → smoke → commit 完成入驻</span>
+          </div>
+        </div>
         <div style={row}><span style={label}>能力</span>
           <select style={input} value={onboard.capability} onChange={event => setOnboard(current => ({ ...current, capability: event.target.value }))}>
             <option value="video">视频</option>
@@ -497,41 +595,53 @@ export function DirectorxSettingsSection(props: Partial<SectionInjected>): React
           <input style={input} value={onboard.apiDocUrl} placeholder="可选" onChange={event => setOnboard(current => ({ ...current, apiDocUrl: event.target.value }))} />
         </div>
         <div style={row}><span style={label}>文档正文</span>
-          <textarea style={{ ...input, minHeight: 88 }} value={onboard.apiDoc} placeholder="粘贴 API 文档关键章节" onChange={event => setOnboard(current => ({ ...current, apiDoc: event.target.value }))} />
+          <textarea style={{ ...input, minHeight: 88, resize: 'vertical' }} value={onboard.apiDoc} placeholder="粘贴 API 文档关键章节" onChange={event => setOnboard(current => ({ ...current, apiDoc: event.target.value }))} />
         </div>
         <div style={row}><span style={label}>API Key</span>
           <input style={input} type="password" autoComplete="off" value={onboard.apiKey} placeholder="不会回写到会话" onChange={event => setOnboard(current => ({ ...current, apiKey: event.target.value }))} />
         </div>
-        <button style={{ ...button, marginBottom: 8 }} onClick={() => void submitOnboard()}>交给 DSH 入驻</button>
-        {onboardMsg !== undefined ? <p style={hint}>{onboardMsg}</p> : null}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 2 }}>
+          <button style={button} onClick={() => void submitOnboard()}>交给 DSH 入驻</button>
+          {onboardMsg !== undefined ? <span style={hint}>{onboardMsg}</span> : null}
+        </div>
         {adapters.length > 0 ? (
-          <ul style={{ fontSize: 12, opacity: .8, paddingLeft: 18, margin: '8px 0 0' }}>
-            {adapters.map(item => <li key={item.id}>{item.model} · {item.capability} · {item.mode} · {item.status}</li>)}
-          </ul>
+          <div style={{ display: 'grid', gap: 6, marginTop: 14 }}>
+            <div style={eyebrow}>REGISTERED ADAPTERS</div>
+            {adapters.map(item => <div key={item.id} style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', minWidth: 0, padding: '7px 9px', borderRadius: 8, background: 'var(--dsw-alias-bg-layer-1)', border: '1px solid var(--dsw-alias-border-l2)', fontSize: 12 }}><strong>{item.model}</strong><span style={{ color: 'var(--dsw-alias-label-tertiary)' }}>{item.capability} · {item.mode}</span><span style={{ marginLeft: 'auto', color: 'var(--dsw-alias-label-secondary)' }}>{item.status}</span></div>)}
+          </div>
         ) : null}
       </div>
-      <div style={{ ...card, marginTop: 12 }}>
-        <strong>画布</strong>
-        <div style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.7, opacity: .85 }}>
-          <div>文档位置：<span style={{ opacity: .65 }}>directorx_output/canvas.json</span></div>
+      <div style={card}>
+        <div style={cardHeader}>
+          <div style={{ minWidth: 0 }}>
+            <div style={eyebrow}>CANVAS STORAGE</div>
+            <strong style={{ display: 'block', marginTop: 4, fontSize: 14 }}>画布</strong>
+            <span style={cardSub}>DSH canvas 持久化与备份状态</span>
+          </div>
+          <span style={{ flexShrink: 0, color: 'var(--dsw-alias-label-caption)', fontSize: 11 }}>canvas.json</span>
+        </div>
+        <div style={{ display: 'grid', gap: 6, fontSize: 12, lineHeight: 1.5, color: 'var(--dsw-alias-label-secondary)' }}>
+          <div>文档位置：<span style={{ color: 'var(--dsw-alias-label-tertiary)', overflowWrap: 'anywhere' }}>directorx_output/canvas.json</span></div>
           <div>当前状态：{canvasInfo === undefined ? '读取中…' : `${canvasInfo.nodes} 个节点 · ${canvasInfo.edges} 条连线${canvasInfo.title !== undefined && canvasInfo.title !== '' ? ` · 标题「${canvasInfo.title}」` : ''}`}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-          <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
+          <button style={{ ...button, borderColor: 'var(--dsw-alias-border-l2)' }} onClick={() => { void refreshCanvas() }}>刷新状态</button>
           {confirmReset ? (
             <>
-              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.7)', background: 'rgba(200,80,80,.15)', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => { setConfirmReset(false); void resetCanvas() }}>确认重置（备份后清空）</button>
-              <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid var(--dsw-alias-border-l2)', background: 'transparent', color: 'inherit', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(false)}>取消</button>
+              <button style={{ ...button, ...danger }} onClick={() => { setConfirmReset(false); void resetCanvas() }}>确认重置（备份后清空）</button>
+              <button style={{ ...button, borderColor: 'var(--dsw-alias-border-l2)' }} onClick={() => setConfirmReset(false)}>取消</button>
             </>
           ) : (
-            <button style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid rgba(200,120,120,.5)', background: 'transparent', color: '#e88f8f', fontSize: 12, cursor: 'pointer' }} onClick={() => setConfirmReset(true)}>重置画布（自动备份）</button>
+            <button style={{ ...button, ...danger }} onClick={() => setConfirmReset(true)}>重置画布（自动备份）</button>
           )}
-          {canvasAction !== undefined ? <span style={{ fontSize: 12, color: '#919191' }}>{canvasAction}</span> : null}
+          {canvasAction !== undefined ? <span style={hint}>{canvasAction}</span> : null}
         </div>
       </div>
-      <button style={button} disabled={saving || !writable} onClick={() => void save()}>
-        {saving ? '保存中…' : '保存全部配置'}
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
+        <button style={{ ...button, minWidth: 144, background: 'var(--dsw-alias-button-contrast-fill)', color: 'var(--dsw-alias-label-primary-inverted)', borderColor: 'var(--dsw-alias-button-contrast-fill)' }} disabled={saving || !writable} onClick={() => void save()}>
+          {saving ? '保存中…' : '保存全部配置'}
+        </button>
+      </div>
     </div>
   )
 }

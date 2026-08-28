@@ -42,6 +42,11 @@ export interface KnowledgeSearchOptions {
   type?: string
   tag?: string
 }
+export interface KnowledgeProvider {
+  readonly id: string
+  search(query: string, maxResults: number, options?: KnowledgeSearchOptions): Promise<KnowledgeSearchHit[]>
+  readArticle(ref: string): Promise<{ article: KnowledgeArticle; content: string; redirectedFrom?: string } | undefined>
+}
 
 interface Inventory {
   okf_version?: string
@@ -124,8 +129,10 @@ function makeSnippet(body: string, queryTokens: Set<string>): string {
   return snippet === '' ? clean.slice(0, 240) : snippet
 }
 
-export class DirectorxCorpus {
+export class DirectorxCorpus implements KnowledgeProvider {
+  readonly id = 'directorx-bundled-okf'
   private root = resolve(process.cwd(), 'knowledge')
+
   private inventoryPath = join(this.root, '_meta', 'inventory.json')
   private redirectsPath = join(this.root, '_meta', 'redirects.json')
   private inventory?: Promise<KnowledgeArticle[]>
@@ -344,15 +351,16 @@ export class DirectorxCorpus {
 
 function matchArticle(inventory: KnowledgeArticle[], wanted: string): KnowledgeArticle | undefined {
   const numeric = /^\d{1,3}$/.test(wanted) ? Number(wanted) : undefined
-  const hits = inventory.filter(article => (
-    article.id === wanted
-    || article.slug === wanted
-    || String(article.number) === wanted
-    || (numeric !== undefined && (article.number === numeric || formatArticleId(article.number) === wanted))
-    || (article.aliases ?? []).includes(wanted)
-  ))
+  const hits = inventory.filter(article => article.id === wanted || article.slug === wanted || String(article.number) === wanted || (numeric !== undefined && (article.number === numeric || formatArticleId(article.number) === wanted)) || (article.aliases ?? []).includes(wanted))
   if (hits.length === 0) return undefined
   return preferCanonical(hits)[0]
+}
+
+export const knowledgeProviders = new Map<string, KnowledgeProvider>()
+export function registerKnowledgeProvider(provider: KnowledgeProvider): () => void {
+  if (!/^[a-z0-9][a-z0-9._-]{1,63}$/.test(provider.id)) throw new Error(`Invalid knowledge provider id: ${provider.id}`)
+  knowledgeProviders.set(provider.id, provider)
+  return () => { if (knowledgeProviders.get(provider.id) === provider) knowledgeProviders.delete(provider.id) }
 }
 
 function preferCanonical(articles: KnowledgeArticle[]): KnowledgeArticle[] {

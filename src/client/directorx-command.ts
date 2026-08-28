@@ -92,7 +92,6 @@ export function registerDirectorxSlash(ctx: InjectContext): void {
   }
   if (attach(ctx)) return
   if (typeof ctx.inject !== 'function') return
-  // Current WebUI publishes `command`; retain commandUi as an eager alias only
-  // for older hosts where attach(ctx) can already see it.
-  ctx.inject(['command'], attach)
+  // The current DSH WebUI exposes `commandUi`; use its frozen seam.
+  ctx.inject(['commandUi'], attach)
 }

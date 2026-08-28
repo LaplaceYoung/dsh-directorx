@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import type { SettingsNamespace } from '@deepseek-ai/dsh-settings'
 import type {} from '@deepseek-ai/dsh-settings'
 import { defineTool } from '@deepseek-ai/dsh-tools'
@@ -15,11 +15,15 @@ import { registerMcpRoute } from './mcp.ts'
 import { registerDirectorxCommands } from './commands.ts'
 import { registerSubagentSetup } from './subagents.ts'
 import { registerSystemPrompt, syncTools } from './tools.ts'
+import { registerStageRoutes } from './stage-server.ts'
+import { registerEditRoutes } from './edit-server.ts'
+
 import { registerAdaptersRoute } from './adapters-route.ts'
 import type { AdapterCapability } from './providers/adapter-spec.ts'
 import type { CapabilitySettings } from './config.ts'
 
-export { corpus } from './corpus.ts'
+export { corpus, knowledgeProviders, registerKnowledgeProvider } from './corpus.ts'
+export type { KnowledgeArticle, KnowledgeProvider, KnowledgeSearchHit, KnowledgeSearchOptions } from './corpus.ts'
 export { runAudio, mockAudio } from './providers/audio.ts'
 export { runImage, mockImage } from './providers/image.ts'
 export { runVideo, mockVideo } from './providers/video.ts'
@@ -85,6 +89,8 @@ export function apply(ctx: Context): void {
   }
 
   sync(scope.get())
+  ctx.effect(() => registerStageRoutes(ctx, () => scope.get()), 'directorx director stage route')
+  ctx.effect(() => registerEditRoutes(ctx), 'directorx edit stage route')
   ctx.effect(() => scope.watch(sync), 'directorx settings watch')
   ctx.effect(() => registerMediaRoute(ctx, () => scope.get().outputDir), 'directorx media route')
   ctx.effect(() => registerMediaEditsRoute(ctx, () => scope.get().outputDir), 'directorx media edits route')
@@ -108,6 +114,9 @@ export function apply(ctx: Context): void {
   ctx.effect(() => registerSubagentSetup(ctx), 'directorx subagent setup')
   ctx.effect(() => registerDirectorxCommands(ctx, () => scope.get().outputDir), 'directorx commands')
 
+  // System prompt and child-agent guidance are installed through DSH's native seams.
+  // registerSubagentSetup consumes the same runtime preset as registerSystemPrompt;
+  // this keeps the host's agent loop authoritative and avoids a second orchestrator.
   void registerBundledSkills(ctx).catch(error => {
     ctx.logger?.error('directorx: failed to register bundled skills: %s', error instanceof Error ? error.message : String(error))
   })

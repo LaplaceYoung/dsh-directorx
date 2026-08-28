@@ -221,6 +221,31 @@ test('canvas store write enforces optimistic concurrency', async () => {
   }
 })
 
+test('canvas store keeps director-stage and edit node kinds', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
+  try {
+    const store = new DirectorxCanvasStore(dir)
+    const doc = await store.read()
+    const saved = await store.write({
+      ...doc,
+      nodes: [
+        { id: 'd1', kind: 'director-stage', label: '3D 导演台', x: 10, y: 20, width: 560, height: 360 },
+        { id: 'e1', kind: 'edit', label: '剪辑台', x: 600, y: 20, width: 560, height: 360 },
+        { id: 'a1', kind: 'audio', label: '音', x: 40, y: 400 },
+      ],
+    }, doc.updatedAt)
+    assert.equal(saved.nodes.find(node => node.id === 'd1')?.kind, 'director-stage')
+    assert.equal(saved.nodes.find(node => node.id === 'e1')?.kind, 'edit')
+    assert.equal(saved.nodes.find(node => node.id === 'a1')?.kind, 'audio')
+    const again = await store.read()
+    assert.equal(again.nodes.find(node => node.id === 'd1')?.kind, 'director-stage')
+    assert.equal(again.nodes.find(node => node.id === 'e1')?.kind, 'edit')
+    assert.equal(again.nodes.find(node => node.id === 'a1')?.kind, 'audio')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 test('canvas search / batch / dissolve / title / hierarchy', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'directorx-canvas-'))
   try {
@@ -924,7 +949,7 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(nodes, /onFocusTake/)
   assert.match(nodes, /translateX\(-50%\)/)
   assert.match(nodes, /dx-shot-no/)
-  assert.match(nodes, /dx-empty-intent/)
+  assert.match(nodes, /dx-empty-plate/)
   assert.match(nodes, /dx-card-dock/)
   assert.match(stage, /selectAdjacent/)
   assert.match(stage, /groupFrame/)
@@ -965,7 +990,7 @@ test('stage client is a single canvas with pan/zoom and no leftover rail', async
   assert.match(chrome, /先关菜单，再关浮层/)
   const wire = await readFile(new URL('../src/client/stage/WireEdge.tsx', import.meta.url), 'utf8')
   assert.match(wire, /routeDisplayPorts/)
-  assert.match(wire, /ViewportPortal/)
+  assert.match(wire, /createPortal/)
   assert.match(wire, /dx-wire-drag/)
   assert.match(wire, /dx-wire-edge/)
   assert.match(wire, /wireArrow/)
@@ -1455,4 +1480,21 @@ test('proposals route POST creates a canvas-bound proposal', async () => {
     server.close()
     await rm(dir, { recursive: true, force: true })
   }
+})
+
+
+test('director stage client is mounted through EditorDock and uses project routes', async () => {
+  const root = new URL('../src/', import.meta.url)
+  const [dock, stage, overlay, client] = await Promise.all([
+    readFile(new URL('client/EditorDock.tsx', root), 'utf8'),
+    readFile(new URL('client/stage/Stage.tsx', root), 'utf8'),
+    readFile(new URL('client/stage/DirectorStage.tsx', root), 'utf8'),
+    readFile(new URL('client/index.ts', root), 'utf8'),
+  ])
+  assert.match(dock, /<Stage/)
+  assert.match(stage, /openDirectorStage\(id\)/)
+  assert.match(stage, /openEdit\(id\)/)
+  assert.match(overlay, /\/directorx\/stage\/\?node=/)
+  assert.match(overlay, /iframe/)
+  assert.match(client, /openDirectorStage/)
 })

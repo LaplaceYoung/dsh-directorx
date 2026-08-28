@@ -1,4 +1,4 @@
-import type { Context } from 'cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { formatProductionBoard, formatProposalList } from './board.ts'
 import { DirectorxCanvasStore } from './canvas.ts'
 import { ProposalStore } from './proposals.ts'
