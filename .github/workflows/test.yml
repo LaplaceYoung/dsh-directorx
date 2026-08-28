@@ -19,4 +19,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: lib/ matches the green build
-        run: git diff --exit-code lib/
+        run: |
+          if ! git diff --quiet lib/; then
+            echo "::error title=stale lib/::Committed lib/ drifted from source. Run 'npm run build' locally and commit the result."
+            git diff --stat lib/
+            exit 1
+          fi
