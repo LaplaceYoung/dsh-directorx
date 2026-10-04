@@ -15,9 +15,14 @@ const SKILL_CONTENT = DIRECTORX_RUNTIME_PRESET.subagentSkill
 
 export function registerSubagentSetup(ctx: Context): () => void {
   const subagents = ctx.get('subagents') as
-    | { registerContinuableSetup(contribution: (childCtx: Context) => () => void): () => void }
+    | { registerContinuableSetup?(contribution: (childCtx: Context) => () => void): () => void }
     | undefined
   if (subagents === undefined) return () => {}
+  // DSH >= 0.1.5 removed the `registerContinuableSetup` extension point when
+  // continuable subagents were reworked (queue/steer/stop model). Degrade
+  // gracefully — keep the rest of the plugin loadable — instead of throwing
+  // during apply and failing the whole profile boot.
+  if (typeof subagents.registerContinuableSetup !== 'function') return () => {}
 
   return subagents.registerContinuableSetup((childCtx) => {
     const systemPrompt = childCtx.get('systemPrompt') as { section(section: { name: string; order?: number; text: string }): () => void } | undefined
