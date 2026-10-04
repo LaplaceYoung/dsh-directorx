@@ -23,7 +23,7 @@ export function sessionProjectRoot(exec: unknown): string | undefined {
 
 export function projectFromRequest(request: IncomingMessage): string | undefined {
   const header = request.headers['x-directorx-project']
-  if (typeof header === 'string' && header.trim() !== '') return header.trim()
+  if (typeof header === 'string' && header.trim() !== '') return decodeURIComponent(header.trim())
   const url = request.url ?? ''
   const queryStart = url.indexOf('?')
   if (queryStart < 0) return undefined

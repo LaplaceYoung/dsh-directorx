@@ -30,7 +30,7 @@ export function withProject(url: string): string {
 
 export function projectHeaders(): Record<string, string> {
   const project = getClientProject()
-  return project === undefined ? {} : { 'x-directorx-project': project }
+  return project === undefined ? {} : { 'x-directorx-project': encodeURIComponent(project) }
 }
 
 export interface ProjectInfo {
