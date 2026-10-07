@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 directorx_output/
 .loop-record/
+
+# 本地补丁脚本生成的原始文件备份（可由上游提交还原）
+lib/index.js.orig
