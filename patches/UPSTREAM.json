@@ -1,0 +1,22 @@
+{
+  "upstream": {
+    "repository": "https://github.com/LaplaceYoung/dsh-directorx",
+    "commit": "5264d2a78e631702abcf2382d8cf566e8a09f6ec",
+    "version": "0.2.0",
+    "license": "Apache-2.0"
+  },
+  "localPatch": {
+    "created": "2026-10-07",
+    "forHarness": "0.2.0-rc.2",
+    "patcher": "patches/0.2-compat.mjs",
+    "changedFiles": [
+      "lib/index.js"
+    ],
+    "notice": "LOCAL-MODIFICATIONS.md"
+  },
+  "fingerprints": {
+    "lib/index.js.orig": "70a077e95c6804e57e134d648b9eead19f6ea5260b942a23a8bba6d27ca2bd08",
+    "lib/index.js": "bb2241d2f639fbf2b13334a2dc0c1323bbacb657b5995f5476075b61e59aafaa"
+  },
+  "gitHead": "5264d2a78e631702abcf2382d8cf566e8a09f6ec"
+}
